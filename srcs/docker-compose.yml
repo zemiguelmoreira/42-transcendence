@@ -5,6 +5,8 @@ services:
     image: nginx:42
     ports:
       - "443:443"
+    expose:
+      - "80"
     depends_on:
       - frontend
     restart: always
@@ -15,8 +17,8 @@ services:
     build: ./frontend
     container_name: frontend
     image: frontend:42
-    # expose:
-    #   - "80"
+    expose:
+      - "80"
     depends_on:
       - django
     restart: always
@@ -27,12 +29,12 @@ services:
     build: ./django
     container_name: django
     image: django:42
-    # expose:
-    #   - "8000"
+    expose:
+      - "8000"
     depends_on:
       - postgres
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
     restart: always
     networks:
       - transcendence-net
@@ -41,11 +43,13 @@ services:
   postgres:
     container_name: postgres
     image: postgres:16.3-bookworm
-    # expose:
-    #   - "5432"
-    # env_file:
-    #   - .env
-    # restart: always
+    volumes:
+      - ${SQL_PATH}:/var/lib/postgresql/data/:rw
+    expose:
+      - "5432"
+    env_file:
+      - .env
+    restart: always
     networks:
       - backend-net
 
