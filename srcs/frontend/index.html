@@ -20,9 +20,145 @@
             color: #666;
             font-size: 18px;
         }
+        form {
+            margin: 20px auto;
+            max-width: 400px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
     <h1>Transcendence</h1>
+    <button id="fetch-button">Fetch Info</button>
+    <p id="user-list"></p>
+
+    <form id="user-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        
+        <label for="first-name">First Name:</label>
+        <input type="text" id="first-name" name="first_name" required>
+        
+        <label for="last-name">Last Name:</label>
+        <input type="text" id="last-name" name="last_name" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="photo-path">Photo Path:</label>
+        <input type="text" id="photo-path" name="photo_path" required>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+              document.getElementById('fetch-button').addEventListener('click', function() {
+            fetch('https://localhost/api/users/profile/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const userListDiv = document.getElementById('user-list');
+                userListDiv.innerHTML = ''; // Limpa o conteúdo anterior
+                if (data.users) {
+                    data.users.forEach(user => {
+                        const userDiv = document.createElement('div');
+                        userDiv.innerHTML = `<p>Username: ${user.username}</p>
+                                             <p>First Name: ${user.first_name}</p>
+                                             <p>Last Name: ${user.last_name}</p>
+                                             <p>Email: ${user.email}</p>
+                                             <p>Photo Path: ${user.photo_path}</p>
+                                             <hr>`;
+                        userListDiv.appendChild(userDiv);
+                    });
+                } else {
+                    userListDiv.innerText = 'No users found';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                document.getElementById('user-list').innerText = 'Error fetching users';
+            });
+        });
+
+        async function getCsrfToken() {
+            const response = await fetch('https://localhost/api/users/get-csrf-token/', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get CSRF token');
+            }
+
+            const data = await response.json();
+            return data.csrfToken;
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const csrfToken = await getCsrfToken();
+            const formData = new FormData(event.target);
+
+            const response = await fetch('https://localhost/api/users/profile/create/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData);
+                alert('Error creating user profile');
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Success:', data);
+            alert('User profile created successfully!');
+        }
+
+        document.getElementById('user-form').addEventListener('submit', submitForm);
+    </script>
 </body>
 </html>
+

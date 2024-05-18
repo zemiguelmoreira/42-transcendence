@@ -28,7 +28,19 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1", "[::1]", "transcendence.42.fr"]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True  # Redireciona todas as requisições HTTP para HTTPS
+
+# todas as origens (temporario para desenvolvimento apenas)
+CORS_ALLOW_ALL_ORIGINS = True
+
+# depois definir apenas os permitidos:
+# CORS_ALLOWED_ORIGINS = [
+#     'https://localhost',
+#     'https://your-frontend-domain.com',
+# ]
+
+ALLOWED_HOSTS = ["localhost", "django", ]
 
 # Application definition
 
@@ -39,10 +51,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'user_management',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'pong.urls'

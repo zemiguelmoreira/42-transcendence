@@ -17,6 +17,8 @@ services:
     build: ./frontend
     container_name: frontend
     image: frontend:42
+    volumes:
+      - ./frontend:/usr/share/nginx/html
     expose:
       - "80"
     depends_on:
