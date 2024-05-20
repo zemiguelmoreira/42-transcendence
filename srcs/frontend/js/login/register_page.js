@@ -1,0 +1,42 @@
+
+
+function makeRegisterPage() {
+	return `
+	<nav class="navbar navbar-dark">
+  		<div class="container-fluid">
+    		<a class="navbar-brand" href="">Transcendence</a>
+  		</div>
+	</nav>
+	<div class="container my-auto">
+    <div class="row d-flex justify-content-center">
+      <div class="col-6" id="registerForm">
+	  <h1 class="px-4 d-flex justify-content-center mb-4">SignUP 2Play</h1>
+        <form class="px-4 py-3" id="userRegisterForm"> 
+          <!-- Email input -->
+          <div class="form-group mb-3">
+            <label for="form1Example1">Username</label>
+            <input type="text" class="form-control" id="form1Example1" name="username" placeholder="Enter username">
+          </div>
+          <!-- Password input -->
+          <div class="form-group mb-3">
+            <label for="form1Example2">Password</label>
+            <input type="password" class="form-control" id="form1Example2" name="password" placeholder="Password">
+          </div>
+		  <!-- Confirm Password input -->
+          <div class="form-group mb-5">
+            <label for="form1Example2">Confirm Password</label>
+            <input type="password" class="form-control" id="form1Example2" name="password2" placeholder="Password">
+          </div>
+          <!-- Submit button -->
+		  <div class="d-grid gap-2 col-6 mx-auto">
+          <button type="submit" id="signIn" class="btn btn-primary btn-block" data-value="/register/">Sign up</button>
+		  </div>
+        </form>
+      </div>
+    </div>
+	</div>`;
+}
+
+const register_page = makeRegisterPage();
+
+export { register_page }

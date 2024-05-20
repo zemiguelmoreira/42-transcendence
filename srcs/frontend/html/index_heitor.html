@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Single Page Pong</title>
+        <script>
+
+            //  This function communicates with django (backend)
+            
+            function showSection(section) {   
+                fetch(`/sections/${section}`)
+                .then(response => response.text())
+                .then(text => {
+                    // console.log(text);
+                    document.querySelector('#content').innerHTML = text;
+                    if (section == "game")
+                        setup();
+                });
+
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll('button').forEach(button => {
+                    button.onclick = function() {
+                        showSection(this.dataset.section)
+                    }
+                })
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Hello</h1>
+        <button data-section="login">Login</button>
+        <button data-section="game">Game</button>
+        <button data-section="chat">Chat</button>
+
+        <!-- Contents loaded from server is inserted here by javascript -->
+        <div id="content">
+        </div>
+    </body>
+    {% load static %}
+    <script src="{% static 'pong.js' %}"></script>
+</html>
