@@ -27,7 +27,6 @@ SECRET_KEY = 'django-insecure-^zgvv@5=z64l9$xno3wug8^+_srr+htzzd(&0+ykv2u(qg(-%a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = []
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True  # Redireciona todas as requisições HTTP para HTTPS
 
@@ -40,7 +39,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     'https://your-frontend-domain.com',
 # ]
 
-ALLOWED_HOSTS = ["localhost", "django", ]
+# ALLOWED_HOSTS = ["localhost", "django", ]
+# allowed_hosts_env = os.getenv('PONG_HOST', '')
+# ALLOWED_HOSTS = allowed_hosts_env.split(',')
+ALLOWED_HOSTS = ["*", ]
 
 # Application definition
 

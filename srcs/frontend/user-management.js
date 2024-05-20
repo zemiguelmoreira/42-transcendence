@@ -1,6 +1,9 @@
+
+
 document.addEventListener('DOMContentLoaded', function() {
+    apiUrl = "10.11.245.25"
     document.getElementById('fetch-button').addEventListener('click', function() {
-        fetch('https://localhost/api/users/profile/', {
+        fetch('https://' + apiUrl + '/api/users/profile/', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function getCsrfToken() {
-        const response = await fetch('https://localhost/api/users/get-csrf-token/', {
+        const response = await fetch('https://' + apiUrl + '/api/users/get-csrf-token/', {
             method: 'GET',
             credentials: 'include'
         });
@@ -65,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             photo_path: document.getElementById('photo-path').value,
         };
 
-        const response = await fetch('https://localhost/api/users/profile/create/', {
+        const response = await fetch('https://' + apiUrl + '/api/users/profile/create/', {
             method: 'POST',
             body: JSON.stringify(formData),
             headers: {
