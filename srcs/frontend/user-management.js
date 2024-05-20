@@ -1,7 +1,7 @@
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    apiUrl = "10.11.245.25"
+    apiUrl = "localhost"
     document.getElementById('fetch-button').addEventListener('click', function() {
         fetch('https://' + apiUrl + '/api/users/profile/', {
             method: 'GET',
