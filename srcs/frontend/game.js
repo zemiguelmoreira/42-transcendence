@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             console.log(`Key pressed: ${data.message}`); 
             const content = document.getElementById('content');
-            content.innerHTML = ''; // Limpa o conteúdo anterior
-            content.innerHTML = data.message;
+            // content.innerHTML = ''; // Limpa o conteúdo anterior
+            // content.innerHTML = data.message;
 
 
         } catch (error) {
