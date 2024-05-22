@@ -1,44 +1,20 @@
-# from django.shortcuts import render
-# from django.http import JsonResponse
-# from .forms import UserProfileForm
-# from .models import UserProfile
-# from django.core.serializers import serialize
-# from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-
 # Create your views here.
 
-# def profile(request):
-#     users = UserProfile.objects.all()
-#     user_data = [{'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'photo_path': user.photo_path} for user in users]
-#     return JsonResponse({'users': user_data})
-
-# @csrf_exempt
-# def register_user(request):
-#     if request.method == 'POST':
-#         form = UserProfileForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return JsonResponse({'message': 'User profile created successfully'}, status=201)
-#         else:
-#             return JsonResponse({'error': form.errors}, status=400)
-#     return JsonResponse({'error': 'Invalid request method'}, status=405)
-        
-# @ensure_csrf_cookie
-# def get_csrf_token(request):
-#     csrf_token = get_token(request)
-#     return JsonResponse({'csrfToken': csrf_token})
-
-# views.py
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import check_password
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import UserProfile
+from .models import UserProfile, Token
 from .serializers import UserProfileSerializer
 from django.middleware.csrf import get_token
 from .models import UserProfile, UserCredentials
 from django.contrib.auth.hashers import make_password
+from .utils import generate_token, verificar_token_cookie
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class UserProfileListCreate(generics.ListCreateAPIView):
@@ -55,12 +31,24 @@ def register_user(request):
         if password != confirm_password:
             return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Salvar o usuário e a senha
+        # Salvar o usuário a senha criar token e guarda-lo
         user_profile = serializer.save()
         password_hash = make_password(password)
         UserCredentials.objects.create(user=user_profile, username=user_profile.username, password_hash=password_hash)
-        
-        return Response({'message': 'User profile created successfully'}, status=status.HTTP_201_CREATED)
+        token, exp_time = generate_token(user_profile)
+        logger.info(f'Token gerado para usuário {user_profile.username} {token}')
+        logger.info(f'Token valido até: {exp_time}')
+        Token.objects.create(user=user_profile, token=token, data_expiracao=exp_time)
+        # return Response({'message': 'User profile created successfully'}, status=status.HTTP_201_CREATED)
+        user_profile_serializer = UserProfileSerializer(user_profile)
+        username = user_profile_serializer.data.get('username')
+        return Response({
+			'status': 'success',
+			'message': 'Formulário válido!',
+			'token': token,
+			'user': username,
+			'additional_message': 'User profile created successfully'
+		}, status=status.HTTP_201_CREATED)
     return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])

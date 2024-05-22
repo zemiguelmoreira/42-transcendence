@@ -14,5 +14,6 @@ from . import views
 urlpatterns = [
     path('profile/', views.UserProfileListCreate.as_view(), name='profile'),
     path('profile/create/', views.register_user, name='register_user'),
+    # path('profile/login/', views.logIn_user, name='login'),
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
 ]

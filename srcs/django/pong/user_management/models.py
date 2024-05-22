@@ -18,3 +18,13 @@ class UserCredentials(models.Model):
 
     def __str__(self):
         return self.username
+
+
+class Token(models.Model):
+    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, primary_key=True)
+    token = models.CharField(max_length=255, unique=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_expiracao = models.DateTimeField()
+
+    def __str__(self):
+        return self.token
