@@ -2,15 +2,22 @@ NAME =		transcendence
 
 YML =		./srcs/docker-compose.yml
 
+
+
 all:		build $(NAME)
 
-build:		# check-prerequisites
+check-volumes:
+	@if [ ! -d "$(HOME)/data" ]; then \
+		sudo mkdir -p "$(HOME)/data"; \
+	fi
+
+build:		check-volumes
 			@docker compose -f $(YML) build
 
 $(NAME):	up
 
 up:			build
-			@docker compose -f $(YML) up -d
+			@docker compose -f $(YML) up
 
 down:
 			@docker compose -f $(YML) down
@@ -22,7 +29,7 @@ stop:
 			@docker compose -f $(YML) stop
 
 rm:			stop
-			@docker compose -f $(YML) rm
+			@docker compose -f $(YML) rm -f
 
 rmi:
 			@docker compose -f $(YML) down --rmi all

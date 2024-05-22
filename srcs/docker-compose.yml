@@ -1,24 +1,50 @@
 services:
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    image: nginx:42
+  nginx-proxy-acme:
+    container_name: nginx-proxy-acme
+    image: nginxproxy/acme-companion
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme:/etc/acme.sh
+    volumes_from:
+      - nginx-proxy
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    depends_on:
+      - nginx-proxy
+    networks:
+      - transcendence-net
+
+  nginx-proxy:
+    build: ./nginx-proxy
+    container_name: nginx-proxy
+    image: nginx-proxy:42
     ports:
       - "443:443"
-    expose:
-      - "80"
+      - "80:80"
     depends_on:
       - frontend
     restart: always
     networks:
       - transcendence-net
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/nginx/certs:/etc/nginx/certs
+      - /etc/nginx/vhost.d:/etc/nginx/vhost.d
+      - /usr/share/nginx/html:/usr/share/nginx/html
+    labels:
+      com.github.nginx-proxy.nginx: "true"
 
   frontend:
     build: ./frontend
     container_name: frontend
     image: frontend:42
+    environment:
+      - VIRTUAL_HOST=localhost
+      # - LETSENCRYPT_HOST=localhost  # Enable HTTPS for Django
+      # - LETSENCRYPT_EMAIL=zmdmoreira@gmail.com
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - frontend-data:/usr/share/nginx/html
     expose:
       - "80"
     depends_on:
@@ -31,8 +57,12 @@ services:
     build: ./django
     container_name: django
     image: django:42
+    environment:
+      - VIRTUAL_HOST=localhost
+      # - LETSENCRYPT_HOST=localhost  # Enable HTTPS for Django
+      # - LETSENCRYPT_EMAIL=zmdmoreira@gmail.com
     volumes: #
-      - ./django/pong:/usr/src/app
+      - django-data:/usr/src/app
     # expose:
     #   - "8000"
     ports: #
@@ -50,7 +80,7 @@ services:
     container_name: postgres
     image: postgres:16.3-bookworm
     volumes:
-      - ${SQL_PATH}:/var/lib/postgresql/data/:rw
+      - postgres-data:/var/lib/postgresql/data/:rw
     expose:
       - "5432"
     env_file:
@@ -58,6 +88,29 @@ services:
     restart: always
     networks:
       - backend-net
+
+volumes:
+  frontend-data:
+    name: frontend-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend
+      o: bind
+  django-data:
+    name: django-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ./django/pong
+      o: bind
+  postgres-data:
+    name: postgres-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ${SQL_PATH}
+      o: bind
 
 networks:
   transcendence-net:
