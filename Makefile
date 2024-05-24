@@ -2,15 +2,35 @@ NAME =		transcendence
 
 YML =		./srcs/docker-compose.yml
 
+
+
 all:		build $(NAME)
 
-build:		# check-prerequisites
+check-prerequisites: check-hosts check-volumes check-env
+
+check-hosts:
+	@if ! grep -q "127.0.0.1 localhost" /etc/hosts; then \
+		sudo sh -c 'echo "127.0.0.1 localhost" >> /etc/hosts'; \
+	fi
+
+check-volumes:
+	@if [ ! -d "$(HOME)/data" ]; then \
+		sudo mkdir -p "$(HOME)/data"; \
+	fi
+
+check-env:
+	@if [ ! -f ./srcs/.env ]; then \
+		echo "Error: Missing .env file in srcs/"; \
+		exit 1; \
+	fi
+
+build:		check-volumes check-prerequisites
 			@docker compose -f $(YML) build
 
 $(NAME):	up
 
 up:			build
-			@docker compose -f $(YML) up -d
+			@docker compose -f $(YML) up
 
 down:
 			@docker compose -f $(YML) down
@@ -22,7 +42,7 @@ stop:
 			@docker compose -f $(YML) stop
 
 rm:			stop
-			@docker compose -f $(YML) rm
+			@docker compose -f $(YML) rm -f
 
 rmi:
 			@docker compose -f $(YML) down --rmi all

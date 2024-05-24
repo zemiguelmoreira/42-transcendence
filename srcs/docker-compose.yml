@@ -3,6 +3,8 @@ services:
     build: ./nginx
     container_name: nginx
     image: nginx:42
+    volumes:
+      - nginx-conf:/etc/nginx/conf.d:ro
     ports:
       - "443:443"
     expose:
@@ -18,7 +20,7 @@ services:
     container_name: frontend
     image: frontend:42
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - frontend-data:/usr/share/nginx/html:ro
     expose:
       - "80"
     depends_on:
@@ -32,7 +34,7 @@ services:
     container_name: django
     image: django:42
     volumes: #
-      - ./django/pong:/usr/src/app
+      - django-app:/usr/src/app
     # expose:
     #   - "8000"
     ports: #
@@ -50,7 +52,7 @@ services:
     container_name: postgres
     image: postgres:16.3-bookworm
     volumes:
-      - ${SQL_PATH}:/var/lib/postgresql/data/:rw
+      - postgres-data:/var/lib/postgresql/data/:rw
     expose:
       - "5432"
     env_file:
@@ -58,6 +60,37 @@ services:
     restart: always
     networks:
       - backend-net
+
+volumes:
+  nginx-conf:
+    name: nginx-conf
+    driver: local
+    driver_opts:
+      type: none
+      device: ./nginx/conf
+      o: bind
+  frontend-data:
+    name: frontend-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend
+      o: bind
+  django-app:
+    name: django-app
+    driver: local
+    driver_opts:
+      type: none
+      device: ./django/pong
+      o: bind
+  postgres-data:
+    name: postgres-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ${SQL_PATH}
+      o: bind
+
 
 networks:
   transcendence-net:
