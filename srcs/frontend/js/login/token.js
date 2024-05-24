@@ -26,9 +26,6 @@ async function criptografar(token) {
 	return btoa(tokenCriptografado);
   }
 
-
-
-  
   async function descriptografar(tokenCriptografado) {
 	const chaveCriptografia = await window.crypto.subtle.generateKey(
 	  {
@@ -56,8 +53,6 @@ async function criptografar(token) {
   
 	return tokenDescriptografado;
   }
-  
-
   
   // Exemplo de uso:
   const tokenOriginal = 'token_de_exemplo';

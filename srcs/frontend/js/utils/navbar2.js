@@ -13,7 +13,7 @@ function createNavbar1() {
           <a class="nav-link" aria-current="page" href="" data-value="/">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="" id="gameLink" data-value="/sections/game">Game</a>
+          <a class="nav-link" href="" id="list-users" data-value="/profile/">List users</a>
         </li>
 		<li class="nav-item">
           <a class="nav-link" href="" data-value="">About</a>

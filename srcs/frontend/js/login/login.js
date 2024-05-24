@@ -22,7 +22,6 @@ function signIn() {
 	})
 };
 
-
 async function sendIUser(userOrEmail, password, allURL) {
 	const dados = {
 		username: userOrEmail,
@@ -60,31 +59,24 @@ function register() {
 			const registerForm = document.querySelector('#userRegisterForm');
 			console.log(registerForm);
 			const user = registerForm.elements.username.value;
-			const firstname = registerForm.elements.firstname.value;
-			const lastname = registerForm.elements.lastname.value;
 			const email = registerForm.elements.email.value;
 			const password = registerForm.elements.password.value;
 			const password2 = registerForm.elements.password2.value;
 			console.log(user, password, password2);
-			registerUser(user, firstname, lastname, email, password, password2, allURL);
+			registerUser(user, email, password, password2, allURL);
 			registerForm.elements.username.value = "";
 			registerForm.elements.email.value = "";
-			registerForm.elements.firstname.value = "";
-			registerForm.elements.lastname.value = "";
 			registerForm.elements.password.value = "";
 			registerForm.elements.password2.value = "";
 		})
 	})
 };
 
-
-async function registerUser(user, firstname, lastname, email, password, password2, allURL) {
+async function registerUser(user, email, password, password2, allURL) {
 	const csrfToken = await getCsrfToken();
 	// console.log(csrfToken);
 	const dados = {
 		username: user,
-		first_name: firstname,
-		last_name: lastname,
 		email: email,
 		password: password,
 		confirm_password: password2,

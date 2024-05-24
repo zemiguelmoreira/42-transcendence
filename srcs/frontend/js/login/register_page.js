@@ -17,16 +17,6 @@ function makeRegisterPage() {
             <label for="form1Example1">Username</label>
             <input type="text" class="form-control" id="form1Example1" name="username" placeholder="Enter username">
           </div>
-		  <!-- Firstname input -->
-          <div class="form-group mb-3">
-            <label for="form1Example1">Firstname</label>
-            <input type="text" class="form-control" id="form1Example1" name="firstname" placeholder="Enter firstname">
-          </div>
-		  <!-- Lastname input -->
-          <div class="form-group mb-3">
-            <label for="form1Example1">Lastname</label>
-            <input type="text" class="form-control" id="form1Example1" name="lastname" placeholder="Enter lastname">
-          </div>
 		  <!-- Email input -->
           <div class="form-group mb-3">
             <label for="form1Example1">Email</label>

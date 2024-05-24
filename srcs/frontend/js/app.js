@@ -13,43 +13,57 @@ const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
 let data;
 
 //Verificar se o data-value não é zero
-
-function makeLinks(links, gameLink) {
-	console.log(links);
-	for (let link of links) {
-		if (link.dataset.value) {
-			link.addEventListener('click', newpage);
-			if (link.dataset.value === "/sections/game")
-				gameLink.addEventListener('click', start1);
-		}
+function insertHtmlIntoDiv(htmlString, divId) {
+	var div = document.getElementById(divId);
+	if (div) {
+		div.innerHTML = htmlString;
+	} else {
+		console.error("Div with id " + divId + " not found.");
 	}
 }
 
-function deactivateLinks(links) {
-	console.log(viewToken());
-	if (!viewToken()) {
-		for (let link of links) {
-			if (link.dataset.value) {
-				link.style.pointerEvents = 'none';
-				link.style.cursor = 'default';
-			}
-		}
-	}
-}
+// // Example usage
+// var pageString = "<h1>Hello, World!</h1><p>This is a sample HTML content.</p>";
+// insertHtmlIntoDiv(pageString, "content-div");
+
+// function makeLinks(links, gameLink) {
+// 	console.log(links);
+// 	for (let link of links) {
+// 		if (link.dataset.value) {
+// 			link.addEventListener('click', newpage);
+// 			if (link.dataset.value === "/sections/game")
+// 				gameLink.addEventListener('click', start1);
+// 		}
+// 	}
+// }
+
+// function deactivateLinks(links) {
+// 	console.log(viewToken());
+// 	if (!viewToken()) {
+// 		for (let link of links) {
+// 			if (link.dataset.value) {
+// 				link.style.pointerEvents = 'none';
+// 				link.style.cursor = 'default';
+// 			}
+// 		}
+// 	}
+// }
 
 // link.style.pointerEvents = 'none'; prevents any mouse interactions with the link (e.g., clicking, dragging).
 // link.style.cursor = 'default'; changes the cursor to the default cursor (usually an arrow) when hovering over the link, indicating that the link is not clickable.
 
 document.addEventListener('DOMContentLoaded', function () {
-	document.getElementById('root').innerHTML = ''; //só teste
-	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar2);
+	// document.getElementById('root').innerHTML = ''; //só teste
+	document.getElementById('main').insertAdjacentHTML('afterbegin', navbar2);
 	const gameArea = createCanvas(data);
-	setupGame();
-	document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
+	// 	setupGame();
+	// document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
 	// console.log(gameArea);
+
+	insertHtmlIntoDiv("main")
 	signIn();
 	register();
-	const gameLink = document.getElementById('gameLink');
+	// const gameLink = document.getElementById('gameLink');
 	const links = document.querySelectorAll('.nav-link');
 	// removeToken2(); // para já desligar tenho que fazer a página apó login
 	makeLinks(links, gameLink);
@@ -63,7 +77,6 @@ async function newpage(e) {
 	limparDiv("root");
 	console.log(this.dataset.value);
 	const allURL = `${baseURL}${this.dataset.value}`;
-	const gameArea = document.getElementById('canvas');
 	console.log(allURL);
 	if (document.getElementById('game'))
 		document.getElementById('game').remove();
