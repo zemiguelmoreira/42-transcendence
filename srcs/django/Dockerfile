@@ -1,6 +1,6 @@
 FROM python:3.13.0b1-bookworm
 RUN apt-get update && \
-apt-get install -y iputils-ping netcat-openbsd telnet
+apt-get install -y netcat-openbsd telnet vim
 WORKDIR /usr/src/app
 RUN pip3 install --upgrade pip
 RUN pip3 install psycopg

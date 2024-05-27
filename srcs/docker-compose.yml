@@ -91,7 +91,6 @@ volumes:
       device: ${SQL_PATH}
       o: bind
 
-
 networks:
   transcendence-net:
     name: transcendence-net
