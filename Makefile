@@ -54,6 +54,9 @@ clean:
 			@docker compose -f $(YML) down --rmi all --volumes
 
 fclean:		clean
+			@if [ -d "$(HOME)/data" ]; then \
+				sudo rm -rf "$(HOME)/data"; \
+			fi
 
 re: 		fclean all
 

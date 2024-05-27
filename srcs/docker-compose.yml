@@ -49,8 +49,9 @@ services:
       - backend-net
 
   postgres:
+    build: ./postgres
     container_name: postgres
-    image: postgres:16.3-bookworm
+    image: postgres:42
     volumes:
       - postgres-data:/var/lib/postgresql/data/:rw
     expose:
