@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+import logging.config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,11 +28,13 @@ SECRET_KEY = 'django-insecure-^zgvv@5=z64l9$xno3wug8^+_srr+htzzd(&0+ykv2u(qg(-%a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True  # Redireciona todas as requisições HTTP para HTTPS
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_SSL_REDIRECT = True  # Redireciona todas as requisições HTTP para HTTPS
 
 # todas as origens (temporario para desenvolvimento apenas)
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
 
 # depois definir apenas os permitidos:
 # CORS_ALLOWED_ORIGINS = [
@@ -43,6 +46,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 # allowed_hosts_env = os.getenv('PONG_HOST', '')
 # ALLOWED_HOSTS = allowed_hosts_env.split(',')
 ALLOWED_HOSTS = ["*", ]
+#ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]",]
+
+#configuração csrf para verificar o token csrf
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://127.0.0.1:5500',
+# ]
 
 # Application definition
 
@@ -121,6 +130,18 @@ DATABASES = {
 }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'transcendence3', 
+#         'USER': 'postgres',
+#         'PASSWORD': '12345678',
+#         'HOST': '127.0.0.1', 
+#         'PORT': '5432',
+#     }
+# }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -139,10 +160,28 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
+# Configuração de logging
+logging.config.dictConfig(LOGGING)
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+	'USER_ID_FIELD': 'user_id',
 }
 
 # Internationalization

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="author" content="nmoreira" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>Error Page</title>
+	<link rel="icon" type="image/x-icon" href="./favicon.ico">
+	<!-- <link rel="stylesheet" type="text/css" href="./CSS/style.css" /> -->
+</head>
+<style>
+	@import url('https://fonts.googleapis.com/css?family=Montserrat:300');
+
+#body_error {
+	background: #171717;
+	color: #fff;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 16px;
+	padding: 0;
+	margin: 0;
+	height: 100vh;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container_error {
+	width: 60%;
+	height: 60%;
+	margin: auto;
+}
+
+#h1_error {
+	font-size: 100px;
+}
+
+.error-text,
+.replacement-text {
+	font-size: 50px;
+	font-weight: 600;
+	opacity: 1;
+	transition: opacity ease-out;
+}
+
+.replacement-text {
+    position: absolute;
+    opacity: 0;
+}
+
+#h2_error:hover .error-text {
+	position: absolute;
+    opacity: 0;
+}
+
+#h2_error:hover .replacement-text {
+    opacity: 1; 
+	position: relative;
+	font-weight: 2000;
+	color: #09d3dae7;
+}
+
+#a_error:link,
+#a_error:visited {
+	text-decoration: none;
+	color: #fff;
+}
+
+#h3_error a:hover {
+	text-decoration: none;
+	/* background: #fff; */
+	color: #09d3dae7;
+	cursor: pointer;
+	/* padding: 5px 10px;
+	border-radius: 10px; */
+}
+</style>
+
+<body id="body_error">
+	<div class="container_error">
+		<h1 id="h1_error">:(</h1><br>
+		<h2 id="h2_error">A <span>
+				<span class="error-text">404</span> <span class="replacement-text">42 Webserver</span>
+			</span>
+			error occured, Page not found, check the URL and try again.
+		</h2><br><br>
+		<h3 id="h3_error"><a id="a_error" href="">Return to home</a></h3>
+	</div>
+</body>
+
+</html>
