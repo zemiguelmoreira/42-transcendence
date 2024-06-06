@@ -4,7 +4,7 @@ import { saveToken, viewToken } from "./session.js";
 import { getCsrfToken } from "../utils/csrf.js";
 import { baseURL } from "../app.js";
 import { signIn_page } from "../html/signin.js";
-import { home, makeHome, makeHomeTransc, goHome } from "../html/home.js";
+import { home, goHome, makeHomeLogin } from "../html/home.js";
 import { displayPageError } from "../html/error_page.js";
 import { userSignIn } from "./login.js";
 
@@ -77,7 +77,7 @@ function handleSignUp(e) {
 }
 
 
-function sigInPage(e) {
+function signInPage(e) {
 	e.preventDefault();
 	limparDivAll('root');
 	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
@@ -97,14 +97,10 @@ function register() {
 		limparDivAll('root');
 		// console.log(this.dataset.value);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
-		const sigIn = document.querySelector('#sigInRegister');
-		sigIn.addEventListener('click', sigInPage);
-		// console.log(document.getElementById('root'));
-		// const registerForm = document.querySelector('#userRegisterForm');
-		// console.log(registerForm);
-		// removeInputValidation(registerForm);
+		const signIn = document.querySelector('#signInRegister');
+		signIn.addEventListener('click', signInPage);
 		home();
-		const signUp = document.querySelector('#signIn');
+		const signUp = document.querySelector('#signUp');
 		signUp.addEventListener('click', handleSignUp)
 	})
 };
@@ -124,7 +120,7 @@ function showSuccessMessage() {
 	messageDiv.style.display = 'block'; // Exibe a mensagem
 	setTimeout(function() {
 		messageDiv.style.display = 'none'; // Oculta a mensagem após 3 segundos
-		makeHome(); // Redireciona para a página inicial
+		makeHomeLogin(); // Redireciona para a página inicial após login
 	}, 1000); // 1000 milissegundos = 1 segundos
 }
 
@@ -155,7 +151,6 @@ async function registerUser(user, email, password, password2, allURL) {
 	// console.log(response);
 	try {
 		const response = await fetch(allURL, configuracao);
-		// const data = await response.json();
 
 		if (!response.ok) {
 			const errorData = await response.json(); // msn que vem do Django
@@ -165,23 +160,30 @@ async function registerUser(user, email, password, password2, allURL) {
 				status_msn: response.statusText
 			}
 			console.log(errorObject.message, errorObject.status, errorObject.status_msn);
+			// console.log()
 			throw errorObject;
 		}
 
 		const data = await response.json();
 		console.log(data);
-		console.log(data.token, data.user);
-		saveToken(data.token, data.user);
+		console.log(data.access_token, data.refresh_token);
+		saveToken(data.access_token, data.refresh_token);
 		console.log('localstorage', viewToken());
 		limparDivAll('root');
 		const successDiv = successContainer(data.user);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 		showSuccessMessage();
+
 	} catch (e) {
+
 		console.log(e.message, e.status, e.status_msn);
-		if (e.status === 400){
-			displayError(e.message);
+		if (e.status === 400) {
+			const err_key = Object.keys(e.message)[0];
+			const err_message = e.message[err_key];
+			console.log(err_message);
+			displayError(err_message);
 		}
+
 		else {
 			const makeError = displayPageError(e.status, e.message);
 			document.getElementById('root').innerHTML = ''; //só teste
@@ -190,18 +192,7 @@ async function registerUser(user, email, password, password2, allURL) {
 			home_error.addEventListener('click', goHome);
 		}
 	}
-	
 };
 
 
 export { register, successContainer, showSuccessMessage }
-
-
-// No contexto da API fetch, response.ok é uma propriedade que retorna um valor booleano (true ou false) indicando se a resposta HTTP foi bem-sucedida. Especificamente, response.ok será true se o código de status HTTP da resposta estiver na faixa de 200 a 299 (inclusive). Isso inclui códigos de status como 200 (OK), 201 (Created), etc.
-
-// Como funciona response.ok
-// Quando você faz uma requisição com fetch, a função retorna uma Promise que, quando resolvida, fornece um objeto Response. Este objeto contém várias propriedades e métodos para inspecionar a resposta do servidor, incluindo o código de status, cabeçalhos e o corpo da resposta.
-
-// response.ok: Retorna true se a resposta foi bem-sucedida (status na faixa de 200-299).
-// response.status: Retorna o código de status HTTP (por exemplo, 200, 404, 500).
-// response.statusText: Retorna a mensagem de status correspondente (por exemplo, "OK", "Not Found", "Internal Server Error")

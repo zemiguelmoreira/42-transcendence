@@ -10,15 +10,20 @@ function stopGame(){
 }
 
 // Após colocação do stopGame no home acho que esta função nãp é precisa
+// function setupGame(){
+//     const links = document.querySelectorAll(".nav-link");
+// 	for(let link of links)
+// 		{
+// 			if (link.dataset.value !== "game")
+// 				link.addEventListener('click', stopGame);
+// 		}
+// 	// const butSign = document.querySelector('#signIn');
+// 	// butSign.addEventListener('click', stopGame);
+// }
+
 function setupGame(){
-    const links = document.querySelectorAll(".nav-link");
-	for(let link of links)
-		{
-			if (link.dataset.value !== "game")
-				link.addEventListener('click', stopGame);
-		}
-	// const butSign = document.querySelector('#signIn');
-	// butSign.addEventListener('click', stopGame);
+    const link = document.querySelector("#home");
+	link.addEventListener('click', stopGame);
 }
 
 // function setupGame() {

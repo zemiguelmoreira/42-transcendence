@@ -4,7 +4,7 @@
 
 body {
 	/* background: #171717; */
-	background: #091921;
+	background: #171717;
 	color: #fff;
 	font-family: 'Montserrat', sans-serif;
 	font-size: 16px;
@@ -17,8 +17,32 @@ body {
 	/* justify-content: flex-start; */
 	/* centraliza horizontalmente */
 	/* flex-direction: column; */
-	/*overflow: hidden;*/ /*colocado para não ter barras de scroll*/
+	overflow: hidden; /*colocado para não ter barras de scroll*/
 	/* border: 1px dotted white; */
+}
+
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: url("../assets/background.jpg") no-repeat;
+    background-position: center center;
+    background-size: cover;
+    z-index: -1; /* Coloca a imagem atrás de outros elementos */
+    filter: brightness(0.35); /* Ajuste o valor para controlar o escurecimento */
+}
+
+
+#reg {
+	background: #171717;
+	color: #fff;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 16px;
+	overflow: hidden;
 }
 
 #registerForm {
@@ -97,7 +121,7 @@ body {
 	border-radius: 10px; */
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     #login-dp {
         background-color: inherit;
         color: #fff;
@@ -107,4 +131,28 @@ body {
         background-color: inherit;
         border-top: 0 none;
     }
+} */
+
+/* retirar a setinha no botão dropdown */
+#mydrop::after {
+	content: none;
+  }
+
+.rounded-circle {
+	width: 40px; /* Ajuste o tamanho conforme necessário */
+    height: 40px; /* Ajuste o tamanho conforme necessário */
+    object-fit: cover; /* Garantir que a imagem se ajuste ao espaço do botão */
+}
+
+
+@media (max-width: 991px) {
+    .navbar-nav .btn {
+        width: 200px;
+        margin-bottom: 10px;
+    }
+    .navbar-nav.ms-auto {
+        margin-top: 10px;
+        flex-direction: column;
+    }
+
 }

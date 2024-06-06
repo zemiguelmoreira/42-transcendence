@@ -9,7 +9,7 @@ import { successContainer, showSuccessMessage } from "./register.js";
 import { goHome } from "../html/home.js";
 import { saveToken, viewToken } from "./session.js";
 
-let location = true;
+let userName = "";
 
 function insertInputValidation1(userSigInForm) {
 	for (let element of userSigInForm.elements) {
@@ -45,9 +45,8 @@ function userSignIn(e) {
 	const userOrEmail1 = userSignInForm.elements.username.value;
 	const password1 = userSignInForm.elements.password.value;
 	console.log(userOrEmail1, password1);
-	// location = false;
 	if (userOrEmail1 && password1) {
-        sendIUser(userOrEmail1, password1, allURL, location);
+        sendIUser(userOrEmail1, password1, allURL);
 		userSignInForm.elements.username.value = "";
 		userSignInForm.elements.password.value = "";
     } else {
@@ -56,41 +55,19 @@ function userSignIn(e) {
 }
 
 
-function insertInputValidation(sigInForm) {
-	for (let element of sigInForm.elements) {
-		console.log(element);
-		// Verifica se o elemento é do tipo input e tem a classe 'form-control'
-		if (element.className === 'form-control' && !element.value) {
-			limparDivAll('root');
-			document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
-			const signInUser = document.querySelector('#signInUser');
-			home();
-			console.log(signInUser);
-			signInUser.addEventListener('click', userSignIn);
-		}
-	}
-}
-
-
 function handleSignIn(e) {
 	e.preventDefault();
-	console.log(this.dataset.value);
-	const allURL = `${baseURL}${this.dataset.value}`;
-	const signInForm = document.querySelector('#userForm');
-	// console.log(signInForm);
-	const userOrEmail = signInForm.elements.username.value;
-	const password = signInForm.elements.password.value;
-	console.log(userOrEmail, password);
-	if (userOrEmail && password) {
-        sendIUser(userOrEmail, password, allURL, location);
-		signInForm.elements.username.value = "";
-		signInForm.elements.password.value = "";
-    } else {
-        insertInputValidation(signInForm);
-    }	
+	
+	limparDivAll('root');
+	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
+	const signInUser = document.querySelector('#signInUser');
+	home();
+	// console.log(signInUser);
+	signInUser.addEventListener('click', userSignIn);
+	
 }
 
-// o id está na navbar2.js
+// o id está na navbar.js
 
 function signIn() {
 	const butSign = document.querySelector('#signIn');
@@ -99,7 +76,7 @@ function signIn() {
 };
 
 
-async function sendIUser(userOrEmail, password, allURL, location) {
+async function sendIUser(userOrEmail, password, allURL) {
 	const csrfToken = await getCsrfToken();
 	const dados = {
 		username: userOrEmail,
@@ -136,24 +113,17 @@ async function sendIUser(userOrEmail, password, allURL, location) {
 
 		const data = await response.json();
 		console.log(data);
-		console.log(data.token, data.user);
-		saveToken(data.token, data.user.username);
+		console.log(data.access_token, data.refresh_token);
+		saveToken(data.access_token, data.refresh_token);
 		console.log('localstorage', viewToken());
 		limparDivAll('root');
+		userName = data.user.username;
 		const successDiv = successContainer(data.user.username);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 		showSuccessMessage();
 	} catch (e) {
 		console.log(e.message, e.status, e.status_msn);
 		if (e.status === 400){
-			if (location) {
-				limparDivAll('root');
-				document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
-				const signInUserLogin = document.querySelector('#signInUser');
-				home();
-				console.log(signInUser);
-				signInUserLogin.addEventListener('click', userSignIn);
-			}
 			displayErrorSignIn(e.message);
 		}
 		else {
@@ -168,4 +138,4 @@ async function sendIUser(userOrEmail, password, allURL, location) {
 };
 
 
-export { signIn, userSignIn }
+export { userName, signIn, userSignIn }

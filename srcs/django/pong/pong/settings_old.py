@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 import logging.config
-from datetime import timedelta
+from django.conf import settings
+from datetime import timedelta # para o token simpleJWT
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,8 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-^zgvv@5=z64l9$xno3wug8^+_srr+htzzd(&0+ykv2u(qg(-%a'
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = 'django-insecure-^zgvv@5=z64l9$xno3wug8^+_srr+htzzd(&0+ykv2u(qg(-%a'
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,13 +47,14 @@ CORS_ALLOW_CREDENTIALS = True
 # ALLOWED_HOSTS = ["localhost", "django", ]
 # allowed_hosts_env = os.getenv('PONG_HOST', '')
 # ALLOWED_HOSTS = allowed_hosts_env.split(',')
-ALLOWED_HOSTS = ["*", ]
-#ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]",]
+# ALLOWED_HOSTS = ["*", ]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]",]
 
 #configuração csrf para verificar o token csrf
 CSRF_TRUSTED_ORIGINS = [
-    'https://localhost/api',
+    'http://127.0.0.1:5500',
 ]
+
 
 # Application definition
 
@@ -69,6 +71,27 @@ INSTALLED_APPS = [
     'user_management',
     'game',
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+	'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+	# 'USER_ID_FIELD': 'user_id', # para o generate token
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+}
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -112,21 +135,33 @@ WSGI_APPLICATION = 'pong.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+# DATABASES = {
+
+#     'default': {
+
+#         'ENGINE': os.getenv('SQL_ENGINE'),
+
+#         'NAME': os.getenv('SQL_DATABASE'),
+
+#         'USER': os.getenv('SQL_USER'),
+
+#         'PASSWORD': os.getenv('SQL_PASSWORD'),
+
+#         'HOST': os.getenv('SQL_HOST'),
+
+#         'PORT': os.getenv('SQL_PORT'),
+#     }
+# }
+
+
 DATABASES = {
-
     'default': {
-
-        'ENGINE': os.getenv('SQL_ENGINE'),
-
-        'NAME': os.getenv('SQL_DATABASE'),
-
-        'USER': os.getenv('SQL_USER'),
-
-        'PASSWORD': os.getenv('SQL_PASSWORD'),
-
-        'HOST': os.getenv('SQL_HOST'),
-
-        'PORT': os.getenv('SQL_PORT'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'transcendence3', 
+        'USER': 'postgres',
+        'PASSWORD': '12345678',
+        'HOST': '127.0.0.1', 
+        'PORT': '5432',
     }
 }
 
@@ -165,25 +200,6 @@ LOGGING = {
 
 # Configuração de logging
 logging.config.dictConfig(LOGGING)
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-	# 'USER_ID_FIELD': 'user_id',
-}
-
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
-}
 
 
 # Internationalization

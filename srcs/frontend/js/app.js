@@ -1,11 +1,10 @@
 
-import { navbar2, navbar3 } from "./html/navbar2.js";
-import { setup, setupGame, start, start1 } from "./game/pong.js";
+import { navbar2 } from "./html/navbar.js";
+import { start1 } from "./game/pong.js";
 import { limparDiv, limparDivAll } from "./utils/utils1.js";
-import { register } from "./login/register.js";
-import { signIn } from "./login/login.js";
-import { removeToken2, viewToken } from "./login/session.js";
-import { home, makeHome } from "./html/home.js";
+import { viewToken } from "./login/session.js";
+import { home, makeHome, makeHomeLogin} from "./html/home.js";
+import { setupGame } from "./game/pong.js";
 
 const baseURL = "https://localhost/api";
 const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
@@ -14,19 +13,14 @@ const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
 
 //Verificar se o data-value não é zero
 
-function makeLinks(links, gameLink) {
-	console.log(links);
-	for (let link of links) {
-		if (link.dataset.value) {
-			link.addEventListener('click', newpage);
-			if (link.dataset.value === "game")
-				gameLink.addEventListener('click', start1);
-		}
-	}
+
+function makeGame(gamelink) {
+	gamelink.addEventListener('click', newpage);
 }
 
+
 function deactivateLinks(links) {
-	console.log(viewToken());
+	console.log('desativar links', viewToken());
 	if (!viewToken()) {
 		for (let link of links) {
 			if (link.dataset.value) {
@@ -43,26 +37,22 @@ function deactivateLinks(links) {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-	// document.getElementById('root').innerHTML = ''; //só teste
-	// document.getElementById('root').insertAdjacentHTML('afterbegin', navbar2);
-	// const gameArea = createCanvas(data);
-	// setupGame();
-	// document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
-	// console.log(gameArea);
 	makeHome();
-	// home();
-	// signIn();
-	// register();
-	// const gameLink = document.getElementById('gameLink');
-	// const links = document.querySelectorAll('.nav-link');
-	// // removeToken2(); // para já desligar tenho que fazer a página apó login
-	// makeLinks(links, gameLink);
-	// deactivateLinks(links);
-	
 })
 
 
-async function newpage(e) {
+function shutdownGame(e) {
+	e.preventDefault();
+	if (document.getElementById('game'))
+		document.getElementById('game').remove();
+
+	document.getElementById('canvas').style.display = 'none';
+	// gameArea.style.display = 'none';
+	makeHomeLogin();
+}
+
+
+function newpage(e) {
 	e.preventDefault();
 	console.log(this.dataset.value);
 	limparDiv("root");
@@ -71,18 +61,17 @@ async function newpage(e) {
 		document.getElementById('game').remove();
 
 	const gameArea = document.getElementById('canvas');
-	if (this.dataset.value === 'game') {
-		document.querySelector('#navBar').remove();
-			document.getElementById('root').insertAdjacentHTML('afterbegin', navbar3);
-			gameArea.style.display = 'block';
-			home(); // para a navbar do game
-			if (!document.getElementById('game'))
-				document.body.insertAdjacentHTML('beforeend', gameScript);
-	} else {
-		if (this.dataset.value !== "game")
-			gameArea.style.display = 'none';
-	}
+	console.log(gameArea);
+	document.querySelector('#navBar').remove();
+	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar2);
+	setupGame(); // quando se clica para ir para o home desliga o jogo
+	gameArea.style.display = 'block';
+	start1();
+	const transc = document.getElementById('home');
+	transc.addEventListener('click', shutdownGame)
+	// homeLogin(); // para a navbar do game
+	document.body.insertAdjacentHTML('beforeend', gameScript);
 }
 
 
-export { baseURL, makeLinks, deactivateLinks }
+export { baseURL, makeGame, deactivateLinks }

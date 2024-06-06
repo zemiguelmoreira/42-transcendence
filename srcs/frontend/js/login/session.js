@@ -1,19 +1,36 @@
 
 
-function saveToken(token, user) {
+// function saveToken(access_token, refresh_token) {
 
-	if (token !== null && token !== undefined && token.trim!=="")
-	try {
-		localStorage.setItem('token', token);
-		localStorage.setItem('user', user);
-		console.log('Token salvo com sucesso na localStorage.');
-	} catch (error) {
-		console.error('Erro ao salvar o token na localStorage:', error);
-	}
+// 	if (token !== null && token !== undefined && token.trim!=="")
+// 	try {
+// 		localStorage.setItem('access_token', access_token);
+// 		localStorage.setItem('refresh_token', refresh_token);
+// 		console.log('Tokens salvo com sucesso na localStorage.');
+// 	} catch (error) {
+// 		console.error('Erro ao salvar o token na localStorage:', error);
+// 	}
+// }
+
+
+function saveToken(access_token, refresh_token) {
+    if (access_token && access_token.trim() !== "" && refresh_token && refresh_token.trim() !== "") {
+        try {
+            localStorage.setItem('access_token', access_token);
+            localStorage.setItem('refresh_token', refresh_token);
+            console.log('Tokens salvo com sucesso na localStorage.');
+        } catch (error) {
+            console.error('Erro ao salvar os tokens na localStorage:', error);
+        }
+    } else {
+        console.error('Os tokens não podem ser nulos, indefinidos ou strings vazias.');
+    }
 }
 
+
+
 function viewToken() {
-	const token = localStorage.getItem('token');
+	const token = localStorage.getItem('access_token');
 	// console.log(token);
 	return token !== null && token !== undefined && token.trim() !== '';
 }
@@ -22,7 +39,7 @@ function viewToken() {
 
 function removeToken() {
 	try {
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem('access_token');
 		localStorage.removeItem('token');
 		console.log(`Item com chave "${token}" removido com sucesso da localStorage.`);
 	} catch (error) {
@@ -36,7 +53,7 @@ function removeToken2() {
 
 	window.addEventListener('beforeunload', function(event) {
 	// Remover o token da localStorage
-	localStorage.removeItem('token');
+	localStorage.removeItem('access_token');
   })
 }
 
