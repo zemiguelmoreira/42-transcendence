@@ -8,6 +8,7 @@ import { linkTeste } from "../profile/profile.js";
 import { myProfile } from "../profile/myprofile.js";
 
 
+
 function makeHome() {
 	document.getElementById('root').innerHTML = ''; //só teste
 	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar1);
@@ -66,6 +67,7 @@ function makeHomeLogin() {
 	makeGame(gameLink);
 	makeTeste();
 	myProfile();
+	
 	// deactivateLinks(links);
 	homeLogin();
 }

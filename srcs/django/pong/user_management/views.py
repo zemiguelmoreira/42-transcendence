@@ -102,7 +102,6 @@ def get_user_id(request):
         return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
     
 
-
 # função para fazer login utilizador com APIView
 
 # @api_view(['POST']) se colocar nãp posso utilizar o as_view()
@@ -221,6 +220,42 @@ class Home(APIView):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def user_profile_api_view(request, user_id):
+
+    csrf_token_header = request.META.get('HTTP_X_CSRFTOKEN')
+    print('Token CSRF no cabeçalho:', csrf_token_header)
+    if not csrf_token_header:
+        return Response({'error': 'Csrf Token not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    try:
+        user = get_object_or_404(UserProfile, pk=user_id)
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User profile not found"}, status=404)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])    
+def delete_account(request, user_id):
+    # Obtém o token CSRF do cabeçalho da solicitação
+    csrf_token_header = request.META.get('HTTP_X_CSRFTOKEN')
+    print('Token CSRF no cabeçalho:', csrf_token_header)
+    if not csrf_token_header:
+        return Response({'error': 'Csrf Token not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    try:
+
+        user = get_object_or_404(UserProfile, pk=user_id)
+        serializer = UserProfileSerializer(user)
+
+        print(f"User with ID {user_id} would be deleted here.")
+        
+        return Response(serializer.data)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def change_profile(request, user_id):
 
     csrf_token_header = request.META.get('HTTP_X_CSRFTOKEN')
     print('Token CSRF no cabeçalho:', csrf_token_header)
