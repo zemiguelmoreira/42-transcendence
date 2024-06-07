@@ -69,10 +69,10 @@ function createNavbar3() {
 					<a class="nav-link" href="" data-value="link_login">link login</a>
 				</li>
 			</ul>
-			<form class="d-flex" role="search">
-        		<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        		<button class="btn btn-outline-primary" type="submit">Search</button>
-      		</form>
+			<form id="search-form" class="d-flex" role="search">
+				<input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+				<button id="search-btn" class="btn btn-outline-primary" type="submit">Search</button>
+			</form>
 			<ul class="navbar-nav ms-auto">
 				<div id="mydrop1" class="dropdown">
 					<a id="mydrop" href="" class="dropdown-toggle border border-0 ms-3" role="button" data-bs-toggle="dropdown" aria-expanded="false"><img src="./assets/ialves-m.jpg" class="rounded-circle" alt="avatar"></a>

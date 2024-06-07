@@ -87,6 +87,7 @@ function loop(){
     }
 
     if(p1_key == "KeyW" && p1_y > 0){
+
         p1_y -= 10
     }else if(p1_key == "KeyS" && p1_y + p_h < h){
         p1_y += 10
@@ -110,6 +111,7 @@ function initBall(){
 
 function draw(){
     // fundo
+
     drawRect(0,0,w,h,"#000")
     // player 1
     drawRect(p1_x, p1_y, p_w, p_h)

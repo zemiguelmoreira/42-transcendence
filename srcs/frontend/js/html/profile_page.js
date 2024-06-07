@@ -1,6 +1,4 @@
 function makeProfilePage( data ) {
-    console.log("data dentro da func");
-    console.log(data);
 	return `
 	<div class="container my-5">
         <h1>${data.username}</h1>

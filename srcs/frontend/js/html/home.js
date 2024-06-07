@@ -6,6 +6,7 @@ import { register } from "../login/register.js";
 import { makeGame, deactivateLinks } from "../app.js";
 import { linkTeste } from "../profile/profile.js";
 import { myProfile } from "../profile/myprofile.js";
+import { searchUserForm } from "../profile/search_user.js";
 
 
 
@@ -67,7 +68,7 @@ function makeHomeLogin() {
 	makeGame(gameLink);
 	makeTeste();
 	myProfile();
-	
+	searchUserForm();
 	// deactivateLinks(links);
 	homeLogin();
 }

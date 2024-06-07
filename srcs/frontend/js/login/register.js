@@ -8,6 +8,7 @@ import { home, goHome, makeHomeLogin } from "../html/home.js";
 import { displayPageError } from "../html/error_page.js";
 import { userSignIn } from "./login.js";
 
+let userNameReg = "";
 
 ////****************ReGISTO DO USER*****************************/
 
@@ -163,7 +164,7 @@ async function registerUser(user, email, password, password2, allURL) {
 			// console.log()
 			throw errorObject;
 		}
-
+		userNameReg = dados.username;
 		const data = await response.json();
 		console.log(data);
 		console.log(data.access_token, data.refresh_token);
@@ -195,4 +196,4 @@ async function registerUser(user, email, password, password2, allURL) {
 };
 
 
-export { register, successContainer, showSuccessMessage }
+export { userNameReg, register, successContainer, showSuccessMessage }

@@ -1,5 +1,6 @@
 import { getCsrfToken } from "../utils/csrf.js";
 import { userName } from "../login/login.js";
+import { userNameReg } from "../login/register.js";
 import { makeProfilePage } from "../html/profile_page.js";
 import { deleteProfile } from "../profile/delete_account.js";
 
@@ -21,7 +22,9 @@ async function getIdbyName(userName) {
         if (!response.ok) {
             throw new Error('Failed to fetch user profile');
         }
-        const data = await response.json();     
+        const data = await response.json(); 
+        // console.log("id: ");
+        // console.log(data.id);
         return data.id;
     } catch (error) {
         console.error('Error:', error);
@@ -29,7 +32,7 @@ async function getIdbyName(userName) {
     };
 }
 
-function myProfile() { 
+function myProfile() {
     const userIdInput = document.getElementById('my-profile');
 
     if (!userIdInput) {
@@ -41,7 +44,13 @@ function myProfile() {
         event.preventDefault();
 
         try {
-            const userId = await getIdbyName(userName);
+            let curr_username;
+            if (userName != "")
+                curr_username = userName;
+            else if( userNameReg != "")
+                curr_username = userNameReg;
+            
+            const userId = await getIdbyName(curr_username);
             const csrfToken = await getCsrfToken(); // Obter o token CSRF
 
             const response = await fetch(`https://localhost/api/users/user-profile/${userId}/`, {
@@ -69,4 +78,4 @@ function myProfile() {
     });
 }
 
-export { myProfile, getIdbyName };
+export { myProfile, getIdbyName, getIdbyName };
