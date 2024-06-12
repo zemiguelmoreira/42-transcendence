@@ -1,8 +1,6 @@
 
-function createNavbar1() {
-	return `
-	<nav class="navbar navbar-expand-xxl navbar-dark" id="navBar">
-  <div class="container-fluid me-auto">
+function createNavbarLogged() {
+	return `<div class="container-fluid me-auto">
     <a class="navbar-brand" href="" id="home">Transcendence</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -16,7 +14,7 @@ function createNavbar1() {
           <a class="nav-link" href="" id="gameLink" data-value="game">Game</a>
         </li>
 		<li class="nav-item">
-          <a class="nav-link" href="" data-value="about">About</a>
+          <a class="nav-link" href="" id="chatLink" data-value="chat">Chat</a>
         </li>
       </ul>
       <form class="d-flex">
@@ -44,7 +42,7 @@ function createNavbar1() {
 					<input type="password" id="form1Example2" class="form-control" name="password"/>
 					<label class="form-label" for="form1Example2">Password</label>
 					</div>
-
+					const navbar3 = createNavbar2();
 					<!-- 2 column grid layout for inline styling -->
 					<div class="row mb-4">
 					<div class="col">
@@ -69,22 +67,7 @@ function createNavbar1() {
         </li>
       </ul>
     </div>
-  </div>
-</nav>`;
+  </div>`;
 }
 
-
-var navbar2 = createNavbar1();
-
-
-function createNavbar2 () {
-	return `<nav class="navbar navbar-dark">
-	<div class="container-fluid">
-	  <a class="navbar-brand" href="" id="home">Transcendence</a>
-	</div>
-</nav>`;
-}
-
-const navbar3 = createNavbar2();
-
-export { navbar2, navbar3 }
+export { createNavbarLogged }

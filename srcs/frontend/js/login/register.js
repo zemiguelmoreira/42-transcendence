@@ -110,6 +110,8 @@ function register() {
 };
 
 
+
+
 function successContainer(success_message) {
 	return `<div class="row justify-content-center my-auto">
 	<div class="col-auto">

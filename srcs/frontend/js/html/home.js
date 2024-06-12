@@ -14,11 +14,13 @@ function makeHome() {
 	setupGame();
 	document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
 	const gameLink = document.getElementById('gameLink');
+	const chatLink = document.getElementById('chatLink');
 	const links = document.querySelectorAll('.nav-link');
-	makeLinks(links, gameLink);
+	makeLinks(links, gameLink, chatLink);
 	deactivateLinks(links);
 	signIn();
 	register();
+
 	home();
 }
 
@@ -34,7 +36,7 @@ function makeHomeTransc(e) {
 	document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
 	const gameLink = document.getElementById('gameLink');
 	const links = document.querySelectorAll('.nav-link');
-	makeLinks(links, gameLink);
+	makeLinks(links, gameLink, chatLink);
 	deactivateLinks(links);
 	signIn();
 	register();

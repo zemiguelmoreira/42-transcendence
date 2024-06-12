@@ -1,10 +1,6 @@
 
-
-
-function createNavbar1() {
-	return `
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
+function createNavbarNotLogged() {
+	return `<div class="container">
     <a class="navbar-brand" href="">Transcendence</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -64,10 +60,7 @@ function createNavbar1() {
         </li>
       </ul>
     </div>
-  </div>
-</nav>`;
+  </div>`;
 }
 
-var navbar1 = createNavbar1();
-
-export { navbar1 }
+export { createNavbarNotLogged }

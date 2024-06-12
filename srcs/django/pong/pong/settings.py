@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'user_management',
     'game',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pong.wsgi.application'
+ASGI_APPLICATION = 'pong.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    },
+}
 
 
 # Database
