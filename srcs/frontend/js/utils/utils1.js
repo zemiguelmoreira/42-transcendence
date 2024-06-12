@@ -32,21 +32,21 @@ function limparDivAll(divId) {
 }
 
 
-function displayError(errorMessage) {
-	const errorDiv = document.getElementById('error-message');
-	errorDiv.textContent = `${errorMessage}. Try again`;
-	errorDiv.style.display = 'block'; // Mostra a div de erro
-	const registerForm = document.querySelector('#userRegisterForm');
-	for (let element of registerForm.elements) {
-		if (element.classList.contains('form-control')) {
-			element.addEventListener('input', function () {
-				if (element.value) {
-					errorDiv.style.display = 'none';
-				}
-			});
-		}
-	}
-}
+// function displayError(errorMessage) {
+// 	const errorDiv = document.getElementById('error-message');
+// 	errorDiv.textContent = `${errorMessage}. Try again`;
+// 	errorDiv.style.display = 'block'; // Mostra a div de erro
+// 	const registerForm = document.querySelector('#userRegisterForm');
+// 	for (let element of registerForm.elements) {
+// 		if (element.classList.contains('form-control')) {
+// 			element.addEventListener('input', function () {
+// 				if (element.value) {
+// 					errorDiv.style.display = 'none';
+// 				}
+// 			});
+// 		}
+// 	}
+// }
 
 
 

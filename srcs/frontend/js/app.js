@@ -76,14 +76,14 @@
 
 // 	const gameArea = document.getElementById('canvas');
 // 	if (this.dataset.value === 'game') {
-// 		document.querySelector('#navBar').remove();
-// 			document.getElementById('root').insertAdjacentHTML('afterbegin', navbar3);
-// 			gameArea.style.display = 'block';
-// 			home(); // para a navbar do game
-// 			if (!document.getElementById('game'))
-// 				document.body.insertAdjacentHTML('beforeend', gameScript);
-// 	} else {
-// 		if (this.dataset.value !== "game")
+    // 		document.querySelector('#navBar').remove();
+    // 			document.getElementById('root').insertAdjacentHTML('afterbegin', navbar3);
+    // 			gameArea.style.display = 'block';
+    // 			home(); // para a navbar do game
+    // 			if (!document.getElementById('game'))
+    // 				document.body.insertAdjacentHTML('beforeend', gameScript);
+    // 	} else {
+        // 		if (this.dataset.value !== "game")
 // 			gameArea.style.display = 'none';
 // 	}
 // }
@@ -92,16 +92,41 @@
 // export { baseURL, makeLinks, deactivateLinks }
 
 import { viewToken } from "./login/session.js";
-import { createNavbarNotLogged } from "./html/navbar_not_logged.js";
-import { createNavbarLogged } from "./html/navbar_logged.js"
+// import { getCsrfToken } from './utils/csrf.js';
+import { createNavbarNotLogged, createNavbarLogged } from './html/navbar.js';
 
-function checkLoginStatus() {
+
+function loadPage(pageName) {
+    fetch(`js/pages/${pageName}/${pageName}.html`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('root').innerHTML = html;
+            loadScript(`js/pages/${pageName}/${pageName}.js`);
+        })
+        .catch(error => console.error('Error loading page: ', error));
+}
+
+function loadScript(scriptName) {
+    var scriptElement = document.createElement('script');
+    scriptElement.src = scriptName;
+    scriptElement.type = 'module';  // Adiciona o tipo "module" ao script
+    document.body.appendChild(scriptElement);
+}
+
+function isLoggedIn() {
     
     const token = viewToken();
 
     console.log(token);
+    return (token)
+}
 
-    if (token) {
+function generateNavBar(is_logged_in) {
+
+    document.getElementById('navbar-logged-out').innerHTML = createNavbarNotLogged();
+    document.getElementById('navbar-logged-in').innerHTML = createNavbarLogged();
+
+    if (is_logged_in) {
         document.getElementById('navbar-logged-out').style.display = 'none';
         document.getElementById('navbar-logged-in').style.display = 'block';
     } else {
@@ -110,22 +135,9 @@ function checkLoginStatus() {
     }
 }
 
-function loadPage(pageName) {
-    fetch(pageName + '.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('main-content').innerHTML = html;
-            loadScript(pageName + '.js');
-        })
-        .catch(error => console.error('Error loading page: ', error));
-}
+generateNavBar(isLoggedIn());
+// handleNavbarButtons();
 
-function loadScript(scriptName) {
-    var scriptElement = document.createElement('script');
-    scriptElement.src = scriptName;
-    document.body.appendChild(scriptElement);
-}
-document.getElementById('navbar-logged-out').innerHTML = createNavbarNotLogged();
-document.getElementById('navbar-logged-in').innerHTML = createNavbarLogged();
 
-checkLoginStatus();
+window.loadPage = loadPage;
+// window.getCsrfToken = getCsrfToken;
