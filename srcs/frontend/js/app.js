@@ -6,7 +6,7 @@ import { viewToken } from "./login/session.js";
 import { home, makeHome, makeHomeLogin} from "./html/home.js";
 import { setupGame } from "./game/pong.js";
 
-const baseURL = "https://localhost/api";
+const baseURL = "https://localhost/user";
 const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
 
 // let data;
