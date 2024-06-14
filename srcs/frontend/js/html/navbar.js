@@ -29,7 +29,7 @@ function createNavbarLogged() {
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
 						<li><a id="my-profile" class="dropdown-item" href="">my profile</a></li>
 						<li><a class="dropdown-item" href="#">Another action</a></li>
-						<li><a id="logOut" class="dropdown-item" href="#">logout</a></li>
+						<li><a id="logoutNavBtn" class="dropdown-item" href="#">logout</a></li>
 					</ul>
 				</div>
 			</ul>
@@ -59,10 +59,10 @@ function createNavbarNotLogged() {
 			</ul>
 			<ul class="navbar-nav ms-auto">
 				<li class="nav-item">
-					<button id="signIn" type="button" class="btn btn-dark me-3">Sign in</button>
+					<button id="signInNavBtn" type="button" class="btn btn-dark me-3" ">Sign in</button>
 				</li>
 				<li class="nav-item">
-					<button id="register" class="btn btn-primary" onclick="loadPage('signup')" type="button">Get started</button>
+					<button id="signUpNavBtn" class="btn btn-primary" "type="button">Get started</button>
 				</li>
 			</ul>
 		</div>

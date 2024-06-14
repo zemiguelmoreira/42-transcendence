@@ -1,5 +1,6 @@
 import { getCsrfToken } from '../../utils/csrf.js';
-import { saveToken } from '../../login/session.js';
+import { saveToken } from '../../authentication_utils/session.js';
+
 
 function displayError(errorMessage) {
 	const errorDiv = document.getElementById('error-message');
@@ -16,7 +17,6 @@ function displayError(errorMessage) {
 		}
 	}
 }
-
 
 function insertInputValidation(registerForm) {
 	for (let element of registerForm.elements) {
@@ -77,6 +77,8 @@ async function registerUser(user, email, password, password2, allURL) {
 		password: password,
 		confirm_password: password2,
         };
+	console.log("DADOS:")
+	console.log(dados);
     const csrfToken = await getCsrfToken();
     console.log(csrfToken);
 	// Converter os dados em uma string de consulta
@@ -113,8 +115,7 @@ async function registerUser(user, email, password, password2, allURL) {
 		// console.log(data.token, data.user);
 		saveToken(data.token, data.user);
 		// console.log('localstorage', viewToken());
-        console.log("cheguei aqui");
-		loadPage('home');
+		loadPage('signin');
 	} catch (e) {
 		console.log(e.message, e.status, e.status_msn);
 		if (e.status === 400){

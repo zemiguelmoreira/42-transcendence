@@ -19,24 +19,14 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-
-
-
-
 # função para listar users
 class UserProfileListCreate(generics.ListCreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    
-# def get_response(request):
-#     if not request.user.is_authenticated:
-#         return Response({"mensagem": "Você não tem permissão para acessar este recurso."}, status=status.HTTP_403_FORBIDDEN)
-#     if request.method == 'POST':
-#         return Response({'message': 'POST request processed'}, status=200)
-#     return Response({'message': 'Middleware processing completed'}, status=200)
 
-
+@api_view(['GET'])
+def get_test(request):
+    return Response({'username': 'heitor'})
 
 
 # função para fazer o registo do user não utiliza A APIView
@@ -50,7 +40,9 @@ def register_user(request):
     crsf_token = get_token(request)
     print('crsf: ', crsf_token)
     if crsf_token:
+        logger.info(f' REQUEST DATA: {request.data}')
         serializer = UserProfileSerializer(data=request.data)
+        logger.info(f' SERIALIZER: {serializer}')
         if serializer.is_valid():
             # Validar se as senhas correspondem
             password = request.data.get('password')
@@ -69,7 +61,7 @@ def register_user(request):
                 # token = credentials.token
                 token = user_profile.usercredentials.token
                 exp_time = user_profile.usercredentials.data_expiracao
-                logger.info(f'Token gerado para usuário {user_profile.username} {token}')
+                logger.info(f'Token gerado para usuário pqp {user_profile.username} {token}')
                 logger.info(f'Token valido até: {exp_time}')
         
                 user_profile_serializer = UserProfileSerializer(user_profile)
@@ -91,17 +83,11 @@ def register_user(request):
          return Response({'error': 'Csrf Token not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
 # Função do token crsf
 @api_view(['GET'])
 def get_csrf_token(request):
     csrf_token = get_token(request)
     return Response({'csrfToken': csrf_token})
-
-
-
-
 
 # função para fazer login utilizador
 # @api_view(['POST']) se colocar nãp posso utilizar o as_view()
@@ -143,9 +129,18 @@ class LoginView(APIView):
             serializer = UserProfileSerializer(user_profile)
             serialized_data = serializer.data
             token = user_profile.usercredentials.token
-            print('token login: ', token)
-            print('Dados do usuário:', serialized_data)  # Imprime os dados do usuário
             return Response({'message': 'Login successful', 'user': serialized_data, 'token': token}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+# logout
+class LogoutView(APIView):
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        try:
+            user_profile = UserProfile.objects.get(id=user_id)
+            user_profile.is_logged_in = False
+            user_profile.save()
+            return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

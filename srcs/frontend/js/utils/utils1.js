@@ -50,22 +50,22 @@ function limparDivAll(divId) {
 
 
 
-function displayErrorSignIn(errorMessage) {
-	const errorDiv = document.getElementById('error-message');
-	errorDiv.textContent = `${errorMessage}. Try again`;
-	errorDiv.style.display = 'block'; // Mostra a div de erro
-	const registerForm = document.querySelector('#userSignInForm');
-	console.log(registerForm);
-	for (let element of registerForm.elements) {
-		if (element.classList.contains('form-control')) {
-			element.addEventListener('input', function () {
-				if (element.value) {
-					errorDiv.style.display = 'none';
-				}
-			});
-		}
-	}
-}
+// function displayErrorSignIn(errorMessage) {
+// 	const errorDiv = document.getElementById('error-message');
+// 	errorDiv.textContent = `${errorMessage}. Try again`;
+// 	errorDiv.style.display = 'block'; // Mostra a div de erro
+// 	const registerForm = document.querySelector('#userSignInForm');
+// 	console.log(registerForm);
+// 	for (let element of registerForm.elements) {
+// 		if (element.classList.contains('form-control')) {
+// 			element.addEventListener('input', function () {
+// 				if (element.value) {
+// 					errorDiv.style.display = 'none';
+// 				}
+// 			});
+// 		}
+// 	}
+// }
 
 
 export { limparDiv, limparDivAll, displayError, displayErrorSignIn }

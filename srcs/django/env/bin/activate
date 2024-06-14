@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/transcendence/transc/srcs/django/env"
+VIRTUAL_ENV="/home/hmaciel-/Development/42cursus/transc/srcs/django/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

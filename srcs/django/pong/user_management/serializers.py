@@ -6,7 +6,15 @@ from django.contrib.auth.hashers import make_password
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['username', 'email', 'photo_path']
+        fields = [
+            'user_id',
+            'username',
+            'email',
+            'photo_path',
+            'friendList',
+            'blockList',
+            'is_logged_in'
+        ]
 
 # class UserCredentialsSerializer(serializers.ModelSerializer):
 #     password = serializers.CharField(write_only=True)
