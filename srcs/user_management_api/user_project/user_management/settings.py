@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
-import logstash
 import logging
+import logging.config
 
 # from logstash import LogstashFormatterV1, TCPLogstashHandler
 
@@ -86,30 +86,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'user_management.wsgi.application'
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'logstash': {
-            'level': 'DEBUG',
-            'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
-            'port': 5959,
-            'version': 1,
-            'message_type': 'django',
-            'fqdn': False,
-            'tags': ['django'],
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['logstash'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
 }
 
-
+# Configuração de logging
+logging.config.dictConfig(LOGGING)
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

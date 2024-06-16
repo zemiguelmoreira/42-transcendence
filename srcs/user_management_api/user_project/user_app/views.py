@@ -17,6 +17,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
 import logging
+import logging.config
 
 logger = logging.getLogger(__name__)
 

@@ -113,6 +113,22 @@ services:
     networks:
       - transcendence-net
       - backend-net
+  
+  filebeat:
+    build:
+      context: ./filebeat
+      dockerfile: Dockerfile
+    user: root
+    volumes:
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
+    - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    - /var/log/filebeat:/var/log/filebeat
+    networks:
+      - transcendence-net
+      - backend-net
+    depends_on:
+      - elasticsearch
+      - logstash
 
 volumes:
   nginx-conf:
@@ -129,14 +145,6 @@ volumes:
       type: none
       device: ./frontend
       o: bind
-  # django-app:
-  #   name: django-app
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ./django/pong
-  #     o: bind
-
   user-app:
     name: user-app
     driver: local
@@ -154,6 +162,7 @@ volumes:
   es-data:
     name: es-data
     driver: local
+
 
 networks:
   transcendence-net:
