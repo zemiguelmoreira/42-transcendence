@@ -1,96 +1,95 @@
+
+import { navigateTo } from "../app.js";
 import { navbar1, navbar3 } from "./navbar.js";
-import { createCanvas } from "../game/canvas.js";
-import { setupGame, stopGame } from "../game/pong.js";
-import { signIn } from "../login/login.js";
-import { register } from "../login/register.js";
-import { makeGame, deactivateLinks } from "../app.js";
-import { linkTeste } from "../profile/profile.js";
-import { myProfile } from "../profile/myprofile.js";
-import { searchUserForm } from "../profile/search_user.js";
-
-
-
-function makeHome() {
-	document.getElementById('root').innerHTML = ''; //só teste
-	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar1);
-	const gameArea = createCanvas();
-	console.log(gameArea);
-	document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
-	// const gameLink = document.getElementById('gameLink');
-	const links = document.querySelectorAll('.nav-link');
-	// deactivateLinks(links);
-	signIn();
-	register();
-	home();
-}
-
-
-function makeHomeTransc(e) {
-	e.preventDefault();
-	document.getElementById('root').innerHTML = ''; //só teste
-	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar1);
-	const gameArea = createCanvas();
-	console.log(gameArea);
-	document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
-	// const gameLink = document.getElementById('gameLink');
-	const links = document.querySelectorAll('.nav-link');
-	// deactivateLinks(links);
-	signIn();
-	register();
-	home();
-}
+import { fetchProtectedData } from "../profile/profile.js";
+import { viewToken } from "../login/session.js";
+import { fetchUserProfile } from "../profile/myprofile.js";
+import { getUser } from "../profile/search_user.js";
 
 
 function home() {
-	const titleTransc = document.querySelector('#home');
-	console.log(titleTransc);
-	titleTransc.addEventListener('click', makeHomeTransc);
+
+	console.log('Loading home page content');
+
+	document.getElementById('root').innerHTML = ''; // Apenas um teste
+	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar1);
+
+	document.getElementById('signIn').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo('/signIn');});
+
+	document.getElementById('register').addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo('/register');});
+
+	document.getElementById('home').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo('/');});
+
+	// function goodbye(e) {
+	// 	if(!e) e = window.e;
+	// 	//e.cancelBubble is supported by IE - this will kill the bubbling process.
+	// 	e.cancelBubble = true;
+	// 	e.returnValue = 'You sure you want to leave/refresh this page?';
+	
+	// 	//e.stopPropagation works in Firefox.
+	// 	if (e.stopPropagation) {
+	// 		e.stopPropagation();
+	// 		e.preventDefault();
+	// 	}
+	// }
+
+	// window.addEventListener('beforeunload', goodbye);
 }
 
 
-function makeTeste() {
-	const teste = document.getElementById('testeLink');
-	teste.addEventListener('click', linkTeste);
-}
+function homeLogin(username) {
 
+	console.log('Loading homeLogin page content');
 
-function makeHomeLogin() {
-	document.getElementById('root').innerHTML = ''; //só teste
+	document.getElementById('root').innerHTML = ''; // Apenas um teste
 	document.getElementById('root').insertAdjacentHTML('afterbegin', navbar3);
-	const gameArea = createCanvas();
-	console.log(gameArea);
-	// setupGame(); mudou para a função newpage
-	document.getElementById('root').insertAdjacentHTML('beforeend', gameArea);
-	const gameLink = document.getElementById('gameLink');
-	const links = document.querySelectorAll('.nav-link');
-	const logout = document.getElementById('logOut');
-	logout.addEventListener('click', goHome);
-	makeGame(gameLink);
-	makeTeste();
-	myProfile();
-	searchUserForm();
-	// deactivateLinks(links);
-	homeLogin();
+
+	document.getElementById('home').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}`);});
+
+	document.getElementById('logOut').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo('/');
+	});
+
+	document.getElementById('testeLink').addEventListener('click', (e) => {
+		e.preventDefault();
+		if (viewToken())
+			fetchProtectedData();
+		else
+			navigateTo('/signIn');
+	});
+
+	document.getElementById('my-profile').addEventListener('click', (e) => {
+		e.preventDefault();
+		if (viewToken())
+			fetchUserProfile(username); //utilizar as funções verificar tokens
+		else
+			navigateTo('/signIn');
+		
+	});
+
+	document.getElementById('search-form').addEventListener('submit', (e) => {
+		e.preventDefault();
+		getUser(username);
+	});
+
+	document.getElementById('search-btn').addEventListener('click', (e) => {
+		e.preventDefault();
+		getUser(username);
+	});
+
+
 }
 
 
-function homeLogin1(e) {
-	e.preventDefault(e);
-	makeHomeLogin();
-}
 
 
-function homeLogin()  {
-	const titleTransc = document.querySelector('#home');
-	console.log(titleTransc);
-	titleTransc.addEventListener('click', homeLogin1);
-}
-
-
-function goHome(e) {
-	e.preventDefault();
-	makeHome();
-}
-
-
-export { makeHome, home, makeHomeTransc, goHome, makeHomeLogin, homeLogin}
+export { home, homeLogin }

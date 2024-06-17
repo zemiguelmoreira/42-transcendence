@@ -35,12 +35,19 @@ function viewToken() {
 	return token !== null && token !== undefined && token.trim() !== '';
 }
 
+function viewTokenRefresh() {
+	const refreshToken = localStorage.getItem('refresh_token');
+	// console.log(token);
+	return refreshToken !== null && refreshToken !== undefined && refreshToken.trim() !== '';
+}
+
 
 
 function removeToken() {
 	try {
 		const token = localStorage.getItem('access_token');
-		localStorage.removeItem('token');
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('refresh_token');
 		console.log(`Item com chave "${token}" removido com sucesso da localStorage.`);
 	} catch (error) {
 		console.error(`Erro ao remover o item com chave "${token}" da localStorage:`, error);
@@ -54,9 +61,10 @@ function removeToken2() {
 	window.addEventListener('beforeunload', function(event) {
 	// Remover o token da localStorage
 	localStorage.removeItem('access_token');
+	localStorage.removeItem('refresh_token');
   })
 }
 
 
 
-export { saveToken, viewToken, removeToken, removeToken2 }
+export { saveToken, viewToken, viewTokenRefresh, removeToken, removeToken2 }

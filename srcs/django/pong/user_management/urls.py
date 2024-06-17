@@ -19,6 +19,8 @@ urlpatterns = [
 	path('profile/login/', csrf_protect(views.LoginView.as_view()), name='login_user'),
     path('user-profile/<int:user_id>/', views.user_profile_api_view, name='user_profile_api'),
     path('get-user-id/', views.get_user_id, name='get_user_id'),
+    path('get-user-username/', views.get_user_username, name='get_user_username'),
+    path('get-user-id-list/', views.get_user_id_list, name='get_user_id_list'),
     path('change-profile/', views.change_profile, name='get_user_id'),
     path('delete-account/<int:user_id>/', views.delete_account, name='delete-account'),
 

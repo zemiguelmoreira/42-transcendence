@@ -16,7 +16,7 @@ function makeRegisterPage() {
           <!-- Username input -->
           <div class="form-group mb-3">
             <label for="form1Example1">username</label>
-            <input type="text" class="form-control" id="form1Example1" name="username" placeholder="username">
+            <input type="text" class="form-control" id="form1Example1" name="username" placeholder="username" autofocus>
           </div>
 		  <!-- Email input -->
           <div class="form-group mb-3">

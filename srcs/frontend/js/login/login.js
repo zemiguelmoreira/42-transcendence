@@ -2,11 +2,9 @@ import { limparDivAll } from "../utils/utils1.js";
 import { baseURL } from "../app.js";
 import { signIn_page } from "../html/signin.js";
 import { getCsrfToken } from "../utils/csrf.js";
-import { home } from "../html/home.js";
-import { displayError, displayErrorSignIn } from "../utils/utils1.js";
-import { displayPageError } from "../html/error_page.js";
+import { displayErrorSignIn } from "../utils/utils1.js";
 import { successContainer, showSuccessMessage } from "./register.js";
-import { goHome } from "../html/home.js";
+import { navigateTo } from "../app.js";
 import { saveToken, viewToken } from "./session.js";
 
 let userName = "";
@@ -55,25 +53,22 @@ function userSignIn(e) {
 }
 
 
-function handleSignIn(e) {
-	e.preventDefault();
+function signIn() {
+	// e.preventDefault();
 	
 	limparDivAll('root');
 	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
+	// history.pushState({ page: 'signIn' }, 'Sign In', '/signIn'); //histórico
+	document.getElementById('home').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo('/');
+	});
+
 	const signInUser = document.querySelector('#signInUser');
-	home();
 	// console.log(signInUser);
 	signInUser.addEventListener('click', userSignIn);
 	
 }
-
-// o id está na navbar.js
-
-function signIn() {
-	const butSign = document.querySelector('#signIn');
-	// console.log(butSign);
-	butSign.addEventListener('click', handleSignIn);
-};
 
 
 async function sendIUser(userOrEmail, password, allURL) {
@@ -120,18 +115,23 @@ async function sendIUser(userOrEmail, password, allURL) {
 		userName = data.user.username;
 		const successDiv = successContainer(data.user.username);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		showSuccessMessage();
+		if (viewToken())
+			showSuccessMessage(data.user.username);
+		else {
+			throw {
+				message: 'Something went wrong',
+				status: 401,
+				status_msg: 'Internal Server Error - Tokens'
+			};
+		}
+		
 	} catch (e) {
 		console.log(e.message, e.status, e.status_msn);
 		if (e.status === 400){
 			displayErrorSignIn(e.message);
 		}
 		else {
-			const makeError = displayPageError(e.status, e.message);
-			document.getElementById('root').innerHTML = ''; //só teste
-			document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
-			const home_error = document.getElementById('a_error');
-			home_error.addEventListener('click', goHome);
+			navigateTo(`/error/${e.status}/${e.message}`);
 		}
 	}
 

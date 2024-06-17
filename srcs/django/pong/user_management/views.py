@@ -102,6 +102,50 @@ def get_user_id(request):
         return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
     
 
+# Função do devolve o username do user fornecendo o id
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def get_user_username(request):
+    user_id = request.data.get('id')
+    
+    try:
+        user_profile = UserProfile.objects.get(id=user_id)
+        return Response({
+            'username': user_profile.username
+        }, status=status.HTTP_200_OK)
+    except UserProfile.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Função do devolve lista o id do user
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def get_user_id_list(request):
+    print(request.data)
+    user_name = request.data.get('user', '')
+    print(user_name)
+    
+    if not user_name:
+        return Response({'error': 'No search term provided'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Realizar a busca parcial usando icontains
+        user_profiles = UserProfile.objects.filter(username__icontains=user_name)
+        print(user_profiles)
+        # if not user_profiles.exists():
+        #     return Response({'error': 'No users found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Preparar a resposta com os IDs dos usuários encontrados
+        #  list comprehension = a way to create a new list with less syntax
+        # users_data = [{'id': user_profile.id, 'username': user_profile.username} for user_profile in user_profiles]
+        users_data = [{'username': user_profile.username} for user_profile in user_profiles]
+        print(users_data)
+
+        return Response(users_data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # função para fazer login utilizador com APIView
 
 # @api_view(['POST']) se colocar nãp posso utilizar o as_view()
@@ -243,15 +287,19 @@ def delete_account(request, user_id):
         return Response({'error': 'Csrf Token not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     try:
-
         user = get_object_or_404(UserProfile, pk=user_id)
         serializer = UserProfileSerializer(user)
 
         print(f"User with ID {user_id} would be deleted here.")
         
-        return Response(serializer.data)
+        user.delete()
+        # return Response(serializer.data)
+        return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
     except UserProfile.DoesNotExist:
         return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+ 
     
 @api_view(['PUT'])
 @permission_classes([AllowAny])

@@ -14,7 +14,7 @@ function makeSignInPage() {
           <!-- Username input -->
           <div class="form-group mb-3">
             <label for="form1Example1">username</label>
-            <input type="text" class="form-control" id="form1Example1" name="username" placeholder="username or email">
+            <input type="text" class="form-control" id="form1Example1" name="username" placeholder="username or email" autofocus>
           </div>
           <!-- Password input -->
           <div class="form-group mb-5">
@@ -22,8 +22,11 @@ function makeSignInPage() {
             <input type="password" class="form-control" id="form1Example3" name="password" placeholder="password">
           </div>
           <!-- Submit button -->
-		  <div class="d-grid gap-2 col-6 mx-auto">
+		  <div class="d-grid gap-2 col-6 mx-auto w-100">
           	<button type="submit" id="signInUser" class="btn btn-primary btn-block" data-value="/users/profile/login/">sign in</button>
+		  </div>
+		  <div class="d-grid gap-2 col-6 mt-2 mx-auto w-100">
+          	<button type="submit" id="signInUser42" class="btn btn-secondary btn-block" data-value="">sign in with 42</button>
 		  </div>
 		  <div class="mt-3 d-flex justify-content-center">
 		  	<p id="error-message" style="display: none; color: red;"></p>

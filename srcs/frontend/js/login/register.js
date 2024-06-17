@@ -4,9 +4,10 @@ import { saveToken, viewToken } from "./session.js";
 import { getCsrfToken } from "../utils/csrf.js";
 import { baseURL } from "../app.js";
 import { signIn_page } from "../html/signin.js";
-import { home, goHome, makeHomeLogin } from "../html/home.js";
+// import { home, goHome, makeHomeLogin } from "../html/home.js";
 import { displayPageError } from "../html/error_page.js";
 import { userSignIn } from "./login.js";
+import { navigateTo } from "../app.js";
 
 let userNameReg = "";
 
@@ -50,15 +51,6 @@ function fetchRegister(user, email, password, password2, allURL, registerForm) {
 }
 
 
-// REMOVE A CLASSE DE VALIDAÇÃO -  FUNÇÂO NÃO USADA
-function removeInputValidation(registerForm) {
-	for (let element of registerForm.elements) {
-		if (element.classList.contains('input-error'))
-			element.classList.remove('input-error');
-	}
-}
-
-
 function handleSignUp(e) {
     e.preventDefault();
 	console.log(this.dataset.value);
@@ -78,32 +70,23 @@ function handleSignUp(e) {
 }
 
 
-function signInPage(e) {
-	e.preventDefault();
-	limparDivAll('root');
-	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
-	const signInUser = document.querySelector('#signInUser');
-	home();
-	console.log(signInUser);
-	signInUser.addEventListener('click', userSignIn);
-}
-
-
 // FUNÇÃO PRINCIPAL DE REGISTO - VEM DA PRIMEIRA PAGE
 function register() {
-	const butRegister = document.querySelector('#register');
-	// console.log(butRegister);
-	butRegister.addEventListener('click', function (e) {
+
+	limparDivAll('root');
+	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
+
+	document.getElementById('signInRegister').addEventListener('click', (e) => {
 		e.preventDefault();
-		limparDivAll('root');
-		// console.log(this.dataset.value);
-		document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
-		const signIn = document.querySelector('#signInRegister');
-		signIn.addEventListener('click', signInPage);
-		home();
-		const signUp = document.querySelector('#signUp');
-		signUp.addEventListener('click', handleSignUp)
-	})
+		navigateTo('/signIn');});
+
+	document.getElementById('home').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo('/');});
+
+	const signUp = document.querySelector('#signUp');
+	signUp.addEventListener('click', handleSignUp)
+
 };
 
 
@@ -116,12 +99,13 @@ function successContainer(success_message) {
 }
 
 
-function showSuccessMessage() {
+function showSuccessMessage(username) {
 	var messageDiv = document.getElementById('successMessage');
 	messageDiv.style.display = 'block'; // Exibe a mensagem
 	setTimeout(function() {
-		messageDiv.style.display = 'none'; // Oculta a mensagem após 3 segundos
-		makeHomeLogin(); // Redireciona para a página inicial após login
+		messageDiv.style.display = 'none';
+		console.log(userNameReg);
+		navigateTo(`/user/${username}`);
 	}, 1000); // 1000 milissegundos = 1 segundos
 }
 
@@ -173,7 +157,14 @@ async function registerUser(user, email, password, password2, allURL) {
 		limparDivAll('root');
 		const successDiv = successContainer(data.user);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		showSuccessMessage();
+		if (viewToken())
+			showSuccessMessage(dados.username);
+		else
+			throw {
+				message: 'Something went wrong',
+				status: 401,
+				status_msg: 'Internal Server Error - Tokens'
+			};
 
 	} catch (e) {
 
@@ -186,11 +177,9 @@ async function registerUser(user, email, password, password2, allURL) {
 		}
 
 		else {
-			const makeError = displayPageError(e.status, e.message);
-			document.getElementById('root').innerHTML = ''; //só teste
-			document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
-			const home_error = document.getElementById('a_error');
-			home_error.addEventListener('click', goHome);
+			navigateTo(`/error/${e.status}/${e.message}`);
+		// 	const home_error = document.getElementById('a_error'); //falta colocar isto na app.js
+		// 	home_error.addEventListener('click', goHome);
 		}
 	}
 };

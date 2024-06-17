@@ -1,6 +1,5 @@
 
 
-
 import { baseURL } from "../app.js";
 
 
@@ -26,9 +25,43 @@ async function fetchProtectedData() {
     }
 }
 
+// Função de teste Token
+function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+
+// Função de teste Token
+function testToken(token) {
+	let payload;
+	if (token) {
+		payload = parseJwt(token);
+		console.log(payload); // Verifique as claims
+	
+		const currentTimestamp = Math.floor(Date.now() / 1000);
+		if (payload.exp < currentTimestamp) {
+			console.log('Token expirado');
+		} else {
+			console.log('Token válido');
+		}
+	} else {
+		console.log('Token não encontrado no localStorage');
+	}
+	return payload;
+}
+
 
 async function fetchWithAuth(url, options = {}) {
+
     const accessToken = localStorage.getItem('access_token');
+
+	testToken(accessToken); //só para teste
+
 	console.log('access: ', accessToken);
 
     options.headers = {
@@ -56,11 +89,12 @@ async function fetchWithAuth(url, options = {}) {
 }
 
 
-
-const refreshToken = localStorage.getItem('refresh_token');
-
 // Função para fazer a solicitação POST
+// colocar o token e remover decorator no Django
 async function refreshAccessToken() {
+
+	const refreshToken = localStorage.getItem('refresh_token');
+
     try {
 		// api/token/refresh/
 		const url = `${baseURL}/users/api/token/refresh/`;
@@ -92,13 +126,13 @@ async function refreshAccessToken() {
 
 
 
-function linkTeste(e) {
-	e.preventDefault();
-	// fetchProtectedData();
-	// const state = refreshAccessToken();
-	fetchProtectedData();
-}
+// function linkTeste(e) {
+// 	e.preventDefault();
+// 	// fetchProtectedData();
+// 	// const state = refreshAccessToken();
+// 	fetchProtectedData();
+// }
 
 
 
-export { linkTeste }
+export { fetchProtectedData, testToken }
