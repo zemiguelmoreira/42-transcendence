@@ -4,7 +4,7 @@ import { testToken } from "./profile/profile.js";
 import { getNamebyId } from "./profile/myprofile.js";
 import { pages } from "./utils/path.js";
 
-const baseURL = "https://localhost/api";
+const baseURL = "https://localhost/user";
 const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
 
 // let data;
