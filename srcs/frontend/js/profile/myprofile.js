@@ -18,7 +18,7 @@ async function getIdbyName(username) {
         const csrfToken = await getCsrfToken(); // Obter o token CSRF
         const dados = { user: username };
 
-        const response = await fetch(`${baseURL}/users/get-user-id/`, {
+        const response = await fetch(`${baseURL}/get-user-id/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Adicionando o Content-Type correto
@@ -48,7 +48,7 @@ async function getNamebyId(user_id) {
         const csrfToken = await getCsrfToken(); // Obter o token CSRF
         const dados = { id: user_id };
 
-        const response = await fetch(`${baseURL}/users/get-user-username/`, {
+        const response = await fetch(`${baseURL}/get-user-username/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Adicionando o Content-Type correto
@@ -78,7 +78,7 @@ async function getIdbyNameList(userName) {
         const csrfToken = await getCsrfToken(); // Obter o token CSRF
         const dados = { user: userName };
 
-        const response = await fetch(`${baseURL}/users/get-user-id-list/`, {
+        const response = await fetch(`${baseURL}/get-user-id-list/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Adicionando o Content-Type correto
@@ -221,7 +221,7 @@ async function fetchUserProfile(username) {
 		const userId = await getIdbyName(username);
 		const csrfToken = await getCsrfToken(); // Obter o token CSRF
 
-		const response = await fetch(`${baseURL}/users/user-profile/${userId}/`, {
+		const response = await fetch(`${baseURL}/user-profile/${userId}/`, {
 			method: 'GET',
 			headers: {
 				'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação

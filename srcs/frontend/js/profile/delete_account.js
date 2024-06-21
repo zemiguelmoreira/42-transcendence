@@ -74,7 +74,7 @@ async function deleteProfile(username) {
 		const userId = await getIdbyName(username);
 		const csrfToken = await getCsrfToken(); // Obter o token CSRF
 
-		const response = await fetch(`${baseURL}/users/delete-account/${userId}/`, {
+		const response = await fetch(`${baseURL}/delete-account/${userId}/`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

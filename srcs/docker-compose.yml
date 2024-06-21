@@ -68,67 +68,67 @@ services:
     networks:
       - backend-net
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-    networks:
-      - transcendence-net
-      - backend-net
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+  #   container_name: elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - es-data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - "9200:9200"
+  #   networks:
+  #     - transcendence-net
+  #     - backend-net
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.13.2
-    container_name: logstash
-    volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - "5044:5044"
-      - "5959:5959"
-    depends_on:
-      - elasticsearch
-    networks:
-      - transcendence-net
-      - backend-net
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:7.13.2
+  #   container_name: logstash
+  #   volumes:
+  #     - ./logstash/pipeline:/usr/share/logstash/pipeline
+  #   ports:
+  #     - "5044:5044"
+  #     - "5959:5959"
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - transcendence-net
+  #     - backend-net
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.13.2
-    container_name: kibana
-    environment:
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    networks:
-      - transcendence-net
-      - backend-net
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:7.13.2
+  #   container_name: kibana
+  #   environment:
+  #     ELASTICSEARCH_URL: http://elasticsearch:9200
+  #   ports:
+  #     - "5601:5601"
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - transcendence-net
+  #     - backend-net
   
-  filebeat:
-    build:
-      context: ./filebeat
-      dockerfile: Dockerfile
-    user: root
-    volumes:
-    - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
-    - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-    - /var/log/filebeat:/var/log/filebeat
-    networks:
-      - transcendence-net
-      - backend-net
-    depends_on:
-      - elasticsearch
-      - logstash
+  # filebeat:
+  #   build:
+  #     context: ./filebeat
+  #     dockerfile: Dockerfile
+  #   user: root
+  #   volumes:
+  #   - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
+  #   - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #   - /var/log/filebeat:/var/log/filebeat
+  #   networks:
+  #     - transcendence-net
+  #     - backend-net
+  #   depends_on:
+  #     - elasticsearch
+  #     - logstash
 
 volumes:
   nginx-conf:
@@ -159,9 +159,9 @@ volumes:
       type: none
       device: ${SQL_PATH}
       o: bind
-  es-data:
-    name: es-data
-    driver: local
+  # es-data:
+  #   name: es-data
+  #   driver: local
 
 
 networks:

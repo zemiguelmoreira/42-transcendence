@@ -13,7 +13,7 @@ async function fetchProtectedData() {
             }
         }
 
-        const response = await fetchWithAuth(`${baseURL}/users/protected/`, conf);
+        const response = await fetchWithAuth(`${baseURL}/protected/`, conf);
         if (!response.ok) {
             throw new Error(`Error fetching protected data: ${response.statusText}`);
         }
@@ -97,7 +97,7 @@ async function refreshAccessToken() {
 
     try {
 		// api/token/refresh/
-		const url = `${baseURL}/users/api/token/refresh/`;
+		const url = `${baseURL}/api/token/refresh/`;
         const response = await fetch(url, {
             method: 'POST',
             headers: {

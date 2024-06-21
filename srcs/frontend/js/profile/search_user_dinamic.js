@@ -80,7 +80,7 @@ async function getUserDinamic(searchInput) {
 
 				if (!userID) return;
 
-				const response = await fetch(`${baseURL}/users/user-profile/${userID}/`, {
+				const response = await fetch(`${baseURL}/user-profile/${userID}/`, {
 					method: 'GET',
 					headers: {
 						'X-CSRFToken': csrfToken  // Include CSRF token in the request headers
