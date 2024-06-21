@@ -3,7 +3,7 @@
 function makeRegisterPage() {
 	return `
 	<div class="d-flex flex-column vh-100" id="reg">
-	<nav class="navbar navbar-dark">
+	<nav class="navbar navbar-dark p-4">
   		<div class="container-fluid">
     		<a class="navbar-brand" href="" id="home">Transcendence</a>
   		</div>

@@ -12,7 +12,9 @@ import { displayPageError } from "../html/error_page.js";
 
 const pages = {
     '/': {
-        loadContent: home
+        loadContent: function () {
+            home();          
+        }
     },
     '/signIn': {
         loadContent: function() {
@@ -32,7 +34,8 @@ const pages = {
 			if (viewToken())
             	homeLogin(params.username);
 			else
-				navigateTo('/signIn');
+				// navigateTo('/signIn');
+                navigateTo('/', true);
         }
     },
     '/error/:status/:message': {
@@ -43,7 +46,7 @@ const pages = {
 			document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
 			const home_error = document.getElementById('a_error');
 			home_error.addEventListener('click', (e) => {
-				e. preventDefault();
+				e.preventDefault();
 				navigateTo('/');
 			})
         }
@@ -51,30 +54,41 @@ const pages = {
 	'/user/:username/profile': {
         loadContent: function(params) {
             console.log('Loading user profile page content for', params.username);
-			// aantes da entrar na rota verificar na função fetchuserprofile se o token é válido se nãp for vai paar o sigIn
-			userDataPage(userData, params.username);
-
+			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
+            if(viewToken())
+			    userDataPage(userData, params.username);
+            else
+                navigateTo('/', true);
         }
     },
 	'/user/:username/profile/edit': {
         loadContent: function(params) {
             console.log('Loading user profile edit page content for', params.username);
-			// aantes da entrar na rota verificar na função fetchuserprofile se o token é válido se nãp for vai paar o sigIn
-			editPageBtns(userData, params.username);
+			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
+            if(viewToken())
+			    editPageBtns(userData, params.username);
+            else
+                navigateTo('/', true);
         }
     },
 	'/user/:username/profile/search/:user': {
         loadContent: function(params) {
             console.log('Loading user profile search user page content for', params.username);
-			// aantes da entrar na rota verificar na função fetchuserprofile se o token é válido se nãp for vai paar o sigIn
-			userSearchPage(dataUserSearch, params.username);
+			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
+			if(viewToken())
+                userSearchPage(dataUserSearch, params.username);
+            else
+                navigateTo('/', true);
         }
     },
 	'/user/:username/profile/search/noresults/:query': {
         loadContent: function(params) {
             console.log('Loading user profile search user page-no results content for', params.username);
-			// antes da entrar na rota verificar na função fetchuserprofile se o token é válido se nãp for vai paar o sigIn
-			noResults(params.username, params.query);
+			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
+            if(viewToken())
+			    noResults(params.username, params.query);
+            else
+                navigateTo('/', true);
         }
     },
     // Outras páginas...

@@ -1,5 +1,5 @@
 function createNavbar1() {
-	return `<nav class="navbar navbar-expand-lg navbar-dark" id="navBar" data-page="register">
+	return `<nav class="navbar navbar-expand-lg navbar-dark p-4" id="navBar" data-page="register">
 	<div class="container-fluid">
 		<a class="navbar-brand" href="" id="home">Transcendence</a>
 		<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
@@ -38,7 +38,7 @@ var navbar1 = createNavbar1();
 
 
 function createNavbar2 () {
-	return `<nav class="navbar navbar-dark">
+	return `<nav class="navbar navbar-dark p-4">
 	<div class="container-fluid">
 	  <a class="navbar-brand" href="" id="home">Transcendence</a>
 	</div>
@@ -51,7 +51,7 @@ const navbar2 = createNavbar2();
 // http://127.0.0.1:5500/42/Transcendence/ft_transc_work_v2_history/srcs/frontend/css/style.css
 
 function createNavbar3() {
-	return `<nav class="navbar navbar-expand-lg navbar-dark" id="navBar">
+	return `<nav class="navbar navbar-expand-lg navbar-dark p-4" id="navBar">
 	<div class="container-fluid">
 		<a class="navbar-brand" href="" id="home">Transcendence</a>
 		<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
@@ -80,7 +80,9 @@ function createNavbar3() {
 			</div>
 			<ul class="navbar-nav ms-auto">
 				<div id="mydrop1" class="dropdown">
-					<a id="mydrop" href="" class="dropdown-toggle border border-0 ms-3" role="button" data-bs-toggle="dropdown" aria-expanded="false"><img src="/assets/ialves-m.jpg" class="rounded-circle" alt="avatar"></a>
+					<a id="mydrop" href="" class="dropdown-toggle border border-0 ms-3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<img src="/assets/avatar.png" class="rounded-circle" alt="avatar">
+					</a>
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
 						<li><a id="my-profile" class="dropdown-item" href="">my profile</a></li>
 						<li><a class="dropdown-item" href="#">Another action</a></li>

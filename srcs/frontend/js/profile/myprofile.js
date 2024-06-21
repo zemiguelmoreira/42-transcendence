@@ -68,7 +68,7 @@ async function getNamebyId(user_id) {
         return data.username;
     } catch (error) {
         console.error('Error:', error);
-        return "0";
+        return null;
     };
 }
 

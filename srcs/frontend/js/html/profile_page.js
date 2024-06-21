@@ -16,7 +16,7 @@
 function makeProfilePage(data) {
 	return `
 		<div class="d-flex flex-column vh-100" id="reg">
-			<nav class="navbar navbar-expand-xxl navbar-dark" id="navBar">
+			<nav class="navbar navbar-expand-xxl navbar-dark p-4" id="navBar">
 				<div class="container-fluid">
 					<a class="navbar-brand" href="" id="home">Transcendence</a>
 					<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
@@ -49,7 +49,7 @@ function makeProfilePage(data) {
 					<div class="col-lg-3 text-center">
 						<div class="customTooltip">
 							<a href="">
-								<img src="/assets/ialves-m.jpg" alt="Profile Picture" class="profile-pic">
+								<img src="/assets/avatar.png" alt="Profile Picture" class="profile-pic">
 							</a>
 							<span class="customTooltiptext">change your photo</span>
 						</div>
@@ -72,7 +72,7 @@ function makeProfilePage(data) {
 function makeEditProfilePage(data) {
 	return `
 	<div class="d-flex flex-column vh-100" id="reg">
-		<nav class="navbar navbar-expand-xxl navbar-dark" id="navBar">
+		<nav class="navbar navbar-expand-xxl navbar-dark p-4" id="navBar">
 				<div class="container-fluid">
 					<a class="navbar-brand" href="" id="home">Transcendence</a>
 					<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
@@ -104,8 +104,7 @@ function makeEditProfilePage(data) {
 					<div class="col-lg-3 text-center">
 						<div class="customTooltip">
 							<a href="">
-								<img src="/assets/ialves-m.jpg" alt="Profile Picture" class="profile-pic">
-								
+								<img src="/assets/avatar.png" alt="Profile Picture" class="profile-pic">		
 							</a>
 							<span class="customTooltiptext">change your photo</span>
 						</div>
@@ -142,7 +141,7 @@ function makeEditProfilePage(data) {
 		`
 }
 
-
+// Função não utilizada
 function makeProfilePageSearch(data) {
 	return `
 		<div class="d-flex flex-column vh-100" id="reg">
@@ -203,7 +202,7 @@ function makeProfilePageSearch(data) {
 function makeProfilePageSearchOther(data) {
 	return `
 		<div class="d-flex flex-column vh-100" id="reg">
-			<nav class="navbar navbar-expand-xxl navbar-dark" id="navBar">
+			<nav class="navbar navbar-expand-xxl navbar-dark p-4" id="navBar">
 				<div class="container-fluid">
 					<a class="navbar-brand" href="" id="home">Transcendence</a>
 					<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
@@ -239,7 +238,7 @@ function makeProfilePageSearchOther(data) {
 					<div class="col-lg-3 text-center">
 						<div>
 							<a href="">
-								<img src="/assets/ialves-m.jpg" alt="Profile Picture" class="profile-pic">
+								<img src="/assets/avatar.png" alt="Profile Picture" class="profile-pic">
 							</a>
 						</div>
 						<div id="editProfile" class="d-grid mt-5 mx-auto">
@@ -301,4 +300,4 @@ function noResultsPage(searchValue) {
 		</div>` ;
 }
 
-export { makeProfilePage, makeEditProfilePage, makeProfilePageSearch, makeProfilePageSearchOther, noResultsPage }
+export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage }
