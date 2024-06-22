@@ -30,9 +30,9 @@ services:
       - transcendence-net
 
   user_management:
-    build: ./user_management_api
-    container_name: user_management_api
-    image: user_management_api:42
+    build: ./UserApi
+    container_name: userapi
+    image: userapi:42
     volumes: #
       - user-app:/usr/src/app
     # expose:
@@ -48,6 +48,26 @@ services:
     networks:
       - transcendence-net
       - backend-net
+
+    chat_server:
+      build: ./ChatServer
+      container_name: chat_server
+      image: chat_server:42
+      volumes: #
+        - user-app:/usr/src/app
+      # expose:
+      #   - "8000"
+      ports: #
+        - "8002:8002"
+      depends_on:
+        postgres:
+          condition: service_healthy
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - transcendence-net
+        - backend-net
   
   postgres:
     build: ./postgres
@@ -150,7 +170,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./user_management_api/user_project
+      device: ./UserApi
       o: bind
   postgres-data:
     name: postgres-data

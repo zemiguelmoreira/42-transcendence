@@ -1,13 +1,9 @@
 import { limparDivAll, displayError } from "../utils/utils1.js";
 import { register_page } from "../html/register_page.js";
-import { saveToken, viewToken } from "./session.js";
 import { getCsrfToken } from "../utils/csrf.js";
 import { baseURL } from "../app.js";
-import { signIn_page } from "../html/signin.js";
-// import { home, goHome, makeHomeLogin } from "../html/home.js";
-import { displayPageError } from "../html/error_page.js";
-import { userSignIn } from "./login.js";
 import { navigateTo } from "../app.js";
+import { successContainer } from "../utils/utils1.js";
 
 let userNameReg = "";
 
@@ -90,22 +86,13 @@ function register() {
 };
 
 
-function successContainer(success_message) {
-	return `<div class="row justify-content-center my-auto">
-	<div class="col-auto">
-		<div class="success-message" id="successMessage" style="display: none; font-size: 30px;">Welcome ${success_message}</div>
-	</div>
-</div>`;
-}
-
-
-function showSuccessMessage(username) {
+function showSuccessMessageRegister(username) {
 	var messageDiv = document.getElementById('successMessage');
 	messageDiv.style.display = 'block'; // Exibe a mensagem
 	setTimeout(function() {
 		messageDiv.style.display = 'none';
 		console.log(userNameReg);
-		navigateTo(`/user/${username}`);
+		navigateTo(`/signIn`);
 	}, 1000); // 1000 milissegundos = 1 segundos
 }
 
@@ -150,21 +137,23 @@ async function registerUser(user, email, password, password2, allURL) {
 		}
 		userNameReg = dados.username;
 		const data = await response.json();
-		console.log(data);
-		console.log(data.access_token, data.refresh_token);
-		saveToken(data.access_token, data.refresh_token);
-		console.log('localstorage', viewToken());
+		// console.log(data);
+		// console.log(data.access_token, data.refresh_token);
+		// saveToken(data.access_token, data.refresh_token);
+		// console.log('localstorage', viewToken());
 		limparDivAll('root');
 		const successDiv = successContainer(data.user);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		if (viewToken())
-			showSuccessMessage(dados.username);
-		else
-			throw {
-				message: 'Something went wrong',
-				status: 401,
-				status_msg: 'Internal Server Error - Tokens'
-			};
+		showSuccessMessageRegister(dados.username);
+		/* apagar  */
+		// if (viewToken())
+		// 	showSuccessMessage(dados.username);
+		// else
+		// 	throw {
+		// 		message: 'Something went wrong',
+		// 		status: 401,
+		// 		status_msg: 'Internal Server Error - Tokens'
+		// 	};
 
 	} catch (e) {
 
@@ -185,4 +174,4 @@ async function registerUser(user, email, password, password2, allURL) {
 };
 
 
-export { userNameReg, register, successContainer, showSuccessMessage }
+export { userNameReg, register, successContainer }

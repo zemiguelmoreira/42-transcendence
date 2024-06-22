@@ -2,8 +2,7 @@ import { limparDivAll } from "../utils/utils1.js";
 import { baseURL } from "../app.js";
 import { signIn_page } from "../html/signin.js";
 import { getCsrfToken } from "../utils/csrf.js";
-import { displayErrorSignIn } from "../utils/utils1.js";
-import { successContainer, showSuccessMessage } from "./register.js";
+import { displayErrorSignIn, successContainer } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
 import { saveToken, viewToken } from "./session.js";
 
@@ -52,6 +51,16 @@ function userSignIn(e) {
 	}
 }
 
+
+function showSuccessMessageSignIn(username) {
+	var messageDiv = document.getElementById('successMessage');
+	messageDiv.style.display = 'block'; // Exibe a mensagem
+	setTimeout(function() {
+		messageDiv.style.display = 'none';
+		// console.log(userNameReg);
+		navigateTo(`/user/${username}`);
+	}, 1000); // 1000 milissegundos = 1 segundos
+}
 
 function signIn() {
 	// e.preventDefault();
@@ -104,7 +113,7 @@ async function sendIUser(userOrEmail, password, allURL) {
 			}
 			console.log(errorObject.message, errorObject.status, errorObject.status_msn);
 			throw errorObject;
-		}
+		} 	
 
 		const data = await response.json();
 		console.log(data);
@@ -116,7 +125,7 @@ async function sendIUser(userOrEmail, password, allURL) {
 		const successDiv = successContainer(data.user.username);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 		if (viewToken())
-			showSuccessMessage(data.user.username);
+			showSuccessMessageSignIn(data.user.username);
 		else {
 			throw {
 				message: 'Something went wrong',

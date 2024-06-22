@@ -104,7 +104,7 @@ async function getUser(username) {
 		console.log("user id:");
 		console.log(userID);
 		
-		const response = await fetch(`${baseURL}/users/user-profile/${userID}/`, {
+		const response = await fetch(`${baseURL}/user-profile/${userID}/`, {
 			method: 'GET',
 			headers: {
 				'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação

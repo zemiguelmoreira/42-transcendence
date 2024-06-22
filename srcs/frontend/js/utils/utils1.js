@@ -67,5 +67,13 @@ function displayErrorSignIn(errorMessage) {
 	}
 }
 
+function successContainer(success_message) {
+	return `<div class="row justify-content-center my-auto">
+	<div class="col-auto">
+		<div class="success-message" id="successMessage" style="display: none; font-size: 30px;">Welcome ${success_message}</div>
+	</div>
+</div>`;
+}
 
-export { limparDiv, limparDivAll, displayError, displayErrorSignIn }
+
+export { limparDiv, limparDivAll, displayError, displayErrorSignIn, successContainer }
