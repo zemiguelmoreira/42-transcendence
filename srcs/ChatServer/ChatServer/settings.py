@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
+    'chat_app',
 ]
 
 MIDDLEWARE = [
@@ -68,17 +71,53 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ChatServer.wsgi.application'
+ASGI_APPLICATION = 'ChatServer.asgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
+
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+        'ENGINE': os.getenv('SQL_ENGINE'),
+
+        'NAME': os.getenv('SQL_DATABASE'),
+
+        'USER': os.getenv('SQL_USER'),
+
+        'PASSWORD': os.getenv('SQL_PASSWORD'),
+
+        'HOST': os.getenv('SQL_HOST'),
+
+        'PORT': os.getenv('SQL_PORT'),
     }
 }
+
+# em desenvolvimento usar in memory
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
+# em producao eh melhor usar algo do tipo, com redis
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
 
 
 # Password validation
