@@ -52,7 +52,7 @@ services:
     container_name: chat_server
     image: chat_server:42
     volumes:
-      - user-app:/usr/src/app
+      - chat-app:/usr/src/app
     ports:
       - "8002:8002"
     depends_on:
@@ -167,6 +167,13 @@ volumes:
     driver_opts:
       type: none
       device: ./UserApi
+      o: bind
+  chat-app:
+    name: chat-app
+    driver: local
+    driver_opts:
+      type: none
+      device: ./ChatServer
       o: bind
   postgres-data:
     name: postgres-data
