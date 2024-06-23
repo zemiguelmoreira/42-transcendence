@@ -14,6 +14,9 @@ venv/
 ENV/ 
 env.bak/ 
 venv.bak/
+env_chat/
+env_user/
+env_game/
 
 # Visual Studio Code # 
 .vscode/* 
