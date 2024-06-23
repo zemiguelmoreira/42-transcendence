@@ -33,11 +33,9 @@ services:
     build: ./UserApi
     container_name: userapi
     image: userapi:42
-    volumes: #
+    volumes:
       - user-app:/usr/src/app
-    # expose:
-    #   - "8000"
-    ports: #
+    ports:
       - "8000:8000"
     depends_on:
       postgres:
@@ -49,25 +47,23 @@ services:
       - transcendence-net
       - backend-net
 
-    chat_server:
-      build: ./ChatServer
-      container_name: chat_server
-      image: chat_server:42
-      volumes: #
-        - user-app:/usr/src/app
-      # expose:
-      #   - "8000"
-      ports: #
-        - "8002:8002"
-      depends_on:
-        postgres:
-          condition: service_healthy
-      env_file:
-        - .env
-      restart: always
-      networks:
-        - transcendence-net
-        - backend-net
+  chat_server:
+    build: ./ChatServer
+    container_name: chat_server
+    image: chat_server:42
+    volumes:
+      - user-app:/usr/src/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - transcendence-net
+      - backend-net
   
   postgres:
     build: ./postgres
