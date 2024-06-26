@@ -283,7 +283,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
-
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -308,6 +309,12 @@ def register_user(request):
             
             if password != confirm_password:
                 return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+
+             # Validate password strength
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                return Response({'error': e.messages}, status=status.HTTP_400_BAD_REQUEST)
 
             # Salvar o usuário e a senha
             user_profile = serializer.save()
