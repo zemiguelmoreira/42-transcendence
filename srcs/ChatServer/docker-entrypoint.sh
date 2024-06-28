@@ -10,4 +10,5 @@ then
         --email $DJANGO_SUPERUSER_EMAIL
 fi
 
-daphne -p 8000 ChatServer.asgi:application
+daphne -b 0.0.0.0 -p 8002 ChatServer.asgi:application
+
