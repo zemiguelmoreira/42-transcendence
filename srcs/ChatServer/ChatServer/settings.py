@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,47 +78,47 @@ ASGI_APPLICATION = 'ChatServer.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
-
     'default': {
-
-        'ENGINE': os.getenv('SQL_ENGINE'),
-
-        'NAME': os.getenv('SQL_DATABASE'),
-
-        'USER': os.getenv('SQL_USER'),
-
-        'PASSWORD': os.getenv('SQL_PASSWORD'),
-
-        'HOST': os.getenv('SQL_HOST'),
-
-        'PORT': os.getenv('SQL_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
-# em desenvolvimento usar in memory
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+# DATABASES = {
 
-# em producao eh melhor usar algo do tipo, com redis
+#     'default': {
+
+#         'ENGINE': os.getenv('SQL_ENGINE'),
+
+#         'NAME': os.getenv('SQL_DATABASE'),
+
+#         'USER': os.getenv('SQL_USER'),
+
+#         'PASSWORD': os.getenv('SQL_PASSWORD'),
+
+#         'HOST': os.getenv('SQL_HOST'),
+
+#         'PORT': os.getenv('SQL_PORT'),
+#     }
+# }
+
+# em desenvolvimento usar in memory
 # CHANNEL_LAYERS = {
 #     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
-#         },
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
 #     },
 # }
+
+# em producao eh melhor usar algo do tipo, com redis
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 
 # Password validation
