@@ -18,7 +18,6 @@ urlpatterns = [
     path('api/token/',views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
 
-    path('home/', views.Home.as_view(), name='teste_view'),
     path('protected/', views.ProtectedView.as_view(), name='protected_view'),
 ]
 

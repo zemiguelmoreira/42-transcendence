@@ -16,7 +16,7 @@ function home() {
 
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/signIn');});
+		navigateTo('/#signIn');});
 
 	document.getElementById('register').addEventListener('click', (e) => {
 			e.preventDefault();

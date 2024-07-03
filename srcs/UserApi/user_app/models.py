@@ -6,8 +6,9 @@ class UserProfile(models.Model):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     photo_path = models.CharField(max_length=200, blank=True, null=True)
-    friendList = ArrayField(models.TextField(), blank=True, default=list,)
-    blockList = ArrayField(models.TextField(), blank=True, default=list,)
+    friendList = ArrayField(models.TextField(), blank=True, default=list)
+    blockList = ArrayField(models.TextField(), blank=True, default=list)
+    is_online = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
@@ -17,4 +18,4 @@ class UserCredentials(models.Model):
     password_hash = models.CharField(max_length=200)
    
     def __str__(self):
-        return self.user.username   
+        return self.user.username

@@ -1,18 +1,4 @@
 
-
-// function saveToken(access_token, refresh_token) {
-
-// 	if (token !== null && token !== undefined && token.trim!=="")
-// 	try {
-// 		localStorage.setItem('access_token', access_token);
-// 		localStorage.setItem('refresh_token', refresh_token);
-// 		console.log('Tokens salvo com sucesso na localStorage.');
-// 	} catch (error) {
-// 		console.error('Erro ao salvar o token na localStorage:', error);
-// 	}
-// }
-
-
 function saveToken(access_token, refresh_token) {
     if (access_token && access_token.trim() !== "" && refresh_token && refresh_token.trim() !== "") {
         try {
@@ -26,8 +12,6 @@ function saveToken(access_token, refresh_token) {
         console.error('Os tokens não podem ser nulos, indefinidos ou strings vazias.');
     }
 }
-
-
 
 function viewToken() {
 	const token = localStorage.getItem('access_token');

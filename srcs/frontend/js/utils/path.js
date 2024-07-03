@@ -16,7 +16,7 @@ const pages = {
             home();          
         }
     },
-    '/signIn': {
+    '/#signIn': {
         loadContent: function() {
             console.log('Loading signIn page content');
             signIn();

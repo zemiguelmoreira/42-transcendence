@@ -1,9 +1,6 @@
 
-import { baseURL } from "../app.js";
-
-// console.log(baseURL);
 async function getCsrfToken() {
-	const response = await fetch(`${baseURL}/get-csrf-token/`, {
+	const response = await fetch(`https://localhost/user/get-csrf-token/`, {
 		method: 'GET',
 		credentials: 'include',
 	});

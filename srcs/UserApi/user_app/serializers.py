@@ -5,7 +5,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import UserProfile
 # from django.contrib.auth.hashers import make_password
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['username', 'email', 'photo_path']
+        fields = ['id', 'username', 'email', 'photo_path', 'friendList', 'blockList', 'is_online']

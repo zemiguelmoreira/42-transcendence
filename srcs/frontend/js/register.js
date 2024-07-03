@@ -1,16 +1,5 @@
-import { limparDivAll, displayError } from "../utils/utils1.js";
-import { register_page } from "../html/register_page.js";
-import { getCsrfToken } from "../utils/csrf.js";
-import { baseURL } from "../app.js";
-import { navigateTo } from "../app.js";
-import { successContainer } from "../utils/utils1.js";
+import { getCsrfToken } from "./utils/csrf.js";
 
-let userNameReg = "";
-
-////****************ReGISTO DO USER*****************************/
-
-
-//INSERE A CLASSE DE VALIDAÇÃO DO CAMPOR BORDER RED
 function insertInputValidation(registerForm) {
 	for (let element of registerForm.elements) {
 		console.log(element);
@@ -37,9 +26,9 @@ function insertInputValidation(registerForm) {
 
 
 // FAZ O FETCH SE ESTIVER TUDO OK
-function fetchRegister(user, email, password, password2, allURL, registerForm) {
+function fetchRegister(user, email, password, password2, registerForm) {
 	console.log(user, password, password2);
-	registerUser(user, email, password, password2, allURL);
+	registerUser(user, email, password, password2);
 	registerForm.elements.username.value = "";
 	registerForm.elements.email.value = "";
 	registerForm.elements.password.value = "";
@@ -49,17 +38,14 @@ function fetchRegister(user, email, password, password2, allURL, registerForm) {
 
 function handleSignUp(e) {
     e.preventDefault();
-	console.log(this.dataset.value);
     const registerForm = document.querySelector('#userRegisterForm');
-    const allURL = `${baseURL}${this.dataset.value}`;
-	console.log(allURL);
     const user = registerForm.elements.username.value;
 	console.log(user);
     const email = registerForm.elements.email.value;
     const password = registerForm.elements.password.value;
     const password2 = registerForm.elements.password2.value;
     if (user && email && password && password2) {
-        fetchRegister(user, email, password, password2, allURL, registerForm);
+        fetchRegister(user, email, password, password2, registerForm);
     } else {
         insertInputValidation(registerForm);
     }
@@ -68,37 +54,23 @@ function handleSignUp(e) {
 
 // FUNÇÃO PRINCIPAL DE REGISTO - VEM DA PRIMEIRA PAGE
 function register() {
-
-	limparDivAll('root');
-	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
-
-	document.getElementById('signInRegister').addEventListener('click', (e) => {
+    document.getElementById('signInRegister').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/signIn');});
+		windows.load('login');
+    });
 
 	document.getElementById('home').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/');});
+		windows.load('login');
+    });
 
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp)
 
 };
 
-
-function showSuccessMessageRegister(username) {
-	var messageDiv = document.getElementById('successMessage');
-	messageDiv.style.display = 'block'; // Exibe a mensagem
-	setTimeout(function() {
-		messageDiv.style.display = 'none';
-		console.log(userNameReg);
-		navigateTo(`/signIn`);
-	}, 1000); // 1000 milissegundos = 1 segundos
-}
-
-
 // FUNÇÃO ASÍNCRONA DE REGITO DE USER
-async function registerUser(user, email, password, password2, allURL) {
+async function registerUser(user, email, password, password2) {
 	const csrfToken = await getCsrfToken();
 	// console.log(csrfToken);
 	const dados = {
@@ -120,9 +92,8 @@ async function registerUser(user, email, password, password2, allURL) {
 		// body: queryString, // não podemos enviar os dados como Json porque não vai preencher o form no Django
 		credentials: 'include',
 	};
-	// console.log(response);
 	try {
-		const response = await fetch(allURL, configuracao);
+		const response = await fetch('/user/profile/create/', configuracao);
 
 		if (!response.ok) {
 			const errorData = await response.json(); // msn que vem do Django
@@ -137,24 +108,7 @@ async function registerUser(user, email, password, password2, allURL) {
 		}
 		userNameReg = dados.username;
 		const data = await response.json();
-		// console.log(data);
-		// console.log(data.access_token, data.refresh_token);
-		// saveToken(data.access_token, data.refresh_token);
-		// console.log('localstorage', viewToken());
-		limparDivAll('root');
-		const successDiv = successContainer(data.user);
-		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		showSuccessMessageRegister(dados.username);
-		/* apagar  */
-		// if (viewToken())
-		// 	showSuccessMessage(dados.username);
-		// else
-		// 	throw {
-		// 		message: 'Something went wrong',
-		// 		status: 401,
-		// 		status_msg: 'Internal Server Error - Tokens'
-		// 	};
-
+		window.loadPage('login', false);
 	} catch (e) {
 
 		console.log(e.message, e.status, e.status_msn);
@@ -162,16 +116,16 @@ async function registerUser(user, email, password, password2, allURL) {
 			const err_key = Object.keys(e.message)[0];
 			const err_message = e.message[err_key];
 			console.log(err_message);
-			displayError(err_message);
 		}
 
 		else {
 			navigateTo(`/error/${e.status}/${e.message}`);
-		// 	const home_error = document.getElementById('a_error'); //falta colocar isto na app.js
-		// 	home_error.addEventListener('click', goHome);
 		}
 	}
 };
 
-
-export { userNameReg, register, successContainer }
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', register);
+} else {
+    register();
+}

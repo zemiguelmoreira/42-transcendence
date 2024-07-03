@@ -1,0 +1,40 @@
+<div class="d-flex flex-column vh-100" id="reg">
+    <div class="container profile-container my-6">
+        <div class="row">
+            <div class="col-lg-3 text-center">
+                <div class="customTooltip">
+                    <a href="">
+                        <img src="/assets/avatar.png" alt="Profile Picture" class="profile-pic">		
+                    </a>
+                    <span class="customTooltiptext">change your photo</span>
+                </div>
+                <div class="d-grid mt-5 mx-auto">
+                    <button id="deleteEdit" class="btn btn-outline-danger" type="button">delete profile</button>
+                </div>
+            </div>
+            <div class="col-lg-4 mt-5 profile-info">
+                <h1>Seu Nome</h1>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Example label</label>
+                    <input type="text" class="form-control" id="username" placeholder="${data.username}">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Another label</label>
+                    <input type="text" class="form-control" id="email" placeholder="${data.email}">
+                </div>
+                <div class="mb-3">
+                    <label for="formGroupExampleInput" class="form-label">Example label</label>
+                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Example input placeholder">
+                </div>
+                <div class="mb-3">
+                    <label for="formGroupExampleInput2" class="form-label">Another label</label>
+                    <input type="text" class="form-control" id="formGroupExampleInput2" placeholder="Another input placeholder">
+                </div>
+                <div class="d-grid mt-5 gap-2 d-md-block">
+                    <button id="cancelEdit" class="btn btn-secondary" type="button">cancel</button>
+                    <button class="btn btn-success" type="button">save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

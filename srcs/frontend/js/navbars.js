@@ -1,5 +1,5 @@
-function createNavbar1() {
-	return `<nav class="navbar navbar-expand-lg navbar-dark p-4" id="navBar" data-page="register">
+function createNavBarLoggedOut() {
+	return `
 	<div class="container-fluid">
 		<a class="navbar-brand" href="" id="home">Transcendence</a>
 		<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
@@ -28,29 +28,10 @@ function createNavbar1() {
 				</li>
 			</ul>
 		</div>
-	</div>
-</nav>`;
+	</div>`;
 }
 
-
-
-var navbar1 = createNavbar1();
-
-
-function createNavbar2 () {
-	return `<nav class="navbar navbar-dark p-4">
-	<div class="container-fluid">
-	  <a class="navbar-brand" href="" id="home">Transcendence</a>
-	</div>
-</nav>`;
-}
-
-
-const navbar2 = createNavbar2();
-
-// http://127.0.0.1:5500/42/Transcendence/ft_transc_work_v2_history/srcs/frontend/css/style.css
-
-function createNavbar3() {
+function createNavBarLoggedIn() {
 	return `
 	<div class="container-fluid">
 		<a class="navbar-brand" href="" id="home">Transcendence</a>
@@ -80,13 +61,13 @@ function createNavbar3() {
 			</div>
 			<ul class="navbar-nav ms-auto">
 				<div id="mydrop1" class="dropdown">
-					<a id="mydrop" href="" class="dropdown-toggle border border-0 ms-3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<a id="mydrop" href="" classs="dropdown-toggle border border-0 ms-3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						<img src="/assets/avatar.png" class="rounded-circle" alt="avatar">
 					</a>
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-						<li><a id="my-profile" class="dropdown-item" href="">my profile</a></li>
-						<li><a class="dropdown-item" href="#">Another action</a></li>
-						<li><a id="logOut" class="dropdown-item" href="#">logout</a></li>
+						<li><a id="my-profile" class="dropdown-item" href="#" data-value="profile">my profile</a></li>
+						<li><a class="dropdown-item" href="">Another action</a></li>
+						<li><a id="logoutNavBtn" class="dropdown-item" href="">logout</a></li>
 					</ul>
 				</div>
 			</ul>
@@ -94,6 +75,4 @@ function createNavbar3() {
 	</div>`;
 }
 
-const navbar3 = createNavbar3();
-
-export { navbar1, navbar2, navbar3 }
+export { createNavBarLoggedIn, createNavBarLoggedOut }
