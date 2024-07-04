@@ -11,13 +11,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import os
-from datetime import timedelta
-import logging
-import logging.config
-
-# from logstash import LogstashFormatterV1, TCPLogstashHandler
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,19 +20,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$#4g23zn@n3f^5-orih**sf9r3f7*xk7pq!(x$o*icxshf$r1+'
-# SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = 'django-insecure-hx_xa*9#oze(z72q=7bdulcpv93^^$65psulnl&0ya+biy3b%y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.getenv('DEBUG')
 DEBUG = True
 
-CORS_ALLOW_ALL_ORIGINS = True
+ALLOWED_HOSTS = []
 
-CORS_ALLOW_CREDENTIALS = True
-
-# ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ["*", ]
 
 # Application definition
 
@@ -50,9 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework_simplejwt',
-    'rest_framework',
-    'user_app',
 ]
 
 MIDDLEWARE = [
@@ -85,41 +69,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'UserApi.wsgi.application'
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
-}
-
-# Configuração de logging
-logging.config.dictConfig(LOGGING)
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-
     'default': {
-
-        'ENGINE': os.getenv('SQL_ENGINE'),
-
-        'NAME': os.getenv('SQL_DATABASE'),
-
-        'USER': os.getenv('SQL_USER'),
-
-        'PASSWORD': os.getenv('SQL_PASSWORD'),
-
-        'HOST': os.getenv('SQL_HOST'),
-
-        'PORT': os.getenv('SQL_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -133,9 +90,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 8,
-        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -145,39 +99,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
-# ]
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-	# 'USER_ID_FIELD': 'user_id',
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -189,6 +110,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
