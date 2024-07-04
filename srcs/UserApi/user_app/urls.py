@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 urlpatterns = [
     path('profile/create/', views.register_user, name='register_user'),
     path('profile/login/', csrf_protect(views.LoginView.as_view()), name='login_user'),
+    path('profile/logout/', views.logout, name='logout_user'),
     path('user-profile/<int:user_id>/', views.user_profile_api_view, name='user_profile_api'),
     path('get-user-id/', views.get_user_id, name='get_user_id'),
     path('get-user-username/', views.get_user_username, name='get_user_username'),

@@ -79,24 +79,20 @@ async function registerUser(user, email, password, password2) {
 		password: password,
 		confirm_password: password2,
 	};
-	// Converter os dados em uma string de consulta
-	// const queryString = new URLSearchParams(dados).toString();//  util no form
-	const configuracao = {
+	const request = {
 		method: 'POST',
 		headers: {
-			// 'Content-Type': 'application/x-www-form-urlencoded',
 			'Content-Type': 'application/json',
 			'X-CSRFToken': csrfToken,
 		},
 		body: JSON.stringify(dados),
-		// body: queryString, // não podemos enviar os dados como Json porque não vai preencher o form no Django
 		credentials: 'include',
 	};
 	try {
-		const response = await fetch('/user/profile/create/', configuracao);
+		const response = await fetch('/user/profile/create/', request);
 
 		if (!response.ok) {
-			const errorData = await response.json(); // msn que vem do Django
+			const errorData = await response.json();
 			const errorObject = {
 				message: errorData.error,
 				status: response.status,

@@ -1,3 +1,5 @@
+import { logout } from "./utils/session.js"
+
 function createNavBarLoggedOut() {
 	return `
 	<div class="container-fluid">
@@ -8,23 +10,12 @@ function createNavBarLoggedOut() {
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarNavDropdown">
-			<ul class="navbar-nav ms-4 me-auto">
-				<li class="nav-item">
-					<a class="nav-link" aria-current="page" href="https://localhost/chat" data-page="">make link</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="" id="gameLink" data-page="">make link1</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="" data-page="">make link2</a>
-				</li>
-			</ul>
 			<ul class="navbar-nav ms-auto">
 				<li class="nav-item">
-					<button id="signIn" type="button" class="btn btn-dark me-3" data-page="signin">Sign in</button>
+					<button id="signInNavBtn" type="button" class="btn btn-dark me-3" data-page="signin">Sign in</button>
 				</li>
 				<li class="nav-item">
-					<button id="register" class="btn btn-primary" type="button" data-page="register">Get started</button>
+					<button id="signUpNavBtn" class="btn btn-primary" type="button" data-page="register">Get started</button>
 				</li>
 			</ul>
 		</div>
@@ -65,9 +56,8 @@ function createNavBarLoggedIn() {
 						<img src="/assets/avatar.png" class="rounded-circle" alt="avatar">
 					</a>
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-						<li><a id="my-profile" class="dropdown-item" href="#" data-value="profile">my profile</a></li>
-						<li><a class="dropdown-item" href="">Another action</a></li>
-						<li><a id="logoutNavBtn" class="dropdown-item" href="">logout</a></li>
+						<li><a id="profileNavBtn" class="dropdown-item" href="#" data-value="profile">my profile</a></li>
+						<li><a id="logoutNavBtn" class="dropdown-item" href="#">logout</a></li>
 					</ul>
 				</div>
 			</ul>
@@ -75,4 +65,39 @@ function createNavBarLoggedIn() {
 	</div>`;
 }
 
-export { createNavBarLoggedIn, createNavBarLoggedOut }
+
+function handlerNavbarButtons() {
+    const signInBtn = document.getElementById('signInNavBtn');
+    if (signInBtn) {
+		signInBtn.addEventListener('click', function(event) {
+            event.preventDefault(); // Impede o comportamento padrão do link ou botão
+            loadPage('login');
+        });
+    }
+
+    const signUpBtn = document.getElementById('signUpNavBtn');
+    if (signUpBtn) {
+		signUpBtn.addEventListener('click', function(event) {
+            event.preventDefault(); // Impede o comportamento padrão do link ou botão
+            loadPage('register');
+        });
+    }
+
+    const profileBtn = document.getElementById('profileNavBtn');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', function(event) {
+            event.preventDefault(); // Impede o comportamento padrão do link ou botão
+            loadPage('profile');
+        });
+    }
+
+    const logoutBtn = document.getElementById('logoutNavBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+			console.log('clocou logouyt');
+			logout();
+        });
+    }
+}
+
+export { createNavBarLoggedIn, createNavBarLoggedOut, handlerNavbarButtons }

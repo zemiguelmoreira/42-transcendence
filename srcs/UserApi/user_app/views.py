@@ -13,8 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt # para testes
 from django.utils.decorators import method_decorator
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -208,6 +208,27 @@ class LoginView(APIView):
         else:
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    try:
+        user_id = request.user.id  # Obtém o ID do usuário autenticado
+        logger.info(f"Logout user ID: {user_id}")
+
+        # Lógica adicional de logout, se necessário (ex: desativar status online)
+        # Por exemplo, desativar status online
+        user_profile = UserProfile.objects.get(id=user_id)
+        user_profile.is_online = False
+        user_profile.save()
+
+        return Response({
+            'message': 'Logout successful',
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.error(f"Error during logout: {str(e)}")
+        return Response({'error': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # função para teste utilização do token com APIView

@@ -1,5 +1,5 @@
 import { getCsrfToken } from "./utils/csrf.js";
-import { saveToken } from "./utils/session.js";
+import { saveToken, saveUsername } from "./utils/session.js";
 
 function handleSignIn(event) {
     event.preventDefault();  // Mover event.preventDefault() para dentro de handleSignIn
@@ -15,7 +15,6 @@ function handleSignIn(event) {
 
 async function sendIUser(userOrEmail, password) {
     const csrfToken = await getCsrfToken();
-    console.log(csrfToken);
     const dados = {
         username: userOrEmail,
         password: password
@@ -54,8 +53,9 @@ async function sendIUser(userOrEmail, password) {
         if (contentType && contentType.includes('application/json')) {
             const data = await response.json();
             console.log(data);
-            saveToken(data.access_token, data.user.username);
-            window.loadPage('home', false);
+            saveToken(data.access_token, data.refresh_token);
+            saveUsername(data.user.username); 
+            loadPage('home');
         } else {
             const errorText = await response.text();
             console.error('Unexpected response:', errorText);

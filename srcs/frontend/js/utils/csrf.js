@@ -1,6 +1,6 @@
 
 async function getCsrfToken() {
-	const response = await fetch(`https://localhost/user/get-csrf-token/`, {
+	const response = await fetch(`/user/get-csrf-token/`, {
 		method: 'GET',
 		credentials: 'include',
 	});
@@ -10,9 +10,19 @@ async function getCsrfToken() {
 	}
 
 	const data = await response.json();
-	// console.log('crsfToken: ', data.csrfToken);
+	console.log('crsfToken: ', data.csrfToken);
 	return data.csrfToken;
 }
 
+function getCsrfTokenFromCookies() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return decodeURIComponent(value);
+        }
+    }
+    return null;
+}
 
-export { getCsrfToken }
+export { getCsrfToken, getCsrfTokenFromCookies }

@@ -1,4 +1,6 @@
 
+import { getCsrfToken } from "./csrf.js"
+
 function saveToken(access_token, refresh_token) {
     if (access_token && access_token.trim() !== "" && refresh_token && refresh_token.trim() !== "") {
         try {
@@ -10,6 +12,19 @@ function saveToken(access_token, refresh_token) {
         }
     } else {
         console.error('Os tokens não podem ser nulos, indefinidos ou strings vazias.');
+    }
+}
+
+function saveUsername(username) {
+    if (username && username.trim() !== "") {
+        try {
+            localStorage.setItem('username', username);
+            console.log('Username salvo com sucesso na localStorage.');
+        } catch (error) {
+            console.error('Erro ao salvar o username na localStorage:', error);
+        }
+    } else {
+        console.error('O username não pode ser nulo, indefinido ou uma string vazia.');
     }
 }
 
@@ -49,6 +64,44 @@ function removeToken2() {
   })
 }
 
+async function logout(username) {
+	const csrfToken = await getCsrfToken();
+	if (!csrfToken) {
+		throw new Error('CSRF token not found in cookies');
+	}
+	console.log('CSRF Token:', csrfToken);
 
+	const refresh_token = localStorage.getItem('refresh_token');
+	if (!refresh_token) {
+		throw new Error('Refresh token not found');
+	}
+	console.log('Refresh Token:', refresh_token);
 
-export { saveToken, viewToken, viewTokenRefresh, removeToken, removeToken2 }
+	const config = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+			'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+		},
+		body: JSON.stringify({ 
+			refresh_token,
+			username // Inclui o username aqui
+		}),
+	};
+	try {
+        const response = await fetch('/user/profile/logout/', config);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error logging out:', errorText);
+            throw new Error('Error logging out');
+        }
+
+        removeToken(); // Remove tokens do localStorage após logout bem-sucedido
+        window.loadPage('login');
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+}
+
+export { saveToken, saveUsername, viewToken, viewTokenRefresh, removeToken, removeToken2, logout }

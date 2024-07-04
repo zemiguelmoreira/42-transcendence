@@ -1,29 +1,6 @@
 import { createNavBarLoggedIn, createNavBarLoggedOut } from "./navbars.js";
 import { viewToken } from "./utils/session.js";
-
-function handlerNavbarButtons() {
-    const signInBtn = document.getElementById('signInNavBtn');
-    if (signInBtn) {
-        signInBtn.addEventListener('click', function() {
-            loadPage('login'); // Aqui deve ser 'login' em vez de 'signin' para corresponder à rota definida
-        });
-    }
-
-    const signUpBtn = document.getElementById('signUpNavBtn');
-    if (signUpBtn) {
-        signUpBtn.addEventListener('click', function() {
-            loadPage('register');
-        });
-    }
-
-    const profileBtn = document.getElementById('my-profile');
-    if (profileBtn) {
-        profileBtn.addEventListener('click', function(event) {
-            event.preventDefault(); // Impede o comportamento padrão do link ou botão
-            loadPage('profile');
-        });
-    }
-}
+import { handlerNavbarButtons } from "./navbars.js";
 
 function isLoggedIn() {
     const token = viewToken();
