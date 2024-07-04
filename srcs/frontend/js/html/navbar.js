@@ -10,13 +10,13 @@ function createNavbar1() {
 		<div class="collapse navbar-collapse" id="navbarNavDropdown">
 			<ul class="navbar-nav ms-4 me-auto">
 				<li class="nav-item">
-					<a class="nav-link" aria-current="page" href="" data-page="">make link</a>
+					<a class="nav-link" aria-current="page" href="" data-i18n="1">make link</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="" id="gameLink" data-page="">make link1</a>
+					<a class="nav-link" href="" id="gameLink" data-i18n="2">make link1</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="" data-page="">make link2</a>
+					<a class="nav-link" href="" data-i18n="3">make link2</a>
 				</li>
 			</ul>
 			<ul class="navbar-nav ms-auto">
@@ -33,8 +33,7 @@ function createNavbar1() {
 }
 
 
-
-var navbar1 = createNavbar1();
+const navbar1 = createNavbar1();
 
 
 function createNavbar2 () {
@@ -62,13 +61,13 @@ function createNavbar3() {
 		<div class="collapse navbar-collapse" id="navbarNavDropdown">
 			<ul class="navbar-nav ms-4 me-auto">
 				<li class="nav-item">
-					<a id="testeLink" class="nav-link" aria-current="page" href="" data-value="teste">link teste</a>
+					<a id="testeLink" class="nav-link" aria-current="page" href="">link teste</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="" id="gameLink" data-value="game">Game</a>
+					<a class="nav-link" href="" id="gameLink">Game</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="" data-value="link_login">link login</a>
+					<a class="nav-link" href="">link login</a>
 				</li>
 			</ul>
 			<div class="teste">

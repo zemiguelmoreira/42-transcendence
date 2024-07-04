@@ -35,7 +35,7 @@ function makeRegisterPage() {
           </div>
           <!-- Submit button -->
 		  <div class="d-grid gap-2 col-6 mx-auto">
-          <button type="submit" id="signUp" class="btn btn-primary btn-block" data-value="/profile/create/">sign up</button>
+          <button type="submit" id="signUp" class="btn btn-primary btn-block">sign up</button>
 		  </div>
 		  <div class="mt-5 d-flex justify-content-center">
 		  	<a id="signInRegister" class="link-opacity-25-hover link-underline link-underline-opacity-0" href="">sign in</a>

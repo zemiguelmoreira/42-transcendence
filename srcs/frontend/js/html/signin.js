@@ -23,10 +23,10 @@ function makeSignInPage() {
           </div>
           <!-- Submit button -->
 		  <div class="d-grid gap-2 col-6 mx-auto w-100">
-          	<button type="submit" id="signInUser" class="btn btn-primary btn-block" data-value="/profile/login/">sign in</button>
+          	<button type="submit" id="signInUser" class="btn btn-primary btn-block">sign in</button>
 		  </div>
 		  <div class="d-grid gap-2 col-6 mt-2 mx-auto w-100">
-          	<button type="submit" id="signInUser42" class="btn btn-secondary btn-block" data-value="">sign in with 42</button>
+          	<button type="submit" id="signInUser42" class="btn btn-secondary btn-block">sign in with 42</button>
 		  </div>
 		  <div class="mt-3 d-flex justify-content-center">
 		  	<p id="error-message" style="display: none; color: red;"></p>

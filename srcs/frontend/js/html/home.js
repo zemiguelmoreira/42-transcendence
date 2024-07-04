@@ -24,22 +24,7 @@ function home() {
 
 	document.getElementById('home').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/');});
-
-	// function goodbye(e) {
-	// 	if(!e) e = window.e;
-	// 	//e.cancelBubble is supported by IE - this will kill the bubbling process.
-	// 	e.cancelBubble = true;
-	// 	e.returnValue = 'You sure you want to leave/refresh this page?';
-	
-	// 	//e.stopPropagation works in Firefox.
-	// 	if (e.stopPropagation) {
-	// 		e.stopPropagation();
-	// 		e.preventDefault();
-	// 	}
-	// }
-
-	// window.addEventListener('beforeunload', goodbye);
+		navigateTo('/');});		
 }
 
 

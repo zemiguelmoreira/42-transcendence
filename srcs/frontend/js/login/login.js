@@ -35,15 +35,13 @@ function insertInputValidation1(userSigInForm) {
 
 function userSignIn(e) {
 	e.preventDefault();
-	console.log(this.dataset.value);
     const userSignInForm = document.querySelector('#userSignInForm');
-	const allURL = `${baseURL}${this.dataset.value}`;
-	console.log(allURL);
+	const allURL = `${baseURL}/profile/login/`;
 	const userOrEmail1 = userSignInForm.elements.username.value;
 	const password1 = userSignInForm.elements.password.value;
 	console.log(userOrEmail1, password1);
 	if (userOrEmail1 && password1) {
-        sendIUser(userOrEmail1, password1, allURL);
+        sendIUser(userOrEmail1, password1);
 		userSignInForm.elements.username.value = "";
 		userSignInForm.elements.password.value = "";
     } else {
@@ -67,84 +65,101 @@ function signIn() {
 	
 	limparDivAll('root');
 	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
-	// history.pushState({ page: 'signIn' }, 'Sign In', '/signIn'); //histórico
+
 	document.getElementById('home').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo('/');
 	});
 
 	const signInUser = document.querySelector('#signInUser');
-	// console.log(signInUser);
 	signInUser.addEventListener('click', userSignIn);
 	
 }
 
 
 async function sendIUser(userOrEmail, password, allURL) {
-	const csrfToken = await getCsrfToken();
-	const dados = {
-		username: userOrEmail,
-		password: password
-	};
-	// const queryString = new URLSearchParams(dados).toString();
-	const configuracao = {
-		method: 'POST',
-		headers: { 
-					'Content-Type': 'application/json',
-					'X-CSRFToken': csrfToken,
-		 },
-		body: JSON.stringify(dados),
-		// body: queryString,
-	};
-	// const response = await fetch(allURL, configuracao);
-	// const data = await response.json();
-	// console.log(data);
 
-	try {
-		const response = await fetch(allURL, configuracao);
-		// const data = await response.json();
+	let csrfToken;
 
-		if (!response.ok) {
-			const errorData = await response.json(); // msn que vem do Django
-			const errorObject = {
-				message: errorData.error,
-				status: response.status,
-				status_msn: response.statusText
-			}
-			console.log(errorObject.message, errorObject.status, errorObject.status_msn);
-			throw errorObject;
-		} 	
+    try {
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
 
-		const data = await response.json();
-		console.log(data);
-		console.log(data.access_token, data.refresh_token);
-		saveToken(data.access_token, data.refresh_token);
-		console.log('localstorage', viewToken());
-		limparDivAll('root');
-		userName = data.user.username;
-		const successDiv = successContainer(data.user.username);
-		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		if (viewToken())
-			showSuccessMessageSignIn(data.user.username);
-		else {
-			throw {
-				message: 'Something went wrong',
-				status: 401,
-				status_msg: 'Internal Server Error - Tokens'
-			};
-		}
-		
-	} catch (e) {
-		console.log(e.message, e.status, e.status_msn);
-		if (e.status === 400){
-			displayErrorSignIn(e.message);
-		}
-		else {
-			navigateTo(`/error/${e.status}/${e.message}`);
-		}
-	}
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - login',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
+        }
+    } catch (error) {
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
 
-};
+    const dados = {
+        username: userOrEmail,
+        password: password
+    };
+
+    const configuracao = {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify(dados),
+    };
+
+    try {
+
+        const response = await fetch(`${baseURL}/profile/login/`, configuracao);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            const errorObject = {
+                message: errorData.error,
+                status: response.status,
+                status_msn: response.statusText
+            };
+            console.log(errorObject.message, errorObject.status, errorObject.status_msn);
+            throw errorObject;
+        }
+
+        const data = await response.json();
+        console.log(data);
+        console.log(data.access_token, data.refresh_token);
+
+        saveToken(data.access_token, data.refresh_token);
+        console.log('localstorage', viewToken());
+
+        limparDivAll('root');
+        userName = data.user.username;
+        const successDiv = successContainer(data.user.username);
+        document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
+
+        if (viewToken()) {
+            showSuccessMessageSignIn(data.user.username);
+        } else {
+            throw {
+                message: 'Something went wrong - sendIUser',
+                status: 401,
+                status_msg: 'Internal Server Error - Tokens'
+            };
+        }
+
+    } catch (e) {
+
+        console.log(e.message, e.status, e.status_msn);
+        if (e.status === 400) {
+            displayErrorSignIn(e.message);
+        } else {
+            navigateTo(`/error/${e.status}/${e.message}`);
+        }
+    }
+}
+
 
 
 export { userName, signIn, userSignIn }

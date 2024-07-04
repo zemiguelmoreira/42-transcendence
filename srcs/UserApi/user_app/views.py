@@ -283,7 +283,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
-
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -308,6 +309,12 @@ def register_user(request):
             
             if password != confirm_password:
                 return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+
+             # Validate password strength
+            # try:
+            #     validate_password(password)
+            # except ValidationError as e:
+            #     return Response({'error': e.messages}, status=status.HTTP_400_BAD_REQUEST)
 
             # Salvar o usuário e a senha
             user_profile = serializer.save()
@@ -354,7 +361,8 @@ def get_csrf_token(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_user_id(request):
     user_name = request.data.get('user')
     
@@ -369,7 +377,8 @@ def get_user_id(request):
 
 # Função do devolve o username do user fornecendo o id
 @api_view(['POST'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_user_username(request):
     user_id = request.data.get('id')
     
@@ -384,7 +393,8 @@ def get_user_username(request):
 
 # Função do devolve lista o id do user
 @api_view(['POST'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_user_id_list(request):
     print(request.data)
     user_name = request.data.get('user', '')
@@ -500,7 +510,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             'refresh_token': refresh_token
         })
 
-@method_decorator(csrf_exempt, name='dispatch')
+# @method_decorator(csrf_exempt, name='dispatch')
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request):
         refresh_token = request.data.get('refresh')
@@ -527,11 +537,14 @@ class Home(APIView):
 
 # Get user data by id
 @api_view(['GET'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated]) # para proteger funções que não são APIview
 def user_profile_api_view(request, user_id):
 
     csrf_token_header = request.META.get('HTTP_X_CSRFTOKEN')
-    print('Token CSRF no cabeçalho:', csrf_token_header)
+    # print('Token CSRF no cabeçalho:', csrf_token_header)
+    logger.info(f'Token CSRF no cabeçalho: ${csrf_token_header}')
+    logger.info(f'funcionou')
     if not csrf_token_header:
         return Response({'error': 'Csrf Token not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -542,8 +555,12 @@ def user_profile_api_view(request, user_id):
     except UserProfile.DoesNotExist:
         return Response({"error": "User profile not found"}, status=404)
 
+
+
+
 @api_view(['DELETE'])
-@permission_classes([AllowAny])    
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def delete_account(request, user_id):
     # Obtém o token CSRF do cabeçalho da solicitação
     csrf_token_header = request.META.get('HTTP_X_CSRFTOKEN')
@@ -556,6 +573,8 @@ def delete_account(request, user_id):
         serializer = UserProfileSerializer(user)
 
         print(f"User with ID {user_id} would be deleted here.")
+        logger.info(f'user data: ${serializer}')
+        logger.info(f'user data: ${serializer.data}')
         
         user.delete()
         # return Response(serializer.data)

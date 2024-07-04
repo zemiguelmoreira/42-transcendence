@@ -1,124 +1,174 @@
 import { getCsrfToken } from "../utils/csrf.js";
-import { userName } from "../login/login.js";
-import { userNameReg } from "../login/register.js";
 import { makeProfilePage, makeEditProfilePage } from "../html/profile_page.js";
 import { deleteProfile } from "../profile/delete_account.js";
 import { limparDivAll } from "../utils/utils1.js";
 import { baseURL } from "../app.js";
-import { homeLogin } from "../html/home.js";
 import { getUser } from "../profile/search_user.js";
 import { navigateTo } from "../app.js";
+import { fetchWithAuth } from "./profile.js";
 
 
 let userData;
 
 // Obtem o user id do user que está login
 async function getIdbyName(username) {
-    // try {
-        const csrfToken = await getCsrfToken(); // Obter o token CSRF
-        const dados = { user: username };
 
-        const response = await fetch(`${baseURL}/get-user-id/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Adicionando o Content-Type correto
-                'Accept': 'application/json', // Adicionando o Accept para esperar resposta JSON
-                'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
-            },
-            body: JSON.stringify(dados),
-        });
+	let csrfToken;
 
-        if (!response.ok) {
-            // throw new Error('Failed to fetch user profile');
-			return null;
+    try {
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
+
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - getIdbyName',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
         }
-        const data = await response.json(); 
-        // console.log("id: ");
-        // console.log(data.id);
-        return data.id;
-    // } catch (error) {
-    //     console.error('Error:', error);
-    //     return "0";
-    // };
+    } catch (error) {
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
+
+	const dados = { user: username };
+
+	const conf = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json', // Adicionando o Content-Type correto
+			'Accept': 'application/json', // Adicionando o Accept para esperar resposta JSON
+			'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
+		},
+		body: JSON.stringify(dados),
+	}
+
+	try {
+		// const csrfToken = await getCsrfToken(); // Obter o token CSRF
+		// const dados = { user: username };
+
+		const response = await fetchWithAuth(`${baseURL}/get-user-id/`, conf);
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch user profile');
+		}
+
+		const data = await response.json();
+		// console.log("id: ");
+		// console.log(data.id);
+		return data.id;
+	} catch (error) {
+		console.error('Error:', error);
+		return null;
+	};
 }
 
 
 async function getNamebyId(user_id) {
+
+	let csrfToken;
+
     try {
-        const csrfToken = await getCsrfToken(); // Obter o token CSRF
-        const dados = { id: user_id };
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
 
-        const response = await fetch(`${baseURL}/get-user-username/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Adicionando o Content-Type correto
-                'Accept': 'application/json', // Adicionando o Accept para esperar resposta JSON
-                'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
-            },
-            body: JSON.stringify(dados),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch user profile');
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - getNamebyId',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
         }
-        const data = await response.json(); 
-        // console.log("id: ");
-        console.log(data);
-        console.log(data.username);
-        return data.username;
     } catch (error) {
-        console.error('Error:', error);
-        return null;
-    };
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
+
+	const dados = { id: user_id };
+
+	const conf = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json', // Adicionando o Content-Type correto
+			'Accept': 'application/json', // Adicionando o Accept para esperar resposta JSON
+			'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
+		},
+		body: JSON.stringify(dados),
+	}
+
+	try {
+		// const csrfToken = await getCsrfToken(); // Obter o token CSRF
+		// const dados = { id: user_id };
+
+		const response = await fetchWithAuth(`${baseURL}/get-user-username/`, conf);
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch user profile');
+		}
+		const data = await response.json();
+		// console.log("id: ");
+		console.log(data);
+		console.log(data.username);
+		return data.username;
+	} catch (error) {
+		console.error('Error:', error);
+		return null;
+	};
 }
 
 
 async function getIdbyNameList(userName) {
+
+	let csrfToken;
+
     try {
-        const csrfToken = await getCsrfToken(); // Obter o token CSRF
-        const dados = { user: userName };
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
 
-        const response = await fetch(`${baseURL}/get-user-id-list/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Adicionando o Content-Type correto
-                'Accept': 'application/json', // Adicionando o Accept para esperar resposta JSON
-                'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
-            },
-            body: JSON.stringify(dados),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch user profile');
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - getIdbyName',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
         }
-        const data = await response.json(); 
-        // console.log("id: ");
-        console.log("query: ", data);
-        return data;
     } catch (error) {
-        console.error('Error:', error);
-        return "0";
-    };
-}
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
 
+	const dados = { user: userName };
 
-// voltar à pagina de profile após cancel - não usada
+	const conf = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json', // Adicionando o Content-Type correto
+			'Accept': 'application/json', // Adicionando o Accept para esperar resposta JSON
+			'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
+		},
+		body: JSON.stringify(dados),
+	}
 
-function goProfile(data) {
+	try {
+		// const csrfToken = await getCsrfToken(); // Obter o token CSRF
+		const dados = { user: userName };
 
-	limparDivAll('root');
-	console.log(data);
-	const profilePageData = makeProfilePage(data);
-	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageData);
-	homeLogin();
-	searchBtn();
-	searchUserForm();
-	const logout = document.getElementById('logOut');
-	logout.addEventListener('click', goHome);
-	const editBtn = document.querySelector("#editProfile");
-	editBtn.addEventListener('click', (e) => {
-		e.preventDefault();
-		editPageBtns(data)});
+		const response = await fetchWithAuth(`${baseURL}/get-user-id-list/`, conf);
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch user profile');
+		}
+		const data = await response.json();
+		// console.log("id: ");
+		console.log("query: ", data);
+		return data;
+	} catch (error) {
+		console.error('Error:', error);
+		return null;
+	};
 }
 
 
@@ -128,9 +178,6 @@ function editPageBtns(data, username) {
 	const editPageData = makeEditProfilePage(data);
 	limparDivAll('root');
 	document.getElementById('root').insertAdjacentHTML('afterbegin', editPageData);
-	// homeLogin();
-	// searchUserForm();
-	// searchBtn();
 
 	document.getElementById('home').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -156,21 +203,13 @@ function editPageBtns(data, username) {
 		e.preventDefault();
 		getUser(username);
 	});
-	
+
 	document.getElementById('deleteEdit').addEventListener('click', (e) => {
 		e.preventDefault();
 		deleteProfile(username);
 	});
-
-	// logout.addEventListener('click', goHome);
-	// const cancelBtn = document.querySelector("#cancelEdit");
-	// cancelBtn.addEventListener('click', (e) => { 
-	// 	e.preventDefault();
-	// 	goProfile(data)});
-	
-	// const deleteBtn = document.querySelector('#deleteEdit');
-	// deleteBtn.addEventListener('click', deleteProfile);
 }
+
 
 
 function userDataPage(userData, username) {
@@ -190,9 +229,9 @@ function userDataPage(userData, username) {
 	});
 
 	document.querySelector("#editProfile").addEventListener('click', (e) => {
-			e.preventDefault();
-			navigateTo(`/user/${userData.username}/profile/edit`);
-		});
+		e.preventDefault();
+		navigateTo(`/user/${userData.username}/profile/edit`);
+	});
 
 	document.getElementById('search-form').addEventListener('submit', (e) => {
 		e.preventDefault();
@@ -211,29 +250,53 @@ function userDataPage(userData, username) {
 // Obtém os dados do user que está login e faz a página
 async function fetchUserProfile(username) {
 
-	try {
-		let curr_username;
-		if (userName != "")
-			curr_username = userName;
-		else if( userNameReg != "")
-			curr_username = userNameReg;
-		
-		const userId = await getIdbyName(username);
-		const csrfToken = await getCsrfToken(); // Obter o token CSRF
+	let csrfToken;
 
-		const response = await fetch(`${baseURL}/user-profile/${userId}/`, {
-			method: 'GET',
-			headers: {
-				'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
-			}
-		});
+    try {
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
+
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - fetchUserProfile',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
+        }
+    } catch (error) {
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
+
+	const conf = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken
+		}
+	}
+	try {
+
+		const userId = await getIdbyName(username);
+		// const csrfToken = await getCsrfToken(); // Obter o token CSRF
+
+		// const response = await fetch(`${baseURL}/user-profile/${userId}/`, {
+		// 	method: 'GET',
+		// 	headers: {
+		// 		'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
+		// 	}
+		// });
+
+		console.log('teste ao fetchwitauth');
+		const response = await fetchWithAuth(`${baseURL}/user-profile/${userId}/`, conf);
 
 		if (!response.ok) {
 			// throw new Error('Failed to fetch user profile');
 			throw {
-				message: 'Failed to fetch user profile',
+				message: 'Failed to fetch user profile - protected',
 				status: 401,
-				status_msg: 'Internal Server Error - Tokens'
+				status_msg: 'Internal Server Error - user id'
 			};
 		}
 
@@ -249,4 +312,4 @@ async function fetchUserProfile(username) {
 }
 
 
-export { userData, getIdbyName, getIdbyNameList, goProfile, getNamebyId, fetchUserProfile, userDataPage, editPageBtns };
+export { userData, getIdbyName, getIdbyNameList, getNamebyId, fetchUserProfile, userDataPage, editPageBtns };

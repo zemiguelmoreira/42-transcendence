@@ -17,6 +17,10 @@ venv.bak/
 env_chat/
 env_user/
 env_game/
+.env/
+envy/
+temp/
+
 
 # Visual Studio Code # 
 .vscode/* 

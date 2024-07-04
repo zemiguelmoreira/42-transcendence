@@ -37,9 +37,9 @@ function insertInputValidation(registerForm) {
 
 
 // FAZ O FETCH SE ESTIVER TUDO OK
-function fetchRegister(user, email, password, password2, allURL, registerForm) {
+function fetchRegister(user, email, password, password2, registerForm) {
 	console.log(user, password, password2);
-	registerUser(user, email, password, password2, allURL);
+	registerUser(user, email, password, password2);
 	registerForm.elements.username.value = "";
 	registerForm.elements.email.value = "";
 	registerForm.elements.password.value = "";
@@ -49,17 +49,14 @@ function fetchRegister(user, email, password, password2, allURL, registerForm) {
 
 function handleSignUp(e) {
     e.preventDefault();
-	console.log(this.dataset.value);
     const registerForm = document.querySelector('#userRegisterForm');
-    const allURL = `${baseURL}${this.dataset.value}`;
-	console.log(allURL);
     const user = registerForm.elements.username.value;
 	console.log(user);
     const email = registerForm.elements.email.value;
     const password = registerForm.elements.password.value;
     const password2 = registerForm.elements.password2.value;
     if (user && email && password && password2) {
-        fetchRegister(user, email, password, password2, allURL, registerForm);
+        fetchRegister(user, email, password, password2, registerForm);
     } else {
         insertInputValidation(registerForm);
     }
@@ -86,20 +83,38 @@ function register() {
 };
 
 
-function showSuccessMessageRegister(username) {
+function showSuccessMessageRegister() {
 	var messageDiv = document.getElementById('successMessage');
 	messageDiv.style.display = 'block'; // Exibe a mensagem
 	setTimeout(function() {
 		messageDiv.style.display = 'none';
-		console.log(userNameReg);
-		navigateTo(`/signIn`);
+		navigateTo(`/`);
 	}, 1000); // 1000 milissegundos = 1 segundos
 }
 
 
 // FUNÇÃO ASÍNCRONA DE REGITO DE USER
-async function registerUser(user, email, password, password2, allURL) {
-	const csrfToken = await getCsrfToken();
+async function registerUser(user, email, password, password2) {
+
+	let csrfToken;
+
+    try {
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
+
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - register',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
+        }
+    } catch (error) {
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
+
 	// console.log(csrfToken);
 	const dados = {
 		username: user,
@@ -107,8 +122,6 @@ async function registerUser(user, email, password, password2, allURL) {
 		password: password,
 		confirm_password: password2,
 	};
-	// Converter os dados em uma string de consulta
-	// const queryString = new URLSearchParams(dados).toString();//  util no form
 	const configuracao = {
 		method: 'POST',
 		headers: {
@@ -117,12 +130,12 @@ async function registerUser(user, email, password, password2, allURL) {
 			'X-CSRFToken': csrfToken,
 		},
 		body: JSON.stringify(dados),
-		// body: queryString, // não podemos enviar os dados como Json porque não vai preencher o form no Django
 		credentials: 'include',
 	};
 	// console.log(response);
 	try {
-		const response = await fetch(allURL, configuracao);
+
+		const response = await fetch(`${baseURL}/profile/create/`, configuracao);
 
 		if (!response.ok) {
 			const errorData = await response.json(); // msn que vem do Django
@@ -131,44 +144,29 @@ async function registerUser(user, email, password, password2, allURL) {
 				status: response.status,
 				status_msn: response.statusText
 			}
-			console.log(errorObject.message, errorObject.status, errorObject.status_msn);
-			// console.log()
+			// console.log(errorObject.message, errorObject.status, errorObject.status_msn);
 			throw errorObject;
 		}
-		userNameReg = dados.username;
+		// userNameReg = dados.username;
 		const data = await response.json();
 		// console.log(data);
-		// console.log(data.access_token, data.refresh_token);
-		// saveToken(data.access_token, data.refresh_token);
-		// console.log('localstorage', viewToken());
 		limparDivAll('root');
 		const successDiv = successContainer(data.user);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		showSuccessMessageRegister(dados.username);
-		/* apagar  */
-		// if (viewToken())
-		// 	showSuccessMessage(dados.username);
-		// else
-		// 	throw {
-		// 		message: 'Something went wrong',
-		// 		status: 401,
-		// 		status_msg: 'Internal Server Error - Tokens'
-		// 	};
+		showSuccessMessageRegister();
 
 	} catch (e) {
 
 		console.log(e.message, e.status, e.status_msn);
+
 		if (e.status === 400) {
 			const err_key = Object.keys(e.message)[0];
 			const err_message = e.message[err_key];
 			console.log(err_message);
 			displayError(err_message);
 		}
-
 		else {
 			navigateTo(`/error/${e.status}/${e.message}`);
-		// 	const home_error = document.getElementById('a_error'); //falta colocar isto na app.js
-		// 	home_error.addEventListener('click', goHome);
 		}
 	}
 };

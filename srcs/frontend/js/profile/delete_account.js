@@ -1,11 +1,10 @@
 import { getCsrfToken } from "../utils/csrf.js";
-import { userName } from "../login/login.js";
 import { getIdbyName } from "./myprofile.js";
 import { baseURL } from "../app.js";
 import { limparDivAll } from "../utils/utils1.js";
 import { removeToken } from "../login/session.js";
 import { navigateTo } from "../app.js";
-import { matchRoute } from "../app.js";
+import { fetchWithAuth } from "./profile.js";
 
 
 function deleteContainer(username, delete_message) {
@@ -17,43 +16,6 @@ function deleteContainer(username, delete_message) {
 }
 
 
-// function resetToHome() {
-//     // Primeiro, navegar para a home usando replaceState para substituir o estado atual
-// 	navigateTo('/');
-// 	// document.addEventListener('DOMContentLoaded', function() {
-// 	history.replaceState({page: '/'}, '', '/');
-// 	console.log('history: ', history.length);
-// 	history.go(-(history.length - 2));
-//     // history.replaceState({page: '/'}, '', '/');
-
-//     // Depois, redefinir o estado atual para garantir que o histórico anterior não seja acessível
-//     // history.pushState({page: '/'}, '', '/');
-//     // Opcional: Limpar o manipulador onpopstate para evitar comportamentos inesperados
-//     // window.onpopstate = null;
-// // });
-// }
-
-
-
-function resetToHome() {
-    // Primeiro, navegar para a home usando replaceState para substituir o estado atual
-	navigateTo('/');
-	
-	let stepsBack = 0;
-    for (let i = history.length - 1; i >= 0; i--) {
-        stepsBack++;
-        history.go(-1); // Navega uma entrada para trás
-        if (history.state && !matchRoute(history.state)) {
-            break; // Encontrou a primeira entrada do site
-        }
-    }
-
-    // Retorna à home após encontrar a primeira entrada do site
-    history.go(-stepsBack + 1);
-}
-
-
-
 function showDeleteMessage() {
 	var messageDiv = document.getElementById('deleteMessage');
 	messageDiv.style.display = 'block'; // Exibe a mensagem
@@ -61,26 +23,45 @@ function showDeleteMessage() {
 	setTimeout(function() {
 		messageDiv.style.display = 'none'; // Oculta a mensagem após 3 segundos
 		navigateTo('/'); // Redireciona para a página inicial após login
-		// resetToHome();
 	}, 1000); // 1000 milissegundos = 1 segundos
 }
 
 
-
 async function deleteProfile(username) {
+
+	let csrfToken;
+
+    try {
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
+
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - deleteProfile',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
+        }
+    } catch (error) {
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
+
+	const conf = {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
+		}
+	}
 
 	try {
 
 		const userId = await getIdbyName(username);
-		const csrfToken = await getCsrfToken(); // Obter o token CSRF
+		// const csrfToken = await getCsrfToken(); // Obter o token CSRF
 
-		const response = await fetch(`${baseURL}/delete-account/${userId}/`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
-			}
-		});
+		const response = await fetchWithAuth(`${baseURL}/delete-account/${userId}/`, conf);
 
 		if (!response.ok) {
 			// throw new Error('Failed to delete user account');

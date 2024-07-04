@@ -3,9 +3,10 @@ import { viewToken } from "./login/session.js";
 import { testToken } from "./profile/profile.js";
 import { getNamebyId } from "./profile/myprofile.js";
 import { pages } from "./utils/path.js";
+import Language from "./translations/languages.js";
 
 const baseURL = "https://localhost/user";
-const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
+// const gameScript = `<script id="game" src="./js/game/pong.js"></script>`;
 
 // let data;
 
@@ -34,6 +35,11 @@ async function goTo() {
 		const accessToken = localStorage.getItem('access_token');
 		const payload = testToken(accessToken);
 		console.log(payload);
+		// se o token estiver expirado
+		if (!payload) {
+			navigateTo('/');
+			return;
+		}
 		console.log(payload.user_id);
 		let username = await getNamebyId(payload.user_id);
 		console.log(username);
@@ -43,78 +49,9 @@ async function goTo() {
 			navigateTo('/');
 	} catch(e) {
 		e.status = "400";
-		e.message = "home page user!";
+		e.message = "home page user! function goTo";
 		navigateTo(`/error/${e.status}/${e.message}`);
 	} 
-}
-
-
-async function userForHistory() {
- 
-	try {
-		const accessToken = localStorage.getItem('access_token');
-		const payload = testToken(accessToken);
-		console.log(payload);
-		console.log(payload.user_id);
-		let username = await getNamebyId(payload.user_id);
-		console.log(username);
-		return username;
-	} catch(e) {
-		return null;
-	} 
-}
-
-//um estado inicial diferente e baseado no token - não utilizada
-async function initializeState() {
-
-	let defaultState;
-
-	if (viewToken()) {
-		try {
-			const username = await userForHistory(); // Espera a resolução da Promise
-			if (username) {
-				defaultState = { page: `/user/${username}` };
-				history.replaceState(defaultState, '', `/user/${username}`);
-			} else {
-				defaultState = { page: '/' }; // page que é default state
-				history.replaceState(defaultState, '', '/');
-			}
-		} catch (error) {
-			console.error("Failed to get username:", error);
-			defaultState = { page: '/' }; // page que é default state
-			history.replaceState(defaultState, '', '/');
-		}
-	} else {
-		defaultState = { page: '/' }; // page que é default state
-		history.replaceState(defaultState, '', '/');
-	}
-
-	// Carregue o conteúdo da página padrão
-	const matchedRoute = matchRoute(defaultState.page);
-	if (matchedRoute) {
-		matchedRoute.page.loadContent(matchedRoute.params);
-	}
-}
-
-
-// não usada
-function saveCurrentState() {
-	const currentState = history.state;
-	console.log(currentState);
-	if (currentState) {
-		localStorage.setItem('currentState', JSON.stringify(currentState));
-	}
-}
-
-
-// não usada
-function loadSavedState() {
-	const savedState = localStorage.getItem('currentState');
-	console.log(savedState);
-	if (savedState) {
-		return JSON.parse(savedState);
-	}
-	return null;
 }
 
 
@@ -126,61 +63,32 @@ document.addEventListener('DOMContentLoaded', function (e) {
         console.log(e.state);
         if (e.state) {
             const matchedRoute = matchRoute(e.state.page);
-            if (matchedRoute) {
+			console.log('matchedRoute: ', matchedRoute);
+			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
+			console.log('init access: ', accessAllowed);
+            if (matchedRoute && accessAllowed) {
                 matchedRoute.page.loadContent(matchedRoute.params);
-            }
+            } else
+				navigateTo(e.state.page); // se não tivermos acesso à rota através do navigate fazemos o redirect
         } 
-		else {
-             // console.log('aqui');
-            // history.replaceState(null, '', '/');
-            // return;
-			console.log('aqui');
-            // tenho de definir um default state para o event.state quando for null
-            const defaultState = { page: '/' };  // page que é default state
-            history.replaceState(defaultState, '', '/');
+		// else {
+        //      // console.log('aqui');
+        //     // history.replaceState(null, '', '/');
+        //     // return;
+		// 	console.log('aqui');
+        //     // tenho de definir um default state para o event.state quando for null
+        //     const defaultState = { page: '/' };  // page que é default state
+        //     history.replaceState(defaultState, '', '/');
             
-            // Carregue o conteúdo da página padrão
-            const matchedRoute = matchRoute(defaultState.page);
-            if (matchedRoute) {
-                matchedRoute.page.loadContent(matchedRoute.params);
-			}
+        //     // Carregue o conteúdo da página padrão
+        //     const matchedRoute = matchRoute(defaultState.page);
+        //     if (matchedRoute) {
+        //         matchedRoute.page.loadContent(matchedRoute.params);
+		// 	}
 
-			// initializeState();
-		}	
+		// 	// initializeState();
+		// }	
     });
-
-
-
-	// Detecta a URL atual e carrega o estado apropriado
-
-	// const initialPath = window.location.pathname;
-	// console.log(initialPath);
-	// const initialRoute = matchRoute(initialPath);
-	// console.log(initialRoute);
-	// if (initialRoute) {
-	// 	history.replaceState({ page: initialPath }, '', initialPath);
-	// } else {
-	// 	// Se a rota não for encontrada, carregue a página padrão
-	// 	navigateTo('/');
-	// }
-
-
-
-	//teste
-	// window.addEventListener('beforeunload', (e) => {
-	// 	// saveCurrentState();
-	// 	// e.stopPropagation();
-	// 	e.preventDefault();
-	// 	console.log('teste reload');
-	// 	const defaultState = { page: '/' };  // page que é default state
-    //         history.replaceState(defaultState, '', '/');
-	// 	const matchedRoute = matchRoute(defaultState.page);
-    //         if (matchedRoute) {
-    //             matchedRoute.page.loadContent(matchedRoute.params);
-	// 		}
-	// });
-
-
 	// desativa o F5 e i ctrlKey + r
 	document.addEventListener('keydown', function(e) {
 		if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
@@ -210,23 +118,79 @@ document.addEventListener('DOMContentLoaded', function (e) {
 // }
 
 
-function navigateTo(url, replace=false) {
+// function navigateTo(url, replace=false) {
+
+//     const matchedRoute = matchRoute(url);
+// 	console.log('matchedroute: ', matchedRoute);
+
+//     if (matchedRoute) {
+//         console.log('navigate url: ', url);
+
+// 		if (replace)
+// 			history.replaceState({page: '/'}, '', '/');
+// 		else
+//         	history.pushState({ page: url }, '', url);
+
+//         matchedRoute.page.loadContent(matchedRoute.params);
+
+//     } else {
+//         console.error('Page not found: ' + url);
+//     }
+// }
+
+
+// Esta função navigate faz o redirect e permite verificar está acessivel ou nao
+// ter em atenção que se existir redirect tenho que ter o replace em true 
+// O redirect é feita em principio par a rota home para uma melhor experiência.
+
+function navigateTo(url, replace=false, redirectsCount=0) {
+
+	const MAX_REDIRECTS = 10; // Limite de redirecionamentos
+
+	console.log('redirects: ', redirectsCount);
+	//Protect againts too many redirects only too console
+	// a colocar apage de erro para tratar
+    if (redirectsCount > MAX_REDIRECTS) {
+        console.error('Too many redirects');
+        return;
+    }
 
     const matchedRoute = matchRoute(url);
+	console.log('matchedroute: ', matchedRoute);
 
     if (matchedRoute) {
         console.log('navigate url: ', url);
 
-		if (replace)
-			history.replaceState({page: '/'}, '', '/');
-		else
-        	history.pushState({ page: url }, '', url);
+		const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
+		console.log(accessAllowed);
 
-        matchedRoute.page.loadContent(matchedRoute.params);
+		if (!accessAllowed) {
+
+			// history.replaceState({page: matchedRoute.page.redirect}, '', matchedRoute.page.redirect);
+			console.log('route1');
+			navigateTo(matchedRoute.page.redirect, true, redirectsCount + 1);
+			return;
+
+		}
+		else {
+
+			if (replace)
+        		// history.replaceState({page: '/'}, '', '/');
+        		history.replaceState({page: url}, '', url);
+			else
+				history.pushState({ page: url }, '', url);
+
+			console.log('route2');
+			matchedRoute.page.loadContent(matchedRoute.params);
+			return;
+		}	
+
     } else {
         console.error('Page not found: ' + url);
     }
 }
+
+
 
 function matchRoute(route) {
     for (let path in pages) {

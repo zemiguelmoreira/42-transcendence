@@ -26,7 +26,7 @@ async function getUserDinamic(searchInput) {
 	}
 
 	resultsDiv.innerHTML = ''; // Clear previous results
-	if (usersID.length > 0) resultsDiv.classList.add('show');
+	if (usersID && usersID.length > 0) resultsDiv.classList.add('show');
 
 	usersID.forEach(user => {
 		const userDiv = document.createElement('div');

@@ -35,6 +35,7 @@ services:
     image: userapi:42
     volumes:
       - user-app:/usr/src/app
+    init: true
     ports:
       - "8000:8000"
     depends_on:
@@ -53,13 +54,16 @@ services:
     image: chat_server:42
     volumes:
       - chat-app:/usr/src/app
+    init: true
     ports:
       - "8002:8002"
-    depends_on:
-      postgres:
-        condition: service_healthy
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
     env_file:
       - .env
+    depends_on:
+      - redis
     restart: always
     networks:
       - transcendence-net
@@ -84,67 +88,14 @@ services:
     networks:
       - backend-net
 
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
-  #   container_name: elasticsearch
-  #   environment:
-  #     - discovery.type=single-node
-  #     - bootstrap.memory_lock=true
-  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
-  #   volumes:
-  #     - es-data:/usr/share/elasticsearch/data
-  #   ports:
-  #     - "9200:9200"
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-
-  # logstash:
-  #   image: docker.elastic.co/logstash/logstash:7.13.2
-  #   container_name: logstash
-  #   volumes:
-  #     - ./logstash/pipeline:/usr/share/logstash/pipeline
-  #   ports:
-  #     - "5044:5044"
-  #     - "5959:5959"
-  #   depends_on:
-  #     - elasticsearch
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana:7.13.2
-  #   container_name: kibana
-  #   environment:
-  #     ELASTICSEARCH_URL: http://elasticsearch:9200
-  #   ports:
-  #     - "5601:5601"
-  #   depends_on:
-  #     - elasticsearch
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-  
-  # filebeat:
-  #   build:
-  #     context: ./filebeat
-  #     dockerfile: Dockerfile
-  #   user: root
-  #   volumes:
-  #   - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
-  #   - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-  #   - /var/log/filebeat:/var/log/filebeat
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-  #   depends_on:
-  #     - elasticsearch
-  #     - logstash
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-net
+      - transcendence-net
 
 volumes:
   nginx-conf:

@@ -5,38 +5,46 @@ import { userDataPage, userData, editPageBtns } from "../profile/myprofile.js";
 import { dataUserSearch, userSearchPage, noResults } from "../profile/search_user.js";
 import { navigateTo } from "../app.js";
 import { viewToken } from "../login/session.js";
-import { signIn } from "../login/login.js";
 import { displayPageError } from "../html/error_page.js";
+import { signIn } from "../login/login.js";
+import Language from "../translations/languages.js";
 
 
 
 const pages = {
     '/': {
         loadContent: function () {
-            home();          
-        }
+            home();
+            Language.applyTranslations('home');          
+        },
+		access: true
     },
     '/signIn': {
         loadContent: function() {
             console.log('Loading signIn page content');
             signIn();
-        }
+        },
+		access: true // rota publica
     },
     '/register': {
         loadContent: function() {
             console.log('Loading register page content');
             register();
-        }
+        },
+		access: true //rota publica
     },
     '/user/:username': {
         loadContent: function(params) {
             console.log('Loading user login page content for', params.username);
-			if (viewToken())
-            	homeLogin(params.username);
-			else
-				// navigateTo('/signIn');
-                navigateTo('/', true);
-        }
+			// if (viewToken())
+            // 	homeLogin(params.username);
+			// else
+			// 	// navigateTo('/signIn');
+            //     navigateTo('/', true);
+			homeLogin(params.username);
+        },
+		access: () => !!localStorage.getItem('access_token'), //testar
+	  	redirect: '/'
     },
     '/error/:status/:message': {
         loadContent: function(params) {
@@ -48,48 +56,61 @@ const pages = {
 			home_error.addEventListener('click', (e) => {
 				e.preventDefault();
 				navigateTo('/');
-			})
-        }
+			});
+        },
+		access: true
     },
 	'/user/:username/profile': {
         loadContent: function(params) {
             console.log('Loading user profile page content for', params.username);
 			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
-            if(viewToken())
-			    userDataPage(userData, params.username);
-            else
-                navigateTo('/', true);
-        }
+            // if(viewToken())
+			//     userDataPage(userData, params.username);
+            // else
+            //     navigateTo('/', true);
+			userDataPage(userData, params.username);
+        },
+		access: () => !!localStorage.getItem('access_token'), //testar
+	  	redirect: '/'
     },
 	'/user/:username/profile/edit': {
         loadContent: function(params) {
             console.log('Loading user profile edit page content for', params.username);
 			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
-            if(viewToken())
-			    editPageBtns(userData, params.username);
-            else
-                navigateTo('/', true);
-        }
+            // if(viewToken())
+			//     editPageBtns(userData, params.username);
+            // else
+            //     navigateTo('/', true);
+			editPageBtns(userData, params.username);
+        },
+		access: () => !!localStorage.getItem('access_token'), //testar
+	  	redirect: '/'
     },
 	'/user/:username/profile/search/:user': {
         loadContent: function(params) {
             console.log('Loading user profile search user page content for', params.username);
 			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
-			if(viewToken())
-                userSearchPage(dataUserSearch, params.username);
-            else
-                navigateTo('/', true);
-        }
+			// if(viewToken())
+            //     userSearchPage(dataUserSearch, params.username);
+            // else
+            //     navigateTo('/', true);
+			userSearchPage(dataUserSearch, params.username);
+        },
+		access: () => !!localStorage.getItem('access_token'), //testar
+	  	redirect: '/'
     },
 	'/user/:username/profile/search/noresults/:query': {
         loadContent: function(params) {
             console.log('Loading user profile search user page-no results content for', params.username);
 			// antes de entrar na rota verificar na função fetchuserprofile se o token é válido se não for vai para a home
-            if(viewToken())
-			    noResults(params.username, params.query);
-            else
-                navigateTo('/', true);
-        }
+            // if(viewToken())
+			//     noResults(params.username, params.query);
+            // else
+            //     navigateTo('/', true);
+			noResults(params.username, params.query);
+        },
+		access: () => !!localStorage.getItem('access_token'), //testar
+	  	redirect: '/'
     },
     // Outras páginas...
 };

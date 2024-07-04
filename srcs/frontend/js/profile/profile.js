@@ -25,6 +25,7 @@ async function fetchProtectedData() {
     }
 }
 
+
 // Função de teste Token
 function parseJwt(token) {
     const base64Url = token.split('.')[1];
@@ -36,9 +37,11 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
+
 // Função de teste Token
 function testToken(token) {
-	let payload;
+
+	let payload; // neste momento está undefined
 	if (token) {
 		payload = parseJwt(token);
 		console.log(payload); // Verifique as claims
@@ -46,13 +49,16 @@ function testToken(token) {
 		const currentTimestamp = Math.floor(Date.now() / 1000);
 		if (payload.exp < currentTimestamp) {
 			console.log('Token expirado');
+			return null;
 		} else {
 			console.log('Token válido');
+			return payload;
 		}
 	} else {
 		console.log('Token não encontrado no localStorage');
+		return payload;
 	}
-	return payload;
+
 }
 
 
@@ -63,6 +69,7 @@ async function fetchWithAuth(url, options = {}) {
 	testToken(accessToken); //só para teste
 
 	console.log('access: ', accessToken);
+    console.log('validade: ', testToken(accessToken));
 
     options.headers = {
         ...options.headers,
@@ -80,6 +87,8 @@ async function fetchWithAuth(url, options = {}) {
         if (refreshed) {
 			console.log('access: ', localStorage.getItem('access_token'));
             options.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
+            testToken(localStorage.getItem('access_token'));
+            console.log('Headers before second request:', options.headers);
 			console.log(url);
             response = await fetch(url, options);
         }
@@ -125,7 +134,6 @@ async function refreshAccessToken() {
 }
 
 
-
 // function linkTeste(e) {
 // 	e.preventDefault();
 // 	// fetchProtectedData();
@@ -135,4 +143,4 @@ async function refreshAccessToken() {
 
 
 
-export { fetchProtectedData, testToken }
+export { fetchProtectedData, testToken, fetchWithAuth }

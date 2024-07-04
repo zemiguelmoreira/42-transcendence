@@ -1,5 +1,4 @@
 
-
 function limparDiv(divId) {
     var div = document.getElementById(divId);
     if(div) {
@@ -67,6 +66,7 @@ function displayErrorSignIn(errorMessage) {
 	}
 }
 
+
 function successContainer(success_message) {
 	return `<div class="row justify-content-center my-auto">
 	<div class="col-auto">
@@ -74,6 +74,10 @@ function successContainer(success_message) {
 	</div>
 </div>`;
 }
+
+
+// função que faz o check e redireciona se necessario
+
 
 
 export { limparDiv, limparDivAll, displayError, displayErrorSignIn, successContainer }

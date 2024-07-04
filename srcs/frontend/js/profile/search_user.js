@@ -4,8 +4,8 @@ import { getCsrfToken } from "../utils/csrf.js";
 import { baseURL } from "../app.js";
 import { limparDivAll } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
-import { userName } from "../login/login.js";
-import { userNameReg } from "../login/register.js";
+import { fetchWithAuth } from "./profile.js";
+
 
 
 let dataUserSearch;
@@ -43,8 +43,6 @@ function userSearchPage(dataUserSearch, username) {
 			e.preventDefault();
 			navigateTo(`/user/${username}/profile`);
 	});
-
-
 }
 
 
@@ -88,9 +86,35 @@ function noResults(username, query) {
 
 async function getUser(username) {
 
+	let csrfToken;
+
+    try {
+        csrfToken = await getCsrfToken();
+        console.log(csrfToken);
+
+        if (!csrfToken) {
+            throw {
+                message: 'csrf token error - getUser',
+                status: 401,
+                status_msn: 'CSRF token not found'
+            };
+        }
+    } catch (error) {
+        console.log(error.message, error.status, error.status_msn);
+        navigateTo(`/error/${error.status}/${error.message}`);
+        return;
+    }
+
+	const conf = {
+		method: 'GET',
+		headers: {
+			'X-CSRFToken': csrfToken
+		}
+	}	
+
 	try {
 		// em todos os fetchs em que o user está ligado verificara os tokens
-		const csrfToken = await getCsrfToken();
+		// const csrfToken = await getCsrfToken();
 		const query = document.getElementById('search-input').value;
 
 		const userID = await getIdbyName(query);
@@ -104,17 +128,12 @@ async function getUser(username) {
 		console.log("user id:");
 		console.log(userID);
 		
-		const response = await fetch(`${baseURL}/user-profile/${userID}/`, {
-			method: 'GET',
-			headers: {
-				'X-CSRFToken': csrfToken  // Incluindo o token CSRF no cabeçalho da solicitação
-			}
-		});
+		const response = await fetchWithAuth(`${baseURL}/user-profile/${userID}/`, conf);
 
 		if (!response.ok) {
 			// throw new Error('Failed to fetch user profile');
 			throw {
-				message: 'Failed to fetch user profile',
+				message: 'Failed to fetch user profile - getUser',
 				status: 401,
 				status_msg: 'Internal Server Error - Tokens'
 			};
