@@ -2,7 +2,9 @@
 
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
-from .views import CreateUserView, AddFriendView, RemoveFriendView, BlockUserView, UnblockUserView, UserProfileDetailView
+from .views import CreateUserView, AddFriendView, RemoveFriendView, BlockUserView, \
+                   UnblockUserView, UserProfileDetailView, ListAllUsersView, GetUserProfileView, \
+                   UpdateBioView
 
 urlpatterns = [
     path('user/register/', CreateUserView.as_view(), name='register'),
@@ -14,6 +16,9 @@ urlpatterns = [
     path('profile/remove_friend/', RemoveFriendView.as_view(), name='remove_friend'),
     path('profile/block_user/', BlockUserView.as_view(), name='block_user'),
     path('profile/unblock_user/', UnblockUserView.as_view(), name='unblock_user'),
+    path('profile/all_users/', ListAllUsersView.as_view(), name='list_all_users'),
+    path('profile/get_user_profile/', GetUserProfileView.as_view(), name='get_user_profile'),
+    path('profile/bio/', UpdateBioView.as_view(), name='profile-bio-update'),
 ]
     # path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     # path('profile/', UserProfileView.as_view(), name='profile'),

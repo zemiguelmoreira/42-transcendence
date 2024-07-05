@@ -19,11 +19,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'friend_list', 'blocked_list', 'is_logged_in']
+        fields = ['user', 'friend_list', 'blocked_list', 'is_logged_in', 'bio', ]
         read_only_fields = ['is_logged_in']
 
     def update(self, instance, validated_data):
         instance.friend_list = validated_data.get('friend_list', instance.friend_list)
         instance.blocked_list = validated_data.get('blocked_list', instance.blocked_list)
+        instance.bio = validated_data.get('bio', instance.bio)
         instance.save()
         return instance
