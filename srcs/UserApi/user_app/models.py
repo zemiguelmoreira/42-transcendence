@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    friend_list = models.ManyToManyField(User, related_name='friends')
-    blocked_list = models.ManyToManyField(User, related_name='blocked')
+    friend_list = models.JSONField(default=list)  # Lista de usernames dos amigos
+    blocked_list = models.JSONField(default=list)  # Lista de usernames dos bloqueados
     is_logged_in = models.BooleanField(default=False)
 
     def __str__(self):

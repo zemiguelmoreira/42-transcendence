@@ -1,35 +1,29 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
-        return user
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password')
+from .models import UserProfile
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = ['id', 'username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
+class UserProfileSerializer(serializers.ModelSerializer):
+    friend_list = serializers.ListField(child=serializers.CharField(), required=False)
+    blocked_list = serializers.ListField(child=serializers.CharField(), required=False)
 
-        # Add custom claims
-        token['username'] = user.username
-        token['email'] = user.email
-        # Add more custom claims as needed
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'friend_list', 'blocked_list', 'is_logged_in']
+        read_only_fields = ['is_logged_in']
 
-        return token
+    def update(self, instance, validated_data):
+        instance.friend_list = validated_data.get('friend_list', instance.friend_list)
+        instance.blocked_list = validated_data.get('blocked_list', instance.blocked_list)
+        instance.save()
+        return instance
