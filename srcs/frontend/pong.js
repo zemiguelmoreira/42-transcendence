@@ -1,6 +1,7 @@
 const canvas = document.getElementById('pongCanvas');
 const context = canvas.getContext('2d');
 
+// const socket = new WebSocket('wss://localhost/game/ws/pong/');
 const socket = new WebSocket('wss://vintagebytes.zapto.org/game/ws/pong/');
 
 let paddlePositions = [[10, 250], [780, 250]];
@@ -21,7 +22,6 @@ socket.onmessage = function(event) {
 };
 
 socket.onopen = function(event) {
-    // Solicitar o índice do jogador ao servidor
     socket.send(JSON.stringify({ action: 'join' }));
 };
 
@@ -58,6 +58,7 @@ document.addEventListener('keydown', function(event) {
             paddlePositions[playerIndex][1] = Math.min(paddlePositions[playerIndex][1] + 10, canvas.height - 100);
             break;
     }
+    console.log(`Player ${playerIndex} moved paddle to: ${paddlePositions[playerIndex]}`);
     sendGameState();
 });
 

@@ -1,47 +1,62 @@
 # pong/consumers.py
 
 import json
-from channels.generic.websocket import WebsocketConsumer
+import asyncio
+from channels.generic.websocket import AsyncWebsocketConsumer
 
-class PongConsumer(WebsocketConsumer):
+class PongConsumer(AsyncWebsocketConsumer):
     players = []
     ball_position = [400, 300]
     paddle_positions = [[10, 250], [780, 250]]
+    ball_velocity = [2, 2]
 
-    def connect(self):
-        self.accept()
+    async def connect(self):
+        await self.accept()
         self.players.append(self)
         player_index = len(self.players) - 1
-        self.send(json.dumps({
+        await self.send(json.dumps({
             'action': 'assign_index',
             'player_index': player_index,
             'ball_position': self.ball_position,
             'paddle_positions': self.paddle_positions
         }))
 
-    def disconnect(self, close_code):
+        if not hasattr(PongConsumer, 'game_loop_task'):
+            PongConsumer.game_loop_task = asyncio.create_task(self.game_loop())
+
+    async def disconnect(self, close_code):
         if self in self.players:
             self.players.remove(self)
+        if not self.players and hasattr(PongConsumer, 'game_loop_task'):
+            PongConsumer.game_loop_task.cancel()
+            PongConsumer.game_loop_task = None
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
         if 'action' in data and data['action'] == 'join':
             return
 
         if 'paddle_positions' in data:
             self.paddle_positions = data['paddle_positions']
-        
-        # Lógica do jogo: atualizar posições de bola e raquetes
-        # Aqui você pode adicionar a lógica para movimentar a bola
-        # Exemplo de atualização da posição da bola
-        self.ball_position[0] += 1
-        self.ball_position[1] += 1
+
+    async def game_loop(self):
+        while self.players:
+            self.update_game_state()
+            await asyncio.sleep(0.033)  # Aproximadamente 30 FPS
+
+    def update_game_state(self):
+        self.ball_position[0] += self.ball_velocity[0]
+        self.ball_position[1] += self.ball_velocity[1]
+
+        if self.ball_position[1] <= 0 or self.ball_position[1] >= 600:
+            self.ball_velocity[1] *= -1
+        if self.ball_position[0] <= 0 or self.ball_position[0] >= 800:
+            self.ball_velocity[0] *= -1
 
         response = {
             'ball_position': self.ball_position,
             'paddle_positions': self.paddle_positions
         }
-        
-        # Enviar atualização para todos os jogadores conectados
+
         for player in self.players:
-            player.send(text_data=json.dumps(response))
+            asyncio.create_task(player.send(json.dumps(response)))
