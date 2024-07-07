@@ -1,12 +1,15 @@
 const canvas = document.getElementById('pongCanvas');
 const context = canvas.getContext('2d');
 
-// const socket = new WebSocket('wss://localhost/game/ws/pong/');
-const socket = new WebSocket('wss://vintagebytes.zapto.org/game/ws/pong/');
+const socket = new WebSocket('wss://localhost/game/ws/pong/');
 
 let paddlePositions = [[10, 250], [780, 250]];
 let ballPosition = [400, 300];
+let predictedBallPosition = [...ballPosition];
 let playerIndex = null;
+let lastUpdateTime = Date.now();
+let ballVelocity = [1, 1]; // Definindo a velocidade inicial da bola
+let paddleDirection = 'idle';
 
 socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
@@ -18,7 +21,7 @@ socket.onmessage = function(event) {
         ballPosition = data.ball_position;
         paddlePositions = data.paddle_positions;
     }
-    drawGame(ballPosition, paddlePositions);
+    lastUpdateTime = Date.now();
 };
 
 socket.onopen = function(event) {
@@ -29,10 +32,11 @@ socket.onclose = function(event) {
     console.log('WebSocket connection closed:', event);
 };
 
-function sendGameState() {
+function sendMoveCommand(direction) {
     socket.send(JSON.stringify({
-        action: 'update',
-        paddle_positions: paddlePositions
+        action: 'move',
+        player_index: playerIndex,
+        direction: direction
     }));
 }
 
@@ -52,19 +56,45 @@ document.addEventListener('keydown', function(event) {
     if (playerIndex === null) return;
     switch (event.key) {
         case 'ArrowUp':
-            paddlePositions[playerIndex][1] = Math.max(paddlePositions[playerIndex][1] - 10, 0);
+            paddleDirection = 'up';
+            // sendMoveCommand('up');
             break;
         case 'ArrowDown':
-            paddlePositions[playerIndex][1] = Math.min(paddlePositions[playerIndex][1] + 10, canvas.height - 100);
+            paddleDirection = 'down';
+            // sendMoveCommand('down');
             break;
     }
-    console.log(`Player ${playerIndex} moved paddle to: ${paddlePositions[playerIndex]}`);
-    sendGameState();
+    console.log(paddleDirection);
+    sendMoveCommand(paddleDirection);
 });
 
+document.addEventListener('keyup', function(event) {
+    if (playerIndex === null) return;
+    switch (event.key) {
+        case 'ArrowUp':
+            paddleDirection = 'idle';
+            // sendMoveCommand('up');
+        case 'ArrowDown':
+            paddleDirection = 'idle';
+            break;
+    }
+    sendMoveCommand(paddleDirection);
+});
+
+
+function interpolate() {
+    const currentTime = Date.now();
+    const timeDelta = (currentTime - lastUpdateTime) / 1000; // Convert to seconds
+
+    // Simple linear prediction for the ball position
+    predictedBallPosition[0] = ballPosition[0];// + (ballVelocity[0] * timeDelta);
+    predictedBallPosition[1] = ballPosition[1];// + (ballVelocity[1] * timeDelta);
+}
+
 function gameLoop() {
-    drawGame(ballPosition, paddlePositions);
+    interpolate();
+    drawGame(predictedBallPosition, paddlePositions);
     requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+requestAnimationFrame(gameLoop);
