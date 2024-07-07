@@ -48,6 +48,27 @@ services:
       - transcendence-net
       - backend-net
 
+  game_server:
+      build: ./GameServer
+      container_name: game_server
+      image: game_server:42
+      volumes:
+        - game-app:/usr/src/app
+      init: true
+      ports:
+        - "8001:8001"
+      # depends_on:
+      #   postgres:
+      #     condition: service_healthy
+      env_file:
+        - .env
+      depends_on:
+        - redis
+      restart: always
+      networks:
+        - transcendence-net
+        - backend-net
+
   chat_server:
     build: ./ChatServer
     container_name: chat_server
@@ -125,6 +146,13 @@ volumes:
     driver_opts:
       type: none
       device: ./ChatServer
+      o: bind
+  game-app:
+    name: game-app
+    driver: local
+    driver_opts:
+      type: none
+      device: ./GameServer
       o: bind
   postgres-data:
     name: postgres-data

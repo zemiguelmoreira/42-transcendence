@@ -1,6 +1,9 @@
+<!-- pong/templates/pong/index.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
@@ -10,6 +13,6 @@
 </head>
 <body>
     <canvas id="pongCanvas" width="800" height="600"></canvas>
-    <script src="pong.js"></script>
+    <script src="{% static 'pong/pong.js' %}"></script>
 </body>
 </html>
