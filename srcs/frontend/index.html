@@ -75,6 +75,16 @@
         <div id="message"></div>
     </form>
 
+    <h2>Verify 2FA Code</h2>
+    <form id="verifyForm" style="display:none;">
+        <div class="form-group">
+            <label for="twoFactorCode">2FA Code:</label>
+            <input type="text" id="twoFactorCode" placeholder="Enter 2FA code">
+        </div>
+        <button type="button" id="verifyBtn">Verify</button>
+        <div id="verifyMessage"></div>
+    </form>
+
     <h2>User Profile</h2>
     <form id="profileForm">
         <button type="button" id="getProfileBtn">Get Profile</button>
@@ -170,6 +180,35 @@
                 });
 
                 if (response.ok) {
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('verifyForm').style.display = 'block';
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.detail || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Error during login:', error.message);
+                document.getElementById('message').textContent = 'Login failed. Please check your username and password.';
+            }
+        }
+
+        async function verify2faCode() {
+            const username = document.getElementById('loginUsername').value;
+            const code = document.getElementById('twoFactorCode').value;
+
+            try {
+                const response = await fetch('/api/token/verify-2fa/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        code: code,
+                    }),
+                });
+
+                if (response.ok) {
                     const data = await response.json();
                     const accessToken = data.access;
                     const refreshToken = data.refresh;
@@ -178,11 +217,11 @@
                     alert('Login successful!');
                 } else {
                     const data = await response.json();
-                    throw new Error(data.detail || 'Login failed');
+                    throw new Error(data.detail || '2FA verification failed');
                 }
             } catch (error) {
-                console.error('Error during login:', error.message);
-                document.getElementById('message').textContent = 'Login failed. Please check your username and password.';
+                console.error('Error during 2FA verification:', error.message);
+                document.getElementById('verifyMessage').textContent = '2FA verification failed. Please check your code.';
             }
         }
 
@@ -219,10 +258,6 @@
                 return null;
             }
         }
-
-        document.getElementById('registerBtn').addEventListener('click', registerUser);
-        document.getElementById('loginBtn').addEventListener('click', loginUser);
-        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
         window.addEventListener('DOMContentLoaded', async () => {
             const accessToken = localStorage.getItem('accessToken');
@@ -450,6 +485,11 @@
             }
         }
 
+        document.getElementById('registerBtn').addEventListener('click', registerUser);
+        document.getElementById('loginBtn').addEventListener('click', loginUser);
+        document.getElementById('verifyBtn').addEventListener('click', verify2faCode);
+        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+        
         document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
         document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
         document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);

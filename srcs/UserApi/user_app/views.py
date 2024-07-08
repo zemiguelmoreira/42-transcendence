@@ -1,11 +1,41 @@
-from django.shortcuts import render
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
+from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
+
+from rest_framework.decorators import api_view
+import random
+import string
+from django.core.mail import send_mail
+
+### 2FA helpers
+
+def generate_random_code(length=6):
+    return ''.join(random.choices(string.digits, k=length))
+
+def send_2fa_code(user):
+    code = generate_random_code()
+    user.profile.two_factor_code = code
+    user.profile.two_factor_expiry = timezone.now() + timedelta(minutes=10)
+    user.profile.save()
+    send_mail(
+        'Your 2FA code',
+        f'Your 2FA code is {code}',
+        'transcendence42@gmx.com',
+        [user.email],
+        fail_silently=False,
+    )
 
 ### Views de Criação e Atualização de Usuário
 
@@ -186,3 +216,48 @@ class UpdateBioView(generics.GenericAPIView, mixins.UpdateModelMixin):
         profile.save()
 
         return Response({'status': 'Bio updated successfully'}, status=status.HTTP_200_OK)
+    
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = TokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = serializer.user
+        try:
+            profile = user.profile
+        except UserProfile.DoesNotExist:
+            profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
+
+        send_2fa_code(user)  # Chame sua função para enviar o código 2FA por e-mail
+
+        return Response({"detail": "2FA code sent to email"}, status=status.HTTP_200_OK)
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Requer autenticação para acessar esta view
+def verify_2fa_code(request):
+    username = request.data.get('username')
+    code = request.data.get('code')
+    
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user.profile.is_two_factor_code_valid(code):
+        refresh = RefreshToken.for_user(user)
+        user.profile.two_factor_code = None
+        user.profile.two_factor_expiry = None
+        user.profile.save()
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
+    else:
+        return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)

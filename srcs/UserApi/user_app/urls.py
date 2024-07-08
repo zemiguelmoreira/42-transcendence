@@ -4,11 +4,12 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from .views import CreateUserView, AddFriendView, RemoveFriendView, BlockUserView, \
                    UnblockUserView, UserProfileDetailView, ListAllUsersView, GetUserProfileView, \
-                   UpdateBioView
+                   UpdateBioView, CustomTokenObtainPairView, verify_2fa_code
 
 urlpatterns = [
     path('user/register/', CreateUserView.as_view(), name='register'),
-    path('token/', TokenObtainPairView.as_view(), name="get_token"),
+    path('token/', CustomTokenObtainPairView.as_view(), name="get_token"),
+    path('token/verify-2fa/', verify_2fa_code, name='verify_2fa_code'),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('auth/', include("rest_framework.urls")),
     path('profile/', UserProfileDetailView.as_view(), name='user_profile'),
