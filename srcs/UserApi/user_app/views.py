@@ -61,6 +61,17 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
 
+class DeleteUserView(generics.DestroyAPIView):
+    """
+    View para o usuário autenticado deletar sua própria conta.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        user.delete()
+        return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
 ### Views de Gestão de Amizades
 
 class AddFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -207,12 +218,17 @@ class UpdateBioView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         bio = request.data.get('bio')
+        alias_name = request.data.get('alias_name')
 
         if bio is None:
+            return Response({'error': 'Bio is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if alias_name is None:
             return Response({'error': 'Bio is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         profile, created = UserProfile.objects.get_or_create(user=request.user)
         profile.bio = bio
+        profile.alias_name = alias_name
         profile.save()
 
         return Response({'status': 'Bio updated successfully'}, status=status.HTTP_200_OK)

@@ -94,6 +94,11 @@
             <label for="bio">Bio:</label>
             <textarea id="bio" placeholder="Enter your bio"></textarea>
         </div>
+        <div class="form-group">
+            <label for="AliasName">Alias Name:</label>
+            <input type="text" id="alias_name" placeholder="AliasName">
+        </div>
+
         <button type="button" id="updateProfileBtn">Update Profile</button>
     </form>
 
@@ -128,6 +133,7 @@
     </form>
 
     <button type="button" id="logoutBtn">Logout</button>
+    <button id="delete-user-button">Delete Account</button>
     <h2>Play Pong</h2>   
     <a href="pong.html" class="btn btn-primary">Play Pong</a>
 
@@ -329,8 +335,8 @@
 
         async function updateUserProfile() {
             const accessToken = localStorage.getItem('accessToken');
-            const bio = document.getElementById('bio').value; // Captura o valor do campo de bio
-            console.log(bio);
+            const bio = document.getElementById('bio').value;
+            const alias_name = document.getElementById('alias_name').value;
 
             try {
                 const response = await fetch('/api/profile/bio/', {
@@ -341,6 +347,7 @@
                     },
                     body: JSON.stringify({
                         bio: bio,
+                        alias_name: alias_name,
                     }),
                 });
 
@@ -485,6 +492,44 @@
             }
         }
 
+        async function deleteUser() {
+            const accessToken = localStorage.getItem('accessToken');
+
+            if (!accessToken) {
+                alert('You are not logged in!');
+                return;
+            }
+
+            const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/profile/delete-user/', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.status === 204) {
+                    alert('User deleted successfully');
+                    localStorage.removeItem('accessToken');  // Remove token from local storage
+                    localStorage.removeItem('refreshToken'); // Remove refresh token from local storage
+                    // window.location.href = '/login';  // Redirect to login page
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Failed to delete user');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user');
+            }
+        }
+
         document.getElementById('registerBtn').addEventListener('click', registerUser);
         document.getElementById('loginBtn').addEventListener('click', loginUser);
         document.getElementById('verifyBtn').addEventListener('click', verify2faCode);
@@ -498,6 +543,7 @@
         document.getElementById('blockUserBtn').addEventListener('click', blockUser);
         document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
         document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
+        document.getElementById('delete-user-button').addEventListener('click', deleteUser);
 
     </script>
 </body>
