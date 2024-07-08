@@ -1,12 +1,14 @@
 import json
 import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
+import time
 
 class PongConsumer(AsyncWebsocketConsumer):
     players = []
     ball_position = [400, 300]
     paddle_positions = [[10, 250], [780, 250]]
-    ball_velocity = [1, 1]
+    ball_velocity = [300, 300]  # Velocidade em pixels por segundo
+    paddle_speed = 200  # Velocidade do paddle em pixels por segundo
     current_directions = [None, None]  # Lista para armazenar a direção de cada jogador
 
     async def connect(self):
@@ -41,14 +43,19 @@ class PongConsumer(AsyncWebsocketConsumer):
             self.current_directions[player_index] = direction  # Atualiza a direção do jogador
 
     async def game_loop(self):
+        last_time = time.time()
         while self.players:
-            self.update_game_state()
-            await asyncio.sleep(0.0033)
+            current_time = time.time()
+            delta_time = current_time - last_time
+            last_time = current_time
+            
+            self.update_game_state(delta_time)
+            await asyncio.sleep(0.03)
 
-    def update_game_state(self):
-        # Atualiza a posição da bola
-        self.ball_position[0] += self.ball_velocity[0]
-        self.ball_position[1] += self.ball_velocity[1]
+    def update_game_state(self, delta_time):
+        # Atualiza a posição da bola com base no delta time
+        self.ball_position[0] += self.ball_velocity[0] * delta_time
+        self.ball_position[1] += self.ball_velocity[1] * delta_time
 
         # Verifica se a bola atingiu os limites do canvas e ajusta a velocidade conforme necessário
         if self.ball_position[1] <= 0 or self.ball_position[1] >= 600:
@@ -57,14 +64,12 @@ class PongConsumer(AsyncWebsocketConsumer):
             self.ball_velocity[0] *= -1
         
         # Movimentação dos paddles baseada na direção atual de cada jogador
-        
         for i in range(len(self.paddle_positions)):
             direction = self.current_directions[i]
             if direction == 'up':
-                self.paddle_positions[i][1] = max(self.paddle_positions[i][1] - 1, 0)  # Movimento para cima
+                self.paddle_positions[i][1] = max(self.paddle_positions[i][1] - self.paddle_speed * delta_time, 0)  # Movimento para cima
             elif direction == 'down':
-                self.paddle_positions[i][1] = min(self.paddle_positions[i][1] + 1, 600 - 100)  # Movimento para baixo
- 
+                self.paddle_positions[i][1] = min(self.paddle_positions[i][1] + self.paddle_speed * delta_time, 600 - 100)  # Movimento para baixo
 
         # Prepara a resposta para enviar aos clientes
         response = {
