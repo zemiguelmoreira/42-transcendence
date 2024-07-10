@@ -1,173 +1,127 @@
 services:
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    image: nginx:42
-    volumes:
-      - nginx-conf:/etc/nginx/conf.d:ro
-    ports:
-      - "443:443"
-    expose:
-      - "80"
-    depends_on:
-      - frontend
-    restart: always
-    networks:
-      - transcendence-net
+  # nginx:
+  #   build: ./nginx
+  #   container_name: nginx
+  #   image: nginx:42
+  #   volumes:
+  #     - nginx-conf:/etc/nginx/conf.d:ro
+  #   ports:
+  #     - "443:443"
+  #   expose:
+  #     - "80"
+  #   depends_on:
+  #     - frontend
+  #   restart: always
+  #   networks:
+  #     - transcendence-net
 
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    image: frontend:42
-    volumes:
-      - frontend-data:/usr/share/nginx/html:ro
-    expose:
-      - "80"
-    depends_on:
-      - user_management
-    restart: always
-    networks:
-      - transcendence-net
+  # frontend:
+  #   build: ./frontend
+  #   container_name: frontend
+  #   image: frontend:42
+  #   volumes:
+  #     - frontend-data:/usr/share/nginx/html:ro
+  #   expose:
+  #     - "80"
+  #   depends_on:
+  #     - user_management
+  #   restart: always
+  #   networks:
+  #     - transcendence-net
 
-  user_management:
-    build: ./UserApi
-    container_name: userapi
-    image: userapi:42
-    volumes:
-      - user-app:/usr/src/app
-    ports:
-      - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - transcendence-net
-      - backend-net
+  # user_management:
+  #   build: ./UserApi
+  #   container_name: userapi
+  #   image: userapi:42
+  #   volumes:
+  #     - user-app:/usr/src/app
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - transcendence-net
+  #     - backend-net
 
   chat_server:
     build: ./ChatServer
-    container_name: chat_server
-    image: chat_server:42
+    container_name: chatserver
+    image: chatserver:42
     volumes:
       - chat-app:/usr/src/app
     ports:
       - "8002:8002"
     depends_on:
-      postgres:
+      chat_redis:
         condition: service_healthy
+    #   - user_management
     env_file:
       - .env
     restart: always
     networks:
       - transcendence-net
       - backend-net
-  
-  postgres:
-    build: ./postgres
-    container_name: postgres
-    image: postgres:42
-    volumes:
-      - postgres-data:/var/lib/postgresql/data/:rw
-    expose:
-      - "5432"
+      - chat-net
+
+  chat_redis:
+    image: redis:7
+    container_name: chatredis
+    ports:
+      - "6379:6379"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${SQL_USER}"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 4s
       retries: 5
-    env_file:
-      - .env
     restart: always
     networks:
-      - backend-net
+      - chat-net
 
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
-  #   container_name: elasticsearch
-  #   environment:
-  #     - discovery.type=single-node
-  #     - bootstrap.memory_lock=true
-  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
+  # postgres:
+  #   build: ./postgres
+  #   container_name: postgres
+  #   image: postgres:42
   #   volumes:
-  #     - es-data:/usr/share/elasticsearch/data
-  #   ports:
-  #     - "9200:9200"
+  #     - postgres-data:/var/lib/postgresql/data/:rw
+  #   expose:
+  #     - "5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${SQL_USER}"]
+  #     interval: 5s
+  #     timeout: 4s
+  #     retries: 5
+  #   env_file:
+  #     - .env
+  #   restart: always
   #   networks:
-  #     - transcendence-net
   #     - backend-net
-
-  # logstash:
-  #   image: docker.elastic.co/logstash/logstash:7.13.2
-  #   container_name: logstash
-  #   volumes:
-  #     - ./logstash/pipeline:/usr/share/logstash/pipeline
-  #   ports:
-  #     - "5044:5044"
-  #     - "5959:5959"
-  #   depends_on:
-  #     - elasticsearch
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana:7.13.2
-  #   container_name: kibana
-  #   environment:
-  #     ELASTICSEARCH_URL: http://elasticsearch:9200
-  #   ports:
-  #     - "5601:5601"
-  #   depends_on:
-  #     - elasticsearch
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-  
-  # filebeat:
-  #   build:
-  #     context: ./filebeat
-  #     dockerfile: Dockerfile
-  #   user: root
-  #   volumes:
-  #   - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
-  #   - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-  #   - /var/log/filebeat:/var/log/filebeat
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
-  #   depends_on:
-  #     - elasticsearch
-  #     - logstash
 
 volumes:
-  nginx-conf:
-    name: nginx-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./nginx/conf
-      o: bind
-  frontend-data:
-    name: frontend-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend
-      o: bind
-  user-app:
-    name: user-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./UserApi
-      o: bind
+  # nginx-conf:
+  #   name: nginx-conf
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./nginx/conf
+  #     o: bind
+  # frontend-data:
+  #   name: frontend-data
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./frontend
+  #     o: bind
+  # user-app:
+  #   name: user-app
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./UserApi
+  #     o: bind
   chat-app:
     name: chat-app
     driver: local
@@ -175,17 +129,13 @@ volumes:
       type: none
       device: ./ChatServer
       o: bind
-  postgres-data:
-    name: postgres-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ${SQL_PATH}
-      o: bind
-  # es-data:
-  #   name: es-data
+  # postgres-data:
+  #   name: postgres-data
   #   driver: local
-
+  #   driver_opts:
+  #     type: none
+  #     device: ${SQL_PATH}
+  #     o: bind
 
 networks:
   transcendence-net:
@@ -195,3 +145,8 @@ networks:
     name: backend-net
     driver: bridge
     internal: true
+  chat-net:
+    name: chat-net
+    driver: bridge
+    internal: true
+

@@ -1,0 +1,23 @@
+- ideias
+	chat pede ao userapi info dos userrs.
+	tem de ter token ou a userapi ter um model so para chat q verifica se esta na docker network
+	front faz pedido websocket  qd user fizer login
+	jwt no chat key partilhado docker env
+	fechar browser com token valido ainda, deve fechar socket. se voltar a abrir, como fazer com a socket? visto q o user vai tar logado ainda
+
+
+- falta criar container redis
+	docker run --rm -p 6379:6379 redis:7
+
+- criar channel layer?
+	$ python3 manage.py shell
+		import channels.layers
+		channel_layer = channels.layers.get_channel_layer()
+		from asgiref.sync import async_to_sync
+		async_to_sync(channel_layer.send)('test_channel', {'type': 'hello'})
+		async_to_sync(channel_layer.receive)('test_channel')
+		{'type': 'hello'}
+
+- consumer.py
+	self.scope Authentication access user object
+

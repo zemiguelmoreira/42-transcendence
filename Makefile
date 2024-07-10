@@ -32,6 +32,9 @@ $(NAME):	up
 up:			build
 			@docker compose -f $(YML) up
 
+upd: 		build
+			@docker compose -f $(YML) up -d
+
 down:
 			@docker compose -f $(YML) down
 
@@ -58,6 +61,9 @@ fclean:		clean
 				sudo rm -rf "$(HOME)/data"; \
 			fi
 
+prune:		fclean
+			@docker system prune -a -f
+
 re: 		fclean all
 
-.PHONY:		all up down start stop rm rmi rmv clean fclean re
+.PHONY:		all up down start stop rm rmi rmv clean fclean re prune

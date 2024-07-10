@@ -8,4 +8,4 @@ then
         --username $DJANGO_SUPERUSER_USERNAME \
         --email $DJANGO_SUPERUSER_EMAIL
 fi
-gunicorn --workers 2 --bind 0.0.0.0:8000 UserApi.wsgi:application
+daphne -p 8002 ChatServer.asgi:application
