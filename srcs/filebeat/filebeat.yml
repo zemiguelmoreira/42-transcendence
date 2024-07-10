@@ -6,6 +6,11 @@ filebeat.inputs:
       ids:
         - "*"
       exclude_files: ['\.gz$']
+    fields:
+      service: "generic-service" # Adicione um campo genérico que será sobrescrito
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
 
 processors:
   - add_docker_metadata:
