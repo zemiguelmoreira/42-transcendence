@@ -4,6 +4,7 @@
 ./bin/elasticsearch-setup-passwords auto -b
 
 # Criar usuário e definir papéis
+# ./bin/elasticsearch-users useradd elastic_user -p ${ELASTIC_PASSWORD} -r superuser
 ./bin/elasticsearch-users useradd elastic_user -p elastic123 -r superuser
 
 # Outras configurações de segurança podem ser adicionadas aqui
