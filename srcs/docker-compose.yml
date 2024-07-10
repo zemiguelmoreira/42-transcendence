@@ -89,7 +89,7 @@ services:
     networks:
       - transcendence-net
       - backend-net
-  
+
   postgres:
     build: ./postgres
     container_name: postgres
@@ -120,25 +120,45 @@ services:
 
 # DEVOPS SECTION
   
+  # elasticsearch:
+  #     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+  #     container_name: elasticsearch
+  #     environment:
+  #       - discovery.type=single-node
+  #       - bootstrap.memory_lock=true
+  #       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     ulimits:
+  #       memlock:
+  #         soft: -1
+  #         hard: -1
+  #     volumes:
+  #       - es-data:/usr/share/elasticsearch/data
+  #     ports:
+  #       - "9200:9200"
+  #     networks:
+  #       - transcendence-net
+  #       - backend-net
   elasticsearch:
-      image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
-      container_name: elasticsearch
-      environment:
-        - discovery.type=single-node
-        - bootstrap.memory_lock=true
-        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-        - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      ulimits:
-        memlock:
-          soft: -1
-          hard: -1
-      volumes:
-        - es-data:/usr/share/elasticsearch/data
-      ports:
-        - "9200:9200"
-      networks:
-        - transcendence-net
-        - backend-net
+    build:
+      context: ./ElasticSearch
+      dockerfile: Dockerfile
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=true
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    env_file:
+      - .env
+    networks:
+      - transcendence-net
+      - backend-net
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.13.2
@@ -147,7 +167,7 @@ services:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     environment:
       - xpack.monitoring.enabled=false
-      - ELASTIC_USERNAME=elastic
+      - ELASTIC_USERNAME=${ELASTIC_USER}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     ports:
       - "5044:5044"
@@ -157,15 +177,17 @@ services:
     networks:
       - transcendence-net
       - backend-net
+    env_file:
+    - .env
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.13.2
     container_name: kibana
     environment:
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: elastic
-      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
-      xpack.security.enabled: true
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USER}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=true
     ports:
       - "5601:5601"
     depends_on:
@@ -173,26 +195,28 @@ services:
     networks:
       - transcendence-net
       - backend-net
+    env_file:
+    - .env
   
   filebeat:
-      build:
-        context: ./filebeat
-        dockerfile: Dockerfile
-      container_name: filebeat
-      user: root
-      volumes:
-        - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
-        - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-        - /var/run/docker.sock:/var/run/docker.sock:ro  # Adicione para permitir o uso de add_docker_metadata
-        - /var/log/filebeat:/var/log/filebeat
-      networks:
-        - transcendence-net
-        - backend-net
-      depends_on:
-        - elasticsearch
-        - logstash
-      env_file:
-      - .env
+    build:
+      context: ./filebeat
+      dockerfile: Dockerfile
+    container_name: filebeat
+    user: root
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # Adicione para permitir o uso de add_docker_metadata
+      - /var/log/filebeat:/var/log/filebeat
+    networks:
+      - transcendence-net
+      - backend-net
+    depends_on:
+      - elasticsearch
+      - logstash
+    env_file:
+    - .env
 
 volumes:
   nginx-conf:
