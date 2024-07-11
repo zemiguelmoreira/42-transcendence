@@ -1,7 +1,7 @@
 
 import { makeEditProfilePage } from "./profilePages.js";
 import { removeToken } from "../utils/tokens.js";
-import { navigateTo } from "../app";
+import { navigateTo } from "../app.js";
 import { getUser } from "../search/search_user.js";
 import { deleteProfile } from "./deleteAccount.js";
 

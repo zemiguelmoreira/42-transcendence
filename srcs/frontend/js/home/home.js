@@ -17,15 +17,18 @@ function home() {
 
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/signIn');});
+		navigateTo('/signIn');
+	});
 
 	document.getElementById('register').addEventListener('click', (e) => {
-			e.preventDefault();
-			navigateTo('/register');});
+		e.preventDefault();
+		navigateTo('/register');
+	});
 
 	document.getElementById('home').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/');});		
+		navigateTo('/');
+	});
 }
 
 
@@ -39,7 +42,8 @@ function homeLogin(username) {
 
 	document.getElementById('home').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo(`/user/${username}`);});
+		navigateTo(`/user/${username}`);
+	});
 
 	document.getElementById('logOut').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -49,6 +53,7 @@ function homeLogin(username) {
 
 	// document.getElementById('testeLink').addEventListener('click', (e) => {
 	// 	e.preventDefault();
+
 	// });
 
 	document.getElementById('my-profile').addEventListener('click', (e) => {
@@ -57,7 +62,7 @@ function homeLogin(username) {
 			fetchUserProfile(username); //utilizar as funções verificar tokens
 		else
 			navigateTo('/signIn');
-		
+
 	});
 
 	document.getElementById('search-form').addEventListener('submit', (e) => {

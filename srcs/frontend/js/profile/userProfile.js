@@ -3,7 +3,7 @@ import { makeProfilePage } from "./profilePages.js";
 import { removeToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
 import { getUser } from "../search/search_user.js";
-
+import { limparDivAll } from "../utils/utils1.js";
 
 function userProfilePage(userData, username) {
 
