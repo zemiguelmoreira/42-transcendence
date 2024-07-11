@@ -286,8 +286,9 @@ def get_qr_code(request):
     img = qrcode.make(uri, image_factory=qrcode.image.svg.SvgImage)
     buffer = BytesIO()
     img.save(buffer)
-    img.save("qrcode.svg")
-    svg_img = buffer.getvalue()
+    # img.save("qrcode.svg")
+    svg_img = buffer.getvalue().decode('utf-8')
+    svg_img = svg_img.replace('svg:', '')
 
     return Response({"svg": svg_img}, status=status.HTTP_200_OK)
 

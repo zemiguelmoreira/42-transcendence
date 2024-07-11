@@ -106,7 +106,7 @@
 const canvas = document.getElementById('pongCanvas');
 const context = canvas.getContext('2d');
 
-const socket = new WebSocket('wss://localhost/game/ws/pong/');
+const socket = new WebSocket('wss://10.12.250.27/game/ws/pong/');
 // const socket = new WebSocket('wss://vintagebytes.zapto.org/game/ws/pong/');
 
 let paddlePositions = [[10, 250], [780, 250]];

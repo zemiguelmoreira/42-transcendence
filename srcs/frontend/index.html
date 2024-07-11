@@ -101,7 +101,6 @@
 
         <button type="button" id="updateProfileBtn">Update Profile</button>
     </form>
-
     <h2>Get Other User Profile</h2>
     <form id="getUserProfileForm">
         <div class="form-group">
@@ -136,7 +135,6 @@
     <button id="delete-user-button">Delete Account</button>
     <h2>Play Pong</h2>   
     <a href="pong.html" class="btn btn-primary">Play Pong</a>
-
 
     <script>
         async function registerUser() {
@@ -257,8 +255,10 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log("2FA verified successfully.");
-                    console.log("Access token:", data.access);
-                    console.log("Refresh token:", data.refresh);
+                    const accessToken = data.access;
+                    const refreshToken = data.refresh;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
                     document.getElementById('verifyMessage').textContent = '2FA verification successful. You are logged in.';
                 } else {
                     const errorText = await response.text();
