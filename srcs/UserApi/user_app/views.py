@@ -15,38 +15,46 @@ from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
 
 from rest_framework.decorators import api_view
-import random
-import string
-from django.core.mail import send_mail
+# import random
+# import string
+# from django.core.mail import send_mail
+
+import base64
+import qrcode
+import qrcode.image.svg
+import pyotp
+# import cairosvg
+from io import BytesIO
 
 ### 2FA helpers
 
-def generate_random_code(length=6):
-    return ''.join(random.choices(string.digits, k=length))
+# def generate_random_code(length=6):
+#     return ''.join(random.choices(string.digits, k=length))
 
-def send_2fa_code(user):
-    code = generate_random_code()
-    user.profile.two_factor_code = code
-    user.profile.two_factor_expiry = timezone.now() + timedelta(minutes=10)
-    user.profile.save()
-    send_mail(
-        'Your 2FA code',
-        f'Your 2FA code is {code}',
-        'transcendence42@gmx.com',
-        [user.email],
-        fail_silently=False,
-    )
+# def send_2fa_code(user):
+#     code = generate_random_code()
+#     user.profile.two_factor_code = code
+#     user.profile.two_factor_expiry = timezone.now() + timedelta(minutes=10)
+#     user.profile.save()
+#     send_mail(
+#         'Your 2FA code',
+#         f'Your 2FA code is {code}',
+#         'transcendence42@gmx.com',
+#         [user.email],
+#         fail_silently=False,
+#     )
 
 ### Views de Criação e Atualização de Usuário
 
 class CreateUserView(generics.CreateAPIView):
-    """
-    View para criar um novo usuário. Utiliza UserSerializer para gerenciar a criação do usuário
-    e garantir que a senha seja armazenada como um hash no banco de dados.
-    """
+    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        UserProfile.objects.create(user=user).generate_2fa_secret()
+
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
@@ -251,12 +259,40 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
 
-        send_2fa_code(user)  # Chame sua função para enviar o código 2FA por e-mail
+        # Aqui você deve gerar um código TOTP secreto para o usuário, se ainda não existir
+        if not profile.two_factor_code:
+            profile.two_factor_code = pyotp.random_base32()
+            profile.save()
 
-        return Response({"detail": "2FA code sent to email"}, status=status.HTTP_200_OK)
+        # Gerar tokens JWT
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': access_token,
+            # 'qr_code_url': f'https://localhost/api/profile/get_qr_code/'
+        }, status=status.HTTP_200_OK)
     
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_qr_code(request):
+    user = request.user
+    profile = user.profile
+    if not profile.two_factor_secret:
+        profile.generate_2fa_secret()
+    
+    uri = profile.get_2fa_uri()
+    img = qrcode.make(uri, image_factory=qrcode.image.svg.SvgImage)
+    buffer = BytesIO()
+    img.save(buffer)
+    img.save("qrcode.svg")
+    svg_img = buffer.getvalue()
+
+    return Response({"svg": svg_img}, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Requer autenticação para acessar esta view
+@permission_classes([IsAuthenticated])
 def verify_2fa_code(request):
     username = request.data.get('username')
     code = request.data.get('code')

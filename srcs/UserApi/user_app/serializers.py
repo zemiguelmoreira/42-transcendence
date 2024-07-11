@@ -19,7 +19,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'alias_name', 'friend_list', 'blocked_list', 'is_logged_in', 'bio', 'two_factor_code', 'two_factor_expiry']
+        fields = ['user', 'alias_name', 'friend_list', 'blocked_list', 'is_logged_in', 'bio', 'two_factor_code', 'two_factor_expiry', 'two_factor_secret']
         read_only_fields = ['is_logged_in', 'user']  # 'user' é somente leitura para atualizações
 
     def update(self, instance, validated_data):
@@ -29,5 +29,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.alias_name = validated_data.get('alias_name', instance.alias_name)
         instance.two_factor_code = validated_data.get('two_factor_code', instance.two_factor_code)
         instance.two_factor_expiry = validated_data.get('two_factor_expiry', instance.two_factor_expiry)
+        instance.two_factor_secret = validated_data.get('two_factor_secret', instance.two_factor_secret)
         instance.save()
         return instance

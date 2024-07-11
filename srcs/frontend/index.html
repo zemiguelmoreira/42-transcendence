@@ -41,6 +41,10 @@
             margin-top: 10px;
             color: red;
         }
+        #qrcode {
+            width: 200px;
+            height: 200px;
+        }
     </style>
 </head>
 <body>
@@ -62,28 +66,24 @@
     </form>
 
     <h2>User Login</h2>
-    <form id="loginForm">
-        <div class="form-group">
-            <label for="loginUsername">Username:</label>
-            <input type="text" id="loginUsername" placeholder="Enter username">
-        </div>
-        <div class="form-group">
-            <label for="loginPassword">Password:</label>
-            <input type="password" id="loginPassword" placeholder="Enter password">
-        </div>
+    <div id="loginForm">
+        <h2>Login</h2>
+        <input type="text" id="loginUsername" placeholder="Username">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <!-- <button onclick="loginUser()">Login</button> -->
         <button type="button" id="loginBtn">Login</button>
-        <div id="message"></div>
-    </form>
-
-    <h2>Verify 2FA Code</h2>
-    <form id="verifyForm" style="display:none;">
-        <div class="form-group">
-            <label for="twoFactorCode">2FA Code:</label>
-            <input type="text" id="twoFactorCode" placeholder="Enter 2FA code">
-        </div>
+        <p id="message"></p>
+    </div>
+    
+    <div id="verifyForm" style="display: none;">
+        <h2>Scan QR Code</h2>
+        <div id="qrcode"></div>
+        <h2>Verify 2FA Code</h2>
+        <input type="text" id="code" placeholder="Enter 2FA code">
         <button type="button" id="verifyBtn">Verify</button>
-        <div id="verifyMessage"></div>
-    </form>
+        <!-- <button onclick="verifyCode()">Verify</button> -->
+        <p id="verifyMessage"></p>
+    </div>
 
     <h2>User Profile</h2>
     <form id="profileForm">
@@ -169,6 +169,8 @@
             }
         }
 
+        let accessToken = '';  // Token JWT para uso posterior
+
         async function loginUser() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
@@ -186,11 +188,20 @@
                 });
 
                 if (response.ok) {
+                    const data = await response.json();
+                    accessToken = data.access;  // Salve o token de acesso
+                    console.log("Access token: " + accessToken);
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('verifyForm').style.display = 'block';
+                    await fetchQRCode();
                 } else {
-                    const data = await response.json();
-                    throw new Error(data.detail || 'Login failed');
+                    const errorText = await response.text();
+                    try {
+                        const data = JSON.parse(errorText);
+                        throw new Error(data.detail || 'Login failed');
+                    } catch (e) {
+                        throw new Error('Login failed: ' + errorText);
+                    }
                 }
             } catch (error) {
                 console.error('Error during login:', error.message);
@@ -198,15 +209,44 @@
             }
         }
 
-        async function verify2faCode() {
+        async function fetchQRCode() {
+            try {
+                const response = await fetch('/api/profile/get_qr_code/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data.svg);
+                    document.getElementById('qrcode').innerHTML = data.svg;
+
+                    // const svgElement = qrcodeDiv.querySelector('svg');
+                    // if (svgElement) {
+                    //     svgElement.setAttribute('width', '200');
+                    //     svgElement.setAttribute('height', '200');
+                    // }
+                } else {
+                    throw new Error('Failed to fetch QR code.');
+                }
+            } catch (error) {
+                console.error('Error during fetching QR code:', error.message);
+                document.getElementById('verifyMessage').textContent = 'Failed to fetch QR code.';
+            }
+        }
+
+        async function verifyCode() {
             const username = document.getElementById('loginUsername').value;
-            const code = document.getElementById('twoFactorCode').value;
+            const code = document.getElementById('code').value;
 
             try {
                 const response = await fetch('/api/token/verify-2fa/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         username: username,
@@ -216,20 +256,57 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    const accessToken = data.access;
-                    const refreshToken = data.refresh;
-                    localStorage.setItem('accessToken', accessToken);
-                    localStorage.setItem('refreshToken', refreshToken);
-                    alert('Login successful!');
+                    console.log("2FA verified successfully.");
+                    console.log("Access token:", data.access);
+                    console.log("Refresh token:", data.refresh);
+                    document.getElementById('verifyMessage').textContent = '2FA verification successful. You are logged in.';
                 } else {
-                    const data = await response.json();
-                    throw new Error(data.detail || '2FA verification failed');
+                    const errorText = await response.text();
+                    try {
+                        const data = JSON.parse(errorText);
+                        throw new Error(data.detail || 'Invalid or expired 2FA code.');
+                    } catch (e) {
+                        throw new Error('Invalid or expired 2FA code: ' + errorText);
+                    }
                 }
             } catch (error) {
                 console.error('Error during 2FA verification:', error.message);
-                document.getElementById('verifyMessage').textContent = '2FA verification failed. Please check your code.';
+                document.getElementById('verifyMessage').textContent = 'Invalid or expired 2FA code.';
             }
         }
+
+        // async function verify2faCode() {
+        //     const username = document.getElementById('loginUsername').value;
+        //     const code = document.getElementById('twoFactorCode').value;
+
+        //     try {
+        //         const response = await fetch('/api/token/verify-2fa/', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //             },
+        //             body: JSON.stringify({
+        //                 username: username,
+        //                 code: code,
+        //             }),
+        //         });
+
+        //         if (response.ok) {
+        //             const data = await response.json();
+        //             const accessToken = data.access;
+        //             const refreshToken = data.refresh;
+        //             localStorage.setItem('accessToken', accessToken);
+        //             localStorage.setItem('refreshToken', refreshToken);
+        //             alert('Login successful!');
+        //         } else {
+        //             const data = await response.json();
+        //             throw new Error(data.detail || '2FA verification failed');
+        //         }
+        //     } catch (error) {
+        //         console.error('Error during 2FA verification:', error.message);
+        //         document.getElementById('verifyMessage').textContent = '2FA verification failed. Please check your code.';
+        //     }
+        // }
 
         function logoutUser() {
             localStorage.removeItem('accessToken');
@@ -532,7 +609,7 @@
 
         document.getElementById('registerBtn').addEventListener('click', registerUser);
         document.getElementById('loginBtn').addEventListener('click', loginUser);
-        document.getElementById('verifyBtn').addEventListener('click', verify2faCode);
+        document.getElementById('verifyBtn').addEventListener('click', verifyCode);
         document.getElementById('logoutBtn').addEventListener('click', logoutUser);
         
         document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
