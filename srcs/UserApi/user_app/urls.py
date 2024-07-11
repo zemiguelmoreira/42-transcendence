@@ -4,12 +4,11 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from .views import CreateUserView, AddFriendView, RemoveFriendView, BlockUserView, \
                    UnblockUserView, UserProfileDetailView, ListAllUsersView, GetUserProfileView, \
-                   UpdateBioView, CustomTokenObtainPairView, DeleteUserView, verify_2fa_code, get_qr_code
+                   UpdateBioView, GetUserUsernameView, UserProfileDeleteView
 
 urlpatterns = [
     path('user/register/', CreateUserView.as_view(), name='register'),
-    path('token/', CustomTokenObtainPairView.as_view(), name="get_token"),
-    path('token/verify-2fa/', verify_2fa_code, name='verify_2fa_code'),
+    path('token/', TokenObtainPairView.as_view(), name="get_token"),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('auth/', include("rest_framework.urls")),
     path('profile/', UserProfileDetailView.as_view(), name='user_profile'),
@@ -20,8 +19,8 @@ urlpatterns = [
     path('profile/all_users/', ListAllUsersView.as_view(), name='list_all_users'),
     path('profile/get_user_profile/', GetUserProfileView.as_view(), name='get_user_profile'),
     path('profile/bio/', UpdateBioView.as_view(), name='profile-bio-update'),
-    path('profile/delete-user/', DeleteUserView.as_view(), name='profile-bio-update'),
-    path('profile/get_qr_code/', get_qr_code, name='get_qr_code'),
+    path('profile/get_user_username/', GetUserUsernameView.as_view(), name='get_user_username'),
+    path('profile/delete_account/', UserProfileDeleteView.as_view(), name='delete_user'),
 ]
     # path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     # path('profile/', UserProfileView.as_view(), name='profile'),

@@ -48,27 +48,6 @@ services:
       - transcendence-net
       - backend-net
 
-  game_server:
-    build: ./GameServer
-    container_name: game_server
-    image: game_server:42
-    volumes:
-      - game-app:/usr/src/app
-    init: true
-    ports:
-      - "8001:8001"
-    # depends_on:
-    #   postgres:
-    #     condition: service_healthy
-    env_file:
-      - .env
-    depends_on:
-      - redis
-    restart: always
-    networks:
-      - transcendence-net
-      - backend-net
-
   chat_server:
     build: ./ChatServer
     container_name: chat_server
@@ -89,7 +68,7 @@ services:
     networks:
       - transcendence-net
       - backend-net
-
+  
   postgres:
     build: ./postgres
     container_name: postgres
@@ -117,86 +96,6 @@ services:
     networks:
       - backend-net
       - transcendence-net
-
-# # DEVOPS SECTION
-#   elasticsearch:
-#     build:
-#       context: ./ElasticSearch
-#       dockerfile: Dockerfile
-#     container_name: elasticsearch
-#     environment:
-#       - discovery.type=single-node
-#       - bootstrap.memory_lock=true
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-#       - xpack.security.enabled=true
-#     ports:
-#       - "9200:9200"
-#     volumes:
-#       - es-data:/usr/share/elasticsearch/data
-#     env_file:
-#       - .env
-#     networks:
-#       - transcendence-net
-#       - backend-net
-
-#   logstash:
-#     image: docker.elastic.co/logstash/logstash:7.13.2
-#     container_name: logstash
-#     volumes:
-#       - ./logstash/pipeline:/usr/share/logstash/pipeline
-#     environment:
-#       - xpack.monitoring.enabled=false
-#       - ELASTIC_USERNAME=${ELASTIC_USER}
-#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-#     ports:
-#       - "5044:5044"
-#       - "5959:5959"
-#     depends_on:
-#       - elasticsearch
-#     networks:
-#       - transcendence-net
-#       - backend-net
-#     env_file:
-#     - .env
-
-#   kibana:
-#     image: docker.elastic.co/kibana/kibana:7.13.2
-#     container_name: kibana
-#     environment:
-#       - ELASTICSEARCH_URL=http://elasticsearch:9200
-#       - ELASTICSEARCH_USERNAME=${ELASTIC_USER}
-#       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
-#       - xpack.security.enabled=true
-#     ports:
-#       - "5601:5601"
-#     depends_on:
-#       - elasticsearch
-#     networks:
-#       - transcendence-net
-#       - backend-net
-#     env_file:
-#     - .env
-  
-#   filebeat:
-#     build:
-#       context: ./filebeat
-#       dockerfile: Dockerfile
-#     container_name: filebeat
-#     user: root
-#     volumes:
-#       - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
-#       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-#       - /var/run/docker.sock:/var/run/docker.sock:ro  # Adicione para permitir o uso de add_docker_metadata
-#       - /var/log/filebeat:/var/log/filebeat
-#     networks:
-#       - transcendence-net
-#       - backend-net
-#     depends_on:
-#       - elasticsearch
-#       - logstash
-#     env_file:
-#     - .env
 
 volumes:
   nginx-conf:
@@ -226,13 +125,6 @@ volumes:
     driver_opts:
       type: none
       device: ./ChatServer
-      o: bind
-  game-app:
-    name: game-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./GameServer
       o: bind
   postgres-data:
     name: postgres-data

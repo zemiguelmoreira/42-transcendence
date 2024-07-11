@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            margin-top: 10px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>User Registration</h2>
+    <form id="registerForm">
+        <div class="form-group">
+            <label for="regUsername">Username:</label>
+            <input type="text" id="regUsername" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label for="regEmail">Email:</label>
+            <input type="email" id="regEmail" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" placeholder="Enter password">
+        </div>
+        <button type="button" id="registerBtn">Register</button>
+    </form>
+
+    <h2>User Login</h2>
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="loginUsername">Username:</label>
+            <input type="text" id="loginUsername" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" placeholder="Enter password">
+        </div>
+        <button type="button" id="loginBtn">Login</button>
+        <div id="message"></div>
+    </form>
+
+    <h2>User Profile</h2>
+    <form id="profileForm">
+        <button type="button" id="getProfileBtn">Get Profile</button>
+        <button type="button" id="listUsersBtn">List All Users</button>
+        <!-- Add other profile fields as necessary here -->
+        <div class="form-group">
+            <label for="bio">Bio:</label>
+            <textarea id="bio" placeholder="Enter your bio"></textarea>
+        </div>
+        <button type="button" id="updateProfileBtn">Update Profile</button>
+    </form>
+
+    <h2>Get Other User Profile</h2>
+    <form id="getUserProfileForm">
+        <div class="form-group">
+            <label for="searchUsername">Enter Username:</label>
+            <input type="text" id="searchUsername" placeholder="Username">
+        </div>
+        <button type="button" id="getUserProfileBtn">Get Profile</button>
+        <div id="message"></div>
+    </form>
+
+    <h2>Manage Friends</h2>
+    <form id="friendForm">
+        <div class="form-group">
+            <label for="friendUsername">Friend Username:</label>
+            <input type="text" id="friendUsername" placeholder="Enter friend's username">
+        </div>
+        <button type="button" id="addFriendBtn">Add Friend</button>
+        <button type="button" id="removeFriendBtn">Remove Friend</button>
+    </form>
+
+    <h2>Manage Blocked Users</h2>
+    <form id="blockForm">
+        <div class="form-group">
+            <label for="blockUsername">User to Block/Unblock:</label>
+            <input type="text" id="blockUsername" placeholder="Enter username">
+        </div>
+        <button type="button" id="blockUserBtn">Block User</button>
+        <button type="button" id="unblockUserBtn">Unblock User</button>
+    </form>
+
+    <button type="button" id="logoutBtn">Logout</button>
+
+    <script>
+        async function registerUser() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                const response = await fetch('/api/user/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('User registered successfully!');
+                    const data = await response.json();
+                    console.log(data);
+                } else {
+                    const data = await response.json();
+                    console.log(data);
+                    // console.log(Object.entries(data)[0][1]);
+                    console.log(Object.values(data)[0]);
+                    const code = Object.keys(data)[0];
+                    const message = Object.values(data)[0];
+                    console.log(`${code} error: ${message}`);
+                    throw new Error(data.detail || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Error during registration:', error.message);
+                alert('Registration failed. Please check your inputs and try again.');
+            }
+        }
+
+        async function loginUser() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/token/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    const accessToken = data.access;
+                    const refreshToken = data.refresh;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+                    alert('Login successful!');
+                } else {
+                    const data = await response.json();
+                    console.log(data);
+                    throw new Error(data.detail || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Error during login:', error.message);
+                document.getElementById('message').textContent = 'Login failed. Please check your username and password.';
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            alert('Logout successful!');
+        }
+
+        async function refreshAccessToken(refreshToken) {
+            try {
+                const response = await fetch('/api/token/refresh/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        refresh: refreshToken,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const accessToken = data.access;
+                    localStorage.setItem('accessToken', accessToken);
+                    alert('Token refreshed successfully!');
+                    return accessToken;
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.detail || 'Token refresh failed');
+                }
+            } catch (error) {
+                console.error('Error refreshing token:', error.message);
+                return null;
+            }
+        }
+
+        document.getElementById('registerBtn').addEventListener('click', registerUser);
+        document.getElementById('loginBtn').addEventListener('click', loginUser);
+        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const accessToken = localStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            if (accessToken) {
+                const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+                const tokenExpiration = new Date(tokenPayload.exp * 1000);
+                const currentDateTime = new Date();
+
+                if (tokenExpiration < currentDateTime) {
+                    const newAccessToken = await refreshAccessToken(refreshToken);
+                    if (!newAccessToken) {
+                        alert('Session expired. Please login again.');
+                        localStorage.removeItem('accessToken');
+                        localStorage.removeItem('refreshToken');
+                    }
+                } else {
+                    alert('User already logged in!');
+                }
+            }
+        });
+
+        async function getUserProfile() {
+            const accessToken = localStorage.getItem('accessToken');
+            try {
+                const response = await fetch('/api/profile/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    alert('Profile retrieved successfully!');
+                } else {
+                    throw new Error('Failed to fetch profile');
+                }
+            } catch (error) {
+                console.log(error);
+                console.log('Error fetching profile: ', error.message);
+                alert('Failed to fetch profile. Please try again.');
+            }
+        }
+
+        async function listAllUsers() {
+            const accessToken = localStorage.getItem('accessToken');
+            try {
+                const response = await fetch('/api/profile/all_users/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    alert('Users listed in console.');
+                } else {
+                    throw new Error('Failed to fetch users');
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error.message);
+                alert('Failed to fetch users. Please try again.');
+            }
+        }
+
+        async function updateUserProfile() {
+            const accessToken = localStorage.getItem('accessToken');
+            const bio = document.getElementById('bio').value; // Captura o valor do campo de bio
+            console.log(bio);
+
+            try {
+                const response = await fetch('/api/profile/bio/', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bio: bio,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    alert('Profile updated successfully!');
+                } else {
+                    throw new Error('Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error.message);
+                alert('Failed to update profile. Please try again.');
+            }
+        }
+
+        async function addFriend() {
+            const accessToken = localStorage.getItem('accessToken');
+            const friendUsername = document.getElementById('friendUsername').value;
+            try {
+                const response = await fetch('/api/profile/add_friend/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        friend_username: friendUsername,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Friend added successfully!');
+                } else {
+                    throw new Error('Failed to add friend');
+                }
+            } catch (error) {
+                console.error('Error adding friend:', error.message);
+                alert('Failed to add friend. Please try again.');
+            }
+        }
+
+        async function removeFriend() {
+            const accessToken = localStorage.getItem('accessToken');
+            const friendUsername = document.getElementById('friendUsername').value;
+            try {
+                const response = await fetch('/api/profile/remove_friend/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        friend_username: friendUsername,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Friend removed successfully!');
+                } else {
+                    throw new Error('Failed to remove friend');
+                }
+            } catch (error) {
+                console.error('Error removing friend:', error.message);
+                alert('Failed to remove friend. Please try again.');
+            }
+        }
+
+        async function blockUser() {
+            const accessToken = localStorage.getItem('accessToken');
+            const blockedUsername = document.getElementById('blockUsername').value;
+            try {
+                const response = await fetch('/api/profile/block_user/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        blocked_username: blockedUsername,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('User blocked successfully!');
+                } else {
+                    throw new Error('Failed to block user');
+                }
+            } catch (error) {
+                console.error('Error blocking user:', error.message);
+                alert('Failed to block user. Please try again.');
+            }
+        }
+
+        async function unblockUser() {
+            const accessToken = localStorage.getItem('accessToken');
+            const blockedUsername = document.getElementById('blockUsername').value;
+            try {
+                const response = await fetch('/api/profile/unblock_user/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        blocked_username: blockedUsername,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('User unblocked successfully!');
+                } else {
+                    throw new Error('Failed to unblock user');
+                }
+            } catch (error) {
+                console.error('Error unblocking user:', error.message);
+                alert('Failed to unblock user. Please try again.');
+            }
+        }
+
+        async function getUserProfileByUsername() {
+            const accessToken = localStorage.getItem('accessToken');
+            const username = document.getElementById('searchUsername').value;
+
+            try {
+                const response = await fetch(`/api/profile/get_user_profile/?username=${username}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);  // Aqui você pode manipular os dados recebidos conforme necessário
+                    alert('User profile retrieved successfully!');
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.detail || 'Failed to retrieve user profile');
+                }
+            } catch (error) {
+                console.error('Error retrieving user profile:', error.message);
+                alert('Failed to retrieve user profile. Please try again.');
+            }
+        }
+
+        document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
+        document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
+        document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);
+        document.getElementById('addFriendBtn').addEventListener('click', addFriend);
+        document.getElementById('removeFriendBtn').addEventListener('click', removeFriend);
+        document.getElementById('blockUserBtn').addEventListener('click', blockUser);
+        document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
+        document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
+
+    </script>
+</body>
+</html>

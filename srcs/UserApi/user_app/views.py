@@ -1,60 +1,27 @@
-from django.utils import timezone
-from datetime import timedelta
+from django.shortcuts import render
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
-
-from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
-
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
+from django.shortcuts import get_object_or_404
+import logging
 
-from rest_framework.decorators import api_view
-# import random
-# import string
-# from django.core.mail import send_mail
-
-import base64
-import qrcode
-import qrcode.image.svg
-import pyotp
-# import cairosvg
-from io import BytesIO
-
-### 2FA helpers
-
-# def generate_random_code(length=6):
-#     return ''.join(random.choices(string.digits, k=length))
-
-# def send_2fa_code(user):
-#     code = generate_random_code()
-#     user.profile.two_factor_code = code
-#     user.profile.two_factor_expiry = timezone.now() + timedelta(minutes=10)
-#     user.profile.save()
-#     send_mail(
-#         'Your 2FA code',
-#         f'Your 2FA code is {code}',
-#         'transcendence42@gmx.com',
-#         [user.email],
-#         fail_silently=False,
-#     )
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 ### Views de Criação e Atualização de Usuário
 
 class CreateUserView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    """
+    View para criar um novo usuário. Utiliza UserSerializer para gerenciar a criação do usuário
+    e garantir que a senha seja armazenada como um hash no banco de dados.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    def perform_create(self, serializer):
-        user = serializer.save()
-        UserProfile.objects.create(user=user).generate_2fa_secret()
-
+    permission_classes = [AllowAny]
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
@@ -63,22 +30,25 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    
 
     def get_object(self):
         # Verifica se o perfil existe para o usuário autenticado
+        logger.info(f'Request userprofile detail teste: {self.request.user}')
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
 
-class DeleteUserView(generics.DestroyAPIView):
-    """
-    View para o usuário autenticado deletar sua própria conta.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request, *args, **kwargs):
-        user = request.user
-        user.delete()
-        return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    def retrieve(self, request, *args, **kwargs):
+        profile = self.get_object()
+        user = self.request.user
+        user_serializer = UserSerializer(user)
+        profile_serializer = self.get_serializer(profile)
+        
+        return Response({
+            'user': user_serializer.data,
+            'profile': profile_serializer.data
+        }, status=status.HTTP_200_OK)
+        # return profile
 
 ### Views de Gestão de Amizades
 
@@ -193,6 +163,7 @@ class ListAllUsersView(generics.RetrieveUpdateAPIView):
         serializer = UserProfileSerializer(profiles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class GetUserProfileView(generics.RetrieveAPIView):
     """
     View para obter o perfil de um usuário específico com base no nome de usuário. Disponível
@@ -203,19 +174,25 @@ class GetUserProfileView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('username', None)
-
+        logger.info(f'teste username: {username}')
         if not username:
             return Response({'error': 'Username parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(username=username)
             profile, created = UserProfile.objects.get_or_create(user=user)
-            serializer = self.serializer_class(profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            profile_serializer = self.serializer_class(profile)
+            user_serializer = UserSerializer(user)
+            logger.info(f'teste user: {user_serializer.data}')
+            return Response({
+                'user': user_serializer.data,
+                'profile': profile_serializer.data
+            }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UpdateBioView(generics.GenericAPIView, mixins.UpdateModelMixin):
     """
@@ -226,91 +203,70 @@ class UpdateBioView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         bio = request.data.get('bio')
-        alias_name = request.data.get('alias_name')
 
         if bio is None:
-            return Response({'error': 'Bio is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if alias_name is None:
             return Response({'error': 'Bio is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         profile, created = UserProfile.objects.get_or_create(user=request.user)
         profile.bio = bio
-        profile.alias_name = alias_name
         profile.save()
 
-        return Response({'status': 'Bio updated successfully'}, status=status.HTTP_200_OK)
-    
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = TokenObtainPairSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-
-        try:
-            serializer.is_valid(raise_exception=True)
-        except Exception as e:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user = serializer.user
-        try:
-            profile = user.profile
-        except UserProfile.DoesNotExist:
-            profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
-
-        # Aqui você deve gerar um código TOTP secreto para o usuário, se ainda não existir
-        if not profile.two_factor_code:
-            profile.two_factor_code = pyotp.random_base32()
-            profile.save()
-
-        # Gerar tokens JWT
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
+        serializer = UserProfileSerializer(profile)
+        serialized_data = serializer.data
 
         return Response({
-            'refresh': str(refresh),
-            'access': access_token,
-            # 'qr_code_url': f'https://localhost/api/profile/get_qr_code/'
+            'status': 'Bio updated successfully',
+            'profile': serialized_data
         }, status=status.HTTP_200_OK)
-    
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_qr_code(request):
-    user = request.user
-    profile = user.profile
-    if not profile.two_factor_secret:
-        profile.generate_2fa_secret()
-    
-    uri = profile.get_2fa_uri()
-    img = qrcode.make(uri, image_factory=qrcode.image.svg.SvgImage)
-    buffer = BytesIO()
-    img.save(buffer)
-    # img.save("qrcode.svg")
-    svg_img = buffer.getvalue().decode('utf-8')
-    svg_img = svg_img.replace('svg:', '')
 
-    return Response({"svg": svg_img}, status=status.HTTP_200_OK)
+        # return Response({'status': 'Bio updated successfully'}, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def verify_2fa_code(request):
-    username = request.data.get('username')
-    code = request.data.get('code')
-    
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if user.profile.is_two_factor_code_valid(code):
-        refresh = RefreshToken.for_user(user)
-        user.profile.two_factor_code = None
-        user.profile.two_factor_expiry = None
-        user.profile.save()
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        })
-    else:
-        return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
+class GetUserUsernameView(generics.RetrieveAPIView):
+    """
+    View para obter o username de um usuário específico com base no id disponível
+    para usuários autenticados.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        user_id = self.request.query_params.get('id', None)
+
+        if not user_id:
+            return Response({'error': 'id parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+            serializer = self.serializer_class(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfileDeleteView(generics.DestroyAPIView):
+    """
+    View para apagar um perfil de user com base no username.
+    """
+    queryset = UserProfile.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        username = self.request.query_params.get('username', None)
+        logger.info(f'teste username delete: {username}')
+        if not username:
+            return Response({'error': 'Username parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+            serializer = self.serializer_class(user)
+
+            logger.info(f'teste user: {user}')
+            
+            user.delete()
+            return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
