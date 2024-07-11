@@ -314,3 +314,5 @@ def verify_2fa_code(request):
         })
     else:
         return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
+    
+	# fds
