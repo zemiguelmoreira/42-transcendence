@@ -62,7 +62,7 @@ function createNavbar3() {
 		<div class="collapse navbar-collapse" id="navbarNavDropdown">
 			<ul class="navbar-nav ms-4 me-auto">
 				<li class="nav-item">
-					<a id="testeLink" class="nav-link" aria-current="page" href="" data-value="teste">link teste</a>
+					<a id="testeLink" class="nav-link" aria-current="page" href="" data-value="teste">chat</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="" id="gameLink" data-value="game">Game</a>

@@ -57,9 +57,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ChatServer.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -112,6 +109,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Daphne
 ASGI_APPLICATION = 'ChatServer.asgi.application'
 CHANNEL_LAYERS = {
     "default": {

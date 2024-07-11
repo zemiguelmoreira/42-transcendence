@@ -1,51 +1,51 @@
 services:
-  # nginx:
-  #   build: ./nginx
-  #   container_name: nginx
-  #   image: nginx:42
-  #   volumes:
-  #     - nginx-conf:/etc/nginx/conf.d:ro
-  #   ports:
-  #     - "443:443"
-  #   expose:
-  #     - "80"
-  #   depends_on:
-  #     - frontend
-  #   restart: always
-  #   networks:
-  #     - transcendence-net
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    image: nginx:42
+    volumes:
+      - nginx-conf:/etc/nginx/conf.d:ro
+    ports:
+      - "443:443"
+    expose:
+      - "80"
+    depends_on:
+      - frontend
+    restart: always
+    networks:
+      - transcendence-net
 
-  # frontend:
-  #   build: ./frontend
-  #   container_name: frontend
-  #   image: frontend:42
-  #   volumes:
-  #     - frontend-data:/usr/share/nginx/html:ro
-  #   expose:
-  #     - "80"
-  #   depends_on:
-  #     - user_management
-  #   restart: always
-  #   networks:
-  #     - transcendence-net
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    image: frontend:42
+    volumes:
+      - frontend-data:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+    depends_on:
+      - chat_server
+    restart: always
+    networks:
+      - transcendence-net
 
-  # user_management:
-  #   build: ./UserApi
-  #   container_name: userapi
-  #   image: userapi:42
-  #   volumes:
-  #     - user-app:/usr/src/app
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   env_file:
-  #     - .env
-  #   restart: always
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
+  user_management:
+    build: ./UserApi
+    container_name: userapi
+    image: userapi:42
+    volumes:
+      - user-app:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - transcendence-net
+      - backend-net
 
   chat_server:
     build: ./ChatServer
@@ -58,7 +58,6 @@ services:
     depends_on:
       chat_redis:
         condition: service_healthy
-    #   - user_management
     env_file:
       - .env
     restart: always
@@ -72,6 +71,8 @@ services:
     container_name: chatredis
     ports:
       - "6379:6379"
+    depends_on:
+      - user_management
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -81,47 +82,47 @@ services:
     networks:
       - chat-net
 
-  # postgres:
-  #   build: ./postgres
-  #   container_name: postgres
-  #   image: postgres:42
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data/:rw
-  #   expose:
-  #     - "5432"
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${SQL_USER}"]
-  #     interval: 5s
-  #     timeout: 4s
-  #     retries: 5
-  #   env_file:
-  #     - .env
-  #   restart: always
-  #   networks:
-  #     - backend-net
+  postgres:
+    build: ./postgres
+    container_name: postgres
+    image: postgres:42
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/:rw
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SQL_USER}"]
+      interval: 5s
+      timeout: 4s
+      retries: 5
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - backend-net
 
 volumes:
-  # nginx-conf:
-  #   name: nginx-conf
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ./nginx/conf
-  #     o: bind
-  # frontend-data:
-  #   name: frontend-data
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ./frontend
-  #     o: bind
-  # user-app:
-  #   name: user-app
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ./UserApi
-  #     o: bind
+  nginx-conf:
+    name: nginx-conf
+    driver: local
+    driver_opts:
+      type: none
+      device: ./nginx/conf
+      o: bind
+  frontend-data:
+    name: frontend-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend
+      o: bind
+  user-app:
+    name: user-app
+    driver: local
+    driver_opts:
+      type: none
+      device: ./UserApi
+      o: bind
   chat-app:
     name: chat-app
     driver: local
@@ -129,13 +130,13 @@ volumes:
       type: none
       device: ./ChatServer
       o: bind
-  # postgres-data:
-  #   name: postgres-data
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ${SQL_PATH}
-  #     o: bind
+  postgres-data:
+    name: postgres-data
+    driver: local
+    driver_opts:
+      type: none
+      device: ${SQL_PATH}
+      o: bind
 
 networks:
   transcendence-net:

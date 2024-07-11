@@ -31,7 +31,7 @@ function home() {
 	// 	//e.cancelBubble is supported by IE - this will kill the bubbling process.
 	// 	e.cancelBubble = true;
 	// 	e.returnValue = 'You sure you want to leave/refresh this page?';
-	
+
 	// 	//e.stopPropagation works in Firefox.
 	// 	if (e.stopPropagation) {
 	// 		e.stopPropagation();
@@ -60,11 +60,12 @@ function homeLogin(username) {
 	});
 
 	document.getElementById('testeLink').addEventListener('click', (e) => {
-		e.preventDefault();
-		if (viewToken())
-			fetchProtectedData();
-		else
-			navigateTo('/signIn');
+		// e.preventDefault();
+		// if (viewToken())
+		// 	fetchProtectedData();
+		// else
+		// 	navigateTo('/signIn');
+		window.location.href = 'https://localhost/chat';
 	});
 
 	document.getElementById('my-profile').addEventListener('click', (e) => {
@@ -73,7 +74,7 @@ function homeLogin(username) {
 			fetchUserProfile(username); //utilizar as funções verificar tokens
 		else
 			navigateTo('/signIn');
-		
+
 	});
 
 	document.getElementById('search-form').addEventListener('submit', (e) => {
