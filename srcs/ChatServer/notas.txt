@@ -4,7 +4,8 @@
 	fetch token, isauth
 	jwt no chat secret key partilhado docker env
 
-	<!-- websocket script -->
+
+	<!-- websocket script , checkar se tem token primeiro -->
 	<script>
         let statusSocket;
 

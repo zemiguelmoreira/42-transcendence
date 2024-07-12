@@ -44,8 +44,10 @@
         </div>
     </div>
     <script>
-        const roomName = 'general'; // Replace with actual room name
-        const socket = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);
+
+        const accessToken = localStorage.getItem('accessToken');
+        const roomName = 'global'; // Replace with actual room name
+        const socket = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/?token=${accessToken}`);
 
         // Handle incoming messages
         socket.onmessage = function(e) {
