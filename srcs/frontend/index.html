@@ -74,7 +74,7 @@
         <button type="button" id="loginBtn">Login</button>
         <p id="message"></p>
     </div>
-    
+
     <div id="verifyForm" style="display: none;">
         <h2>Scan QR Code</h2>
         <div id="qrcode"></div>
@@ -133,8 +133,10 @@
 
     <button type="button" id="logoutBtn">Logout</button>
     <button id="delete-user-button">Delete Account</button>
-    <h2>Play Pong</h2>   
+    <h2>Play Pong</h2>
     <a href="pong.html" class="btn btn-primary">Play Pong</a>
+	<h2>Chat</h2>
+    <a href="chat.html" class="btn btn-primary">Chat</a>
 
     <script>
         async function registerUser() {
@@ -611,7 +613,7 @@
         document.getElementById('loginBtn').addEventListener('click', loginUser);
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
         document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-        
+
         document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
         document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
         document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);
@@ -622,6 +624,42 @@
         document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
         document.getElementById('delete-user-button').addEventListener('click', deleteUser);
 
+
+
+		// accessToken = localStorage.getItem('accessToken');
+        // let statusSocket;
+        // function connectStatusWebSocket() {
+        //     if (statusSocket && statusSocket.readyState === WebSocket.OPEN) {
+        //         console.log("WebSocket is already open");
+        //         return;
+        //     }
+
+        //     statusSocket = new WebSocket(
+        //         'ws://'
+        //         + window.location.host
+        //         + '/ws/status/'
+        //     );
+
+        //     statusSocket.onopen = function(e) {
+        //         console.log("WebSocket connection for status established");
+        //     };
+
+        //     statusSocket.onclose = function(e) {
+        //         console.error('Status WebSocket closed unexpectedly');
+        //         // Try to reconnect after 1 second
+        //         setTimeout(connectStatusWebSocket, 1000);
+        //     };
+
+        //     statusSocket.onerror = function(err) {
+        //         console.error('WebSocket error observed:', err);
+        //         statusSocket.close();  // Close the connection on error
+        //     };
+        // }
+
+        // // Establish WebSocket connection on page load
+		// if (accessToken) {
+		// 	window.onload = connectStatusWebSocket;
+        // }
     </script>
 </body>
 </html>

@@ -21,10 +21,11 @@ services:
     image: frontend:42
     volumes:
       - frontend-data:/usr/share/nginx/html:ro
+      - frontend-conf:/etc/nginx/conf.d:ro
     expose:
       - "80"
     depends_on:
-      - user_management
+      - chat_server
     restart: always
     networks:
       - transcendence-net
@@ -35,11 +36,28 @@ services:
     image: userapi:42
     volumes:
       - user-app:/usr/src/app
-    init: true
     ports:
       - "8000:8000"
     depends_on:
       postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - transcendence-net
+      - backend-net
+
+  chat_server:
+    build: ./ChatServer
+    container_name: chatserver
+    image: chatserver:42
+    volumes:
+      - chat-app:/usr/src/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      redis:
         condition: service_healthy
     env_file:
       - .env
@@ -57,37 +75,30 @@ services:
     init: true
     ports:
       - "8001:8001"
-    # depends_on:
-    #   postgres:
-    #     condition: service_healthy
+    depends_on:
+      redis:
+        condition: service_healthy
     env_file:
       - .env
-    depends_on:
-      - redis
     restart: always
     networks:
       - transcendence-net
       - backend-net
 
-  chat_server:
-    build: ./ChatServer
-    container_name: chat_server
-    image: chat_server:42
-    volumes:
-      - chat-app:/usr/src/app
-    init: true
+  redis:
+    image: redis:7
+    container_name: redis
     ports:
-      - "8002:8002"
-    # depends_on:
-    #   postgres:
-    #     condition: service_healthy
-    env_file:
-      - .env
+      - "6379:6379"
     depends_on:
-      - redis
+      - user_management
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 4s
+      retries: 5
     restart: always
     networks:
-      - transcendence-net
       - backend-net
 
   postgres:
@@ -109,95 +120,6 @@ services:
     networks:
       - backend-net
 
-  redis:
-    image: redis:7
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - backend-net
-      - transcendence-net
-
-# # DEVOPS SECTION
-#   elasticsearch:
-#     build:
-#       context: ./ElasticSearch
-#       dockerfile: Dockerfile
-#     container_name: elasticsearch
-#     environment:
-#       - discovery.type=single-node
-#       - bootstrap.memory_lock=true
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-#       - xpack.security.enabled=true
-#     ports:
-#       - "9200:9200"
-#     volumes:
-#       - es-data:/usr/share/elasticsearch/data
-#     env_file:
-#       - .env
-#     networks:
-#       - transcendence-net
-#       - backend-net
-
-#   logstash:
-#     image: docker.elastic.co/logstash/logstash:7.13.2
-#     container_name: logstash
-#     volumes:
-#       - ./logstash/pipeline:/usr/share/logstash/pipeline
-#     environment:
-#       - xpack.monitoring.enabled=false
-#       - ELASTIC_USERNAME=${ELASTIC_USER}
-#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-#     ports:
-#       - "5044:5044"
-#       - "5959:5959"
-#     depends_on:
-#       - elasticsearch
-#     networks:
-#       - transcendence-net
-#       - backend-net
-#     env_file:
-#     - .env
-
-#   kibana:
-#     image: docker.elastic.co/kibana/kibana:7.13.2
-#     container_name: kibana
-#     environment:
-#       - ELASTICSEARCH_URL=http://elasticsearch:9200
-#       - ELASTICSEARCH_USERNAME=${ELASTIC_USER}
-#       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
-#       - xpack.security.enabled=true
-#     ports:
-#       - "5601:5601"
-#     depends_on:
-#       - elasticsearch
-#     networks:
-#       - transcendence-net
-#       - backend-net
-#     env_file:
-#     - .env
-  
-#   filebeat:
-#     build:
-#       context: ./filebeat
-#       dockerfile: Dockerfile
-#     container_name: filebeat
-#     user: root
-#     volumes:
-#       - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Mapeamento do volume para os logs do Docker
-#       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-#       - /var/run/docker.sock:/var/run/docker.sock:ro  # Adicione para permitir o uso de add_docker_metadata
-#       - /var/log/filebeat:/var/log/filebeat
-#     networks:
-#       - transcendence-net
-#       - backend-net
-#     depends_on:
-#       - elasticsearch
-#       - logstash
-#     env_file:
-#     - .env
-
 volumes:
   nginx-conf:
     name: nginx-conf
@@ -212,6 +134,13 @@ volumes:
     driver_opts:
       type: none
       device: ./frontend
+      o: bind
+  frontend-conf:
+    name: frontend-conf
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend/conf
       o: bind
   user-app:
     name: user-app
@@ -241,10 +170,6 @@ volumes:
       type: none
       device: ${SQL_PATH}
       o: bind
-  # es-data:
-  #   name: es-data
-  #   driver: local
-
 
 networks:
   transcendence-net:

@@ -1,8 +1,9 @@
+<!-- chat/templates/chat/room.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Chat Room</title>
+    <title>Chat</title>
 </head>
 <body>
     <textarea id="chat-log" cols="100" rows="20"></textarea><br>
@@ -13,9 +14,9 @@
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const chatSocket = new WebSocket(
-            'wss://'
+            'ws://'
             + window.location.host
-            + '/wss/chat/'
+            + '/ws/chat/'
             + roomName
             + '/'
         );
@@ -40,7 +41,7 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
             }));
             messageInputDom.value = '';
         };

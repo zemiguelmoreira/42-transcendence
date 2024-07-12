@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room</title>
+    <style>
+        #chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+        }
+        #messages {
+            height: 90%;
+            overflow-y: auto;
+        }
+        #input {
+            display: flex;
+            margin-top: 10px;
+        }
+        #message-input {
+            flex: 1;
+            padding: 5px;
+        }
+        #send-message {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <!-- Chat Box -->
+        <div id="chat-box">
+            <div id="messages"></div>
+            <div id="input">
+                <input type="text" id="message-input" placeholder="Type your message here...">
+                <button id="send-message">Send</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const roomName = 'general'; // Replace with actual room name
+        const socket = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);
+
+        // Handle incoming messages
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if (data.message) {
+                document.getElementById('messages').innerHTML += `<div>${data.message}</div>`;
+            }
+        };
+
+        // Handle socket connection open
+        socket.onopen = function() {
+            console.log("WebSocket connection established");
+        };
+
+        // Handle socket connection close
+        socket.onclose = function(e) {
+            console.log("WebSocket connection closed");
+        };
+
+        // Handle socket connection error
+        socket.onerror = function(e) {
+            console.log("WebSocket error: ", e);
+        };
+
+        // Send a chat message
+        document.getElementById('send-message').onclick = function() {
+            const message = document.getElementById('message-input').value;
+            socket.send(JSON.stringify({
+                'message': message
+            }));
+            document.getElementById('message-input').value = '';
+        };
+    </script>
+</body>
+</html>

@@ -2,8 +2,6 @@ NAME =		transcendence
 
 YML =		./srcs/docker-compose.yml
 
-
-
 all:		build $(NAME)
 
 check-prerequisites: check-hosts check-volumes check-env
@@ -32,6 +30,9 @@ $(NAME):	up
 up:			build
 			@docker compose -f $(YML) up
 
+d: 			build
+			@docker compose -f $(YML) up -d
+
 down:
 			@docker compose -f $(YML) down
 
@@ -58,6 +59,9 @@ fclean:		clean
 				sudo rm -rf "$(HOME)/data"; \
 			fi
 
+prune:		fclean
+			@docker system prune -af
+
 re: 		fclean all
 
-.PHONY:		all up down start stop rm rmi rmv clean fclean re
+.PHONY:		all up down start stop rm rmi rmv clean fclean re prune
