@@ -2,6 +2,7 @@ from django.utils import timezone
 from datetime import timedelta
 from rest_framework.response import Response
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
@@ -14,7 +15,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
 
-from rest_framework.decorators import api_view
+import logging
+
 # import random
 # import string
 # from django.core.mail import send_mail
@@ -26,6 +28,8 @@ import pyotp
 # import cairosvg
 from io import BytesIO
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 ### 2FA helpers
 
 # def generate_random_code(length=6):
@@ -63,11 +67,24 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    
 
     def get_object(self):
         # Verifica se o perfil existe para o usuário autenticado
+        logger.info(f'Request userprofile detail teste: {self.request.user}')
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
+
+    def retrieve(self, request, *args, **kwargs):
+        profile = self.get_object()
+        user = self.request.user
+        user_serializer = UserSerializer(user)
+        profile_serializer = self.get_serializer(profile)
+        
+        return Response({
+            'user': user_serializer.data,
+            'profile': profile_serializer.data
+        }, status=status.HTTP_200_OK)
 
 class DeleteUserView(generics.DestroyAPIView):
     """
@@ -210,7 +227,34 @@ class GetUserProfileView(generics.RetrieveAPIView):
         try:
             user = User.objects.get(username=username)
             profile, created = UserProfile.objects.get_or_create(user=user)
-            serializer = self.serializer_class(profile)
+            profile_serializer = self.serializer_class(profile)
+            user_serializer = UserSerializer(user)
+            return Response({
+                'user': user_serializer.data,
+                'profile': profile_serializer.data
+            }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class GetUserUsernameView(generics.RetrieveAPIView):
+    """
+    View para obter o username de um usuário específico com base no id disponível
+    para usuários autenticados.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        user_id = self.request.query_params.get('id', None)
+
+        if not user_id:
+            return Response({'error': 'id parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+            serializer = self.serializer_class(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
@@ -238,8 +282,13 @@ class UpdateBioView(generics.GenericAPIView, mixins.UpdateModelMixin):
         profile.bio = bio
         profile.alias_name = alias_name
         profile.save()
+        serializer = UserProfileSerializer(profile)
+        serialized_data = serializer.data
 
-        return Response({'status': 'Bio updated successfully'}, status=status.HTTP_200_OK)
+        return Response({
+            'status': 'Profile updated successfully',
+            'profile': serialized_data
+        }, status=status.HTTP_200_OK)
     
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -274,45 +323,46 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             # 'qr_code_url': f'https://localhost/api/profile/get_qr_code/'
         }, status=status.HTTP_200_OK)
     
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_qr_code(request):
-    user = request.user
-    profile = user.profile
-    if not profile.two_factor_secret:
-        profile.generate_2fa_secret()
-    
-    uri = profile.get_2fa_uri()
-    img = qrcode.make(uri, image_factory=qrcode.image.svg.SvgImage)
-    buffer = BytesIO()
-    img.save(buffer)
-    # img.save("qrcode.svg")
-    svg_img = buffer.getvalue().decode('utf-8')
-    svg_img = svg_img.replace('svg:', '')
+class GetQRCodeView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    return Response({"svg": svg_img}, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        profile = user.profile
+        if not profile.two_factor_secret:
+            profile.generate_2fa_secret()
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def verify_2fa_code(request):
-    username = request.data.get('username')
-    code = request.data.get('code')
-    
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        uri = profile.get_2fa_uri()
+        img = qrcode.make(uri, image_factory=qrcode.image.svg.SvgImage)
+        buffer = BytesIO()
+        img.save(buffer)
+        svg_img = buffer.getvalue().decode('utf-8')
+        svg_img = svg_img.replace('svg:', '')
 
-    if user.profile.is_two_factor_code_valid(code):
-        refresh = RefreshToken.for_user(user)
-        user.profile.two_factor_code = None
-        user.profile.two_factor_expiry = None
-        user.profile.save()
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        })
-    else:
-        return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
-    
-	# fds
+        return Response({"svg": svg_img}, status=status.HTTP_200_OK)
+
+
+class Verify2FACodeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        code = request.data.get('code')
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.profile.is_two_factor_code_valid(code):
+            refresh = RefreshToken.for_user(user)
+            user.profile.two_factor_code = None
+            user.profile.two_factor_expiry = None
+            user.profile.save()
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
+

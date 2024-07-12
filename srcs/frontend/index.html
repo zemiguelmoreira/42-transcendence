@@ -220,12 +220,6 @@
                     const data = await response.json();
                     console.log(data.svg);
                     document.getElementById('qrcode').innerHTML = data.svg;
-
-                    // const svgElement = qrcodeDiv.querySelector('svg');
-                    // if (svgElement) {
-                    //     svgElement.setAttribute('width', '200');
-                    //     svgElement.setAttribute('height', '200');
-                    // }
                 } else {
                     throw new Error('Failed to fetch QR code.');
                 }
