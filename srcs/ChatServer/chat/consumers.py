@@ -14,13 +14,22 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = f"chat_{self.room_name}"
+        self.token = self.scope['query_string'].decode().split('token=')[1]
 
-        # Join room group
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        try:
+            # Validação do token JWT
+            AccessToken(self.token)
+            self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+            self.room_group_name = f"chat_{self.room_name}"
 
-        await self.accept()
+            # Join room group
+            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.accept()
+
+        except (InvalidToken, TokenError) as e:
+            # Token inválido, fechar a conexão
+            await self.close()
+            return "token error"
 
     async def disconnect(self, close_code):
         # Leave room group
