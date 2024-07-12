@@ -1,8 +1,10 @@
 #!/bin/bash
-# Custom entrypoint script to adjust permissions
+set -e
 
-# Ensure the file has the correct permissions
-chmod 644 /usr/share/filebeat/filebeat.yml
-
-# Execute the original entrypoint
-exec /usr/local/bin/docker-entrypoint "$@"
+# Execute the original entrypoint if arguments are provided
+if [ $# -eq 0 ]; then
+    echo "No arguments provided to the entrypoint script."
+    exit 1
+else
+    exec /usr/local/bin/docker-entrypoint "$@"
+fi

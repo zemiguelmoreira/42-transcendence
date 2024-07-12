@@ -1,13 +1,10 @@
 #!/bin/bash
 
-# Configurar segurança no Elasticsearch
-./bin/elasticsearch-setup-passwords auto -b
+# Check if the keystore file exists
+if [ ! -f /usr/share/elasticsearch/config/elasticsearch.keystore ]; then
+  # Create the keystore
+  bin/elasticsearch-keystore create
 
-# Criar usuário e definir papéis
-# ./bin/elasticsearch-users useradd elastic_user -p ${ELASTIC_PASSWORD} -r superuser
-./bin/elasticsearch-users useradd elastic_user -p elastic123 -r superuser
-
-# Outras configurações de segurança podem ser adicionadas aqui
-
-# Reiniciar o Elasticsearch para aplicar as configurações
-./bin/elasticsearch -d
+  # Add the bootstrap password to the keystore
+  echo "${ELASTIC_PASSWORD}" | bin/elasticsearch-keystore add -x 'bootstrap.password'
+fi
