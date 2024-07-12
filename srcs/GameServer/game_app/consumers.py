@@ -1,7 +1,16 @@
-import json
-import asyncio
+import os
+import django
+from django.conf import settings
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GameServer.settings')
+django.setup()
+
 from channels.generic.websocket import AsyncWebsocketConsumer
+import asyncio
+import json
 import time
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.tokens import AccessToken
 
 class PongConsumer(AsyncWebsocketConsumer):
     players = []
@@ -12,7 +21,20 @@ class PongConsumer(AsyncWebsocketConsumer):
     current_directions = [None, None]  # Lista para armazenar a direção de cada jogador
 
     async def connect(self):
-        await self.accept()
+        self.token = self.scope['query_string'].decode().split('token=')[1]
+
+        try:
+            # Validação do token JWT
+            AccessToken(self.token)
+
+            # Aceita a conexão WebSocket
+            await self.accept()
+
+        except (InvalidToken, TokenError) as e:
+            # Token inválido, fechar a conexão
+            await self.close()
+            return "token error"
+
         self.players.append(self)
         player_index = len(self.players) - 1
         await self.send(json.dumps({
