@@ -140,6 +140,9 @@
                 <label>Email:</label><span id="email"></span>
             </div>
             <div class="profile-info">
+                <label>Is logged in:</label><span id="is_logged_in"></span>
+            </div>
+            <div class="profile-info">
                 <label>Alias Name:</label><span id="aliasName"></span>
             </div>
             <div class="profile-info">
@@ -218,6 +221,34 @@
     <script>
 
         let isLoggedIn = false;
+
+        let socket = null;
+
+        function connectWebSocket() {
+            const accessToken = localStorage.getItem('accessToken');
+            socket = new WebSocket(`wss://localhost/api/ws/user_status/?token=${accessToken}`);
+
+            socket.onopen = function(event) {
+                console.log('WebSocket connected');
+            };
+
+            socket.onmessage = function(event) {
+                console.log('Message from server:', event.data);
+            };
+
+            socket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            };
+
+            socket.onclose = function(event) {
+                console.log('WebSocket closed:', event);
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            };
+        }
+
 
         async function registerUser() {
             const username = document.getElementById('regUsername').value;
@@ -330,15 +361,18 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("2FA verified successfully.");
+
+                    
                     const accessToken = data.access;
                     const refreshToken = data.refresh;
                     localStorage.setItem('accessToken', accessToken);
                     localStorage.setItem('refreshToken', refreshToken);
+                    console.log("2FA verified successfully.");
                     document.getElementById('verifyMessage').textContent = '2FA verification successful. You are logged in.';
                     alert('2FA verification successful. You are logged in.');
                     document.getElementById('loginForm').style.display = 'block';
                     document.getElementById('verifyForm').style.display = 'none';
+                    connectWebSocket();
                 } else {
                     const errorText = await response.text();
                     try {
@@ -357,6 +391,7 @@
         function logoutUser() {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
+            socket.close();
             alert('Logout successful!');
         }
 
@@ -426,6 +461,7 @@
                     alert('Profile retrieved successfully!');
                     document.getElementById('username').textContent = data.user.username;
                     document.getElementById('email').textContent = data.user.email;
+                    document.getElementById('is_logged_in').textContent = data.profile.is_logged_in;
                     document.getElementById('aliasName').textContent = data.profile.alias_name;
                     document.getElementById('bio').textContent = data.profile.bio;
                     document.getElementById('twoFactorSecret').textContent = data.profile.two_factor_secret;
@@ -638,6 +674,7 @@
                     alert('User profile retrieved successfully!');
                     document.getElementById('username').textContent = data.user.username;
                     document.getElementById('email').textContent = data.user.email;
+                    document.getElementById('is_logged_in').textContent = data.profile.is_logged_in;
                     document.getElementById('aliasName').textContent = data.profile.alias_name;
                     document.getElementById('bio').textContent = data.profile.bio;
                     document.getElementById('twoFactorSecret').textContent = data.profile.two_factor_secret;

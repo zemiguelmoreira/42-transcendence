@@ -59,6 +59,8 @@ SIMPLE_JWT = {
 }
 
 
+WSGI_APPLICATION = 'UserApi.wsgi.application'
+ASGI_APPLICATION = 'UserApi.asgi.application'
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,9 +70,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'rest_framework',
     'corsheaders',
     'user_app',
+    'monitoring_app'
 ]
 
 MIDDLEWARE = [
@@ -102,7 +106,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'UserApi.wsgi.application'
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.getenv('REDIS_URL', 'redis://localhost:6379'))],
+        },
+    },
+}
 
 
 # Database

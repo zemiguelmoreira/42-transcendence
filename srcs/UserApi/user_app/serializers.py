@@ -22,11 +22,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'alias_name', 'friend_list', 'blocked_list', 'is_logged_in', 'bio', 'two_factor_code', 'two_factor_expiry', 'two_factor_secret',
                   'wins', 'losses', 'pong_wins', 'pong_losses', 'pong_match_history', 'pong_rank',
                   'snake_wins', 'snake_losses', 'snake_match_history', 'snake_rank']
-        read_only_fields = ['is_logged_in', 'user']
+        read_only_fields = ['user']
 
     def update(self, instance, validated_data):
         instance.friend_list = validated_data.get('friend_list', instance.friend_list)
         instance.blocked_list = validated_data.get('blocked_list', instance.blocked_list)
+        instance.is_logged_in = validated_data.get('is_logged_in', instance.is_logged_in)
         instance.bio = validated_data.get('bio', instance.bio)
         instance.alias_name = validated_data.get('alias_name', instance.alias_name)
         instance.two_factor_code = validated_data.get('two_factor_code', instance.two_factor_code)

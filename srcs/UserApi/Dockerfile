@@ -2,6 +2,7 @@ FROM python:3.10-slim
 RUN apt-get update && \
 apt-get install -y iputils-ping netcat-openbsd telnet libcairo2-dev
 WORKDIR /usr/src/app
+ENV DJANGO_SETTINGS_MODULE=UserApi.settings
 RUN pip3 install --upgrade pip
 RUN pip3 install psycopg2-binary
 
@@ -12,6 +13,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 # Configuração do ambiente
 ENV RUSTUP_HOME="/root/.rustup"
 ENV CARGO_HOME="/root/.cargo"
+
 
 COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip3 install -r requirements.txt
