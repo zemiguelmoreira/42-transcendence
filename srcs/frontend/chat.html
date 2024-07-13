@@ -2,83 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Chat Room</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
     <style>
-        #chat-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+        body {
+            font-family: Arial, sans-serif;
         }
-        #chat-box {
-            border: 1px solid #ccc;
-            padding: 10px;
-            height: 400px;
-            overflow-y: scroll;
-        }
-        #messages {
-            height: 90%;
-            overflow-y: auto;
-        }
-        #input {
+        .container {
             display: flex;
-            margin-top: 10px;
+            flex-direction: row;
+            height: 100vh;
         }
-        #message-input {
+        .users-list {
+            width: 20%;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+        }
+        .chat-window {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
             flex: 1;
-            padding: 5px;
+            padding: 10px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
         }
-        #send-message {
-            padding: 5px 10px;
+        .message-input {
+            display: flex;
+            padding: 10px;
+        }
+        .message-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .message-input button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="chat-container">
-        <!-- Chat Box -->
-        <div id="chat-box">
-            <div id="messages"></div>
-            <div id="input">
-                <input type="text" id="message-input" placeholder="Type your message here...">
-                <button id="send-message">Send</button>
+    <div class="container">
+        <div class="users-list">
+            <h3>Online Users</h3>
+            <ul id="users">
+                <!-- Users will be dynamically populated here -->
+            </ul>
+        </div>
+        <div class="chat-window">
+            <div class="messages" id="chat-log">
+                <!-- Messages will be dynamically populated here -->
+            </div>
+            <div class="message-input">
+                <input id="chat-message-input" type="text" placeholder="Type a message...">
+                <button id="chat-message-submit">Send</button>
             </div>
         </div>
     </div>
     <script>
-
         const accessToken = localStorage.getItem('accessToken');
-        const roomName = 'global'; // Replace with actual room name
-        const socket = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/?token=${accessToken}`);
+        console.log(accessToken);
+        if (accessToken) {
+            const chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/?token=${accessToken}`);
+        } else {
+            console.error('Access token not found.');
+        }
 
-        // Handle incoming messages
-        socket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            if (data.message) {
-                document.getElementById('messages').innerHTML += `<div>${data.message}</div>`;
-            }
-        };
-
-        // Handle socket connection open
-        socket.onopen = function() {
+        chatSocket.onopen = function(e) {
             console.log("WebSocket connection established");
         };
 
-        // Handle socket connection close
-        socket.onclose = function(e) {
-            console.log("WebSocket connection closed");
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if (data.type === 'user_list') {
+                updateUserList(data.users);
+            } else if (data.type === 'chat_message') {
+                addMessage(data.username, data.message);
+            }
         };
 
-        // Handle socket connection error
-        socket.onerror = function(e) {
-            console.log("WebSocket error: ", e);
-        };
-
-        // Send a chat message
-        document.getElementById('send-message').onclick = function() {
-            const message = document.getElementById('message-input').value;
-            socket.send(JSON.stringify({
-                'message': message
-            }));
-            document.getElementById('message-input').value = '';
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
         };
     </script>
 </body>

@@ -12,6 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = 'django-insecure-5#7iau#$ez1(m%-1b^v$-y!@e(!5v_(gprh#ki2_=6f-bts_4u'
 SECRET_KEY = os.getenv('CHATSERVER_SECRET_KEY')
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_jwt_secret_key')
+JWT_ALGORITHM = 'HS256'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -36,6 +37,7 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
+
 
 # Application definition
 
@@ -63,7 +65,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
 
 ROOT_URLCONF = 'ChatServer.urls'
 
@@ -86,13 +90,24 @@ TEMPLATES = [
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
 DATABASES = {
+
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+        'ENGINE': os.getenv('SQL_ENGINE'),
+
+        'NAME': os.getenv('SQL_DATABASE'),
+
+        'USER': os.getenv('SQL_USER'),
+
+        'PASSWORD': os.getenv('SQL_PASSWORD'),
+
+        'HOST': os.getenv('SQL_HOST'),
+
+        'PORT': os.getenv('SQL_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
