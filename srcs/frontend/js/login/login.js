@@ -7,7 +7,6 @@ import { navigateTo } from "../app.js";
 import { saveToken, viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 
-let userName = "";
 
 function insertInputValidation1(userSigInForm) {
 	for (let element of userSigInForm.elements) {
@@ -142,7 +141,6 @@ async function sendIUser(userOrEmail, password, allURL) {
 		console.log(username);
 
         limparDivAll('root');
-        // userName = data.user.username;
         const successDiv = successContainer(username);
         document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
         
@@ -169,4 +167,4 @@ async function sendIUser(userOrEmail, password, allURL) {
 
 
 
-export { userName, signIn, userSignIn }
+export { signIn, userSignIn }

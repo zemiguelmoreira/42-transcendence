@@ -16,7 +16,7 @@ function userSearchPage(dataUserSearch, username) {
 	// rootDiv.innerHTML = makeProfilePage(dataUserSearch);
 	// console.log(dataUserSearch);
 	limparDivAll('root');
-	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch);
+	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageDataSearch);
 
 	document.getElementById('home').addEventListener('click', (e) => {
@@ -140,7 +140,7 @@ async function getUser(username) {
 			navigateTo(`/user/${username}/profile`);
 		}
 		else
-			navigateTo(`/user/${username}/profile/search/${dataUserSearch.username}`);
+			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
 
 	} catch (e) {
 		// console.error('Error:', e);

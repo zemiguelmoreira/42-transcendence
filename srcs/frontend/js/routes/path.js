@@ -1,7 +1,7 @@
 
 import { home, homeLogin } from "../home/home.js";
 import { register } from "../register/register.js";
-import { dataUser } from "../profile/myprofile.js";
+import { dataUser, fetchUserProfile } from "../profile/myprofile.js";
 import { dataUserSearch, dataUserFromSearch, userSearchPage, noResults } from "../search/search_user.js";
 import { navigateTo } from "../app.js";
 import { displayPageError } from "../html/error_page.js";
@@ -58,10 +58,15 @@ const pages = {
 	'/user/:username/profile': {
         loadContent: function(params) {
             console.log('Loading user profile page content for', params.username);
+            console.log('dataUser no path: ', dataUser);
+            console.log('dataUser no path: ', dataUserFromSearch);
             if (dataUser)
 			    userProfilePage(dataUser, params.username);
             else if (dataUserFromSearch)
                 userProfilePage(dataUserFromSearch, params.username);
+            else {
+                fetchUserProfile(params.username);
+            }
         },
 		access: () => !!localStorage.getItem('access_token'), //testar
 	  	redirect: '/'
