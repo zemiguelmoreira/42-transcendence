@@ -3,6 +3,8 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -17,12 +19,11 @@ urlpatterns = [
     path('profile/unblock_user/', views.UnblockUserView.as_view(), name='unblock_user'),
     path('profile/all_users/', views.ListAllUsersView.as_view(), name='list_all_users'),
     path('profile/get_user_profile/',views.GetUserProfileView.as_view(), name='get_user_profile'),
-    path('profile/bio/', views.UpdateBioView.as_view(), name='profile-bio-update'),
-    path('profile/delete-user/', views.DeleteUserView.as_view(), name='profile-bio-update'),
+    path('profile/update_profile/', views.UpdateUserProfileView.as_view(), name='profile_update'),
+    path('profile/delete_user/', views.DeleteUserView.as_view(), name='profile_delete'),
     path('profile/get_qr_code/', views.GetQRCodeView.as_view(), name='get_qr_code'),
     path('profile/get_user_username/', views.GetUserUsernameView.as_view(), name='get_user_username'),
     path('auth/', include("rest_framework.urls")),
 ]
     # path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     # path('profile/', UserProfileView.as_view(), name='profile'),
-    

@@ -134,6 +134,10 @@
         <div class="profile-container">
             <h2 class="profile-heading">User Profile</h2>
             <div class="profile-info">
+                <label>Profile Image:</label>
+                <img id="profileImage" src="" alt="Profile Image">
+            </div>
+            <div class="profile-info">
                 <label>Username:</label><span id="username"></span>
             </div>
             <div class="profile-info">
@@ -190,6 +194,10 @@
             <label for="AliasName">Alias Name:</label>
             <input type="text" id="alias_nameForm" placeholder="AliasName">
         </div>
+        <div class="form-group">
+            <label for="profileImageUpload">Upload Profile Image:</label>
+            <input type="file" id="profileImageUpload">
+        </div>
     
         <button type="button" id="updateProfileBtn">Update Profile</button>
         
@@ -219,9 +227,6 @@
     <a href="pong.html" class="btn btn-primary">Play Pong</a>
 
     <script>
-
-        let isLoggedIn = false;
-
         let socket = null;
 
         function connectWebSocket() {
@@ -459,36 +464,7 @@
                     const data = await response.json();
                     console.log(data);
                     alert('Profile retrieved successfully!');
-                    document.getElementById('username').textContent = data.user.username;
-                    document.getElementById('email').textContent = data.user.email;
-                    document.getElementById('is_logged_in').textContent = data.profile.is_logged_in;
-                    document.getElementById('aliasName').textContent = data.profile.alias_name;
-                    document.getElementById('bio').textContent = data.profile.bio;
-                    document.getElementById('twoFactorSecret').textContent = data.profile.two_factor_secret;
-                    document.getElementById('wins').textContent = data.profile.wins;
-                    document.getElementById('losses').textContent = data.profile.losses;
-                    document.getElementById('pongWins').textContent = data.profile.pong_wins;
-                    document.getElementById('pongLosses').textContent = data.profile.pong_losses;
-                    document.getElementById('snakeWins').textContent = data.profile.snake_wins;
-                    document.getElementById('snakeLosses').textContent = data.profile.snake_losses;
-
-                    // Preenche a lista de amigos
-                    const friendListElement = document.getElementById('friendList');
-                    friendListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
-                    data.profile.friend_list.forEach(friend => {
-                        const li = document.createElement('li');
-                        li.textContent = friend;
-                        friendListElement.appendChild(li);
-                    });
-
-                    // Preenche a lista de bloqueados
-                    const blockedListElement = document.getElementById('blockedList');
-                    blockedListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
-                    data.profile.blocked_list.forEach(blocked => {
-                        const li = document.createElement('li');
-                        li.textContent = blocked;
-                        blockedListElement.appendChild(li);
-                    });
+                    updateProfileElements(data.user, data.profile);
                 } else {
                     throw new Error('Failed to fetch profile');
                 }
@@ -525,20 +501,22 @@
             const accessToken = localStorage.getItem('accessToken');
             const bio = document.getElementById('bioForm').value;
             const alias_name = document.getElementById('alias_nameForm').value;
+            const profileImage = document.getElementById('profileImageUpload').files[0];
 
-            console.log("bio: " + bio);
+            const formData = new FormData();
+            formData.append('bio', bio);
+            formData.append('alias_name', alias_name);
+            if (profileImage) {
+                formData.append('profile_image', profileImage);
+            }
 
             try {
-                const response = await fetch('/api/profile/bio/', {
+                const response = await fetch('/api/profile/update_profile/', {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        bio: bio,
-                        alias_name: alias_name,
-                    }),
+                    body: formData,
                 });
 
                 if (response.ok) {
@@ -670,38 +648,10 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);  // Aqui você pode manipular os dados recebidos conforme necessário
+                    console.log(data);
                     alert('User profile retrieved successfully!');
-                    document.getElementById('username').textContent = data.user.username;
-                    document.getElementById('email').textContent = data.user.email;
-                    document.getElementById('is_logged_in').textContent = data.profile.is_logged_in;
-                    document.getElementById('aliasName').textContent = data.profile.alias_name;
-                    document.getElementById('bio').textContent = data.profile.bio;
-                    document.getElementById('twoFactorSecret').textContent = data.profile.two_factor_secret;
-                    document.getElementById('wins').textContent = data.profile.wins;
-                    document.getElementById('losses').textContent = data.profile.losses;
-                    document.getElementById('pongWins').textContent = data.profile.pong_wins;
-                    document.getElementById('pongLosses').textContent = data.profile.pong_losses;
-                    document.getElementById('snakeWins').textContent = data.profile.snake_wins;
-                    document.getElementById('snakeLosses').textContent = data.profile.snake_losses;
-
-                    // Preenche a lista de amigos
-                    const friendListElement = document.getElementById('friendList');
-                    friendListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
-                    data.profile.friend_list.forEach(friend => {
-                        const li = document.createElement('li');
-                        li.textContent = friend;
-                        friendListElement.appendChild(li);
-                    });
-
-                    // Preenche a lista de bloqueados
-                    const blockedListElement = document.getElementById('blockedList');
-                    blockedListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
-                    data.profile.blocked_list.forEach(blocked => {
-                        const li = document.createElement('li');
-                        li.textContent = blocked;
-                        blockedListElement.appendChild(li);
-                    });
+                    // Atualize os elementos HTML com os dados do perfil
+                    updateProfileElements(data.user, data.profile);
                 } else {
                     const data = await response.json();
                     throw new Error(data.detail || 'Failed to retrieve user profile');
@@ -710,6 +660,40 @@
                 console.error('Error retrieving user profile:', error.message);
                 alert('Failed to retrieve user profile. Please try again.');
             }
+        }
+
+        function updateProfileElements(user, profile) {
+            document.getElementById('username').textContent = user.username;
+            document.getElementById('email').textContent = user.email;
+            document.getElementById('is_logged_in').textContent = profile.is_logged_in;
+            document.getElementById('profileImage').src = profile.profile_image_url;
+            document.getElementById('aliasName').textContent = profile.alias_name;
+            document.getElementById('bio').textContent = profile.bio;
+            document.getElementById('twoFactorSecret').textContent = profile.two_factor_secret;
+            document.getElementById('wins').textContent = profile.wins;
+            document.getElementById('losses').textContent = profile.losses;
+            document.getElementById('pongWins').textContent = profile.pong_wins;
+            document.getElementById('pongLosses').textContent = profile.pong_losses;
+            document.getElementById('snakeWins').textContent = profile.snake_wins;
+            document.getElementById('snakeLosses').textContent = profile.snake_losses;
+
+            // Preenche a lista de amigos
+            const friendListElement = document.getElementById('friendList');
+            friendListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
+            profile.friend_list.forEach(friend => {
+                const li = document.createElement('li');
+                li.textContent = friend;
+                friendListElement.appendChild(li);
+            });
+
+            // Preenche a lista de bloqueados
+            const blockedListElement = document.getElementById('blockedList');
+            blockedListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
+            profile.blocked_list.forEach(blocked => {
+                const li = document.createElement('li');
+                li.textContent = blocked;
+                blockedListElement.appendChild(li);
+            });
         }
 
         async function deleteUser() {
@@ -727,7 +711,7 @@
             }
 
             try {
-                const response = await fetch('/api/profile/delete-user/', {
+                const response = await fetch('/api/profile/delete_user/', {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
@@ -754,7 +738,6 @@
         document.getElementById('loginBtn').addEventListener('click', loginUser);
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
         document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-        
         document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
         document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
         document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);

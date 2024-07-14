@@ -15,6 +15,11 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
 
+#para apagar as fotos
+import os
+from django.conf import settings
+
+
 import logging
 
 # import random
@@ -261,34 +266,16 @@ class GetUserUsernameView(generics.RetrieveAPIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class UpdateBioView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    """
-    View para o usuário autenticado atualizar sua biografia (bio).
-    """
+class UpdateUserProfileView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserProfileSerializer
 
-    def put(self, request, *args, **kwargs):
-        bio = request.data.get('bio')
-        alias_name = request.data.get('alias_name')
-
-        if bio is None:
-            return Response({'error': 'Bio is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if alias_name is None:
-            return Response({'error': 'Bio is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        profile, created = UserProfile.objects.get_or_create(user=request.user)
-        profile.bio = bio
-        profile.alias_name = alias_name
-        profile.save()
-        serializer = UserProfileSerializer(profile)
-        serialized_data = serializer.data
-
-        return Response({
-            'status': 'Profile updated successfully',
-            'profile': serialized_data
-        }, status=status.HTTP_200_OK)
+    def put(self, request, format=None):
+        user_profile = UserProfile.objects.get(user=request.user)
+        serializer = UserProfileSerializer(user_profile, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class CustomTokenObtainPairView(TokenObtainPairView):

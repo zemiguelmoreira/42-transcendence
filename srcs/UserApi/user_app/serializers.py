@@ -16,13 +16,21 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     friend_list = serializers.ListField(child=serializers.CharField(), required=False)
     blocked_list = serializers.ListField(child=serializers.CharField(), required=False)
+    profile_image_url = serializers.SerializerMethodField() #campos de metodos, nao precisam existir no modelo. 
 
     class Meta:
         model = UserProfile
         fields = ['user', 'alias_name', 'friend_list', 'blocked_list', 'is_logged_in', 'bio', 'two_factor_code', 'two_factor_expiry', 'two_factor_secret',
                   'wins', 'losses', 'pong_wins', 'pong_losses', 'pong_match_history', 'pong_rank',
-                  'snake_wins', 'snake_losses', 'snake_match_history', 'snake_rank']
+                  'snake_wins', 'snake_losses', 'snake_match_history', 'snake_rank', 'profile_image', 'profile_image_url']
         read_only_fields = ['user']
+
+    def get_profile_image_url(self, obj):
+        request = self.context.get('request')
+        if obj.profile_image:
+            url = request.build_absolute_uri(obj.profile_image.url)
+            return url.replace('http://', 'https://')
+        return None
 
     def update(self, instance, validated_data):
         instance.friend_list = validated_data.get('friend_list', instance.friend_list)
@@ -33,6 +41,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.two_factor_code = validated_data.get('two_factor_code', instance.two_factor_code)
         instance.two_factor_expiry = validated_data.get('two_factor_expiry', instance.two_factor_expiry)
         instance.two_factor_secret = validated_data.get('two_factor_secret', instance.two_factor_secret)
+        instance.profile_image = validated_data.get('profile_image', instance.profile_image)
 
         # Atualizando os novos campos do modelo UserProfile
         instance.wins = validated_data.get('wins', instance.wins)

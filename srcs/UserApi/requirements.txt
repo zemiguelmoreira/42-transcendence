@@ -9,3 +9,4 @@ channels_redis
 channels
 daphne
 python-dotenv
+Pillow

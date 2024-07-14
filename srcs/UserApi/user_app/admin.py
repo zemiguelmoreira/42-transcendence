@@ -1,16 +1,17 @@
 from django.contrib import admin
 from .models import UserProfile
 
+
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'alias_name', 'bio', 'is_logged_in']
+    list_display = ['user', 'alias_name', 'bio', 'is_logged_in', 'profile_image']
     list_filter = ['is_logged_in']
     search_fields = ['user__username', 'alias_name']
     readonly_fields = ['user']  # Defina campos como somente leitura se necessário
 
     fieldsets = (
         (None, {
-            'fields': ('user', 'alias_name', 'bio')
+            'fields': ('user', 'alias_name', 'bio', 'profile_image')
         }),
         ('Lists', {
             'fields': ('friend_list', 'blocked_list')

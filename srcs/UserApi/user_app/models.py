@@ -5,6 +5,7 @@ import pyotp
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, default='default.jpg')
     alias_name = models.TextField(blank=True)
     bio = models.TextField(blank=True)
     friend_list = models.JSONField(default=list)
