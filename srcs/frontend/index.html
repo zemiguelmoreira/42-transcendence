@@ -68,6 +68,21 @@
         display: inline-block;
         width: calc(100% - 150px); /* O span ocupa o restante da largura disponível */
     }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
 
     </style>
 </head>
@@ -131,60 +146,90 @@
     </form>
     
     <div class="profile-container">
-        <div class="profile-container">
-            <h2 class="profile-heading">User Profile</h2>
-            <div class="profile-info">
-                <label>Profile Image:</label>
-                <img id="profileImage" src="" alt="Profile Image">
-            </div>
-            <div class="profile-info">
-                <label>Username:</label><span id="username"></span>
-            </div>
-            <div class="profile-info">
-                <label>Email:</label><span id="email"></span>
-            </div>
-            <div class="profile-info">
-                <label>Is logged in:</label><span id="is_logged_in"></span>
-            </div>
-            <div class="profile-info">
-                <label>Alias Name:</label><span id="aliasName"></span>
-            </div>
-            <div class="profile-info">
-                <label>Bio:</label><span id="bio"></span>
-            </div>
-            <div class="profile-info">
-                <label>Two Factor Secret:</label><span id="twoFactorSecret"></span>
-            </div>
-            <div class="profile-info">
-                <label>Wins:</label><span id="wins"></span>
-            </div>
-            <div class="profile-info">
-                <label>Losses:</label><span id="losses"></span>
-            </div>
-            <div class="profile-info">
-                <label>Pong Wins:</label><span id="pongWins"></span>
-            </div>
-            <div class="profile-info">
-                <label>Pong Losses:</label><span id="pongLosses"></span>
-            </div>
-            <div class="profile-info">
-                <label>Snake Wins:</label><span id="snakeWins"></span>
-            </div>
-            <div class="profile-info">
-                <label>Snake Losses:</label><span id="snakeLosses"></span>
-            </div>
-            <div class="profile-info">
-                <label>Friends:</label>
-                <ul id="friendList"></ul>
-            </div>
-            <div class="profile-info">
-                <label>Blocked Users:</label>
-                <ul id="blockedList"></ul>
-            </div>
+        <h2 class="profile-heading">User Profile</h2>
+        <div class="profile-info">
+            <label>Profile Image:</label>
+            <img id="profileImage" src="" alt="Profile Image">
         </div>
+        <div class="profile-info">
+            <label>Username:</label><span id="username"></span>
+        </div>
+        <div class="profile-info">
+            <label>Email:</label><span id="email"></span>
+        </div>
+        <div class="profile-info">
+            <label>Is logged in:</label><span id="is_logged_in"></span>
+        </div>
+        <div class="profile-info">
+            <label>Alias Name:</label><span id="aliasName"></span>
+        </div>
+        <div class="profile-info">
+            <label>Bio:</label><span id="bio"></span>
+        </div>
+        <div class="profile-info">
+            <label>Two Factor Secret:</label><span id="twoFactorSecret"></span>
+        </div>
+        <div class="profile-info">
+            <label>Total Wins:</label><span id="wins"></span>
+        </div>
+        <div class="profile-info">
+            <label>Total Losses:</label><span id="losses"></span>
+        </div>
+        <div class="profile-info">
+            <label>Pong ranking:</label><span id="rank-pong"></span>
+        </div>
+        <div class="profile-info">
+            <label>Pong Wins:</label><span id="pongWins"></span>
+        </div>
+        <div class="profile-info">
+            <label>Pong Losses:</label><span id="pongLosses"></span>
+        </div>
+        <div class="profile-info">
+            <label>Snake ranking:</label><span id="rank-snake"></span>
+        </div>
+        <div class="profile-info">
+            <label>Snake Wins:</label><span id="snakeWins"></span>
+        </div>
+        <div class="profile-info">
+            <label>Snake Losses:</label><span id="snakeLosses"></span>
+        </div>
+        <div class="profile-info">
+            <label>Friends:</label>
+            <ul id="friendList"></ul>
+        </div>
+        <div class="profile-info">
+            <label>Blocked Users:</label>
+            <ul id="blockedList"></ul>
+        </div>
+        
+        <h3 class="profile-heading">Snake Match History</h3>
+        <table id="snakeMatchHistory">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Opponent</th>
+                    <th>Score</th>
+                    <th>Opponent Score</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
-<hr/>
+        <h3 class="profile-heading">Pong Match History</h3>
+        <table id="pongMatchHistory">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Opponent</th>
+                    <th>Score</th>
+                    <th>Opponent Score</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
+    <hr/>
         <h2>Update Profile</h2>
         <div class="form-group">
             <label for="bio">Bio:</label>
@@ -220,12 +265,27 @@
             <button type="button" id="blockUserBtn">Block User</button>
         <button type="button" id="unblockUserBtn">Unblock User</button>
     </form>
-
-    
     <button id="delete-user-button">Delete Account</button>
-    <h2>Play Pong</h2>   
-    <a href="pong.html" class="btn btn-primary">Play Pong</a>
 
+    <h2>Games:</h2>
+    <a href="pong.html" class="btn btn-primary">Test websocket</a>
+    <h2>Dummy match generator</h2>
+    <h1>Start a Game</h1>
+    <form id="startGameForm">
+        <label for="user1">User 1:</label>
+        <input type="text" id="user1" name="user1" required>
+        <label for="user2">User 2:</label>
+        <input type="text" id="user2" name="user2" required>
+        <label for="gameType">Game Type:</label>
+        <select id="gameType" name="gameType" required>
+            <option value="snake">Snake</option>
+            <option value="pong">Pong</option>
+        </select>
+        <button type="submit">Start Game</button>
+    </form>
+
+    <!-- SCRIPTS  -->
+    <script defer src="generator.js"></script>
     <script>
         let socket = null;
 
@@ -664,13 +724,15 @@
         }
 
         function updateProfileElements(user, profile) {
+            document.getElementById('profileImage').src = profile.profile_image_url || '';
             document.getElementById('username').textContent = user.username;
             document.getElementById('email').textContent = user.email;
             document.getElementById('is_logged_in').textContent = profile.is_logged_in;
-            document.getElementById('profileImage').src = profile.profile_image_url;
             document.getElementById('aliasName').textContent = profile.alias_name;
             document.getElementById('bio').textContent = profile.bio;
             document.getElementById('twoFactorSecret').textContent = profile.two_factor_secret;
+            document.getElementById('rank-pong').textContent = profile.pong_rank;
+            document.getElementById('rank-snake').textContent = profile.snake_rank;
             document.getElementById('wins').textContent = profile.wins;
             document.getElementById('losses').textContent = profile.losses;
             document.getElementById('pongWins').textContent = profile.pong_wins;
@@ -678,22 +740,45 @@
             document.getElementById('snakeWins').textContent = profile.snake_wins;
             document.getElementById('snakeLosses').textContent = profile.snake_losses;
 
-            // Preenche a lista de amigos
-            const friendListElement = document.getElementById('friendList');
-            friendListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
+            const friendList = document.getElementById('friendList');
+            friendList.innerHTML = '';
             profile.friend_list.forEach(friend => {
                 const li = document.createElement('li');
                 li.textContent = friend;
-                friendListElement.appendChild(li);
+                friendList.appendChild(li);
             });
 
-            // Preenche a lista de bloqueados
-            const blockedListElement = document.getElementById('blockedList');
-            blockedListElement.innerHTML = ''; // Limpa qualquer conteúdo existente
+            const blockedList = document.getElementById('blockedList');
+            blockedList.innerHTML = '';
             profile.blocked_list.forEach(blocked => {
                 const li = document.createElement('li');
                 li.textContent = blocked;
-                blockedListElement.appendChild(li);
+                blockedList.appendChild(li);
+            });
+
+            updateMatchHistoryTable('snakeMatchHistory', profile.snake_match_history);
+            updateMatchHistoryTable('pongMatchHistory', profile.pong_match_history);
+        }
+
+        function updateMatchHistoryTable(tableId, matchHistory) {
+            const tableBody = document.getElementById(tableId).querySelector('tbody');
+            tableBody.innerHTML = '';
+            matchHistory.forEach(match => {
+                const row = document.createElement('tr');
+                const timestamp = document.createElement('td');
+                console.log(timestamp);
+                timestamp.textContent = match.timestamp;
+                const opponentCell = document.createElement('td');
+                opponentCell.textContent = match.opponent;
+                const scoreCell = document.createElement('td');
+                scoreCell.textContent = match.score;
+                const opponentScoreCell = document.createElement('td');
+                opponentScoreCell.textContent = match.opponent_score;
+                row.appendChild(timestamp);
+                row.appendChild(opponentCell);
+                row.appendChild(scoreCell);
+                row.appendChild(opponentScoreCell);
+                tableBody.appendChild(row);
             });
         }
 

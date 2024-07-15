@@ -35,6 +35,7 @@ from io import BytesIO
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 ### 2FA helpers
 
 # def generate_random_code(length=6):
@@ -364,3 +365,83 @@ class Verify2FACodeView(APIView):
         else:
             return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UpdateMatchHistoryView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        try:
+            user1 = User.objects.get(username=data.get('user1'))
+            user2 = User.objects.get(username=data.get('user2'))
+
+            user1_profile = UserProfile.objects.get(user=user1)
+            user2_profile = UserProfile.objects.get(user=user2)
+
+            game_type = data.get('game_type')  # "snake" or "pong"
+            user1_score = data.get('user1_score')
+            user2_score = data.get('user2_score')
+
+            match_data = {
+                'timestamp': data.get('timestamp'),
+                'opponent': user2.username,
+                'score': user1_score,
+                'opponent_score': user2_score
+            }
+
+            if game_type == "snake":
+                user1_profile.snake_match_history.append(match_data)
+                user2_profile.snake_match_history.append(match_data)
+
+                if user1_score > user2_score:
+                    user1_profile.snake_wins += 1
+                    user2_profile.snake_losses += 1
+
+                    user1_profile.wins += 1
+                    user2_profile.losses += 1
+
+                else:
+                    user1_profile.snake_losses += 1
+                    user2_profile.snake_wins += 1
+
+                    user1_profile.losses += 1
+                    user2_profile.wins += 1
+                
+                # atualiza o ranking, depois verificar um metodo melhor. tb criar funcoes pra limpar o codigo.
+                if user1_profile.snake_wins % 10:
+                    user1_profile.snake_rank += 1
+                if user2_profile.snake_wins % 10:
+                    user2_profile.snake_rank += 1
+
+            elif game_type == "pong":
+                user1_profile.pong_match_history.append(match_data)
+                user2_profile.pong_match_history.append(match_data)
+
+                if user1_score > user2_score:
+                    user1_profile.pong_wins += 1
+                    user2_profile.pong_losses += 1
+                    
+                    user1_profile.wins += 1
+                    user2_profile.losses += 1
+                else:
+                    user1_profile.pong_losses += 1
+                    user2_profile.pong_wins += 1
+
+                    user1_profile.losses += 1
+                    user2_profile.wins += 1
+
+                 # atualiza o ranking, depois verificar um metodo melhor. tb criar funcoes pra limpar o codigo.
+                if user1_profile.snake_wins % 10:
+                    user1_profile.pong_rank += 1
+                if user2_profile.snake_wins % 10:
+                    user2_profile.pong_rank += 1
+
+            user1_profile.save()
+            user2_profile.save()
+
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

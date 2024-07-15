@@ -23,6 +23,7 @@ urlpatterns = [
     path('profile/delete_user/', views.DeleteUserView.as_view(), name='profile_delete'),
     path('profile/get_qr_code/', views.GetQRCodeView.as_view(), name='get_qr_code'),
     path('profile/get_user_username/', views.GetUserUsernameView.as_view(), name='get_user_username'),
+    path('profile/update_match_history/', views.UpdateMatchHistoryView.as_view(), name='update_match_history'),
     path('auth/', include("rest_framework.urls")),
 ]
     # path('login/', CustomTokenObtainPairView.as_view(), name='login'),
