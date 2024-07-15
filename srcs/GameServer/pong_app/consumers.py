@@ -13,92 +13,105 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 
 class PongConsumer(AsyncWebsocketConsumer):
-    players = []
-    ball_position = [400, 300]
-    paddle_positions = [[10, 250], [780, 250]]
-    ball_velocity = [300, 300]  # Velocidade em pixels por segundo
-    paddle_speed = 200  # Velocidade do paddle em pixels por segundo
-    current_directions = [None, None]  # Lista para armazenar a direção de cada jogador
+    rooms = {}
 
     async def connect(self):
         self.token = self.scope['query_string'].decode().split('token=')[1]
 
         try:
-            # Validação do token JWT
             AccessToken(self.token)
-
-            # Aceita a conexão WebSocket
             await self.accept()
-
-        except (InvalidToken, TokenError) as e:
-            # Token inválido, fechar a conexão
+        except (InvalidToken, TokenError):
             await self.close()
-            return "token error"
+            return
 
-        self.players.append(self)
-        player_index = len(self.players) - 1
-        await self.send(json.dumps({
-            'action': 'assign_index',
-            'player_index': player_index,
-            'ball_position': self.ball_position,
-            'paddle_positions': self.paddle_positions
-        }))
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.is_player = False
 
-        if not hasattr(PongConsumer, 'game_loop_task'):
-            PongConsumer.game_loop_task = asyncio.create_task(self.game_loop())
+        if self.room_name not in PongConsumer.rooms:
+            PongConsumer.rooms[self.room_name] = {
+                'players': [],
+                'spectators': [],
+                'ball_position': [400, 300],
+                'paddle_positions': [[10, 250], [780, 250]],
+                'ball_velocity': [300, 300],
+                'current_directions': ['idle', 'idle'],
+                'paddle_speed': 250,
+            }
+
+        room = PongConsumer.rooms[self.room_name]
+
+        if len(room['players']) < 2:
+            self.is_player = True
+            room['players'].append(self)
+            player_index = room['players'].index(self)
+
+            await self.send(json.dumps({
+                'action': 'assign_index',
+                'player_index': player_index,
+                'ball_position': room['ball_position'],
+                'paddle_positions': room['paddle_positions']
+            }))
+        else:
+            room['spectators'].append(self)
+
+        if len(room['players']) == 2:
+            await self.send(json.dumps({'action': 'start_game'}))
+            if not hasattr(room, 'game_loop_task'):
+                room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
 
     async def disconnect(self, close_code):
-        if self in self.players:
-            self.players.remove(self)
-        if not self.players and hasattr(PongConsumer, 'game_loop_task') and PongConsumer.game_loop_task:
-            PongConsumer.game_loop_task.cancel()
-            PongConsumer.game_loop_task = None
+        room = PongConsumer.rooms[self.room_name]
+
+        if self.is_player and self in room['players']:
+            room['players'].remove(self)
+        elif self in room['spectators']:
+            room['spectators'].remove(self)
+
+        if not room['players'] and hasattr(room, 'game_loop_task') and room['game_loop_task']:
+            room['game_loop_task'].cancel()
+            room['game_loop_task'] = None
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        if 'action' in data and data['action'] == 'join':
-            return
 
-        if 'action' in data and data['action'] == 'move':
-            player_index = data['player_index']
-            direction = data['direction']
-            self.current_directions[player_index] = direction  # Atualiza a direção do jogador
+        if self.is_player and 'action' in data:
+            if data['action'] == 'move':
+                player_index = data['player_index']
+                direction = data['direction']
+                PongConsumer.rooms[self.room_name]['current_directions'][player_index] = direction
 
-    async def game_loop(self):
+    async def game_loop(self, room):
         last_time = time.time()
-        while self.players:
+
+        while room['players']:
             current_time = time.time()
             delta_time = current_time - last_time
             last_time = current_time
             
-            self.update_game_state(delta_time)
+            self.update_game_state(room, delta_time)
             await asyncio.sleep(0.03)
 
-    def update_game_state(self, delta_time):
-        # Atualiza a posição da bola com base no delta time
-        self.ball_position[0] += self.ball_velocity[0] * delta_time
-        self.ball_position[1] += self.ball_velocity[1] * delta_time
+    def update_game_state(self, room, delta_time):
+        room['ball_position'][0] += room['ball_velocity'][0] * delta_time
+        room['ball_position'][1] += room['ball_velocity'][1] * delta_time
 
-        # Verifica se a bola atingiu os limites do canvas e ajusta a velocidade conforme necessário
-        if self.ball_position[1] <= 0 or self.ball_position[1] >= 600:
-            self.ball_velocity[1] *= -1
-        if self.ball_position[0] <= 0 or self.ball_position[0] >= 800:
-            self.ball_velocity[0] *= -1
+        if room['ball_position'][1] <= 0 or room['ball_position'][1] >= 600:
+            room['ball_velocity'][1] *= -1
+        if room['ball_position'][0] <= 0 or room['ball_position'][0] >= 800:
+            room['ball_velocity'][0] *= -1
         
-        # Movimentação dos paddles baseada na direção atual de cada jogador
-        for i in range(len(self.paddle_positions)):
-            direction = self.current_directions[i]
+        for i in range(len(room['paddle_positions'])):
+            direction = room['current_directions'][i]
             if direction == 'up':
-                self.paddle_positions[i][1] = max(self.paddle_positions[i][1] - self.paddle_speed * delta_time, 0)  # Movimento para cima
+                room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
             elif direction == 'down':
-                self.paddle_positions[i][1] = min(self.paddle_positions[i][1] + self.paddle_speed * delta_time, 600 - 100)  # Movimento para baixo
+                room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, 600 - 100)
 
-        # Prepara a resposta para enviar aos clientes
         response = {
-            'ball_position': self.ball_position,
-            'paddle_positions': self.paddle_positions
+            'ball_position': room['ball_position'],
+            'paddle_positions': room['paddle_positions']
         }
 
-        # Envia a atualização para todos os jogadores conectados
-        for player in self.players:
+        for player in room['players']:
             asyncio.create_task(player.send(json.dumps(response)))

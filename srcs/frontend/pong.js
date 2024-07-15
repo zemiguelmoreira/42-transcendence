@@ -1,41 +1,71 @@
 const canvas = document.getElementById('pongCanvas');
 const context = canvas.getContext('2d');
 
-const accessToken = localStorage.getItem('accessToken');
-// const socket = new WebSocket(`wss://localhost/game/ws/pong/?token=lerolero`);
-const socket = new WebSocket(`wss://localhost/game/ws/pong/?token=${accessToken}`);
-
+let pong_socket;
 let paddlePositions = [[10, 250], [780, 250]];
 let ballPosition = [400, 300];
 let playerIndex = null;
 let paddleDirection = 'idle';
 
-socket.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    if (data.action === 'assign_index') {
-        playerIndex = data.player_index;
-        ballPosition = data.ball_position;
-        paddlePositions = data.paddle_positions;
-    } else {
-        ballPosition = data.ball_position;
-        paddlePositions = data.paddle_positions;
-    }
-};
+document.getElementById('startPongOnlineForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const user2 = document.getElementById('user2-pong').value;
+    const roomName = `room_${user2}`;
+    joinRoom(roomName);
+});
 
-socket.onopen = function(event) {
-    socket.send(JSON.stringify({ action: 'join' }));
-};
+document.getElementById('joinPongOnlineForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const roomName = document.getElementById('roomName').value;
+    joinRoom(roomName);
+});
 
-socket.onclose = function(event) {
-    console.log('WebSocket connection closed:', event);
-};
+function joinRoom(roomName) {
+    const pong_accessToken = localStorage.getItem('accessToken');
+    console.log('pong access token: ' + pong_accessToken);
+    console.log('room name: ' + roomName);
+
+    pong_socket = new WebSocket(`wss://localhost/game/ws/pong/${roomName}/?token=${pong_accessToken}`);
+
+    pong_socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('Received message:', data);
+        if (data.action === 'assign_index') {
+            playerIndex = data.player_index;
+            ballPosition = data.ball_position;
+            paddlePositions = data.paddle_positions;
+            startGame(); // Inicia o jogo assim que o índice do jogador é atribuído
+        } else if (data.action === 'start_game') {
+            startGame(); // Inicia o jogo ao receber a mensagem 'start_game'
+        } else if (data.action === 'game_over') {
+            alert(`Game Over! Scores: ${data.scores}`);
+            // Handle game over
+        } else {
+            ballPosition = data.ball_position;
+            paddlePositions = data.paddle_positions;
+        }
+
+        // Chama a função para redesenhar o jogo após receber os dados
+        drawGame(ballPosition, paddlePositions);
+    };
+
+    pong_socket.onopen = function(event) {
+        pong_socket.send(JSON.stringify({ action: 'join' }));
+    };
+
+    pong_socket.onclose = function(event) {
+        console.log('WebSocket connection closed:', event);
+    };
+}
 
 function sendMoveCommand(direction) {
-    socket.send(JSON.stringify({
-        action: 'move',
-        player_index: playerIndex,
-        direction: direction
-    }));
+    if (playerIndex !== null) {
+        pong_socket.send(JSON.stringify({
+            action: 'move',
+            player_index: playerIndex,
+            direction: direction
+        }));
+    }
 }
 
 function drawGame(ball, paddles) {
@@ -53,11 +83,11 @@ function drawGame(ball, paddles) {
 document.addEventListener('keydown', function(event) {
     if (playerIndex === null) return;
     switch (event.key) {
-        case 'ArrowUp':
+        case 'w':
             paddleDirection = 'up';
             sendMoveCommand('up');
             break;
-        case 'ArrowDown':
+        case 's':
             paddleDirection = 'down';
             sendMoveCommand('down');
             break;
@@ -67,8 +97,8 @@ document.addEventListener('keydown', function(event) {
 document.addEventListener('keyup', function(event) {
     if (playerIndex === null) return;
     switch (event.key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
+        case 'w':
+        case 's':
             paddleDirection = 'idle';
             sendMoveCommand('idle');
             break;
@@ -80,4 +110,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-requestAnimationFrame(gameLoop);
+function startGame() {
+    console.log('Entered start game');
+    gameLoop(); // Inicia o loop de renderização do jogo
+}

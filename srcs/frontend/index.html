@@ -83,6 +83,12 @@
     th {
         background-color: #f2f2f2;
     }
+    #pongCanvas {
+    background: #000;
+    display: block;
+    margin: 0 auto;
+    /* Outros estilos conforme necessário */
+    }
 
     </style>
 </head>
@@ -268,7 +274,6 @@
     <button id="delete-user-button">Delete Account</button>
 
     <h2>Games:</h2>
-    <a href="pong.html" class="btn btn-primary">Test websocket</a>
     <h2>Dummy match generator</h2>
     <h1>Start a Game</h1>
     <form id="startGameForm">
@@ -284,8 +289,22 @@
         <button type="submit">Start Game</button>
     </form>
 
+    <h1>Pong on line test area:</h1>
+    <form id="startPongOnlineForm">
+        <label for="user2-pong">User 2:</label>
+        <input type="text" id="user2-pong" name="user2-pong" required>
+        <button type="submit">Start Game</button>
+    </form>
+
+    <form id="joinPongOnlineForm">
+        <label for="roomName">Room Name:</label>
+        <input type="text" id="roomName" name="roomName" required>
+        <button type="submit">Join Game</button>
+    </form>
+    <canvas id="pongCanvas" width="800" height="600"></canvas>
     <!-- SCRIPTS  -->
     <script defer src="generator.js"></script>
+    <script src="pong.js"></script>
     <script>
         let socket = null;
 
