@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile
-# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.conf import settings
+import os
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     friend_list = serializers.ListField(child=serializers.CharField(), required=False)
     blocked_list = serializers.ListField(child=serializers.CharField(), required=False)
-    profile_image_url = serializers.SerializerMethodField() #campos de metodos, nao precisam existir no modelo. 
+    profile_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
@@ -32,6 +33,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return url.replace('http://', 'https://')
         return None
 
+    def validate_profile_image(self, value):
+        if not value.content_type.startswith('image'):
+            raise serializers.ValidationError("O arquivo não é uma imagem.")
+        max_size = 5 * 1024 * 1024  # 5 MB
+        if value.size > max_size:
+            raise serializers.ValidationError(f"A imagem deve ter no máximo {max_size / (1024 * 1024)} MB.")
+        return value
+
     def update(self, instance, validated_data):
         instance.friend_list = validated_data.get('friend_list', instance.friend_list)
         instance.blocked_list = validated_data.get('blocked_list', instance.blocked_list)
@@ -41,9 +50,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.two_factor_code = validated_data.get('two_factor_code', instance.two_factor_code)
         instance.two_factor_expiry = validated_data.get('two_factor_expiry', instance.two_factor_expiry)
         instance.two_factor_secret = validated_data.get('two_factor_secret', instance.two_factor_secret)
-        instance.profile_image = validated_data.get('profile_image', instance.profile_image)
+        
+        profile_image = validated_data.get('profile_image', instance.profile_image)
+        
+        if profile_image:
+            self.validate_profile_image(profile_image)
 
-        # Atualizando os novos campos do modelo UserProfile
+            if instance.profile_image and instance.profile_image.name != 'default.jpg':
+                old_image_path = instance.profile_image.path
+                if os.path.exists(old_image_path):
+                    os.remove(old_image_path)
+
+            profile_image.name = f"{instance.user.username}_profile.jpg"
+            instance.profile_image = profile_image
+        
         instance.wins = validated_data.get('wins', instance.wins)
         instance.losses = validated_data.get('losses', instance.losses)
         instance.pong_wins = validated_data.get('pong_wins', instance.pong_wins)
@@ -57,4 +77,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-

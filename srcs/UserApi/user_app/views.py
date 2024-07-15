@@ -99,8 +99,18 @@ class DeleteUserView(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         user = request.user
+        profile = UserProfile.objects.get(user=user)
+        
+        # Deletar a imagem de perfil se não for a imagem padrão
+        if profile.profile_image and profile.profile_image.name != 'default.jpg':
+            image_path = profile.profile_image.path
+            if os.path.exists(image_path):
+                os.remove(image_path)
+        
         user.delete()
         return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
 
 ### Views de Gestão de Amizades
 
@@ -224,7 +234,7 @@ class GetUserProfileView(generics.RetrieveAPIView):
     serializer_class = UserProfileSerializer
 
     def get(self, request, *args, **kwargs):
-        username = self.request.query_params.get('username', None)
+        username = request.query_params.get('username')
 
         if not username:
             return Response({'error': 'Username parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -232,7 +242,7 @@ class GetUserProfileView(generics.RetrieveAPIView):
         try:
             user = User.objects.get(username=username)
             profile, created = UserProfile.objects.get_or_create(user=user)
-            profile_serializer = self.serializer_class(profile)
+            profile_serializer = self.serializer_class(profile, context={'request': request})
             user_serializer = UserSerializer(user)
             return Response({
                 'user': user_serializer.data,
@@ -242,6 +252,7 @@ class GetUserProfileView(generics.RetrieveAPIView):
             return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class GetUserUsernameView(generics.RetrieveAPIView):
     """

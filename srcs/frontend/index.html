@@ -637,6 +637,7 @@
         async function getUserProfileByUsername() {
             const accessToken = localStorage.getItem('accessToken');
             const username = document.getElementById('searchUsername').value;
+            console.log(username);
 
             try {
                 const response = await fetch(`/api/profile/get_user_profile/?username=${username}`, {
