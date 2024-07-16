@@ -90,7 +90,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             last_time = current_time
             
             self.update_game_state(room, delta_time)
-            await asyncio.sleep(0.03)
+            await asyncio.sleep(0.02)
 
     def update_game_state(self, room, delta_time):
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
