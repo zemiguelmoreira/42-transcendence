@@ -11,22 +11,34 @@ import json
 import time
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
+from urllib.parse import parse_qs
+from django.contrib.auth import get_user_model
+from channels.db import database_sync_to_async
+
+User = get_user_model()
 
 class PongConsumer(AsyncWebsocketConsumer):
     rooms = {}
 
     async def connect(self):
-        self.token = self.scope['query_string'].decode().split('token=')[1]
+        query_params = parse_qs(self.scope['query_string'].decode())
+        self.token = query_params.get('token', [None])[0]
+        self.authorized_user = query_params.get('authorized_user', [None])[0]
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.is_player = False
 
         try:
-            AccessToken(self.token)
+            access_token = AccessToken(self.token)
+            user_id = access_token['user_id']
+            self.user = await self.get_user(user_id)
+            if not self.user:
+                await self.close()
+                return
+
             await self.accept()
         except (InvalidToken, TokenError):
             await self.close()
             return
-
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.is_player = False
 
         if self.room_name not in PongConsumer.rooms:
             PongConsumer.rooms[self.room_name] = {
@@ -37,11 +49,12 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'ball_velocity': [300, 300],
                 'current_directions': ['idle', 'idle'],
                 'paddle_speed': 250,
+                'authorized_user': self.authorized_user
             }
 
         room = PongConsumer.rooms[self.room_name]
 
-        if len(room['players']) < 2:
+        if len(room['players']) < 2 and self.user.username == room['authorized_user']:
             self.is_player = True
             room['players'].append(self)
             player_index = room['players'].index(self)
@@ -61,16 +74,17 @@ class PongConsumer(AsyncWebsocketConsumer):
                 room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
 
     async def disconnect(self, close_code):
-        room = PongConsumer.rooms[self.room_name]
+        room = PongConsumer.rooms.get(self.room_name, None)
 
-        if self.is_player and self in room['players']:
-            room['players'].remove(self)
-        elif self in room['spectators']:
-            room['spectators'].remove(self)
+        if room:
+            if self.is_player and self in room['players']:
+                room['players'].remove(self)
+            elif self in room['spectators']:
+                room['spectators'].remove(self)
 
-        if not room['players'] and hasattr(room, 'game_loop_task') and room['game_loop_task']:
-            room['game_loop_task'].cancel()
-            room['game_loop_task'] = None
+            if not room['players'] and hasattr(room, 'game_loop_task') and room['game_loop_task']:
+                room['game_loop_task'].cancel()
+                room['game_loop_task'] = None
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -115,3 +129,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         for player in room['players']:
             asyncio.create_task(player.send(json.dumps(response)))
+
+    async def get_user(self, user_id):
+        try:
+            user = await database_sync_to_async(User.objects.get)(pk=user_id)
+            return user
+        except User.DoesNotExist:
+            return None

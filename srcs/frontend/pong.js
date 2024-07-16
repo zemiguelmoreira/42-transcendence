@@ -6,10 +6,12 @@ let paddlePositions = [[10, 250], [780, 250]];
 let ballPosition = [400, 300];
 let playerIndex = null;
 let paddleDirection = 'idle';
+let authorizedUser = "";
 
 document.getElementById('startPongOnlineForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const user2 = document.getElementById('user2-pong').value;
+    authorizedUser = user2;
     const roomName = `room_${user2}`;
     joinRoom(roomName);
 });
@@ -25,7 +27,7 @@ function joinRoom(roomName) {
     console.log('pong access token: ' + pong_accessToken);
     console.log('room name: ' + roomName);
 
-    pong_socket = new WebSocket(`wss://localhost/game/ws/pong/${roomName}/?token=${pong_accessToken}`);
+    pong_socket = new WebSocket(`wss://localhost/game/ws/pong/${roomName}/?token=${pong_accessToken}&authorized_user=${authorizedUser}`);
 
     pong_socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
