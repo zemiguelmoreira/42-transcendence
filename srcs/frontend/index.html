@@ -334,35 +334,41 @@
         }
 
 
-        async function registerUser() {
-            const username = document.getElementById('regUsername').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
+            async function registerUser() {
+                const username = document.getElementById('regUsername').value;
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
 
-            try {
-                const response = await fetch('/api/user/register/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password,
-                    }),
-                });
+                try {
+                    const response = await fetch('/api/user/register/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            email: email,
+                            password: password,
+                        }),
+                    });
 
-                if (response.ok) {
-                    alert('User registered successfully!');
-                } else {
                     const data = await response.json();
-                    throw new Error(data.detail || 'Registration failed');
+                    if (response.ok) {
+                        alert('User registered successfully!');
+                    } else {
+                        if (data.username) {
+                            // throw new Error(data.username[0]);
+                            console.log(data.username[0]);
+                        } else {
+                            console.log(data.detail);
+                            // throw new Error(data.detail || 'Registration failed');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error during registration:', error.message);
+                    alert('Registration failed. Please check your inputs and try again.');
                 }
-            } catch (error) {
-                console.error('Error during registration:', error.message);
-                alert('Registration failed. Please check your inputs and try again.');
             }
-        }
 
         let accessToken = '';  // Token JWT para uso posterior
 
