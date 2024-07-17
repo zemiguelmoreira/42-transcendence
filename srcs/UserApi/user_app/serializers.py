@@ -6,17 +6,6 @@ import os
 import re
 
 class UserSerializer(serializers.ModelSerializer):
-    regex = r"^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$"
-
-    if not re.match(regex, value):
-        raise serializers.ValidationError(
-            "The username must be between 6 and 20 characters long, "
-            "may contain letters, numbers, periods and underscores, "
-            "cannot begin or end with a period or underscore, "
-            "and cannot have consecutive colons or underscores."
-        )
-    return value
-
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password']
