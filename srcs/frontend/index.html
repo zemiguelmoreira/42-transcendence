@@ -226,9 +226,10 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Opponent</th>
-                    <th>Score</th>
-                    <th>Opponent Score</th>
+                    <th>Winner</th>
+                    <th>Winner Score</th>
+                    <th>Loser</th>
+                    <th>Loser Score</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -334,41 +335,41 @@
         }
 
 
-            async function registerUser() {
-                const username = document.getElementById('regUsername').value;
-                const email = document.getElementById('regEmail').value;
-                const password = document.getElementById('regPassword').value;
+        async function registerUser() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
 
-                try {
-                    const response = await fetch('/api/user/register/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            username: username,
-                            email: email,
-                            password: password,
-                        }),
-                    });
+            try {
+                const response = await fetch('/api/user/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                    }),
+                });
 
-                    const data = await response.json();
-                    if (response.ok) {
-                        alert('User registered successfully!');
+                const data = await response.json();
+                if (response.ok) {
+                    alert('User registered successfully!');
+                } else {
+                    if (data.username) {
+                        // throw new Error(data.username[0]);
+                        console.log(data.username[0]);
                     } else {
-                        if (data.username) {
-                            // throw new Error(data.username[0]);
-                            console.log(data.username[0]);
-                        } else {
-                            console.log(data.detail);
-                            // throw new Error(data.detail || 'Registration failed');
-                        }
+                        console.log(data.detail);
+                        // throw new Error(data.detail || 'Registration failed');
                     }
-                } catch (error) {
-                    console.error('Error during registration:', error.message);
-                    alert('Registration failed. Please check your inputs and try again.');
                 }
+            } catch (error) {
+                console.error('Error during registration:', error.message);
+                alert('Registration failed. Please check your inputs and try again.');
             }
+        }
 
         let accessToken = '';  // Token JWT para uso posterior
 
@@ -791,18 +792,26 @@
             matchHistory.forEach(match => {
                 const row = document.createElement('tr');
                 const timestamp = document.createElement('td');
-                console.log(timestamp);
                 timestamp.textContent = match.timestamp;
-                const opponentCell = document.createElement('td');
-                opponentCell.textContent = match.opponent;
-                const scoreCell = document.createElement('td');
-                scoreCell.textContent = match.score;
-                const opponentScoreCell = document.createElement('td');
-                opponentScoreCell.textContent = match.opponent_score;
+
+                const winnerCell = document.createElement('td');
+                winnerCell.textContent = match.winner;
+
+                const winnerScoreCell = document.createElement('td');
+                winnerScoreCell.textContent = match.winner_score;
+
+                const loserCell = document.createElement('td');
+                loserCell.textContent = match.loser;
+                
+                const loserScoreCell = document.createElement('td');
+                loserScoreCell.textContent = match.loser_score;
+        
+
                 row.appendChild(timestamp);
-                row.appendChild(opponentCell);
-                row.appendChild(scoreCell);
-                row.appendChild(opponentScoreCell);
+                row.appendChild(winnerCell);
+                row.appendChild(winnerScoreCell);
+                row.appendChild(loserCell);
+                row.appendChild(loserScoreCell);
                 tableBody.appendChild(row);
             });
         }

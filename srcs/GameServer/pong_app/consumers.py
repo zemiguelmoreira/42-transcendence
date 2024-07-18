@@ -14,6 +14,10 @@ from rest_framework_simplejwt.tokens import AccessToken
 from urllib.parse import parse_qs
 from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -26,6 +30,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         self.authorized_user = query_params.get('authorized_user', [None])[0]
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.is_player = False
+        self.player_index = -1
 
         try:
             access_token = AccessToken(self.token)
@@ -48,13 +53,14 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'paddle_positions': [[10, 250], [780, 250]],
                 'ball_velocity': [300, 300],
                 'current_directions': ['idle', 'idle'],
+                'score': [0, 0],
                 'paddle_speed': 250,
                 'authorized_user': self.authorized_user
             }
 
         room = PongConsumer.rooms[self.room_name]
 
-        if len(room['players']) < 2 and self.user.username == room['authorized_user']:
+        if len(room['players']) == 0 or (len(room['players']) == 1 and self.user.username == room['authorized_user']):
             self.is_player = True
             room['players'].append(self)
             player_index = room['players'].index(self)
@@ -103,17 +109,31 @@ class PongConsumer(AsyncWebsocketConsumer):
             delta_time = current_time - last_time
             last_time = current_time
             
-            self.update_game_state(room, delta_time)
+            await self.update_game_state(room, delta_time)
             await asyncio.sleep(0.02)
 
-    def update_game_state(self, room, delta_time):
+    async def update_game_state(self, room, delta_time):
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
         room['ball_position'][1] += room['ball_velocity'][1] * delta_time
 
         if room['ball_position'][1] <= 0 or room['ball_position'][1] >= 600:
             room['ball_velocity'][1] *= -1
-        if room['ball_position'][0] <= 0 or room['ball_position'][0] >= 800:
+        if room['ball_position'][0] < -10:
+            room['score'][1] += 1
+            room['ball_position'] = [400, 300]
             room['ball_velocity'][0] *= -1
+        if room['ball_position'][0] > 810:
+            room['score'][0] += 1
+            room['ball_position'] = [400, 300]
+            room['ball_velocity'][0] *= -1 # change the direction on x
+
+        # Colisões com os paddles
+        if room['ball_velocity'][0] < 0 and room['ball_position'][0] <= 20:
+            if room['paddle_positions'][0][1] <= room['ball_position'][1] <= room['paddle_positions'][0][1] + 100:
+                room['ball_velocity'][0] *= -1
+        elif room['ball_velocity'][0] > 0 and room['ball_position'][0] >= 780:
+            if room['paddle_positions'][1][1] <= room['ball_position'][1] <= room['paddle_positions'][1][1] + 100:
+                room['ball_velocity'][0] *= -1
         
         for i in range(len(room['paddle_positions'])):
             direction = room['current_directions'][i]
@@ -129,6 +149,40 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         for player in room['players']:
             asyncio.create_task(player.send(json.dumps(response)))
+
+        # Verificar se o jogo terminou
+        if room['score'][0] == 11 or room['score'][1] == 11:
+            logger.info(f"Detectou fim de partida {room['score'][0]} - {room['score'][1]}")
+            if room['score'][0] == 11:
+                winner = room['players'][0].user.username
+                loser =  room['players'][1].user.username
+            else:
+                loser = room['players'][0].user.username
+                winner =  room['players'][1].user.username
+
+            logger.info(f"winner and loser: {winner} - {loser}")
+            await self.end_game(room, winner, loser)
+
+    async def end_game(self, room, winner, loser):
+        logger.info('function end_game called')
+        winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
+        loser_score = room['score'][1] if room['players'][0].user.username == winner else room['score'][0]
+        result = {
+            'action': 'game_over',
+            'winner': winner,
+            'loser': loser,
+            'winner_score': winner_score,
+            'loser_score': loser_score,
+        }
+
+        logger.info(f'result: {result}')
+        logger.info(f"players: {room['players'][0].user.username} - {room['players'][1].user.username}")
+
+        for player in room['players']:
+            await player.send(json.dumps(result))
+        
+        # Limpar o estado da sala
+        del PongConsumer.rooms[self.room_name]
 
     async def get_user(self, user_id):
         try:

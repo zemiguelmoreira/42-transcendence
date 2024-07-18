@@ -7,6 +7,7 @@ let ballPosition = [400, 300];
 let playerIndex = null;
 let paddleDirection = 'idle';
 let authorizedUser = "";
+let stopFlag = false;
 
 document.getElementById('startPongOnlineForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -29,19 +30,57 @@ function joinRoom(roomName) {
 
     pong_socket = new WebSocket(`wss://localhost/game/ws/pong/${roomName}/?token=${pong_accessToken}&authorized_user=${authorizedUser}`);
 
-    pong_socket.onmessage = function(event) {
+    pong_socket.onmessage = async function(event) {
         const data = JSON.parse(event.data);
-        console.log('Received message:', data);
+        // console.log('Received message:', data);
         if (data.action === 'assign_index') {
             playerIndex = data.player_index;
             ballPosition = data.ball_position;
             paddlePositions = data.paddle_positions;
-            startGame(); // Inicia o jogo assim que o índice do jogador é atribuído
+            startGame(); // Inicia o jogo assim que o índice do jogador é atribuído, talvez aqui entrar numa waiting page 
         } else if (data.action === 'start_game') {
             startGame(); // Inicia o jogo ao receber a mensagem 'start_game'
-        } else if (data.action === 'game_over') {
-            alert(`Game Over! Scores: ${data.scores}`);
-            // Handle game over
+        } else if (data.action === 'game_over' && !stopFlag) {
+            alert('Game Over!');
+            stopFlag = true;
+            const winner = data.winner;
+            const loser = data.loser;
+            const winnerScore = data.winner_score;
+            const loserScore = data.loser_score;
+            const gameType = 'pong';
+            const timestamp = new Date().toISOString();
+
+            const score = JSON.stringify({
+                winner: winner,
+                loser: loser,
+                game_type: gameType,
+                user1_score: winnerScore,
+                user2_score: loserScore,
+                timestamp: timestamp
+            });
+            console.log(score);
+            // Enviar dados do jogo para a API, nao esta funcionando.
+            try {
+                const response = await fetch('/api/profile/update_match_history/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    },
+                    body: score,
+                });
+
+                if (response.ok) {
+                    alert('Match data sent successfully!');
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to send match data');
+                }
+                pong_socket.close();
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Failed to send match data. Please try again.');
+            }
         } else {
             ballPosition = data.ball_position;
             paddlePositions = data.paddle_positions;

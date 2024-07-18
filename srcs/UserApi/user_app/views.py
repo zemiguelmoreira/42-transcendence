@@ -383,72 +383,40 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         try:
-            user1 = User.objects.get(username=data.get('user1'))
-            user2 = User.objects.get(username=data.get('user2'))
-
-            user1_profile = UserProfile.objects.get(user=user1)
-            user2_profile = UserProfile.objects.get(user=user2)
+            current_user = self.request.user
+            current_profile = UserProfile.objects.get(user=current_user)
 
             game_type = data.get('game_type')  # "snake" or "pong"
+            user1 = data.get('winner')
+            user2 = data.get('loser')
             user1_score = data.get('user1_score')
             user2_score = data.get('user2_score')
 
             match_data = {
                 'timestamp': data.get('timestamp'),
-                'opponent': user2.username,
-                'score': user1_score,
-                'opponent_score': user2_score
+                'winner': user1,
+                'winner_score': user1_score,
+                'loser': user2,
+                'loser_score': user2_score,
             }
 
-            if game_type == "snake":
-                user1_profile.snake_match_history.append(match_data)
-                user2_profile.snake_match_history.append(match_data)
+            if game_type == "pong":
+                current_profile.pong_match_history.append(match_data)
 
-                if user1_score > user2_score:
-                    user1_profile.snake_wins += 1
-                    user2_profile.snake_losses += 1
+                # user1_profile.pong_match_history.append(match_data)
+                # user2_profile.pong_match_history.append(match_data)
 
-                    user1_profile.wins += 1
-                    user2_profile.losses += 1
-
+                if current_user.username == user1:
+                    current_profile.pong_wins += 1
+                    current_profile.wins += 1
                 else:
-                    user1_profile.snake_losses += 1
-                    user2_profile.snake_wins += 1
+                    current_profile.pong_losses += 1
+                    current_profile.losses += 1
 
-                    user1_profile.losses += 1
-                    user2_profile.wins += 1
-                
-                # atualiza o ranking, depois verificar um metodo melhor. tb criar funcoes pra limpar o codigo.
-                if user1_profile.snake_wins % 10:
-                    user1_profile.snake_rank += 1
-                if user2_profile.snake_wins % 10:
-                    user2_profile.snake_rank += 1
+                if current_profile.pong_wins % 2 == 0:
+                    current_profile.pong_rank += 1
 
-            elif game_type == "pong":
-                user1_profile.pong_match_history.append(match_data)
-                user2_profile.pong_match_history.append(match_data)
-
-                if user1_score > user2_score:
-                    user1_profile.pong_wins += 1
-                    user2_profile.pong_losses += 1
-                    
-                    user1_profile.wins += 1
-                    user2_profile.losses += 1
-                else:
-                    user1_profile.pong_losses += 1
-                    user2_profile.pong_wins += 1
-
-                    user1_profile.losses += 1
-                    user2_profile.wins += 1
-
-                 # atualiza o ranking, depois verificar um metodo melhor. tb criar funcoes pra limpar o codigo.
-                if user1_profile.snake_wins % 10:
-                    user1_profile.pong_rank += 1
-                if user2_profile.snake_wins % 10:
-                    user2_profile.pong_rank += 1
-
-            user1_profile.save()
-            user2_profile.save()
+            current_profile.save()
 
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
 
