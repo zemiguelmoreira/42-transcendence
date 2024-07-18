@@ -213,9 +213,10 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Opponent</th>
-                    <th>Score</th>
-                    <th>Opponent Score</th>
+                    <th>Winner</th>
+                    <th>Winner Score</th>
+                    <th>Loser</th>
+                    <th>Loser Score</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -302,10 +303,23 @@
         <input type="text" id="roomName" name="roomName" required>
         <button type="submit">Join Game</button>
     </form>
+    <h1>Snake on line test area:</h1>
+    <form id="startSnakeOnlineForm">
+        <label for="user2-snake">User 2:</label>
+        <input type="text" id="user2-snake" name="user2-snake" required>
+        <button type="submit">Start Game</button>
+    </form>
+
+    <form id="joinSnakeOnlineForm">
+        <label for="roomName">Room Name:</label>
+        <input type="text" id="roomName" name="roomName" required>
+        <button type="submit">Join Game</button>
+    </form>
     <canvas id="pongCanvas" width="800" height="600"></canvas>
     <!-- SCRIPTS  -->
     <script defer src="generator.js"></script>
     <script src="pong.js"></script>
+    <!-- <script src="snake.js"></script> -->
     <script>
         let socket = null;
 
@@ -323,14 +337,14 @@
 
             socket.onerror = function(error) {
                 console.error('WebSocket error:', error);
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
+                // localStorage.removeItem('accessToken');
+                // localStorage.removeItem('refreshToken');
             };
 
             socket.onclose = function(event) {
                 console.log('WebSocket closed:', event);
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
+                // localStorage.removeItem('accessToken');
+                // localStorage.removeItem('refreshToken');
             };
         }
 
@@ -453,7 +467,6 @@
                 if (response.ok) {
                     const data = await response.json();
 
-                    
                     const accessToken = data.access;
                     const refreshToken = data.refresh;
                     localStorage.setItem('accessToken', accessToken);
@@ -529,9 +542,12 @@
                         alert('Session expired. Please login again.');
                         localStorage.removeItem('accessToken');
                         localStorage.removeItem('refreshToken');
+                    } else {
+                        connectWebSocket();
                     }
                 } else {
                     alert('User already logged in!');
+                    connectWebSocket();
                 }
             }
         });

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import UserProfile
 from django.conf import settings
 import os
+from datetime import datetime
 import re
 
 class UserSerializer(serializers.ModelSerializer):
@@ -62,7 +63,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 if os.path.exists(old_image_path):
                     os.remove(old_image_path)
 
-            profile_image.name = f"{instance.user.username}_profile.jpg"
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            profile_image.name = f"{instance.user.username}_{timestamp}_profile.jpg"
             instance.profile_image = profile_image
         
         instance.wins = validated_data.get('wins', instance.wins)

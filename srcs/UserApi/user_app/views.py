@@ -19,7 +19,6 @@ from .serializers import UserSerializer, UserProfileSerializer
 import os
 from django.conf import settings
 
-
 import logging
 
 # import random
@@ -330,7 +329,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         return Response({
             'refresh': str(refresh),
             'access': access_token,
-            # 'qr_code_url': f'https://localhost/api/profile/get_qr_code/'
         }, status=status.HTTP_200_OK)
     
 class GetQRCodeView(APIView):
@@ -389,8 +387,8 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             game_type = data.get('game_type')  # "snake" or "pong"
             user1 = data.get('winner')
             user2 = data.get('loser')
-            user1_score = data.get('user1_score')
-            user2_score = data.get('user2_score')
+            user1_score = data.get('winner_score')
+            user2_score = data.get('loser_score')
 
             match_data = {
                 'timestamp': data.get('timestamp'),
@@ -403,14 +401,23 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             if game_type == "pong":
                 current_profile.pong_match_history.append(match_data)
 
-                # user1_profile.pong_match_history.append(match_data)
-                # user2_profile.pong_match_history.append(match_data)
-
                 if current_user.username == user1:
                     current_profile.pong_wins += 1
                     current_profile.wins += 1
                 else:
                     current_profile.pong_losses += 1
+                    current_profile.losses += 1
+
+                if current_profile.pong_wins % 2 == 0:
+                    current_profile.pong_rank += 1
+            else:
+                current_profile.snake_match_history.append(match_data)
+
+                if current_user.username == user1:
+                    current_profile.snake_wins += 1
+                    current_profile.wins += 1
+                else:
+                    current_profile.snake_losses += 1
                     current_profile.losses += 1
 
                 if current_profile.pong_wins % 2 == 0:
