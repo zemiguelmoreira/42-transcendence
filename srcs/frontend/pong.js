@@ -54,8 +54,8 @@ function joinRoom(roomName) {
                 winner: winner,
                 loser: loser,
                 game_type: gameType,
-                user1_score: winnerScore,
-                user2_score: loserScore,
+                winner_score: winnerScore,
+                loser_score: loserScore,
                 timestamp: timestamp
             });
             console.log(score);
