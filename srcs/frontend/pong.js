@@ -28,7 +28,7 @@ function joinRoom(roomName) {
     console.log('pong access token: ' + pong_accessToken);
     console.log('room name: ' + roomName);
 
-    pong_socket = new WebSocket(`wss://localhost/game/ws/pong/${roomName}/?token=${pong_accessToken}&authorized_user=${authorizedUser}`);
+    pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomName}/?token=${pong_accessToken}&authorized_user=${authorizedUser}`);
 
     pong_socket.onmessage = async function(event) {
         const data = JSON.parse(event.data);

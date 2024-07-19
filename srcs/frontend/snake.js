@@ -28,7 +28,7 @@ document.getElementById('joinSnakeOnlineForm').addEventListener('submit', functi
 function joinRoom(roomName) {
     const snake_accessToken = localStorage.getItem('accessToken');
 
-    snake_socket = new WebSocket(`wss://localhost/game/ws/snake/${roomName}/?token=${snake_accessToken}&authorized_user=${authorizedUser}`);
+    snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomName}/?token=${snake_accessToken}&authorized_user=${authorizedUser}`);
 
     snake_socket.onmessage = async function(event) {
         const data = JSON.parse(event.data);
