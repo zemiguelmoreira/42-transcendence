@@ -5,30 +5,40 @@ let pong_socket;
 let paddlePositions = [[10, 250], [780, 250]];
 let ballPosition = [400, 300];
 let playerIndex = null;
-let paddleDirection = 'idle';
-let authorizedUser = "";
 let stopFlag = false;
 
-document.getElementById('startPongOnlineForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const user2 = document.getElementById('user2-pong').value;
-    authorizedUser = user2;
-    const roomName = `room_${user2}`;
-    joinRoom(roomName);
-});
-
-document.getElementById('joinPongOnlineForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const roomName = document.getElementById('roomName').value;
-    joinRoom(roomName);
-});
-
-function joinRoom(roomName) {
+async function createRoom() {
     const pong_accessToken = localStorage.getItem('accessToken');
-    console.log('pong access token: ' + pong_accessToken);
-    console.log('room name: ' + roomName);
+    const authorizedUser = document.getElementById('authorizedUser').value;
+    console.log(authorizedUser);
+    
+    try {
+        const response = await fetch('/game/create-room/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${pong_accessToken}`
+            },
+            body: JSON.stringify({
+                authorized_user: authorizedUser
+            }),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to create room');
+        }
+        const data = await response.json();
+        document.getElementById('roomCodeDisplay').textContent = `Room Code: ${data.code}`;
+    } catch (error) {
+        console.error('Error creating room:', error);
+    }
+}
 
-    pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomName}/?token=${pong_accessToken}&authorized_user=${authorizedUser}`);
+function joinRoom() {
+    const pong_accessToken = localStorage.getItem('accessToken');
+    const roomCode = document.getElementById('roomCodeInput').value;
+    console.log(roomCode);
+
+        pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
 
     pong_socket.onmessage = async function(event) {
         const data = JSON.parse(event.data);
@@ -155,3 +165,7 @@ function startGame() {
     console.log('Entered start game');
     gameLoop(); // Inicia o loop de renderização do jogo
 }
+
+
+document.getElementById('createRoomButton').addEventListener('click', createRoom);
+document.getElementById('joinRoomButton').addEventListener('click', joinRoom);
