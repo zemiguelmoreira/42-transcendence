@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'pong_app',
     'snake_app',
     'room_gen_app',
+    'tournament_app',
 ]
 
 MIDDLEWARE = [
