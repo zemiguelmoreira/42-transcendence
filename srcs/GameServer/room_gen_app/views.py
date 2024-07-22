@@ -35,6 +35,7 @@ class CreateRoomView(View):
 
         # Verificar se o usuário está autenticado
         user = async_to_sync(is_authenticated)(token)
+        logger.info(f'user: {user}')
         if not user:
             return JsonResponse({'error': 'Unauthorized'}, status=401)
 
@@ -43,6 +44,9 @@ class CreateRoomView(View):
 
         if not authorized_username:
             return JsonResponse({'error': 'Authorized user is required'}, status=400)
+
+        if user.username == authorized_username:
+            return JsonResponse({'error': 'You can not invite yourself'}, status=400)
 
         try:
             authorized_user = User.objects.get(username=authorized_username)

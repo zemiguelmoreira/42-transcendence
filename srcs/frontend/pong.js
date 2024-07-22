@@ -23,10 +23,10 @@ async function createRoom() {
                 authorized_user: authorizedUser
             }),
         });
-        if (!response.ok) {
-            throw new Error('Failed to create room');
-        }
         const data = await response.json();
+        if (!response.ok) {
+            console.error('error:', data);
+        }
         document.getElementById('roomCodeDisplay').textContent = `Room Code: ${data.code}`;
     } catch (error) {
         console.error('Error creating room:', error);
@@ -43,7 +43,9 @@ function joinRoom() {
     pong_socket.onmessage = async function(event) {
         const data = JSON.parse(event.data);
         // console.log('Received message:', data);
-        if (data.action === 'assign_index') {
+        if (data.action === 'unauthorized') {
+            console.log('not authorized');
+        } else if (data.action === 'assign_index') {
             playerIndex = data.player_index;
             ballPosition = data.ball_position;
             paddlePositions = data.paddle_positions;

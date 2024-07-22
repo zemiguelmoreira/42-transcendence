@@ -24,6 +24,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         query_params = parse_qs(self.scope['query_string'].decode())
         room_code = self.scope['url_route']['kwargs'].get('room_code', None)
         token = query_params.get('token', [None])[0]
+        self.is_player = False
 
         user = await is_authenticated(token)
         if not user:
@@ -38,15 +39,12 @@ class PongConsumer(AsyncWebsocketConsumer):
             return
 
         self.room = room
-        
-        if not check_user_access(self.room, self.user):
+        is_auth = await check_user_access(self.room, self.user)
+        logger.info(f'is auth: {is_auth}')
+        if not is_auth:
+            logger.info(f'User {user.username} do not have access to {self.room.code}')
             await self.close()
             return
-
-        await self.channel_layer.group_add(
-            self.room.code,
-            self.channel_name
-        )
 
         await self.accept()
         logger.info(f'User {user.username} connected to room {self.room.code}')
@@ -77,13 +75,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             }))
 
         if len(room['players']) == 2:
-            await self.channel_layer.group_send(
-                self.room.code,
-                {
-                    'type': 'start_game',
-                    'action': 'start_game'
-                }
-            )
+            await self.send(json.dumps({'action': 'start_game'}))
             if not hasattr(room, 'game_loop_task'):
                 room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
 
@@ -92,17 +84,12 @@ class PongConsumer(AsyncWebsocketConsumer):
         room = PongConsumer.rooms.get(self.room.code, None)
 
         if room:
-            if self.is_player and self in room['players']:
+            if hasattr(self, 'is_player') and self.is_player and self in room['players']:
                 room['players'].remove(self)
 
             if not room['players'] and hasattr(room, 'game_loop_task') and room['game_loop_task']:
                 room['game_loop_task'].cancel()
                 room['game_loop_task'] = None
-            
-            await self.channel_layer.group_discard(
-                self.room.code,
-                self.channel_name
-            )
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -190,13 +177,8 @@ class PongConsumer(AsyncWebsocketConsumer):
         logger.info(f'result: {result}')
         logger.info(f"players: {room['players'][0].user.username} - {room['players'][1].user.username}")
 
-        await self.channel_layer.group_send(
-            self.room.code,
-            {
-                'type': 'game_over',
-                'result': result
-            }
-        )
+        for player in room['players']:
+            await player.send(json.dumps(result))
         
         # Limpar o estado da sala
         del PongConsumer.rooms[self.room.code]

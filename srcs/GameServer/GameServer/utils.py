@@ -3,6 +3,10 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
 from room_gen_app.models import Room
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -46,4 +50,5 @@ async def get_related_users_async(room):
 
 async def check_user_access(room, user):
     created_by, authorized_user = await get_related_users_async(room)
+    logger.info(f'User: {user} - {created_by} - {authorized_user}')
     return created_by == user or authorized_user == user
