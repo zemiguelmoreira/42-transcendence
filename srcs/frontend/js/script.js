@@ -1,281 +1,638 @@
-const canvas = document.querySelector("canvas")
-const ctx = canvas.getContext("2d")
-const score1 = document.querySelector(".score1--value")
-const score2 = document.querySelector(".score2--value")
-const finalScore = document.querySelector(".final-score > span")
-const menu = document.querySelector(".menu-screen")
-const buttonPlay = document.querySelector(".btn-play")
-const canvasWidth = canvas.width
-const canvasHeight = canvas.height
-const audio = new Audio("./assets/audio.mp3")
-const size = 20
-const initialPosition1 = { x: size * 3, y: size * 3 }
-const initialPosition2 = { x: canvasWidth - (size * 4), y: canvasHeight - (size * 4) }
 
-let player1Name = document.querySelector(".ply1")
-let player2Name = document.querySelector(".ply2")
-let isGameRunning = true
-let snake1 = [initialPosition1]
-let snake2 = [initialPosition2]
-let gameSpeed = 200
-let direction1, direction2, loopId
+async function registerUser() {
+	const username = document.getElementById('regUsername').value;
+	const email = document.getElementById('regEmail').value;
+	const password = document.getElementById('regPassword').value;
+	const respost = document.getElementById('resposta');
 
-player1Name.value = "Ivo";
-player2Name.value = "Daniel"
-player1Name.textContent = "Ivo";
-player2Name.textContent = "Daniel"
+	try {
+		const response = await fetch('/api/user/register/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				username: username,
+				email: email,
+				password: password,
+			}),
+		});
 
-const incrementScore = (scoreElement) => {
-	scoreElement.innerText = +scoreElement.innerText + 10
-}
-
-const randomNumber = (min, max) => {
-	return Math.round(Math.random() * (max - min) + min)
-}
-
-const randomPositionX = () => {
-	const number = randomNumber(0, canvas.width - size)
-	return Math.round(number / size) * size
-}
-
-const randomPositionY = () => {
-	const number = randomNumber(0, canvas.height - size)
-	return Math.round(number / size) * size
-}
-
-const randomColor = () => {
-	const red = randomNumber(0, 255)
-	const green = randomNumber(0, 255)
-	const blue = randomNumber(0, 255)
-	return `rgb(${red}, ${green}, ${blue})`
-}
-
-const food = {
-	x: randomPositionX(),
-	y: randomPositionY(),
-	color: randomColor()
-}
-
-const drawFood = () => {
-	const { x, y, color } = food
-	ctx.shadowColor = color
-	ctx.shadowBlur = 6
-	ctx.fillStyle = color
-	ctx.fillRect(x, y, size, size)
-	ctx.shadowBlur = 0
-}
-
-const drawSnake = (snake, color) => {
-    snake.forEach((position, index) => {
-        const alpha = 0.5 + (index / snake.length) * 0.5  // Calcula a transparência inversa
-        ctx.globalAlpha = alpha  // Define a transparência
-
-        if (index == snake.length - 1) {
-            if (snake === snake1) {
-                ctx.fillStyle = "red"
-            } else {
-                ctx.fillStyle = "blue"
-            }
-        } else {
-            ctx.fillStyle = color
-        }
-
-        ctx.fillRect(position.x, position.y, size, size)
-    })
-
-    ctx.globalAlpha = 1  // Restaura a transparência para o valor padrão
-}
-
-const moveSnake = (snake, direction) => {
-	if (!direction) return
-
-	const head = snake[snake.length - 1]
-
-	if (direction == "right") {
-		snake.push({ x: head.x + size, y: head.y })
-	}
-
-	if (direction == "left") {
-		snake.push({ x: head.x - size, y: head.y })
-	}
-
-	if (direction == "down") {
-		snake.push({ x: head.x, y: head.y + size })
-	}
-
-	if (direction == "up") {
-		snake.push({ x: head.x, y: head.y - size })
-	}
-
-	snake.shift()
-}
-
-const drawGrid = () => {
-	ctx.lineWidth = 1
-	ctx.strokeStyle = "black"
-
-	for (let i = size; i < canvas.width; i += size) {
-		ctx.beginPath()
-		ctx.lineTo(i, 0)
-		ctx.lineTo(i, canvasHeight)
-		ctx.stroke()
-
-		ctx.beginPath()
-		ctx.lineTo(0, i)
-		ctx.lineTo(canvasWidth, i)
-		ctx.stroke()
-	}
-}
-
-const checkEat = (snake, scoreElement) => {
-	const head = snake[snake.length - 1]
-
-	if (head.x == food.x && head.y == food.y) {
-		incrementScore(scoreElement)
-		gameSpeed -= 5
-		snake.push(head)
-		audio.play()
-
-		let x = randomPositionX()
-		let y = randomPositionY()
-
-		while (snake.find((position) => position.x == x && position.y == y) ||
-			snake1.find((position) => position.x == x && position.y == y) ||
-			snake2.find((position) => position.x == x && position.y == y)) {
-			x = randomPositionX()
-			y = randomPositionY()
+		if (response.ok) {
+			resposta.innerHTML = "User registered successfully!";
+			alert('User registered successfully!');
+		} else {
+			const data = await response.json();
+			throw new Error(data.detail || 'Registration failed');
 		}
-		food.x = x
-		food.y = y
-		food.color = randomColor()
+	} catch (error) {
+		console.error('Error during registration:', error.message);
+		alert('Registration failed. Please check your inputs and try again.');
 	}
 }
 
-const checkCollision = (snake, player) => {
-	const head = snake[snake.length - 1]
-	const canvasLimitX = canvas.width - size
-	const canvasLimitY = canvas.height - size
-	const neckIndex = snake.length - 2
+let accessToken = '';  // Token JWT para uso posterior
 
-	const wallCollision = head.x < 0 || head.x > canvasLimitX || head.y < 0 || head.y > canvasLimitY
-	const selfCollision = snake.find((position, index) => {
-		return index < neckIndex && position.x == head.x && position.y == head.y
-	})
-	if (wallCollision || selfCollision) {
-		gameOver(player)
+async function loginUser() {
+	const username = document.getElementById('loginUsername').value;
+	const password = document.getElementById('loginPassword').value;
+
+	try {
+		const response = await fetch('/api/token/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				username: username,
+				password: password,
+			}),
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			accessToken = data.access;  // Salve o token de acesso
+			console.log("Access token: " + accessToken);
+			document.getElementById('loginForm').style.display = 'none';
+			document.getElementById('verifyForm').style.display = 'block';
+			await fetchQRCode();
+		} else {
+			const errorText = await response.text();
+			try {
+				const data = JSON.parse(errorText);
+				throw new Error(data.detail || 'Login failed');
+			} catch (e) {
+				throw new Error('Login failed: ' + errorText);
+			}
+		}
+	} catch (error) {
+		console.error('Error during login:', error.message);
+		document.getElementById('message').textContent = 'Login failed. Please check your username and password.';
 	}
 }
 
-const checkCollisionWithOtherSnake = (snake1, snake2) => {
-	const head1 = snake1[snake1.length - 1]
-	const head2 = snake2[snake2.length - 1]
+async function fetchQRCode() {
+	try {
+		const response = await fetch('/api/profile/get_qr_code/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			},
+		});
 
-	const collision1 = snake2.find(position => position.x == head1.x && position.y == head1.y)
+		if (response.ok) {
+			const data = await response.json();
+			console.log(data.svg);
+			document.getElementById('qrcode').innerHTML = data.svg;
 
-	const collision2 = snake1.find(position => position.x == head2.x && position.y == head2.y)
-
-	if (collision1) {
-		gameOver(1)
-	}
-	if (collision2) {
-		gameOver(2)
+			// const svgElement = qrcodeDiv.querySelector('svg');
+			// if (svgElement) {
+			//     svgElement.setAttribute('width', '200');
+			//     svgElement.setAttribute('height', '200');
+			// }
+		} else {
+			throw new Error('Failed to fetch QR code.');
+		}
+	} catch (error) {
+		console.error('Error during fetching QR code:', error.message);
+		document.getElementById('verifyMessage').textContent = 'Failed to fetch QR code.';
 	}
 }
 
-const gameOver = (collidedPlayer) => {
-	const player1Score = parseInt(score1.innerText)
-	const player2Score = parseInt(score2.innerText)
-	
-	let winner, loser, winnerScore
+async function verifyCode() {
+	const username = document.getElementById('loginUsername').value;
+	const code = document.getElementById('code').value;
 
-	isGameRunning = false
-	direction1 = undefined
-	direction2 = undefined
-	gameSpeed = 200
+	try {
+		const response = await fetch('/api/token/verify-2fa/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify({
+				username: username,
+				code: code,
+			}),
+		});
 
-	if (collidedPlayer === 1) {
-		winner = player2Name.value
-		loser = player1Name.value
-		winnerScore = player2Score
-	} else if (collidedPlayer === 2) {
-		winner = player1Name.value
-		loser = player2Name.value
-		winnerScore = player1Score
+		if (response.ok) {
+			const data = await response.json();
+			console.log("2FA verified successfully.");
+			const accessToken = data.access;
+			const refreshToken = data.refresh;
+			localStorage.setItem('accessToken', accessToken);
+			localStorage.setItem('refreshToken', refreshToken);
+			document.getElementById('verifyMessage').textContent = '2FA verification successful. You are logged in.';
+		} else {
+			const errorText = await response.text();
+			try {
+				const data = JSON.parse(errorText);
+				throw new Error(data.detail || 'Invalid or expired 2FA code.');
+			} catch (e) {
+				throw new Error('Invalid or expired 2FA code: ' + errorText);
+			}
+		}
+	} catch (error) {
+		console.error('Error during 2FA verification:', error.message);
+		document.getElementById('verifyMessage').textContent = 'Invalid or expired 2FA code.';
+	}
+}
+
+// async function verify2faCode() {
+//     const username = document.getElementById('loginUsername').value;
+//     const code = document.getElementById('twoFactorCode').value;
+
+//     try {
+//         const response = await fetch('/api/token/verify-2fa/', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({
+//                 username: username,
+//                 code: code,
+//             }),
+//         });
+
+//         if (response.ok) {
+//             const data = await response.json();
+//             const accessToken = data.access;
+//             const refreshToken = data.refresh;
+//             localStorage.setItem('accessToken', accessToken);
+//             localStorage.setItem('refreshToken', refreshToken);
+//             alert('Login successful!');
+//         } else {
+//             const data = await response.json();
+//             throw new Error(data.detail || '2FA verification failed');
+//         }
+//     } catch (error) {
+//         console.error('Error during 2FA verification:', error.message);
+//         document.getElementById('verifyMessage').textContent = '2FA verification failed. Please check your code.';
+//     }
+// }
+
+function logoutUser() {
+	localStorage.removeItem('accessToken');
+	localStorage.removeItem('refreshToken');
+	alert('Logout successful!');
+}
+
+async function refreshAccessToken(refreshToken) {
+	try {
+		const response = await fetch('/api/token/refresh/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				refresh: refreshToken,
+			}),
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			const accessToken = data.access;
+			localStorage.setItem('accessToken', accessToken);
+			alert('Token refreshed successfully!');
+			return accessToken;
+		} else {
+			const data = await response.json();
+			throw new Error(data.detail || 'Token refresh failed');
+		}
+	} catch (error) {
+		console.error('Error refreshing token:', error.message);
+		return null;
+	}
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+	const accessToken = localStorage.getItem('accessToken');
+	const refreshToken = localStorage.getItem('refreshToken');
+
+	if (accessToken) {
+		const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+		const tokenExpiration = new Date(tokenPayload.exp * 1000);
+		const currentDateTime = new Date();
+
+		if (tokenExpiration < currentDateTime) {
+			const newAccessToken = await refreshAccessToken(refreshToken);
+			if (!newAccessToken) {
+				alert('Session expired. Please login again.');
+				localStorage.removeItem('accessToken');
+				localStorage.removeItem('refreshToken');
+			}
+		} else {
+			alert('User already logged in!');
+		}
+	}
+});
+
+async function getUserProfile() {
+	const accessToken = localStorage.getItem('accessToken');
+	try {
+		const response = await fetch('/api/profile/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			},
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			console.log(data);
+			alert('Profile retrieved successfully!');
+		} else {
+			throw new Error('Failed to fetch profile');
+		}
+	} catch (error) {
+		console.error('Error fetching profile:', error.message);
+		alert('Failed to fetch profile. Please try again.');
+	}
+}
+
+async function listAllUsers() {
+	const accessToken = localStorage.getItem('accessToken');
+	try {
+		const response = await fetch('/api/profile/all_users/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			},
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			console.log(data);
+			alert('Users listed in console.');
+		} else {
+			throw new Error('Failed to fetch users');
+		}
+	} catch (error) {
+		console.error('Error fetching users:', error.message);
+		alert('Failed to fetch users. Please try again.');
+	}
+}
+
+async function updateUserProfile() {
+	const accessToken = localStorage.getItem('accessToken');
+	const bio = document.getElementById('bio').value;
+	const alias_name = document.getElementById('alias_name').value;
+
+	try {
+		const response = await fetch('/api/profile/bio/', {
+			method: 'PUT',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				bio: bio,
+				alias_name: alias_name,
+			}),
+		});
+
+		if (response.ok) {
+			alert('Profile updated successfully!');
+		} else {
+			throw new Error('Failed to update profile');
+		}
+	} catch (error) {
+		console.error('Error updating profile:', error.message);
+		alert('Failed to update profile. Please try again.');
+	}
+}
+
+async function addFriend() {
+	const accessToken = localStorage.getItem('accessToken');
+	const friendUsername = document.getElementById('friendUsername').value;
+	try {
+		const response = await fetch('/api/profile/add_friend/', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				friend_username: friendUsername,
+			}),
+		});
+
+		if (response.ok) {
+			alert('Friend added successfully!');
+		} else {
+			throw new Error('Failed to add friend');
+		}
+	} catch (error) {
+		console.error('Error adding friend:', error.message);
+		alert('Failed to add friend. Please try again.');
+	}
+}
+
+async function removeFriend() {
+	const accessToken = localStorage.getItem('accessToken');
+	const friendUsername = document.getElementById('friendUsername').value;
+	try {
+		const response = await fetch('/api/profile/remove_friend/', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				friend_username: friendUsername,
+			}),
+		});
+
+		if (response.ok) {
+			alert('Friend removed successfully!');
+		} else {
+			throw new Error('Failed to remove friend');
+		}
+	} catch (error) {
+		console.error('Error removing friend:', error.message);
+		alert('Failed to remove friend. Please try again.');
+	}
+}
+
+async function blockUser() {
+	const accessToken = localStorage.getItem('accessToken');
+	const blockedUsername = document.getElementById('blockUsername').value;
+	try {
+		const response = await fetch('/api/profile/block_user/', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				blocked_username: blockedUsername,
+			}),
+		});
+
+		if (response.ok) {
+			alert('User blocked successfully!');
+		} else {
+			throw new Error('Failed to block user');
+		}
+	} catch (error) {
+		console.error('Error blocking user:', error.message);
+		alert('Failed to block user. Please try again.');
+	}
+}
+
+async function unblockUser() {
+	const accessToken = localStorage.getItem('accessToken');
+	const blockedUsername = document.getElementById('blockUsername').value;
+	try {
+		const response = await fetch('/api/profile/unblock_user/', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				blocked_username: blockedUsername,
+			}),
+		});
+
+		if (response.ok) {
+			alert('User unblocked successfully!');
+		} else {
+			throw new Error('Failed to unblock user');
+		}
+	} catch (error) {
+		console.error('Error unblocking user:', error.message);
+		alert('Failed to unblock user. Please try again.');
+	}
+}
+
+async function getUserProfileByUsername() {
+	const accessToken = localStorage.getItem('accessToken');
+	const username = document.getElementById('searchUsername').value;
+
+	try {
+		const response = await fetch(`/api/profile/get_user_profile/?username=${username}`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			},
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			console.log(data);  // Aqui você pode manipular os dados recebidos conforme necessário
+			alert('User profile retrieved successfully!');
+		} else {
+			const data = await response.json();
+			throw new Error(data.detail || 'Failed to retrieve user profile');
+		}
+	} catch (error) {
+		console.error('Error retrieving user profile:', error.message);
+		alert('Failed to retrieve user profile. Please try again.');
+	}
+}
+
+async function deleteUser() {
+	const accessToken = localStorage.getItem('accessToken');
+
+	if (!accessToken) {
+		alert('You are not logged in!');
+		return;
 	}
 
-	finalScore.innerText = `${winner} wins with ${winnerScore} points`
+	const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
 
-	const gameData = {
-		winner: winner,
-		loser: loser,
-		winnerScore: winnerScore,
-		dateTime: new Date().toLocaleString()
+	if (!confirmed) {
+		return;
 	}
 
-	saveGameData(gameData)
+	try {
+		const response = await fetch('/api/profile/delete-user/', {
+			method: 'DELETE',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (response.status === 204) {
+			alert('User deleted successfully');
+			localStorage.removeItem('accessToken');  // Remove token from local storage
+			localStorage.removeItem('refreshToken'); // Remove refresh token from local storage
+			// window.location.href = '/login';  // Redirect to login page
+		} else {
+			const data = await response.json();
+			alert(data.error || 'Failed to delete user');
+		}
+	} catch (error) {
+		console.error('Error deleting user:', error);
+		alert('Failed to delete user');
+	}
 }
 
-const saveGameData = (data) => {
-	const jsonString = JSON.stringify(data, null, 2)
-	const blob = new Blob([jsonString], { type: "application/json" })
-	const url = URL.createObjectURL(blob)
-	const a = document.createElement("a")
-	a.href = url
-	a.download = "gameData.json"
-	document.body.appendChild(a)
-	a.click()
-	document.body.removeChild(a)
-}
+// document.getElementById('snakeButton').addEventListener('click', async function (event) {
+// 	event.preventDefault();
 
-const gameLoop = () => {
-	if (!isGameRunning) return
+// 	// Carregar dinamicamente o CSS
+// 	const linkElement = document.createElement('link');
+// 	linkElement.rel = 'stylesheet';
+// 	linkElement.href = './css/snake.css';
+// 	document.head.appendChild(linkElement);
 
-	clearInterval(loopId)
-	ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-	drawGrid()
-	drawFood()
-	moveSnake(snake1, direction1)
-	moveSnake(snake2, direction2)
-	drawSnake(snake1, "red")
-	drawSnake(snake2, "blue")
-	checkEat(snake1, score1)
-	checkEat(snake2, score2)
-	checkCollision(snake1, 1)
-	checkCollision(snake2, 2)
-	checkCollisionWithOtherSnake(snake1, snake2)
+// 	// Carregar o conteúdo HTML
+// 	try {
+// 		const response = await fetch('./snake.html');
+// 		if (response.ok) {
+// 			const content = await response.text();
+// 			document.getElementById('mainContent').innerHTML = content;
 
-	loopId = setTimeout(() => {
-		gameLoop()
-	}, gameSpeed)
-}
+// 			// Encontrar e executar os scripts dentro do conteúdo carregado
+// 			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+// 			for (const scriptTag of scriptTags) {
+// 				const newScript = document.createElement('script');
+// 				newScript.text = scriptTag.text;
+// 				document.body.appendChild(newScript);
+// 			}
+// 		} else {
+// 			console.error('Erro ao carregar o arquivo snake.html');
+// 		}
+// 	} catch (error) {
+// 		console.error('Erro ao carregar o conteúdo:', error);
+// 	}
+// });
 
-document.addEventListener("keydown", ({ key }) => {
-	// Player 1 controls
-	if (key == "d" && direction1 != "left") {direction1 = "right"}
-	if (key == "a" && direction1 != "right") {direction1 = "left"}
-	if (key == "s" && direction1 != "up") {direction1 = "down"}
-	if (key == "w" && direction1 != "down") {direction1 = "up"}
 
-	// Player 2 controls
-	if (key == "ArrowRight" && direction2 != "left") {direction2 = "right"}
-	if (key == "ArrowLeft" && direction2 != "right") {direction2 = "left"}
-	if (key == "ArrowDown" && direction2 != "up") {direction2 = "down"}
-	if (key == "ArrowUp" && direction2 != "down") {direction2 = "up"}
-})
+document.addEventListener('DOMContentLoaded', function () {
+	// Função para adicionar event listeners aos botões
+	function addEventListenersToButtons() {
+		const buttons = document.querySelectorAll('.snake-button');
 
-buttonPlay.addEventListener("click", () => {
-	score1.innerText = "00"
-	score2.innerText = "00"
-	menu.style.display = "none"
-	canvas.style.filter = "none"
+		buttons.forEach(button => {
+			button.addEventListener('click', async function (event) {
+				event.preventDefault();
 
-	isGameRunning = true
-	snake1 = [initialPosition1]
-	snake2 = [initialPosition2]
-	direction1 = undefined
-	direction2 = undefined
+				// Carregar dinamicamente o CSS
+				const linkElement = document.createElement('link');
+				linkElement.rel = 'stylesheet';
+				linkElement.href = './css/snake.css';
+				document.head.appendChild(linkElement);
 
-	gameLoop()
-})
+				// Carregar o conteúdo HTML
+				try {
+					const response = await fetch('./snake.html');
+					if (response.ok) {
+						const content = await response.text();
+						document.getElementById('mainContent').innerHTML = content;
 
-gameLoop()
+						// Reatribuir event listeners aos novos botões
+						addEventListenersToButtons();
+
+						// Encontrar e executar os scripts dentro do conteúdo carregado
+						const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+						for (const scriptTag of scriptTags) {
+							const newScript = document.createElement('script');
+							newScript.text = scriptTag.text;
+							document.body.appendChild(newScript);
+						}
+					} else {
+						console.error('Erro ao carregar o arquivo snake.html');
+					}
+				} catch (error) {
+					console.error('Erro ao carregar o conteúdo:', error);
+				}
+			});
+		});
+	}
+
+	// Adicionar event listeners aos botões na carga inicial da página
+	addEventListenersToButtons();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+	// Função para adicionar event listeners aos botões
+	function addEventListenersToButtons() {
+		const buttons = document.querySelectorAll('.pong-button');
+
+		buttons.forEach(button => {
+			button.addEventListener('click', async function (event) {
+				event.preventDefault();
+
+				// Carregar dinamicamente o CSS
+				const linkElement = document.createElement('link');
+				linkElement.rel = 'stylesheet';
+				linkElement.href = './css/pong.css';
+				document.head.appendChild(linkElement);
+
+				// Carregar o conteúdo HTML
+				try {
+					const response = await fetch('./pong.html');
+					if (response.ok) {
+						const content = await response.text();
+						document.getElementById('mainContent').innerHTML = content;
+
+						// Reatribuir event listeners aos novos botões
+						addEventListenersToButtons();
+
+						// Encontrar e executar os scripts dentro do conteúdo carregado
+						const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+						for (const scriptTag of scriptTags) {
+							const newScript = document.createElement('script');
+							newScript.text = scriptTag.text;
+							document.body.appendChild(newScript);
+						}
+					} else {
+						console.error('Erro ao carregar o arquivo pong.html');
+					}
+				} catch (error) {
+					console.error('Erro ao carregar o conteúdo:', error);
+				}
+			});
+		});
+	}
+
+	// Adicionar event listeners aos botões na carga inicial da página
+	addEventListenersToButtons();
+});
+
+document.getElementById('homeButton').addEventListener('click', async function (event) {
+	event.preventDefault();
+
+	// Carregar o conteúdo HTML
+	try {
+		const response = await fetch('./homepage.html');
+		if (response.ok) {
+			const content = await response.text();
+			document.getElementById('mainContent').innerHTML = content;
+
+			// Encontrar e executar os scripts dentro do conteúdo carregado
+			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+			for (const scriptTag of scriptTags) {
+				const newScript = document.createElement('script');
+				newScript.text = scriptTag.text;
+				document.body.appendChild(newScript);
+			}
+		} else {
+			console.error('Erro ao carregar o arquivo homepage.html');
+		}
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+});
+
+
+
+document.getElementById('registerBtn').addEventListener('click', registerUser);
+document.getElementById('loginBtn').addEventListener('click', loginUser);
+document.getElementById('verifyBtn').addEventListener('click', verifyCode);
+document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+
+document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
+document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
+document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);
+document.getElementById('addFriendBtn').addEventListener('click', addFriend);
+document.getElementById('removeFriendBtn').addEventListener('click', removeFriend);
+document.getElementById('blockUserBtn').addEventListener('click', blockUser);
+document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
+document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
+document.getElementById('delete-user-button').addEventListener('click', deleteUser);

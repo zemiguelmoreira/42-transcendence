@@ -1,42 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2 Snake Game</title>
-
-	<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> -->
-    <!-- <link rel="stylesheet" href="./css/style.css"> -->
-</head>
-<body>
-	<div class="content">
-		<div class="container">
-			<div class="box score1">
-				<span class="ply1">Snake 1</span>
-				<span class="score1--value">00</span>
-			</div>
-			<div class="logo">
-				<img src="./files/mini2snake.png">
-			</div>
-			<div class="box score2">
-				<span class="ply2">Snake 2</span>
-				<span class="score2--value">00</span>
-			</div>
+<link rel="stylesheet" href="./css/snake.css">
+<div class="snake-content">
+	<div class="snake-container">
+		<div class="snake-box snake-score1">
+			<span class="snake-ply1">Snake 1</span>
+			<span class="snake-score1--value">00</span>
 		</div>
-		
-		<div class="menu-screen">
-			<span class="game-over">game over</span>
-			<span class="final-score"><span>00</span></span>
-
-			<button class="btn-play">
-				<span class="material-symbols-outlined">
-					play_circle
-				</span>
-				Jogar novamente
-			</button>
+		<div class="snake-logo">
+			<img src="./files/macro2snake.png" alt="Snake Logo">
 		</div>
-		<canvas width="780" height="600"></canvas>
+		<div class="snake-box snake-score2">
+			<span class="snake-ply2">Snake 2</span>
+			<span class="snake-score2--value">00</span>
+		</div>
 	</div>
-    <script src="./js/script.js"></script>
-</body>
-</html>
+	<div class="snake-box"><canvas width="780" height="600"></canvas></div>
+</div>
+<script src="./js/snake.js"></script>
