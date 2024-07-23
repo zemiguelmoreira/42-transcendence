@@ -41,8 +41,8 @@ body {
 	flex-direction: column;
 	background-color: rgb(44, 42, 44);
 	border-radius: 15px;
-	width: 1000px;
-	height: 600px;
+	width: 1200px;
+	height: 800px;
 	padding: 5px;
 	overflow: hidden;
 	z-index: 2;
@@ -54,7 +54,6 @@ body {
 	height: 40px;
 	margin-bottom: 5px;
 	font-family: 'CustomFont';
-	overflow: hidden;
 }
 
 /* Define o estilo da classe main */
