@@ -1,0 +1,159 @@
+/* Importação de fontes */
+@import url('https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo:wght@900&display=swap');
+
+/* Define a fonte personalizada */
+@font-face {
+	font-family: 'CustomFont';
+	src: url('../fonts/PublicPixel-E447g.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+body {
+	background-color: #191919;
+}
+
+/* Define o estilo da classe title */
+.title {
+	font-family: 'CustomFont';
+	margin-bottom: 50px;
+}
+
+/* Define o estilo da classe window */
+.window {
+    background-image: url(../files/background_retro_02.jpg);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+	/* justify-content: center; */
+    height: 100vh;
+    color: white;
+    position: relative; /* Adicionado para posicionamento relativo dos filhos */
+    z-index: 1; /* Para garantir que este elemento fique acima das linhas e da grade */
+}
+
+/* Define o estilo da classe container */
+.container {
+	display: flex;
+	flex-direction: column;
+	background-color: rgb(44, 42, 44);
+	border-radius: 15px;
+	width: 1000px;
+	height: 600px;
+	padding: 5px;
+	overflow: hidden;
+	z-index: 2;
+}
+
+/* Define o estilo da navbar */
+.navbar {
+	border-radius: 15px;
+	height: 40px;
+	margin-bottom: 5px;
+	font-family: 'CustomFont';
+	overflow: hidden;
+}
+
+/* Define o estilo da classe main */
+.main {
+	flex: 1; /* Faz com que o div .main ocupe o espaço restante */
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-around;
+	background-color: rgb(31, 29, 29);
+	border-radius: 15px;
+	overflow: hidden;
+	background-image: url(../files/background_retro_03.jpg);
+	background-size: cover;
+}
+
+/* Define o estilo das imagens dentro de links com a classe nav-link */
+.nav-link img {
+	border-radius: 50%; /* Faz a imagem ser circular */
+	object-fit: cover; /* Garante que a imagem mantenha suas proporções */
+}
+
+/* Define o estilo da classe lines */
+.lines {
+	position: absolute;
+	width: 100vw;
+	height: 4em;
+	/* top: 18em; */
+	background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
+	background-size: 1px 0.5em;
+	box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
+	transform: translateY(-1em);
+	left: 0;
+	z-index: 0; /* Garante que este elemento fique abaixo dos outros */
+}
+
+/* Define o estilo dos elementos h1 */
+h1 {
+	position: relative;
+	font-family: 'Exo';
+	font-size: 9em;
+	margin: 0;
+	transform: skew(-15deg);
+	letter-spacing: 0.03em;
+	z-index: 2; /* Garante que este elemento fique acima das linhas */
+}
+
+h1::after {
+	content: '';
+	position: absolute;
+	top: -0.1em;
+	right: 0.05em;
+	width: 0.4em;
+	height: 0.4em;
+	background: 
+		radial-gradient(white 3%, rgba(255, 255, 255, 0.3) 15%, rgba(255, 255, 255, 0.05) 60%, transparent 80%),
+		radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 5% 100%,
+		radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 70% 5%;
+	background-repeat: no-repeat;
+}
+
+/* Define o estilo do primeiro span dentro do h1 */
+h1 span:first-child {
+	display: block;
+	text-shadow: 0 0 0.1em #8ba2d0, 0 0 0.2em black, 0 0 5em #165ff3;
+	-webkit-text-stroke: 0.06em rgba(0, 0, 0, 0.5);
+}
+
+/* Define o estilo do último span dentro do h1 */
+h1 span:last-child {
+	position: absolute;
+	left: 0;
+	top: 0;
+	background-image: linear-gradient(#032d50 25%, #00a1ef 35%, white 50%, #20125f 50%, #8313e7 55%, #ff61af 75%);
+	-webkit-text-stroke: 0.01em #94a0b9;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Define o estilo dos elementos h2 */
+h2 {
+	font-family: 'Mr Dafoe';
+	margin: 0;
+	font-size: 5.5em;
+	margin-top: -0.6em;
+	color: white;
+	text-shadow: 0 0 0.05em #fff, 0 0 0.2em #fe05e1, 0 0 0.3em #fe05e1;
+	transform: rotate(-7deg);
+	z-index: 2; /* Garante que este elemento fique acima das linhas */
+}
+
+#item1{
+	margin-top: 120px;
+}
+
+#item2{
+	margin-top: 50px;
+}
+
+#item3{
+	margin-top: 50px;
+}
