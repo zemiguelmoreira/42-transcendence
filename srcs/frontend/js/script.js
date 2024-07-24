@@ -1,9 +1,10 @@
 
 async function registerUser() {
-	const username = document.getElementById('regUsername').value;
-	const email = document.getElementById('regEmail').value;
-	const password = document.getElementById('regPassword').value;
-	const respost = document.getElementById('resposta');
+	const username = document.getElementById('register-username').value;
+	const email = document.getElementById('email').value;
+	const password = document.getElementById('password').value;
+
+	console.log(username, email, password);
 
 	try {
 		const response = await fetch('/api/user/register/', {
@@ -19,14 +20,14 @@ async function registerUser() {
 		});
 
 		if (response.ok) {
-			resposta.innerHTML = "User registered successfully!";
+			// resposta.innerHTML = "User registered successfully!";
 			alert('User registered successfully!');
 		} else {
 			const data = await response.json();
 			throw new Error(data.detail || 'Registration failed');
 		}
 	} catch (error) {
-		console.error('Error during registration:', error.message);
+		// console.error('Error during registration:', error.message);
 		alert('Registration failed. Please check your inputs and try again.');
 	}
 }
@@ -34,8 +35,8 @@ async function registerUser() {
 let accessToken = '';  // Token JWT para uso posterior
 
 async function loginUser() {
-	const username = document.getElementById('loginUsername').value;
-	const password = document.getElementById('loginPassword').value;
+	const username = document.getElementById('login-username').value;
+	const password = document.getElementById('login-password').value;
 
 	try {
 		const response = await fetch('/api/token/', {
@@ -53,7 +54,7 @@ async function loginUser() {
 			const data = await response.json();
 			accessToken = data.access;  // Salve o token de acesso
 			console.log("Access token: " + accessToken);
-			document.getElementById('loginForm').style.display = 'none';
+			document.getElementById('login-form').style.display = 'none';
 			document.getElementById('verifyForm').style.display = 'block';
 			await fetchQRCode();
 		} else {
@@ -135,7 +136,7 @@ async function verifyCode() {
 		}
 	} catch (error) {
 		console.error('Error during 2FA verification:', error.message);
-		document.getElementById('verifyMessage').textContent = 'Invalid or expired 2FA code.';
+		// document.getElementById('verifyMessage').textContent = 'Invalid or expired 2FA code.';
 	}
 }
 
@@ -525,7 +526,7 @@ async function deleteUser() {
 // 						const content = await response.text();
 // 						document.getElementById('mainContent').innerHTML = content;
 // 						console.log('Script script.js adicionado ao DOM');
-						
+
 // 						// Reatribuir event listeners aos novos botões
 // 						addEventListenersToButtons();
 
@@ -551,136 +552,204 @@ async function deleteUser() {
 // });
 
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Função para adicionar event listeners aos botões
-    function addEventListenersToButtons() {
-        const buttons = document.querySelectorAll('.snake-button');
+// document.addEventListener('DOMContentLoaded', function () {
+//     // Função para adicionar event listeners aos botões
+//     function addEventListenersToButtons() {
+//         const buttons = document.querySelectorAll('.snake-button');
 
-        buttons.forEach(button => {
-            button.addEventListener('click', async function (event) {
-                event.preventDefault();
+//         buttons.forEach(button => {
+//             button.addEventListener('click', async function (event) {
+//                 event.preventDefault();
 
-                // Carregar dinamicamente o CSS
-                const linkElement = document.createElement('link');
-                linkElement.rel = 'stylesheet';
-                linkElement.href = './css/snake.css';
-                document.head.appendChild(linkElement);
+//                 // Carregar dinamicamente o CSS
+//                 const linkElement = document.createElement('link');
+//                 linkElement.rel = 'stylesheet';
+//                 linkElement.href = './css/snake.css';
+//                 document.head.appendChild(linkElement);
 
-                // Carregar o conteúdo HTML
-                try {
-                    const response = await fetch('./snake.html');
-                    if (response.ok) {
-                        const content = await response.text();
-                        document.getElementById('mainContent').innerHTML = content;
+//                 // Carregar o conteúdo HTML
+//                 try {
+//                     const response = await fetch('./snake.html');
+//                     if (response.ok) {
+//                         const content = await response.text();
+//                         document.getElementById('mainContent').innerHTML = content;
 
-                        // Reatribuir event listeners aos novos botões
-                        addEventListenersToButtons();
+//                         // Reatribuir event listeners aos novos botões
+//                         addEventListenersToButtons();
 
-                        // Inserir dinamicamente o script do jogo
-                        const scriptElement = document.createElement('script');
-                        scriptElement.src = './js/snake.js'; // Certifique-se de que o caminho está correto
-                        document.body.appendChild(scriptElement);
-                    } else {
-                        console.error('Erro ao carregar o arquivo snake.html');
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar o conteúdo:', error);
-                }
-            });
-        });
-    }
+//                         // Inserir dinamicamente o script do jogo
+//                         const scriptElement = document.createElement('script');
+//                         scriptElement.src = './js/snake.js'; // Certifique-se de que o caminho está correto
+//                         document.body.appendChild(scriptElement);
+//                     } else {
+//                         console.error('Erro ao carregar o arquivo snake.html');
+//                     }
+//                 } catch (error) {
+//                     console.error('Erro ao carregar o conteúdo:', error);
+//                 }
+//             });
+//         });
+//     }
 
-    // Adicionar event listeners aos botões na carga inicial da página
-    addEventListenersToButtons();
-});
-
-
+//     // Adicionar event listeners aos botões na carga inicial da página
+//     addEventListenersToButtons();
+// });
 
 
-document.addEventListener('DOMContentLoaded', function () {
-	// Função para adicionar event listeners aos botões
-	function addEventListenersToButtons() {
-		const buttons = document.querySelectorAll('.pong-button');
 
-		buttons.forEach(button => {
-			button.addEventListener('click', async function (event) {
-				event.preventDefault();
 
-				// Carregar dinamicamente o CSS
-				const linkElement = document.createElement('link');
-				linkElement.rel = 'stylesheet';
-				linkElement.href = './css/pong.css';
-				document.head.appendChild(linkElement);
+// document.addEventListener('DOMContentLoaded', function () {
+// 	// Função para adicionar event listeners aos botões
+// 	function addEventListenersToButtons() {
+// 		const buttons = document.querySelectorAll('.pong-button');
 
-				// Carregar o conteúdo HTML
-				try {
-					const response = await fetch('./pong.html');
-					if (response.ok) {
-						const content = await response.text();
-						document.getElementById('mainContent').innerHTML = content;
+// 		buttons.forEach(button => {
+// 			button.addEventListener('click', async function (event) {
+// 				event.preventDefault();
 
-						// Reatribuir event listeners aos novos botões
-						addEventListenersToButtons();
+// 				// Carregar dinamicamente o CSS
+// 				const linkElement = document.createElement('link');
+// 				linkElement.rel = 'stylesheet';
+// 				linkElement.href = './css/pong.css';
+// 				document.head.appendChild(linkElement);
 
-						// Encontrar e executar os scripts dentro do conteúdo carregado
-						const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
-						for (const scriptTag of scriptTags) {
-							const newScript = document.createElement('script');
-							newScript.text = scriptTag.text;
-							document.body.appendChild(newScript);
-						}
-					} else {
-						console.error('Erro ao carregar o arquivo pong.html');
-					}
-				} catch (error) {
-					console.error('Erro ao carregar o conteúdo:', error);
-				}
-			});
-		});
-	}
+// 				// Carregar o conteúdo HTML
+// 				try {
+// 					const response = await fetch('./pong.html');
+// 					if (response.ok) {
+// 						const content = await response.text();
+// 						document.getElementById('mainContent').innerHTML = content;
 
-	// Adicionar event listeners aos botões na carga inicial da página
-	addEventListenersToButtons();
-});
+// 						// Reatribuir event listeners aos novos botões
+// 						addEventListenersToButtons();
 
-document.getElementById('homeButton').addEventListener('click', async function (event) {
-	event.preventDefault();
+// 						// Encontrar e executar os scripts dentro do conteúdo carregado
+// 						const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+// 						for (const scriptTag of scriptTags) {
+// 							const newScript = document.createElement('script');
+// 							newScript.text = scriptTag.text;
+// 							document.body.appendChild(newScript);
+// 						}
+// 					} else {
+// 						console.error('Erro ao carregar o arquivo pong.html');
+// 					}
+// 				} catch (error) {
+// 					console.error('Erro ao carregar o conteúdo:', error);
+// 				}
+// 			});
+// 		});
+// 	}
 
-	// Carregar o conteúdo HTML
-	try {
-		const response = await fetch('./homepage.html');
-		if (response.ok) {
-			const content = await response.text();
-			document.getElementById('mainContent').innerHTML = content;
+// 	// Adicionar event listeners aos botões na carga inicial da página
+// 	addEventListenersToButtons();
+// });
 
-			// Encontrar e executar os scripts dentro do conteúdo carregado
-			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
-			for (const scriptTag of scriptTags) {
-				const newScript = document.createElement('script');
-				newScript.text = scriptTag.text;
-				document.body.appendChild(newScript);
-			}
-		} else {
-			console.error('Erro ao carregar o arquivo homepage.html');
-		}
-	} catch (error) {
-		console.error('Erro ao carregar o conteúdo:', error);
-	}
-});
+// document.getElementById('homeButton').addEventListener('click', async function (event) {
+// 	event.preventDefault();
+
+// 	// Carregar o conteúdo HTML
+// 	try {
+// 		const response = await fetch('./homepage.html');
+// 		if (response.ok) {
+// 			const content = await response.text();
+// 			document.getElementById('mainContent').innerHTML = content;
+
+// 			// Encontrar e executar os scripts dentro do conteúdo carregado
+// 			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+// 			for (const scriptTag of scriptTags) {
+// 				const newScript = document.createElement('script');
+// 				newScript.text = scriptTag.text;
+// 				document.body.appendChild(newScript);
+// 			}
+// 		} else {
+// 			console.error('Erro ao carregar o arquivo homepage.html');
+// 		}
+// 	} catch (error) {
+// 		console.error('Erro ao carregar o conteúdo:', error);
+// 	}
+// });
 
 
 
 document.getElementById('registerBtn').addEventListener('click', registerUser);
 document.getElementById('loginBtn').addEventListener('click', loginUser);
-document.getElementById('verifyBtn').addEventListener('click', verifyCode);
-document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+// document.getElementById('verifyBtn').addEventListener('click', verifyCode);
+// document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
-document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
-document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
-document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);
-document.getElementById('addFriendBtn').addEventListener('click', addFriend);
-document.getElementById('removeFriendBtn').addEventListener('click', removeFriend);
-document.getElementById('blockUserBtn').addEventListener('click', blockUser);
-document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
-document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
-document.getElementById('delete-user-button').addEventListener('click', deleteUser);
+// document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
+// document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
+// document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);
+// document.getElementById('addFriendBtn').addEventListener('click', addFriend);
+// document.getElementById('removeFriendBtn').addEventListener('click', removeFriend);
+// document.getElementById('blockUserBtn').addEventListener('click', blockUser);
+// document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
+// document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
+// document.getElementById('delete-user-button').addEventListener('click', deleteUser);
+
+
+function showLoginForm() {
+	document.getElementById('form-container').innerHTML = `
+		<div class="login-title">Login</div>
+		<form id="login-form">
+			<label for="login-username">Username:</label>
+			<input  class="form-control me-2" type="text" id="login-username" name="login-username" required>
+
+			<!-- <label for="login-email">Email:</label>
+			<input  class="form-control me-2" type="email" id="login-email" name="login-email" required> -->
+
+			<label for="login-password">Senha:</label>
+			<input  class="form-control me-2" type="password" id="login-password" name="login-password" required>
+
+			<button  id="loginBtn" class="btn btn-outline-success"  type="button" onclick="showAuthenticator()">Login</button>
+		</form>
+		<div id="verifyForm" style="display: none;">
+			<h2>Scan QR Code</h2>
+			<div id="qrcode"></div>
+			<h2>Verify 2FA Code</h2>
+			<input type="text" id="code" placeholder="Enter 2FA code">
+			<button type="button" id="verifyBtn">Verify</button>
+			<!-- <button onclick="verifyCode()">Verify</button> -->
+			<p id="verifyMessage"></p>
+		</div>
+		<script>
+			document.getElementById('loginBtn').addEventListener('click', loginUser);
+		</script>
+	`;
+}
+
+function showRegisterForm() {
+	document.getElementById('form-container').innerHTML = `
+		<div class="login-title">Register</div>
+		<form class="font-custom button-size"  id="register-form">
+			<label for="register-username">Username:</label>
+			<input  class="form-control me-2 fspc" type="text" id="register-username" name="register-username" required>
+
+			<label for="email">Email:</label>
+			<input  class="form-control me-2 fspc" type="email" id="email" name="email" required>
+
+			<label for="password">Password:</label>
+			<input  class="form-control me-2 fspc" type="password" id="password" name="password" required>
+
+			
+			<button  id="registerBtn" class="btn btn-outline-success " type="submit">Register</button>
+		</form>
+		<script>
+			document.getElementById('registerBtn').addEventListener('click', registerUser);
+		</script>
+	`;
+}
+
+function showAuthenticator() {
+	// Lógica para mostrar o autenticador após o login correto
+	document.getElementById('form-container').innerHTML = `
+		<h2>Autenticador do Google</h2>
+		<p>Insira o código do Google Authenticator aqui.</p>
+		<input type="text" id="google-auth-code" name="google-auth-code">
+		<button type="button" onclick="verifyAuthenticator()">Verificar</button>
+	`;
+}
+
+function verifyAuthenticator() {
+	// Lógica para verificar o código do Google Authenticator
+	alert('Verificação bem-sucedida!');
+}
