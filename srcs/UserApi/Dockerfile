@@ -18,6 +18,8 @@ ENV CARGO_HOME="/root/.cargo"
 COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . /usr/src/app/
+
 COPY ./docker-entrypoint.sh /scripts/
 RUN chmod +x /scripts/docker-entrypoint.sh
+
 ENTRYPOINT ["/scripts/docker-entrypoint.sh"]
