@@ -61,7 +61,7 @@ fclean:		clean
 
 prune:		fclean
 			@docker system prune -af
-			@docker volume prune -f
+			@docker volume rm -f frontend-data fronend-conf game-app nginx-conf postgres-data user-app chat-app
 
 
 re: 		fclean all

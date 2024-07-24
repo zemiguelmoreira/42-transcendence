@@ -10,6 +10,9 @@ services:
     init: true
     expose:
       - "80"
+    depends_on:
+      user_management:
+        condition: service_started
     # healthcheck:
     #   test: ["CMD", "curl", "http://localhost"]
     #   interval: 5s
@@ -33,8 +36,6 @@ services:
       - "80"
     depends_on:
       frontend:
-        condition: service_started
-      user_management:
         condition: service_started
     # healthcheck:
     #   test: ["CMD", "curl", "http://localhost"]
