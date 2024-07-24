@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 RUN apt-get update && \
-apt-get install -y iputils-ping netcat-openbsd telnet libcairo2-dev
+apt-get install -y libcairo2-dev
 WORKDIR /usr/src/app
 ENV DJANGO_SETTINGS_MODULE=UserApi.settings
 RUN pip3 install --upgrade pip

@@ -1,4 +1,24 @@
+#healthchecks for djangos missing
 services:
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    image: frontend:42
+    volumes:
+      - frontend-data:/usr/share/nginx/html:ro
+      - frontend-conf:/etc/nginx/conf.d:ro
+    expose:
+      - "80"
+    # healthcheck:
+    #   test: ["CMD", "curl", "http://localhost"]
+    #   interval: 5s
+    #   timeout: 10s
+    #   retries: 5
+    #   start_period: 30s
+    restart: always
+    networks:
+      - transcendence-net
+
   nginx:
     build: ./nginx
     container_name: nginx
@@ -10,21 +30,14 @@ services:
     expose:
       - "80"
     depends_on:
-      - frontend
-    restart: always
-    networks:
-      - transcendence-net
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    image: frontend:42
-    volumes:
-      - frontend-data:/usr/share/nginx/html:ro
-    expose:
-      - "80"
-    depends_on:
-      - user_management
+      frontend:
+        condition: service_started
+    # healthcheck:
+    #   test: ["CMD", "curl", "http://localhost"]
+    #   interval: 5s
+    #   timeout: 4s
+    #   retries: 5
+    #   start_period: 5s
     restart: always
     networks:
       - transcendence-net
@@ -57,38 +70,33 @@ services:
     init: true
     ports:
       - "8001:8001"
-    # depends_on:
-    #   postgres:
-    #     condition: service_healthy
+    depends_on:
+      redis:
+        condition: service_healthy
     env_file:
       - .env
-    depends_on:
-      - redis
     restart: always
     networks:
       - transcendence-net
       - backend-net
 
-  # chat_server:
-  #   build: ./ChatServer
-  #   container_name: chat_server
-  #   image: chat_server:42
-  #   volumes:
-  #     - chat-app:/usr/src/app
-  #   init: true
-  #   ports:
-  #     - "8002:8002"
-  #   # depends_on:
-  #   #   postgres:
-  #   #     condition: service_healthy
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - redis
-  #   restart: always
-  #   networks:
-  #     - transcendence-net
-  #     - backend-net
+  chat_server:
+    build: ./ChatServer
+    container_name: chatserver
+    image: chatserver:42
+    volumes:
+      - chat-app:/usr/src/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - transcendence-net
+      - backend-net
 
   postgres:
     build: ./postgres
@@ -101,8 +109,9 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${SQL_USER}"]
       interval: 5s
-      timeout: 4s
+      timeout: 10s
       retries: 5
+      start_period: 30s
     env_file:
       - .env
     restart: always
@@ -114,9 +123,15 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
     networks:
       - backend-net
-      - transcendence-net
 
 volumes:
   nginx-conf:
@@ -131,7 +146,14 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./frontend
+      device: ./frontend/www
+      o: bind
+  frontend-conf:
+    name: frontend-conf
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend/conf
       o: bind
   user-app:
     name: user-app
@@ -140,13 +162,13 @@ volumes:
       type: none
       device: ./UserApi
       o: bind
-  # chat-app:
-  #   name: chat-app
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ./ChatServer
-  #     o: bind
+  chat-app:
+    name: chat-app
+    driver: local
+    driver_opts:
+      type: none
+      device: ./ChatServer
+      o: bind
   game-app:
     name: game-app
     driver: local
