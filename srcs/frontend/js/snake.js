@@ -1,3 +1,5 @@
+console.log('snake.js carregado');
+
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 const score1 = document.querySelector(".snake-score1--value");
@@ -20,6 +22,7 @@ let direction1, direction2, loopId;
 
 player1Name.textContent = "Ivo";
 player2Name.textContent = "Daniel";
+
 
 const incrementScore = (scoreElement) => {
     scoreElement.innerText = +scoreElement.innerText + 10;

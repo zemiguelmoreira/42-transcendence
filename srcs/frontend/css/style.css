@@ -22,17 +22,16 @@ body {
 
 /* Define o estilo da classe window */
 .window {
-    background-image: url(../files/background_retro_02.jpg);
+	background-image: url(../files/background_retro_02.jpg);
     background-size: cover;
     background-position: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-	/* justify-content: center; */
     height: 100vh;
     color: white;
-    position: relative; /* Adicionado para posicionamento relativo dos filhos */
-    z-index: 1; /* Para garantir que este elemento fique acima das linhas e da grade */
+    position: relative; 
+    z-index: 1;
 }
 
 /* Define o estilo da classe container */
@@ -45,6 +44,7 @@ body {
 	height: 800px;
 	padding: 5px;
 	overflow: hidden;
+	box-shadow: .5em 1.5em 1.5em rgb(0, 0, 0, 0.5);
 	z-index: 2;
 }
 
@@ -54,6 +54,25 @@ body {
 	height: 40px;
 	margin-bottom: 5px;
 	font-family: 'CustomFont';
+	font-size: 0.9em;
+}
+
+/* Define o estilo das imagens dentro de links com a classe nav-link */
+.nav-link img {
+	border-radius: 50%; 
+	object-fit: cover; 
+}
+
+/* Define o estilo dos links dentro da navbar */
+.btn {
+	font-family: 'CustomFont';
+	font-size: 0.9em;
+}
+
+/* Define o estilo dos botões SEARCH */
+.form-control {
+	font-family: 'CustomFont';
+	font-size: 0.9em;
 }
 
 /* Define o estilo da classe main */
@@ -70,24 +89,17 @@ body {
 	background-size: cover;
 }
 
-/* Define o estilo das imagens dentro de links com a classe nav-link */
-.nav-link img {
-	border-radius: 50%; /* Faz a imagem ser circular */
-	object-fit: cover; /* Garante que a imagem mantenha suas proporções */
-}
-
 /* Define o estilo da classe lines */
 .lines {
 	position: absolute;
 	width: 100vw;
 	height: 4em;
-	/* top: 18em; */
 	background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
 	background-size: 1px 0.5em;
 	box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
 	transform: translateY(-1em);
 	left: 0;
-	z-index: 0; /* Garante que este elemento fique abaixo dos outros */
+	z-index: 0; 
 }
 
 /* Define o estilo dos elementos h1 */
@@ -98,7 +110,7 @@ h1 {
 	margin: 0;
 	transform: skew(-15deg);
 	letter-spacing: 0.03em;
-	z-index: 2; /* Garante que este elemento fique acima das linhas */
+	z-index: 2; 
 }
 
 h1::after {

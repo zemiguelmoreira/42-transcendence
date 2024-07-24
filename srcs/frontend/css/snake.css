@@ -22,9 +22,10 @@
 
 .snake-box {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
+	justify-content: center;
 	align-items: center;
-	vertical-align: middle;
+	height: 625px;
 }
 
 .snake-logo {
@@ -34,8 +35,7 @@
 }
 
 canvas {
-	padding-top: 5px;
-	width: 800px;
+	align-items: center;
 }
 
 .snake-score1,

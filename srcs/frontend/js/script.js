@@ -503,51 +503,99 @@ async function deleteUser() {
 // });
 
 
+// document.addEventListener('DOMContentLoaded', function () {
+// 	// Função para adicionar event listeners aos botões
+// 	function addEventListenersToButtons() {
+// 		const buttons = document.querySelectorAll('.snake-button');
+
+// 		buttons.forEach(button => {
+// 			button.addEventListener('click', async function (event) {
+// 				event.preventDefault();
+
+// 				// Carregar dinamicamente o CSS
+// 				const linkElement = document.createElement('link');
+// 				linkElement.rel = 'stylesheet';
+// 				linkElement.href = './css/snake.css';
+// 				document.head.appendChild(linkElement);
+
+// 				// Carregar o conteúdo HTML
+// 				try {
+// 					const response = await fetch('./snake.html');
+// 					if (response.ok) {
+// 						const content = await response.text();
+// 						document.getElementById('mainContent').innerHTML = content;
+// 						console.log('Script script.js adicionado ao DOM');
+						
+// 						// Reatribuir event listeners aos novos botões
+// 						addEventListenersToButtons();
+
+// 						// Encontrar e executar os scripts dentro do conteúdo carregado
+// 						const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+// 						for (const scriptTag of scriptTags) {
+// 							const newScript = document.createElement('script');
+// 							newScript.text = scriptTag.text;
+// 							document.body.appendChild(newScript);
+// 						}
+// 					} else {
+// 						console.error('Erro ao carregar o arquivo snake.html');
+// 					}
+// 				} catch (error) {
+// 					console.error('Erro ao carregar o conteúdo:', error);
+// 				}
+// 			});
+// 		});
+// 	}
+
+// 	// Adicionar event listeners aos botões na carga inicial da página
+// 	addEventListenersToButtons();
+// });
+
+
 document.addEventListener('DOMContentLoaded', function () {
-	// Função para adicionar event listeners aos botões
-	function addEventListenersToButtons() {
-		const buttons = document.querySelectorAll('.snake-button');
+    // Função para adicionar event listeners aos botões
+    function addEventListenersToButtons() {
+        const buttons = document.querySelectorAll('.snake-button');
 
-		buttons.forEach(button => {
-			button.addEventListener('click', async function (event) {
-				event.preventDefault();
+        buttons.forEach(button => {
+            button.addEventListener('click', async function (event) {
+                event.preventDefault();
 
-				// Carregar dinamicamente o CSS
-				const linkElement = document.createElement('link');
-				linkElement.rel = 'stylesheet';
-				linkElement.href = './css/snake.css';
-				document.head.appendChild(linkElement);
+                // Carregar dinamicamente o CSS
+                const linkElement = document.createElement('link');
+                linkElement.rel = 'stylesheet';
+                linkElement.href = './css/snake.css';
+                document.head.appendChild(linkElement);
 
-				// Carregar o conteúdo HTML
-				try {
-					const response = await fetch('./snake.html');
-					if (response.ok) {
-						const content = await response.text();
-						document.getElementById('mainContent').innerHTML = content;
+                // Carregar o conteúdo HTML
+                try {
+                    const response = await fetch('./snake.html');
+                    if (response.ok) {
+                        const content = await response.text();
+                        document.getElementById('mainContent').innerHTML = content;
 
-						// Reatribuir event listeners aos novos botões
-						addEventListenersToButtons();
+                        // Reatribuir event listeners aos novos botões
+                        addEventListenersToButtons();
 
-						// Encontrar e executar os scripts dentro do conteúdo carregado
-						const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
-						for (const scriptTag of scriptTags) {
-							const newScript = document.createElement('script');
-							newScript.text = scriptTag.text;
-							document.body.appendChild(newScript);
-						}
-					} else {
-						console.error('Erro ao carregar o arquivo snake.html');
-					}
-				} catch (error) {
-					console.error('Erro ao carregar o conteúdo:', error);
-				}
-			});
-		});
-	}
+                        // Inserir dinamicamente o script do jogo
+                        const scriptElement = document.createElement('script');
+                        scriptElement.src = './js/snake.js'; // Certifique-se de que o caminho está correto
+                        document.body.appendChild(scriptElement);
+                    } else {
+                        console.error('Erro ao carregar o arquivo snake.html');
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar o conteúdo:', error);
+                }
+            });
+        });
+    }
 
-	// Adicionar event listeners aos botões na carga inicial da página
-	addEventListenersToButtons();
+    // Adicionar event listeners aos botões na carga inicial da página
+    addEventListenersToButtons();
 });
+
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
 	// Função para adicionar event listeners aos botões
