@@ -380,6 +380,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
+        logger.info(f'request data :  {data}')
         try:
             current_user = self.request.user
             current_profile = UserProfile.objects.get(user=current_user)

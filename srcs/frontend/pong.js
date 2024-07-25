@@ -84,27 +84,27 @@ function joinRoom() {
             });
             console.log(score);
             // Enviar dados do jogo para a API, nao esta funcionando.
-            try {
-                const response = await fetch('/api/profile/update_match_history/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    },
-                    body: score,
-                });
+            // try {
+            //     const response = await fetch('/api/profile/update_match_history/', {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            //         },
+            //         body: score,
+            //     });
 
-                if (response.ok) {
-                    alert('Match data sent successfully!');
-                } else {
-                    const data = await response.json();
-                    throw new Error(data.error || 'Failed to send match data');
-                }
-                pong_socket.close();
-            } catch (error) {
-                console.error('Error:', error.message);
-                alert('Failed to send match data. Please try again.');
-            }
+            //     if (response.ok) {
+            //         alert('Match data sent successfully!');
+            //     } else {
+            //         const data = await response.json();
+            //         throw new Error(data.error || 'Failed to send match data');
+            //     }
+            //     pong_socket.close();
+            // } catch (error) {
+            //     console.error('Error:', error.message);
+            //     alert('Failed to send match data. Please try again.');
+            // }
         } else {
             ballPosition = data.ball_position;
             paddlePositions = data.paddle_positions;

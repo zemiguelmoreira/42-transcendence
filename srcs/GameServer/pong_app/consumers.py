@@ -8,11 +8,14 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 import json
 import time
+from datetime import datetime, timezone
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 from urllib.parse import parse_qs
 from GameServer.utils import is_authenticated, get_room, check_user_access
 import logging
+import httpx
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,10 +62,10 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         query_params = parse_qs(self.scope['query_string'].decode())
         room_code = self.scope['url_route']['kwargs'].get('room_code', None)
-        token = query_params.get('token', [None])[0]
+        self.token = query_params.get('token', [None])[0]
         self.is_player = False
 
-        user = await is_authenticated(token)
+        user = await is_authenticated(self.token)
         if not user:
             await self.close()
             return
@@ -218,19 +221,51 @@ class PongConsumer(AsyncWebsocketConsumer):
         logger.info('function end_game called')
         winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
         loser_score = room['score'][1] if room['players'][0].user.username == winner else room['score'][0]
+        timestamp = int(time.time())
+        formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
         result = {
             'action': 'game_over',
             'winner': winner,
             'loser': loser,
             'winner_score': winner_score,
             'loser_score': loser_score,
+            'timestamp': formatted_time,  # Adicionando timestamp
+            'game_type': 'pong'
         }
 
-        # logger.info(f'result: {result}')
-        # logger.info(f"players: {room['players'][0].user.username} - {room['players'][1].user.username}")
+        to_save = {
+            'winner': winner,
+            'loser': loser,
+            'winner_score': winner_score,
+            'loser_score': loser_score,
+            'timestamp': int(time.time()),  # Adicionando timestamp
+            'game_type': 'pong'
+        }
 
+        # Salvar partida no banco de dados
+        # PARA CORRIGIR SO SALVA NO PLAYER QUE FICA ONLINE
+        await self.save_match_history(to_save) 
+
+        # Enviar resultado para todos os jogadores
         for player in room['players']:
             await player.send(json.dumps(result))
 
         # Limpar o estado da sala
         del PongConsumer.rooms[self.room.code]
+
+    async def save_match_history(self, match_data):
+        url = 'http://userapi:8000/profile/update_match_history/'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.token}',
+        }
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, json=match_data, headers=headers)
+                response.raise_for_status()  # Levanta exceções para códigos de status de erro
+                logger.info(f"Match history saved successfully: {response.json()}")
+        except httpx.HTTPStatusError as http_err:
+            logger.error(f"HTTP error occurred: {http_err}")
+        except Exception as err:
+            logger.error(f"Other error occurred: {err}")
