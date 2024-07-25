@@ -13,19 +13,17 @@ paddle1Img.src = './pong-assets/Paddle_1.png';
 const paddle2Img = new Image();
 paddle2Img.src = './pong-assets/Paddle_2.png';
 
-
 let pong_socket;
 let paddlePositions = "";
 let ballPosition = "";
 let playerIndex = null;
 let stopFlag = false;
 
-
 async function createRoom() {
     const pong_accessToken = localStorage.getItem('accessToken');
     const authorizedUser = document.getElementById('authorizedUser').value;
     console.log(authorizedUser);
-    
+
     try {
         const response = await fetch('/game/create-room/', {
             method: 'POST',
@@ -53,7 +51,7 @@ function joinRoom() {
     const roomCode = document.getElementById('roomCodeInput').value;
     console.log(roomCode);
 
-        pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
+    pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
 
     pong_socket.onmessage = async function(event) {
         const data = JSON.parse(event.data);
@@ -64,7 +62,6 @@ function joinRoom() {
             playerIndex = data.player_index;
             ballPosition = data.ball_position;
             paddlePositions = data.paddle_positions;
-            startGame(); // Inicia o jogo assim que o índice do jogador é atribuído, talvez aqui entrar numa waiting page 
         } else if (data.action === 'start_game') {
             startGame(); // Inicia o jogo ao receber a mensagem 'start_game'
         } else if (data.action === 'game_over' && !stopFlag) {
@@ -112,10 +109,6 @@ function joinRoom() {
             ballPosition = data.ball_position;
             paddlePositions = data.paddle_positions;
         }
-
-        // Chama a função para redesenhar o jogo após receber os dados
-        context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-        drawGame(ballPosition, paddlePositions);
     };
 
     pong_socket.onopen = function(event) {
@@ -138,16 +131,10 @@ function sendMoveCommand(direction) {
 }
 
 function drawGame(ball, paddles) {
-    // context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Desenhar o fundo
-    // Desenhar a linha branca no y = 10
-    // context.beginPath();
-    // context.moveTo(0, 10);
-    // context.lineTo(canvas.width, 10);
-    // context.strokeStyle = 'white';
-    // context.lineWidth = 2;
-    // context.stroke();
+    context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
     // Desenhar a bola
     context.drawImage(ballImg, ball[0] - ballImg.width / 2, ball[1] - ballImg.height / 2);
@@ -161,11 +148,9 @@ document.addEventListener('keydown', function(event) {
     if (playerIndex === null) return;
     switch (event.key) {
         case 'w':
-            paddleDirection = 'up';
             sendMoveCommand('up');
             break;
         case 's':
-            paddleDirection = 'down';
             sendMoveCommand('down');
             break;
     }
@@ -176,7 +161,6 @@ document.addEventListener('keyup', function(event) {
     switch (event.key) {
         case 'w':
         case 's':
-            paddleDirection = 'idle';
             sendMoveCommand('idle');
             break;
     }
@@ -187,11 +171,35 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-function startGame() {
-    console.log('Entered start game');
-    gameLoop(); // Inicia o loop de renderização do jogo
+function countdown(callback) {
+    let count = 3;
+
+    function drawCountdown() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+        context.font = '48px Arial';
+        context.fillStyle = 'white';
+        context.textAlign = 'center';
+        context.fillText(count, canvas.width / 2, canvas.height / 2);
+    }
+
+    function updateCountdown() {
+        if (count > 0) {
+            drawCountdown();
+            count--;
+            setTimeout(updateCountdown, 1000);
+        } else {
+            callback();
+        }
+    }
+
+    updateCountdown();
 }
 
+function startGame() {
+    console.log('Entered start game');
+    countdown(gameLoop); // Inicia a contagem regressiva e depois o loop de renderização do jogo
+}
 
 document.getElementById('createRoomButton').addEventListener('click', createRoom);
 document.getElementById('joinRoomButton').addEventListener('click', joinRoom);

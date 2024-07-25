@@ -98,7 +98,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         room = PongConsumer.rooms[self.room.code]
 
-        if len(room['players']) < 2:
+        for player in room['players']:
+            if player.user.id == self.user.id:
+                await self.close()
+                return
+
+
+        if len(room['players']) < 2 and self not in room['players']:
             self.is_player = True
             room['players'].append(self)
             player_index = room['players'].index(self)
@@ -111,9 +117,12 @@ class PongConsumer(AsyncWebsocketConsumer):
             }))
 
         if len(room['players']) == 2:
-            await self.send(json.dumps({'action': 'start_game'}))
-            if not hasattr(room, 'game_loop_task'):
+            for player in room['players']:
+                await player.send(json.dumps({'action': 'start_game'}))
+            if 'game_loop_task' not in room:
                 room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
+        else:
+            await self.send(json.dumps({'action': 'wait_for_player'}))
 
     async def disconnect(self, close_code):
         room = PongConsumer.rooms.get(self.room.code, None)
@@ -122,7 +131,12 @@ class PongConsumer(AsyncWebsocketConsumer):
             if hasattr(self, 'is_player') and self.is_player and self in room['players']:
                 room['players'].remove(self)
 
-            if not room['players'] and hasattr(room, 'game_loop_task') and room['game_loop_task']:
+            if len(room['players']) == 1:
+                winner = room['players'][0].user.username
+                loser = self.user.username
+                await self.end_game(room, winner, loser)
+
+            if not room['players'] and 'game_loop_task' in room and room['game_loop_task']:
                 room['game_loop_task'].cancel()
                 room['game_loop_task'] = None
 
@@ -212,8 +226,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             'loser_score': loser_score,
         }
 
-        logger.info(f'result: {result}')
-        logger.info(f"players: {room['players'][0].user.username} - {room['players'][1].user.username}")
+        # logger.info(f'result: {result}')
+        # logger.info(f"players: {room['players'][0].user.username} - {room['players'][1].user.username}")
 
         for player in room['players']:
             await player.send(json.dumps(result))
