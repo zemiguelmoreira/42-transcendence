@@ -1,11 +1,25 @@
 const canvas = document.getElementById('pongCanvas');
 const context = canvas.getContext('2d');
 
+const backgroundImg = new Image();
+backgroundImg.src = './pong-assets/BackgroundGrid.png';
+
+const ballImg = new Image();
+ballImg.src = './pong-assets/Ball.png';
+
+const paddle1Img = new Image();
+paddle1Img.src = './pong-assets/Paddle_1.png';
+
+const paddle2Img = new Image();
+paddle2Img.src = './pong-assets/Paddle_2.png';
+
+
 let pong_socket;
-let paddlePositions = [[10, 250], [780, 250]];
-let ballPosition = [400, 300];
+let paddlePositions = "";
+let ballPosition = "";
 let playerIndex = null;
 let stopFlag = false;
+
 
 async function createRoom() {
     const pong_accessToken = localStorage.getItem('accessToken');
@@ -100,6 +114,7 @@ function joinRoom() {
         }
 
         // Chama a função para redesenhar o jogo após receber os dados
+        context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
         drawGame(ballPosition, paddlePositions);
     };
 
@@ -123,15 +138,23 @@ function sendMoveCommand(direction) {
 }
 
 function drawGame(ball, paddles) {
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    // context.clearRect(0, 0, canvas.width, canvas.height);
 
-    context.fillStyle = 'white';
-    context.beginPath();
-    context.arc(ball[0], ball[1], 10, 0, Math.PI * 2);
-    context.fill();
+    // Desenhar o fundo
+    // Desenhar a linha branca no y = 10
+    // context.beginPath();
+    // context.moveTo(0, 10);
+    // context.lineTo(canvas.width, 10);
+    // context.strokeStyle = 'white';
+    // context.lineWidth = 2;
+    // context.stroke();
 
-    context.fillRect(paddles[0][0], paddles[0][1], 10, 100);
-    context.fillRect(paddles[1][0], paddles[1][1], 10, 100);
+    // Desenhar a bola
+    context.drawImage(ballImg, ball[0] - ballImg.width / 2, ball[1] - ballImg.height / 2);
+
+    // Desenhar os paddles
+    context.drawImage(paddle1Img, paddles[0][0], paddles[0][1]);
+    context.drawImage(paddle2Img, paddles[1][0], paddles[1][1]);
 }
 
 document.addEventListener('keydown', function(event) {

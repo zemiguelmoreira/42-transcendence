@@ -17,6 +17,42 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+paddles_init_y = 310 - 62
+paddle1_init_x = 84
+paddle2_init_x = 1060
+
+border_limits_top = 75
+border_limits_botton = 543
+
+ball_init_x = 590
+ball_init_y = 310
+
+PADDLE_WIDTH = 35
+PADDLE_HEIGHT = 125
+BALL_SIZE = 30
+
+def is_goal_paddle1(ball_x):
+    return ball_x > 1180
+
+def is_goal_paddle2(ball_x):
+    return ball_x < 0
+
+def is_collision_paddle1(ball_x, ball_y, paddle_y):
+    collision_area_top = paddle_y
+    collision_area_bottom = paddle_y + PADDLE_HEIGHT
+    collision_area_left = paddle1_init_x
+    collision_area_right = paddle1_init_x + PADDLE_WIDTH
+
+    return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
+
+def is_collision_paddle2(ball_x, ball_y, paddle_y):
+    collision_area_top = paddle_y
+    collision_area_bottom = paddle_y + PADDLE_HEIGHT
+    collision_area_left = paddle2_init_x
+    collision_area_right = paddle2_init_x + PADDLE_WIDTH
+
+    return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
+
 class PongConsumer(AsyncWebsocketConsumer):
     rooms = {}
 
@@ -50,10 +86,10 @@ class PongConsumer(AsyncWebsocketConsumer):
         logger.info(f'User {user.username} connected to room {self.room.code}')
 
         if self.room.code not in PongConsumer.rooms:
-            PongConsumer.rooms[self.room.code] = {  
+            PongConsumer.rooms[self.room.code] = {
                 'players': [],
-                'ball_position': [400, 300],
-                'paddle_positions': [[10, 250], [780, 250]],
+                'ball_position': [ball_init_x, ball_init_y],
+                'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
                 'ball_velocity': [300, 300],
                 'current_directions': ['idle', 'idle'],
                 'score': [0, 0],
@@ -78,7 +114,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({'action': 'start_game'}))
             if not hasattr(room, 'game_loop_task'):
                 room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
-
 
     async def disconnect(self, close_code):
         room = PongConsumer.rooms.get(self.room.code, None)
@@ -109,37 +144,40 @@ class PongConsumer(AsyncWebsocketConsumer):
             last_time = current_time
             
             await self.update_game_state(room, delta_time)
-            await asyncio.sleep(0.03)
+            await asyncio.sleep(0.03)  # Increase update frequency for smoother ball movement
 
     async def update_game_state(self, room, delta_time):
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
         room['ball_position'][1] += room['ball_velocity'][1] * delta_time
 
-        if room['ball_position'][1] <= 0 or room['ball_position'][1] >= 600:
+        if room['ball_position'][1] <= border_limits_top + 15 or room['ball_position'][1] >= border_limits_botton - 15:
             room['ball_velocity'][1] *= -1
-        if room['ball_position'][0] < -10:
-            room['score'][1] += 1
-            room['ball_position'] = [400, 300]
-            room['ball_velocity'][0] *= -1
-        if room['ball_position'][0] > 810:
+
+        if is_goal_paddle1(room['ball_position'][0]):
             room['score'][0] += 1
-            room['ball_position'] = [400, 300]
-            room['ball_velocity'][0] *= -1 # change the direction on x
+            room['ball_position'] = [ball_init_x, ball_init_y]
+            room['ball_velocity'][0] *= -1
+            logger.info("Gol do paddle 1")
+        if is_goal_paddle2(room['ball_position'][0]):
+            room['score'][1] += 1
+            room['ball_position'] = [ball_init_x, ball_init_y]
+            room['ball_velocity'][0] *= -1
+            logger.info("Gol do paddle 2")
 
         # Colisões com os paddles
-        if room['ball_velocity'][0] < 0 and room['ball_position'][0] <= 20:
-            if room['paddle_positions'][0][1] <= room['ball_position'][1] <= room['paddle_positions'][0][1] + 100:
-                room['ball_velocity'][0] *= -1
-        elif room['ball_velocity'][0] > 0 and room['ball_position'][0] >= 780:
-            if room['paddle_positions'][1][1] <= room['ball_position'][1] <= room['paddle_positions'][1][1] + 100:
-                room['ball_velocity'][0] *= -1
-        
+        if room['ball_velocity'][0] < 0 and is_collision_paddle1(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][0][1]):
+            room['ball_velocity'][0] *= -1
+            logger.info("Colidiu paddle 1")
+        if room['ball_velocity'][0] > 0 and is_collision_paddle2(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][1][1]):
+            room['ball_velocity'][0] *= -1
+            logger.info("colidiu paddle 2")
+
         for i in range(len(room['paddle_positions'])):
             direction = room['current_directions'][i]
             if direction == 'up':
-                room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
+                room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, border_limits_top)
             elif direction == 'down':
-                room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, 600 - 100)
+                room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, border_limits_botton - PADDLE_HEIGHT)
 
         response = {
             'ball_position': room['ball_position'],
@@ -154,10 +192,10 @@ class PongConsumer(AsyncWebsocketConsumer):
             logger.info(f"Detectou fim de partida {room['score'][0]} - {room['score'][1]}")
             if room['score'][0] == 11:
                 winner = room['players'][0].user.username
-                loser =  room['players'][1].user.username
+                loser = room['players'][1].user.username
             else:
                 loser = room['players'][0].user.username
-                winner =  room['players'][1].user.username
+                winner = room['players'][1].user.username
 
             logger.info(f"winner and loser: {winner} - {loser}")
             await self.end_game(room, winner, loser)
@@ -179,6 +217,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         for player in room['players']:
             await player.send(json.dumps(result))
-        
+
         # Limpar o estado da sala
         del PongConsumer.rooms[self.room.code]
