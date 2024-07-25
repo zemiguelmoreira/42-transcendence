@@ -689,53 +689,49 @@ document.getElementById('loginBtn').addEventListener('click', loginUser);
 
 function showLoginForm() {
 	document.getElementById('form-container').innerHTML = `
-		<div class="login-title">Login</div>
-		<form id="login-form">
-			<label for="login-username">Username:</label>
-			<input  class="form-control me-2" type="text" id="login-username" name="login-username" required>
-
-			<!-- <label for="login-email">Email:</label>
-			<input  class="form-control me-2" type="email" id="login-email" name="login-email" required> -->
-
-			<label for="login-password">Senha:</label>
-			<input  class="form-control me-2" type="password" id="login-password" name="login-password" required>
-
-			<button  id="loginBtn" class="btn btn-outline-success"  type="button" onclick="showAuthenticator()">Login</button>
+	<div class="login-title">LOGIN</div>
+	<div class="login-middle-box">
+		<form class="font-custom button-size" id="login-form">
+		<label for="login-username">USERNAME:</label>
+		<input class="form-control me-2 button-size" type="text" id="login-username" name="login-username" required>
+		<label for="login-password">PASSWORD:</label>
+		<input class="form-control me-2 button-size" type="password" id="login-password" name="login-password" required>
+		<button id="loginBtn" class="btn btn-outline-success button-size" type="button" onclick="showAuthenticator()">LOGIN</button>
 		</form>
-		<div id="verifyForm" style="display: none;">
-			<h2>Scan QR Code</h2>
-			<div id="qrcode"></div>
-			<h2>Verify 2FA Code</h2>
-			<input type="text" id="code" placeholder="Enter 2FA code">
-			<button type="button" id="verifyBtn">Verify</button>
-			<!-- <button onclick="verifyCode()">Verify</button> -->
-			<p id="verifyMessage"></p>
-		</div>
-		<script>
-			document.getElementById('loginBtn').addEventListener('click', loginUser);
-		</script>
+	</div>
+	<div id="verifyForm" style="display: none;">
+		<h2>Scan QR Code</h2>
+		<div id="qrcode"></div>
+		<h2>Verify 2FA Code</h2>
+		<input type="text" id="code" placeholder="Enter 2FA code">
+		<button type="button" id="verifyBtn">Verify</button>
+		<!-- <button onclick="verifyCode()">Verify</button> -->
+		<p id="verifyMessage"></p>
+	</div>
+	<script>
+		document.getElementById('loginBtn').addEventListener('click', loginUser);
+	</script>
 	`;
 }
 
 function showRegisterForm() {
 	document.getElementById('form-container').innerHTML = `
-		<div class="login-title">Register</div>
-		<form class="font-custom button-size"  id="register-form">
-			<label for="register-username">Username:</label>
-			<input  class="form-control me-2 fspc" type="text" id="register-username" name="register-username" required>
 
-			<label for="email">Email:</label>
-			<input  class="form-control me-2 fspc" type="email" id="email" name="email" required>
-
-			<label for="password">Password:</label>
-			<input  class="form-control me-2 fspc" type="password" id="password" name="password" required>
-
-			
-			<button  id="registerBtn" class="btn btn-outline-success " type="submit">Register</button>
+	<div class="login-title">REGISTER</div>
+	<div class="login-middle-box">
+		<form class="font-custom button-size" id="register-form">
+			<label for="register-username">USERNAME:</label>
+			<input class="form-control me-2 button-size" type="text" id="register-username" name="register-username" required>
+			<label for="email">EMAIL:</label>
+			<input class="form-control me-2 button-size" type="email" id="email" name="email" required>
+			<label for="password">PASSWORD:</label>
+			<input class="form-control me-2 button-size" type="password" id="password" name="password" required>
+			<button id="registerBtn" class="btn btn-outline-success button-size" type="submit">REGISTER</button>
 		</form>
-		<script>
-			document.getElementById('registerBtn').addEventListener('click', registerUser);
-		</script>
+	<script>
+		document.getElementById('registerBtn').addEventListener('click', registerUser);
+	</script>
+	</div>
 	`;
 }
 

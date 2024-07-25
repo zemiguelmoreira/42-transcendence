@@ -1,272 +1,286 @@
 /* Importação de fontes */
-@import url('https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Exo:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap');
 
 /* Define a fonte personalizada */
 @font-face {
-	font-family: 'CustomFont';
-	src: url('../fonts/PublicPixel-E447g.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
+    font-family: 'CustomFont';
+    src: url('../fonts/PublicPixel-E447g.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
 }
 
 body {
-	background-color: #191919;
+    background-color: #191919;
 }
 
-/* Define o estilo da classe title */
-.title {
-	font-family: 'CustomFont';
-	margin-bottom: 50px;
+.button {
+    background-color: #007bff;
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 100%;
 }
 
-/* Define o estilo da classe window */
-.window {
-	background-image: url(../files/background_retro_02.jpg);
-	background-size: cover;
-	background-position: center;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	height: 100vh;
-	color: white;
-	position: relative;
-	z-index: 1;
+.button:hover {
+    background-color: #0056b3;
 }
 
-/* Define o estilo da classe container */
-.container {
-	display: flex;
-	flex-direction: column;
-	background-color: rgb(44, 42, 44);
-	border-radius: 15px;
-	width: 1200px;
-	height: 800px;
-	padding: 5px;
-	overflow: hidden;
-	box-shadow: .5em 1.5em 1.5em rgb(0, 0, 0, 0.5);
-	z-index: 2;
+.button-size {
+    margin-top: 10px;
+	margin-bottom: 10px;
+    padding: 20px;
+    width: 100%;
 }
 
-/* Define o estilo da navbar */
-.navbar {
-	border-radius: 15px;
-	height: 40px;
-	margin-bottom: 5px;
-	font-family: 'CustomFont';
-	font-size: 0.9em;
-}
-
-/* Define o estilo das imagens dentro de links com a classe nav-link */
-.nav-link img {
-	border-radius: 50%;
-	object-fit: cover;
-}
-
-/* Define o estilo dos links dentro da navbar */
 .btn {
-	font-family: 'CustomFont';
-	font-size: 0.9em;
+    font-family: 'CustomFont';
+    font-size: 0.9em;
 }
 
-/* Define o estilo dos botões SEARCH */
+
+.font-custom {
+    font-family: 'CustomFont';
+    font-size: 0.9em;
+}
+
 .form-control {
-	font-family: 'CustomFont';
-	font-size: 0.9em;
+    font-family: 'CustomFont';
+    font-size: 0.9em;
 }
 
-/* Define o estilo da classe main */
-.main {
-	flex: 1;
-	/* Faz com que o div .main ocupe o espaço restante */
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-around;
-	background-color: rgb(31, 29, 29);
-	border-radius: 15px;
-	overflow: hidden;
-	background-image: url(../files/background_retro_03.jpg);
-	background-size: cover;
-}
-
-/* Define o estilo da classe lines */
-.lines {
-	position: absolute;
-	width: 100vw;
-	height: 4em;
-	background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
-	background-size: 1px 0.5em;
-	box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
-	transform: translateY(-1em);
-	left: 0;
-	z-index: 0;
-}
-
-/* Define o estilo dos elementos h1 */
 h1 {
-	position: relative;
-	font-family: 'Exo';
-	font-size: 9em;
-	margin: 0;
-	transform: skew(-15deg);
-	letter-spacing: 0.03em;
-	z-index: 2;
+    font-family: 'Exo';
+    font-size: 9em;
+    letter-spacing: 0.03em;
+    margin: 0;
+    position: relative;
+    transform: skew(-15deg);
+    z-index: 2;
 }
 
 h1::after {
-	content: '';
-	position: absolute;
-	top: -0.1em;
-	right: 0.05em;
-	width: 0.4em;
-	height: 0.4em;
-	background:
-		radial-gradient(white 3%, rgba(255, 255, 255, 0.3) 15%, rgba(255, 255, 255, 0.05) 60%, transparent 80%),
-		radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 5% 100%,
-		radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 70% 5%;
-	background-repeat: no-repeat;
+    background:
+        radial-gradient(white 3%, rgba(255, 255, 255, 0.3) 15%, rgba(255, 255, 255, 0.05) 60%, transparent 80%),
+        radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 5% 100%,
+        radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 70% 5%;
+    background-repeat: no-repeat;
+    content: '';
+    height: 0.4em;
+    position: absolute;
+    right: 0.05em;
+    top: -0.1em;
+    width: 0.4em;
 }
 
-/* Define o estilo do primeiro span dentro do h1 */
 h1 span:first-child {
-	display: block;
-	text-shadow: 0 0 0.1em #8ba2d0, 0 0 0.2em black, 0 0 5em #165ff3;
-	-webkit-text-stroke: 0.06em rgba(0, 0, 0, 0.5);
+    -webkit-text-stroke: 0.06em rgba(0, 0, 0, 0.5);
+    display: block;
+    text-shadow: 0 0 0.1em #8ba2d0, 0 0 0.2em black, 0 0 5em #165ff3;
 }
 
-/* Define o estilo do último span dentro do h1 */
 h1 span:last-child {
-	position: absolute;
-	left: 0;
-	top: 0;
-	background-image: linear-gradient(#032d50 25%, #00a1ef 35%, white 50%, #20125f 50%, #8313e7 55%, #ff61af 75%);
-	-webkit-text-stroke: 0.01em #94a0b9;
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.01em #94a0b9;
+    background-image: linear-gradient(#032d50 25%, #00a1ef 35%, white 50%, #20125f 50%, #8313e7 55%, #ff61af 75%);
+    left: 0;
+    position: absolute;
+    top: 0;
 }
 
-/* Define o estilo dos elementos h2 */
 h2 {
-	font-family: 'Mr Dafoe';
-	margin: 0;
-	font-size: 5.5em;
-	margin-top: -0.6em;
-	color: white;
-	text-shadow: 0 0 0.05em #fff, 0 0 0.2em #fe05e1, 0 0 0.3em #fe05e1;
-	transform: rotate(-7deg);
-	z-index: 2;
-	/* Garante que este elemento fique acima das linhas */
+    color: white;
+    font-family: 'Mr Dafoe';
+    font-size: 5.5em;
+    margin: 0;
+    margin-top: -0.6em;
+    text-shadow: 0 0 0.05em #fff, 0 0 0.2em #fe05e1, 0 0 0.3em #fe05e1;
+    transform: rotate(-7deg);
+    z-index: 2;
 }
 
-#item1 {
-	margin-top: 120px;
-}
-
-#item2 {
-	margin-top: 50px;
-}
-
-#item3 {
-	margin-top: 50px;
-}
-
-.button-size{
-	width: 100%;
-	padding: 25px;
-	margin-top: 15px;
-}
-
-/*** LOGIN ***/
-.login-title {
-	font-family: 'Exo';
-	font-style: italic;
-	font-size: 3em;
-	color: rgb(86, 111, 202);
-}
-
-.login {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: 50%;
-	height: 100%;
-	/* background-color: rgba(255, 255, 255, 0.4); */
-	border-radius: 15px;
-	margin: 5px;
-
-}
-
-.right{
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	border-radius: 15px;
-	margin: 5px
-}
-
-.login-main {
+.home-box {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
 	align-items: center;
+	position: relative;
 	width: 100%;
 	height: 100%;
 }
 
-.label {
-	display: block;
-	margin-bottom: 5px;
+.card {
+    height: 450px;
+}
+
+.card-body {
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 20px;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	justify-content: center;
+	padding: 20px;
+	width: 100%;
+}
+
+.card-btn {
+	width: 75%;
+	align-self: first baseline;
+}
+
+.snake-options-box {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+
+#transcendence-title {
+    margin-top: 50px;
 }
 
 .input {
-	width: 100%;
-	padding: 10px;
-	margin-bottom: 15px;
 	border: 1px solid #ccc;
-	border-radius: 3px;
+    border-radius: 3px;
+    height: 45px;
+    margin: 10px 0 20px 0;
+    padding: 10px;
+    width: 100%;
 }
 
-.button {
-	width: 100%;
-	padding: 10px;
-	border: none;
-	border-radius: 3px;
-	background-color: #007bff;
-	color: #fff;
-	font-size: 16px;
-	cursor: pointer;
-	margin-bottom: 10px;
+.label {
+	display: block;
+    margin-bottom: 5px;
 }
 
-.fspc {
+.lines {
+	margin-top: 120px;
+    background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
+    background-size: 1px 0.5em;
+    box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
+    height: 4em;
+    left: 0;
+    position: absolute;
+    transform: translateY(-1em);
+    width: 100vw;
+    z-index: 0;
+}
+
+.login-box {
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+	width: 50%;
+	align-items: center;
+	position: relative;
+	background-color: rgba(255, 255, 255, 0.1);
+	border: 1px solid #fff;
+}
+
+.login-box-left{
+	margin-right: 2px;
+	background-size: cover;
+}
+
+.login-box-right{
+	margin-left: 2px;
+}
+
+.login-main-box {
+	padding: 5px;
+	align-items: center;
+    display: flex;
+    flex-direction: row;
+	width: 800px;
+    height: 600px;
+    overflow: hidden;
+	background-color:rgba(0, 0, 0, 0.75);
+	margin-top: auto; 
+	margin-bottom: auto; 
+}
+
+.login-middle-box {
+	margin: auto 0;
+	text-align: center;
+	color: #198754;
+	font-size: 20px;
+}
+
+.login-title {
+    color: rgba(255, 255, 255, 0.75);
+    font-family: 'Exo';
+    font-size: 3em;
+    font-style: italic;
 	margin-top: 10px;
-	margin-bottom: 20px;
 }
 
-.button:hover {
-	background-color: #0056b3;
+.main-box {
+    background-image: url(../files/background_retro_03.jpg);
+    background-size: cover;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 1200px;
+    height: 800px;
+	margin-top: auto; 
+	margin-bottom: auto;
+}
+
+.nav-link img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.navbar {
+    border-radius: 20px 20px 0 0;
+    font-family: 'CustomFont';
+    font-size: 0.9em;
+    height: 50px;
+	margin-top: 0;
+	width: 100%;
 }
 
 .neon-border {
-	/* padding: 20px; */
-	text-align: center;
-	border: 1px solid #ff00ff;
-	/* Cor principal da borda */
-	border-radius: 10px;
-	background-color: #000;
-	box-shadow:
-		0 0 5px #ff00ff,
-		0 0 5px #ff00ff,
-		0 0 15px #ff00ff,
-		0 0 15px #ff00ff,
-		0 0 15px #ff00ff;
+    /* background-color: #111; */
+    border: 1px solid #ff00ff;
+    border-radius: 20px;
+    box-shadow: 0 0 5px #ff00ff, 0 0 5px #ff00ff, 0 0 15px #ff00ff, 0 0 15px #ff00ff, 0 0 15px #ff00ff;
+    /* text-align: center; */
 }
 
-.font-custom{
-	font-family: 'CustomFont';
-	font-size: 0.9em;
-	
+.right {
+    align-items: center;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 5px;
+}
+
+.title {
+    font-family: 'CustomFont';
+    margin-bottom: 50px;
+}
+
+.window {
+    align-items: center;
+    background-image: url(../files/background_retro_02.jpg);
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+	height: 100vh;
+    position: relative;
+    z-index: 1;
 }
