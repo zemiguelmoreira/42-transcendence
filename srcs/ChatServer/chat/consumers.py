@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import django
 from django.conf import settings
@@ -11,8 +10,6 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -21,19 +18,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # Extract token from query string
         self.token = self.scope['query_string'].decode().split('=')[1]
-        logging.info(f'token: {self.token}')
 
         # Handle token
         try:
             access_token = AccessToken(self.token)
             self.user = await self.get_user_from_token(access_token)
-            logging.info(f'user: {self.user}')
             if not self.user:
-                logging.info('User not found')
                 await self.close()
                 return
         except (InvalidToken, TokenError):
-            logging.info('Invalid token')
             await self.close()
             return
 
@@ -49,8 +42,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-        logging.info(f'User {self.user.username} connected to chat')
-        # Broadcast the updated list of online users
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -62,10 +53,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
-        logging.info(f'User {self.user.username} disconnected from chat')
 
         ChatConsumer.online_users.discard(self.user.username)
-        # Broadcast the updated list of online users
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -78,21 +67,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
         recipient = text_data_json.get("recipient", None)
-        logging.info(f"Message: {message}, Recipient: {recipient}, Sender: {self.user.username}")
+        # If private
         if recipient:
             recipient_group_name = "user_%s" % recipient
+            # If sent to self
             if recipient == self.user.username:
                 await self.channel_layer.group_send(
                 recipient_group_name, {"type": "self.dm", "message": message}
                 )
                 return
+            # To
             await self.channel_layer.group_send(
                 recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
             )
+            # From
             await self.channel_layer.group_send(
                 self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
             )
-        else:
+        else: # If public
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "chat.message", "message": message, "sender": self.user.username}
             )
@@ -102,7 +94,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = event["sender"]
 
         await self.send(text_data=json.dumps({"message": message, "sender": sender}))
-        logging.info(f"Message received: {message} from {sender}")
 
     async def receive_dm(self, event):
         message = event["message"]
@@ -111,7 +102,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if sender == self.user.username:
             return
         await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
-        logging.info(f"Private message received: {message} from {sender}")
 
     async def send_dm(self, event):
         message = event["message"]
@@ -128,7 +118,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
 
         await self.send(text_data=json.dumps({"message": message, "warning": True, sender: "System"}))
-        logging.info(f"Warning message: {message}")
 
     @database_sync_to_async
     def get_user_from_token(self, access_token):
@@ -145,4 +134,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'online_users': online_users
         }))
-        logging.info(f"Online users updated: {online_users}")
