@@ -20,18 +20,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const data = JSON.parse(e.data);
 
         if (data.message) {
-            const message = data.message;
+            const message = data.message ? data.message.replace(/\n/g, '<br>') : '';
             const sender = data.sender;
 
             const messageElement = document.createElement("div");
             if (data.private) {
                 messageElement.style.color = "lightpink";
-            } else if (data.warning) {
-                messageElement.style.color = "lightred";
+            } else if (data.system) {
+                messageElement.style.color = "lightblue";
             } else if (data.selfdm) {
                 messageElement.style.color = "lightgreen";
+            } else if (data.warning) {
+                messageElement.style.color = "lightcoral";
             }
-            messageElement.textContent = `${sender}: ${message}`;
+            messageElement.innerHTML = `${sender}: ${message}`;
 
             chatLog.appendChild(messageElement);
             chatLog.scrollTop = chatLog.scrollHeight;

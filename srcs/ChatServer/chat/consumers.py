@@ -49,6 +49,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'online_users': list(ChatConsumer.online_users)
             }
         )
+        await self.channel_layer.group_send(
+            self.user_group_name,
+            {
+                'type': 'system.message',
+                'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat in open chat.'
+            }
+        )
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -114,10 +121,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({"message": message, "selfdm": True, "sender": "Me"}))
 
+    async def system_message(self, event):
+        message = event["message"]
+
+        await self.send(text_data=json.dumps({"message": message, "system": True, "sender": "Transcendence"}))
+
     async def warning_message(self, event):
         message = event["message"]
 
-        await self.send(text_data=json.dumps({"message": message, "warning": True, sender: "System"}))
+        await self.send(text_data=json.dumps({"message": message, "system": True, "sender": "Warning"}))
 
     @database_sync_to_async
     def get_user_from_token(self, access_token):
