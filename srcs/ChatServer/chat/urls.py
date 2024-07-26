@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import online_users
 
 urlpatterns = [
-	path('', views.index, name='index'),
+    path('online-users/', online_users, name='online_users'),
 ]
