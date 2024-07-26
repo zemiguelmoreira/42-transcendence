@@ -22,10 +22,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.message) {
             const message = data.message;
             const sender = data.sender;
-            const privateMessage = data.private ? "(Private)" : "";
 
             const messageElement = document.createElement("div");
-            messageElement.textContent = `${privateMessage}${sender}: ${message}`;
+            if (data.private) {
+                messageElement.style.color = "lightpink";
+            } else if (data.warning) {
+                messageElement.style.color = "lightred";
+            } else if (data.selfdm) {
+                messageElement.style.color = "lightgreen";
+            }
+            messageElement.textContent = `${sender}: ${message}`;
+
             chatLog.appendChild(messageElement);
             chatLog.scrollTop = chatLog.scrollHeight;
 

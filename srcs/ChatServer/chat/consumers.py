@@ -80,11 +80,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         recipient = text_data_json.get("recipient", None)
         logging.info(f"Message: {message}, Recipient: {recipient}, Sender: {self.user.username}")
         if recipient:
-            if recipient == self.user.username:
-                return
             recipient_group_name = "user_%s" % recipient
+            if recipient == self.user.username:
+                await self.channel_layer.group_send(
+                recipient_group_name, {"type": "self.dm", "message": message}
+                )
+                return
             await self.channel_layer.group_send(
-                recipient_group_name, {"type": "private.message", "message": message, "sender": self.user.username}
+                recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
+            )
+            await self.channel_layer.group_send(
+                self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
             )
         else:
             await self.channel_layer.group_send(
@@ -97,12 +103,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({"message": message, "sender": sender}))
         logging.info(f"Message received: {message} from {sender}")
-    async def private_message(self, event):
+
+    async def receive_dm(self, event):
         message = event["message"]
         sender = event["sender"]
 
-        await self.send(text_data=json.dumps({"message": message, "private": True, "sender": sender}))
+        if sender == self.user.username:
+            return
+        await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
         logging.info(f"Private message received: {message} from {sender}")
+
+    async def send_dm(self, event):
+        message = event["message"]
+        dest = event["dest"]
+
+        await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "To " + dest}))
+
+    async def self_dm(self, event):
+        message = event["message"]
+
+        await self.send(text_data=json.dumps({"message": message, "selfdm": True, "sender": "Me"}))
+
+    async def warning_message(self, event):
+        message = event["message"]
+
+        await self.send(text_data=json.dumps({"message": message, "warning": True, sender: "System"}))
+        logging.info(f"Warning message: {message}")
 
     @database_sync_to_async
     def get_user_from_token(self, access_token):
