@@ -55,7 +55,7 @@ body {
 
 h1 {
     font-family: 'Exo';
-    font-size: 9em;
+    font-size: 6vw;
     letter-spacing: 0.03em;
     margin: 0;
     position: relative;
@@ -96,12 +96,29 @@ h1 span:last-child {
 h2 {
     color: white;
     font-family: 'Mr Dafoe';
-    font-size: 5.5em;
+    font-size: 5vw;
     margin: 0;
     margin-top: -0.6em;
     text-shadow: 0 0 0.05em #fff, 0 0 0.2em #fe05e1, 0 0 0.3em #fe05e1;
     transform: rotate(-7deg);
     z-index: 2;
+}
+
+.lines {
+	margin-top: 90px;
+    background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
+    background-size: 1px 0.5em;
+    box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
+    height: 3vw;
+    left: 0;
+    position: absolute;
+    transform: translateY(-1em);
+    width: 100vw;
+    z-index: 0;
+}
+
+.transcendence-title {
+    margin-top: 35px;
 }
 
 .home-box {
@@ -123,12 +140,19 @@ h2 {
 	position: relative;
 	width: 100%;
 	height: 100%;
+	background-color: seagreen;
 }
 
-.title {
+.snake-gradient {
+	background: linear-gradient(to right, #0b610e, #ffffff71);
+}
+
+.organize-title {
 	font-family: 'CustomFont';
-	font-size: 3rem;
-	margin-top: 50px;
+	font-size: 5vh;
+	margin-top: 1vh;
+	height: 10%;
+	background-color: #fe05e1;
 	color: #b2bd09;
 }
 
@@ -162,11 +186,6 @@ h2 {
 	height: 100%;
 }
 
-
-#transcendence-title {
-    margin-top: 50px;
-}
-
 .input {
 	border: 1px solid #ccc;
     border-radius: 3px;
@@ -179,19 +198,6 @@ h2 {
 .label {
 	display: block;
     margin-bottom: 5px;
-}
-
-.lines {
-	margin-top: 120px;
-    background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
-    background-size: 1px 0.5em;
-    box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
-    height: 4em;
-    left: 0;
-    position: absolute;
-    transform: translateY(-1em);
-    width: 100vw;
-    z-index: 0;
 }
 
 .login-box {
@@ -250,11 +256,16 @@ h2 {
     border-radius: 20px;
     display: flex;
     flex-direction: column;
-    width: 1200px;
-    height: 800px;
-	margin-top: auto; 
-	margin-bottom: auto;
+    width: 1200px; /* Tamanho fixo em pixels */
+    height: 800px; /* Tamanho fixo em pixels */
+    position: absolute;
+    top: 30%; /* Distância do topo da página */
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza horizontalmente */
+    overflow: auto;
+    z-index: 1;
 }
+
 
 .nav-link img {
     border-radius: 50%;
@@ -285,11 +296,6 @@ h2 {
     flex-direction: column;
     justify-content: center;
     margin: 5px;
-}
-
-.title {
-    font-family: 'CustomFont';
-    margin-bottom: 50px;
 }
 
 .window {

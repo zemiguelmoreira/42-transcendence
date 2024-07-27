@@ -696,6 +696,8 @@ async function homepage() {
 	}
 };
 
+let snakeScriptLoaded = false; // Variável para rastrear se o script foi carregado
+
 async function snakeGame() {
     try {
         const response = await fetch('./snake.html');
@@ -703,10 +705,26 @@ async function snakeGame() {
             const content = await response.text();
             document.getElementById('mainContent').innerHTML = content;
 
-            // Carregar dinamicamente o script do jogo
-            const scriptElement = document.createElement('script');
-            scriptElement.src = './js/snake.js'; // Certifique-se de que o caminho do script está correto
-            document.body.appendChild(scriptElement);
+            // Verificar se o script já foi carregado
+            if (!snakeScriptLoaded) {
+                const scriptElement = document.createElement('script');
+                scriptElement.src = './js/snake.js';
+                scriptElement.onload = () => {
+                    snakeScriptLoaded = true;
+                };
+                scriptElement.onerror = () => {
+                    console.error('Erro ao carregar o script snake.js');
+                };
+                document.body.appendChild(scriptElement);
+            } else {
+                // Se o script já foi carregado, executa o código manualmente
+                // Se o script não for executado automaticamente após o carregamento,
+                // você pode chamar funções específicas diretamente aqui.
+                // Por exemplo:
+                if (typeof initializeSnakeGame === 'function') {
+                    initializeSnakeGame(); // Chame uma função de inicialização definida em snake.js
+                }
+            }
         } else {
             console.error('Erro ao carregar o arquivo snake.html');
         }
@@ -714,6 +732,7 @@ async function snakeGame() {
         console.error('Erro ao carregar o conteúdo:', error);
     }
 }
+
 
 async function snakeGameOptions() {
     try {
