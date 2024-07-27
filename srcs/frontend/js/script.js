@@ -810,10 +810,51 @@ async function pongGameOptions() {
     }
 }
 
+async function profile() {
+
+	// Carregar o conteúdo HTML
+	try {
+		const response = await fetch('./profile.html');
+		if (response.ok) {
+			const content = await response.text();
+			document.getElementById('mainContent').innerHTML = content;
+
+			// Encontrar e executar os scripts dentro do conteúdo carregado
+			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+			for (const scriptTag of scriptTags) {
+				const newScript = document.createElement('script');
+				newScript.text = scriptTag.text;
+				document.body.appendChild(newScript);
+			}
+		} else {
+			console.error('Erro ao carregar o arquivo profile.html');
+		}
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Adicionar delegação de eventos ao body para capturar eventos de elementos dinamicamente carregados
+
+	// Adicionar delegação de eventos ao body para capturar eventos de elementos dinamicamente carregados
     document.body.addEventListener('click', (event) => {
-        // Verificar se o elemento clicado tem a classe 'snake-button'
+
+		// Verificar se o elemento clicado tem a classe 'snake-button'
         if (event.target.classList.contains('snake-button')) {
             event.preventDefault();
             snakeGameOptions(); // Chama a função snakeGameOptions quando um botão 'snake-button' é clicado
@@ -842,6 +883,12 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             homepage(); // Chama a função homepage quando o botão 'homeButton' é clicado
         }
+
+        if (event.target.id === 'viewProfile') {
+            event.preventDefault();
+            profile(); // Chama a função homepage quando o botão 'homeButton' é clicado
+        }
+
     });
 });
 
