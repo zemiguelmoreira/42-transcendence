@@ -1,57 +1,104 @@
 <div class="profile-container">
 	<div class="profile-left">
-		<img src="https://via.placeholder.com/150" alt="User Photo">
-		<h3 id="username">Username</h3>
-	</div>
-	<div class="profile-right">
-		<div class="profile-title">User Profile</div>
-		<form id="profileForm" class="form-container">
-			<button type="button" id="getProfileBtn">Get Profile</button>
-			<button type="button" id="listUsersBtn">List All Users</button>
-			<div class="form-group">
-				<label for="bio">Bio:</label>
-				<textarea id="bio" placeholder="Enter your bio"></textarea>
-			</div>
-			<div class="form-group">
-				<label for="alias_name">Alias Name:</label>
-				<input type="text" id="alias_name" placeholder="AliasName">
-			</div>
-			<button type="button" id="updateProfileBtn">Update Profile</button>
-		</form>
-		<div class="profile-title">Get Other User Profile</div>
-		<form id="getUserProfileForm" class="form-container">
-			<div class="form-group">
-				<label for="searchUsername">Enter Username:</label>
-				<input type="text" id="searchUsername" placeholder="Username">
-			</div>
-			<button type="button" id="getUserProfileBtn">Get Profile</button>
-			<div id="message"></div>
-		</form>
-		<div class="profile-title">Manage Friends</div>
-		<form id="friendForm" class="form-container">
-			<div class="form-group">
-				<label for="friendUsername">Friend Username:</label>
-				<input type="text" id="friendUsername" placeholder="Enter friend's username">
-			</div>
-			<div class="button-group">
-				<button type="button" id="addFriendBtn">Add Friend</button>
-				<button type="button" id="removeFriendBtn">Remove Friend</button>
-			</div>
-		</form>
-		<div class="profile-title">Manage Blocked Users</div>
-		<form id="blockForm" class="form-container">
-			<div class="form-group">
-				<label for="blockUsername">User to Block/Unblock:</label>
-				<input type="text" id="blockUsername" placeholder="Enter username">
-			</div>
-			<div class="button-group">
-				<button type="button" id="blockUserBtn">Block User</button>
-				<button type="button" id="unblockUserBtn">Unblock User</button>
-			</div>
-		</form>
-		<div class="button-group">
-			<button type="button" id="logoutBtn">Logout</button>
-			<button id="delete-user-button">Delete Account</button>
+		<img src="./files/ialves-m.jpg" alt="User Photo">
+		<h3 id="username">Pastilhex</h3>
+		<button type="button" id="editProfileBtn" class="btn btn-success card-btn">Edit Profile</button>
+		<div class="friends-list">
+			<h3 class="friends-title">Friends Online</h3>
+			<table class="friends-table">
+				<thead>
+					<tr>
+						<th>Status</th>
+						<th>Username</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><span class="status-icon green"></span></td>
+						<td>user1</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon red"></span></td>
+						<td>user2</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon green"></span></td>
+						<td>user3</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon red"></span></td>
+						<td>user4</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon green"></span></td>
+						<td>user5</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon red"></span></td>
+						<td>user6</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon green"></span></td>
+						<td>user7</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon red"></span></td>
+						<td>user8</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon green"></span></td>
+						<td>user9</td>
+					</tr>
+					<tr>
+						<td><span class="status-icon red"></span></td>
+						<td>user10</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
+	<div class="profile-right">
+		<div class="profile-title">Pastilhex Profile</div>
+		<div class="profile-info">
+			<label class="profile-label" for="name">Name:</label>
+			<span class="profile-description" id="name">John Doe</span>
+		</div>
+		<div class="profile-info">
+			<label for="username">Username:</label>
+			<span class="profile-description" id="username">john_doe</span>
+		</div>
+		<div class="profile-info">
+			<label for="email">Email:</label>
+			<span class="profile-description" id="email">john.doe@example.com</span>
+		</div>
+		<div class="profile-title">Games Played</div>
+		<table class="game-list">
+			<thead>
+				<tr>
+					<th>Game</th>
+					<th>Date</th>
+					<th>Score</th>
+					<th>Wins</th>
+					<th>Loses</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Pong</td>
+					<td>2024-07-01</td>
+					<td>10</td>
+					<td>10</td>
+					<td>10</td>
+				</tr>
+				<tr>
+					<td>Snake</td>
+					<td>2024-07-02</td>
+					<td>15</td>
+					<td>15</td>
+					<td>15</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
+<link rel="stylesheet" href="./css/profile.css">

@@ -472,36 +472,48 @@ async function deleteUser() {
 	}
 }
 
-// document.getElementById('snakeButton').addEventListener('click', async function (event) {
-// 	event.preventDefault();
+async function snakeGameOptions() {
+    // Função para adicionar event listeners aos botões
+    function addEventListenersToButtons() {
+        const buttons = document.querySelectorAll('.snake-button');
 
-// 	// Carregar dinamicamente o CSS
-// 	const linkElement = document.createElement('link');
-// 	linkElement.rel = 'stylesheet';
-// 	linkElement.href = './css/snake.css';
-// 	document.head.appendChild(linkElement);
+        buttons.forEach(button => {
+            button.addEventListener('click', async function (event) {
+                event.preventDefault();
 
-// 	// Carregar o conteúdo HTML
-// 	try {
-// 		const response = await fetch('./snake.html');
-// 		if (response.ok) {
-// 			const content = await response.text();
-// 			document.getElementById('mainContent').innerHTML = content;
+                // Carregar dinamicamente o CSS
+                const linkElement = document.createElement('link');
+                linkElement.rel = 'stylesheet';
+                linkElement.href = './css/snake.css';
+                document.head.appendChild(linkElement);
 
-// 			// Encontrar e executar os scripts dentro do conteúdo carregado
-// 			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
-// 			for (const scriptTag of scriptTags) {
-// 				const newScript = document.createElement('script');
-// 				newScript.text = scriptTag.text;
-// 				document.body.appendChild(newScript);
-// 			}
-// 		} else {
-// 			console.error('Erro ao carregar o arquivo snake.html');
-// 		}
-// 	} catch (error) {
-// 		console.error('Erro ao carregar o conteúdo:', error);
-// 	}
-// });
+                // Carregar o conteúdo HTML
+                try {
+                    const response = await fetch('./snake-options.html');
+                    if (response.ok) {
+                        const content = await response.text();
+                        document.getElementById('mainContent').innerHTML = content;
+
+                        // Reatribuir event listeners aos novos botões
+                        addEventListenersToButtons();
+
+                        // Inserir dinamicamente o script do jogo
+                        const scriptElement = document.createElement('script');
+
+                        document.body.appendChild(scriptElement);
+                    } else {
+                        console.error('Erro ao carregar o arquivo snake-options.html');
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar o conteúdo:', error);
+                }
+            });
+        });
+    }
+    // Adicionar event listeners aos botões na carga inicial da página
+    addEventListenersToButtons();
+}
+
 
 
 // document.addEventListener('DOMContentLoaded', function () {
@@ -525,7 +537,6 @@ async function deleteUser() {
 // 					if (response.ok) {
 // 						const content = await response.text();
 // 						document.getElementById('mainContent').innerHTML = content;
-// 						console.log('Script script.js adicionado ao DOM');
 
 // 						// Reatribuir event listeners aos novos botões
 // 						addEventListenersToButtons();
@@ -550,53 +561,6 @@ async function deleteUser() {
 // 	// Adicionar event listeners aos botões na carga inicial da página
 // 	addEventListenersToButtons();
 // });
-
-
-// document.addEventListener('DOMContentLoaded', function () {
-//     // Função para adicionar event listeners aos botões
-//     function addEventListenersToButtons() {
-//         const buttons = document.querySelectorAll('.snake-button');
-
-//         buttons.forEach(button => {
-//             button.addEventListener('click', async function (event) {
-//                 event.preventDefault();
-
-//                 // Carregar dinamicamente o CSS
-//                 const linkElement = document.createElement('link');
-//                 linkElement.rel = 'stylesheet';
-//                 linkElement.href = './css/snake.css';
-//                 document.head.appendChild(linkElement);
-
-//                 // Carregar o conteúdo HTML
-//                 try {
-//                     const response = await fetch('./snake.html');
-//                     if (response.ok) {
-//                         const content = await response.text();
-//                         document.getElementById('mainContent').innerHTML = content;
-
-//                         // Reatribuir event listeners aos novos botões
-//                         addEventListenersToButtons();
-
-//                         // Inserir dinamicamente o script do jogo
-//                         const scriptElement = document.createElement('script');
-//                         scriptElement.src = './js/snake.js'; // Certifique-se de que o caminho está correto
-//                         document.body.appendChild(scriptElement);
-//                     } else {
-//                         console.error('Erro ao carregar o arquivo snake.html');
-//                     }
-//                 } catch (error) {
-//                     console.error('Erro ao carregar o conteúdo:', error);
-//                 }
-//             });
-//         });
-//     }
-
-//     // Adicionar event listeners aos botões na carga inicial da página
-//     addEventListenersToButtons();
-// });
-
-
-
 
 // document.addEventListener('DOMContentLoaded', function () {
 // 	// Função para adicionar event listeners aos botões
@@ -644,38 +608,63 @@ async function deleteUser() {
 // 	addEventListenersToButtons();
 // });
 
-// document.getElementById('homeButton').addEventListener('click', async function (event) {
-// 	event.preventDefault();
+async function homepage() {
 
-// 	// Carregar o conteúdo HTML
-// 	try {
-// 		const response = await fetch('./homepage.html');
-// 		if (response.ok) {
-// 			const content = await response.text();
-// 			document.getElementById('mainContent').innerHTML = content;
+	// Carregar o conteúdo HTML
+	try {
+		const response = await fetch('./homepage.html');
+		if (response.ok) {
+			const content = await response.text();
+			document.getElementById('mainContent').innerHTML = content;
 
-// 			// Encontrar e executar os scripts dentro do conteúdo carregado
-// 			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
-// 			for (const scriptTag of scriptTags) {
-// 				const newScript = document.createElement('script');
-// 				newScript.text = scriptTag.text;
-// 				document.body.appendChild(newScript);
-// 			}
-// 		} else {
-// 			console.error('Erro ao carregar o arquivo homepage.html');
-// 		}
-// 	} catch (error) {
-// 		console.error('Erro ao carregar o conteúdo:', error);
-// 	}
-// });
+			// Encontrar e executar os scripts dentro do conteúdo carregado
+			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+			for (const scriptTag of scriptTags) {
+				const newScript = document.createElement('script');
+				newScript.text = scriptTag.text;
+				document.body.appendChild(newScript);
+			}
+		} else {
+			console.error('Erro ao carregar o arquivo homepage.html');
+		}
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+};
+
+async function snakeGame() {
+
+	// Carregar o conteúdo HTML
+	try {
+		const response = await fetch('./snake.html');
+		if (response.ok) {
+			const content = await response.text();
+			document.getElementById('mainContent').innerHTML = content;
+
+			// Encontrar e executar os scripts dentro do conteúdo carregado
+			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
+			for (const scriptTag of scriptTags) {
+				const newScript = document.createElement('script');
+				newScript.text = scriptTag.text;
+				document.body.appendChild(newScript);
+			}
+		} else {
+			console.error('Erro ao carregar o arquivo snake.html');
+		}
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+};
+
+document.addEventListener('click', snakeGameOptions);
+document.getElementById('homeButton').addEventListener('click', homepage);
+document.getElementById('snakeGame').addEventListener('click', snakeGame);
 
 
-
-document.getElementById('registerBtn').addEventListener('click', registerUser);
-document.getElementById('loginBtn').addEventListener('click', loginUser);
+// document.getElementById('registerBtn').addEventListener('click', registerUser);
+// document.getElementById('loginBtn').addEventListener('click', loginUser);
 // document.getElementById('verifyBtn').addEventListener('click', verifyCode);
 // document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-
 // document.getElementById('getProfileBtn').addEventListener('click', getUserProfile);
 // document.getElementById('listUsersBtn').addEventListener('click', listAllUsers);
 // document.getElementById('updateProfileBtn').addEventListener('click', updateUserProfile);

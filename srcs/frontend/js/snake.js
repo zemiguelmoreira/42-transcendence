@@ -199,21 +199,6 @@ const gameOver = (collidedPlayer) => {
     saveGameData(gameData);
 };
 
-// document.addEventListener("keydown", ({ key }) => {
-//     // Player 1 controls
-//     if (key === "d" && direction1 !== "left") direction1 = "right";
-//     if (key === "a" && direction1 !== "right") direction1 = "left";
-//     if (key === "s" && direction1 !== "up") direction1 = "down";
-//     if (key === "w" && direction1 !== "down") direction1 = "up";
-
-//     // Player 2 controls
-//     if (key === "ArrowRight" && direction2 !== "left") direction2 = "right";
-//     if (key === "ArrowLeft" && direction2 !== "right") direction2 = "left";
-//     if (key === "ArrowDown" && direction2 !== "up") direction2 = "down";
-//     if (key === "ArrowUp" && direction2 !== "down") direction2 = "up";
-// });
-
-
 // Tempo mínimo em milissegundos entre mudanças de direção
 const keyDelay = 500; // Ajuste esse valor conforme necessário
 
@@ -265,9 +250,6 @@ document.addEventListener("keydown", ({ key }) => {
     if (key === "ArrowDown" && direction2 !== "up") direction2 = "down";
     if (key === "ArrowUp" && direction2 !== "down") direction2 = "up";
 });
-
-
-
 
 
 const saveGameData = (data) => {
