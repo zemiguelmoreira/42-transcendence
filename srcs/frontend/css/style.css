@@ -147,10 +147,13 @@ h2 {
 	background: linear-gradient(to right, #0b610e, #ffffff71);
 }
 
+.pong-gradient {
+	background: linear-gradient(to right, #dc8b0a, #ff000071);
+}
+
 .organize-title {
 	font-family: 'CustomFont';
 	font-size: 5vh;
-	margin-top: 1vh;
 	height: 10%;
 	background-color: #fe05e1;
 	color: #b2bd09;

@@ -754,6 +754,62 @@ async function snakeGameOptions() {
     }
 }
 
+async function pongGame() {
+    try {
+        const response = await fetch('./pong.html');
+        if (response.ok) {
+            const content = await response.text();
+            document.getElementById('mainContent').innerHTML = content;
+
+            // Verificar se o script já foi carregado
+            if (!snakeScriptLoaded) {
+                const scriptElement = document.createElement('script');
+                scriptElement.src = './js/pong.js';
+                scriptElement.onload = () => {
+                    snakeScriptLoaded = true;
+                };
+                scriptElement.onerror = () => {
+                    console.error('Erro ao carregar o script pong.js');
+                };
+                document.body.appendChild(scriptElement);
+            } else {
+                // Se o script já foi carregado, executa o código manualmente
+                // Se o script não for executado automaticamente após o carregamento,
+                // você pode chamar funções específicas diretamente aqui.
+                // Por exemplo:
+                if (typeof initializeSnakeGame === 'function') {
+                    initializeSnakeGame(); // Chame uma função de inicialização definida em snake.js
+                }
+            }
+        } else {
+            console.error('Erro ao carregar o arquivo pong.html');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar o conteúdo:', error);
+    }
+}
+
+
+async function pongGameOptions() {
+    try {
+        const response = await fetch('./pong-options.html');
+        if (response.ok) {
+            const content = await response.text();
+            document.getElementById('mainContent').innerHTML = content;
+            
+            // Carregar dinamicamente o CSS
+            const linkElement = document.createElement('link');
+            linkElement.rel = 'stylesheet';
+            linkElement.href = './css/pong.css';
+            document.head.appendChild(linkElement);
+        } else {
+            console.error('Erro ao carregar o arquivo pong-options.html');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar o conteúdo:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Adicionar delegação de eventos ao body para capturar eventos de elementos dinamicamente carregados
     document.body.addEventListener('click', (event) => {
@@ -769,7 +825,19 @@ document.addEventListener('DOMContentLoaded', () => {
             snakeGame(); // Chama a função snakeGame quando o botão 'snakeGame' é clicado
         }
 
-        // Verificar se o elemento clicado tem o ID 'homeButton'
+        // Verificar se o elemento clicado tem a classe 'snake-button'
+        if (event.target.classList.contains('pong-button')) {
+            event.preventDefault();
+            pongGameOptions(); // Chama a função pongGameOptions quando um botão 'pong-button' é clicado
+        }
+
+        // Verificar se o elemento clicado tem o ID 'pongGame'
+        if (event.target.id === 'pongGame') {
+            event.preventDefault();
+            pongGame(); // Chama a função pongGame quando o botão 'pongGame' é clicado
+        }
+
+		// Verificar se o elemento clicado tem o ID 'homeButton'
         if (event.target.id === 'homeButton') {
             event.preventDefault();
             homepage(); // Chama a função homepage quando o botão 'homeButton' é clicado
