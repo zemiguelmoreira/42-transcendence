@@ -80,21 +80,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json.get("message", None)
-        logging.info(f"Message received: {message}")
         recipient = text_data_json.get("recipient", None)
-        invite = text_data_json.get("invite", None)
-        logging.info(f"Invite: {invite}")
+        msgtype = text_data_json.get("type", None)
         # If invite to game
-        if invite:
+        if msgtype == "invite":
             if not recipient or recipient == self.user.username:
                 await self.channel_layer.group_send(
                     self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
                 )
                 return
+            recipient_group_name = "user_%s" % recipient
             await self.channel_layer.group_send(
                 recipient_group_name, {"type": "invite.message", "sender": self.user.username}
             )
             return
+        elif msgtype == "invite_response":
+            inviter = text_data_json.get("inviter", None)
+            accepted = text_data_json.get("accepted", False)
+            inviter_group_name = "user_%s" % inviter
+            await self.channel_layer.group_send(
+                inviter_group_name, {"type": "invite.response", "invitee": self.user.username, "accepted": accepted}
+            )
+            # if accepted:
+            return
+
         # If public
         if not recipient:
             await self.channel_layer.group_send(
@@ -158,6 +167,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = event["sender"]
 
         await self.send(text_data=json.dumps({"invite": True, "sender": sender}))
+
+    async def invite_response(self, event):
+        invitee = event["invitee"]
+        accepted = event["accepted"]
+        await self.send(text_data=json.dumps({"invite_response": True, "invitee": invitee, "accepted": accepted}))
+
 
     @database_sync_to_async
     def get_user_from_token(self, access_token):

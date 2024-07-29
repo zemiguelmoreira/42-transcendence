@@ -3,3 +3,5 @@ possibilidade de fazer o chat, em vez de ter event handler de TO e FROM, fazer u
 proibir nome Transcendence
 
 ordenar lista online
+
+mudar nome botao reject - decline
