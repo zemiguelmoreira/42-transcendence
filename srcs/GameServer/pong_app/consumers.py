@@ -128,20 +128,22 @@ class PongConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({'action': 'wait_for_player'}))
 
     async def disconnect(self, close_code):
-        room = PongConsumer.rooms.get(self.room.code, None)
+        pass
+        # room = PongConsumer.rooms.get(self.room.code, None)
 
-        if room:
-            if hasattr(self, 'is_player') and self.is_player and self in room['players']:
-                room['players'].remove(self)
+        # if room:
+        #     # if len(room['players']) == 1:
+        #     #     winner = room['players'][0].user.username
+        #     #     loser = self.user.username
+        #     #     for player in room['players']:
+        #     #         await player.end_game(room, winner, loser)
 
-            if len(room['players']) == 1:
-                winner = room['players'][0].user.username
-                loser = self.user.username
-                await self.end_game(room, winner, loser)
+        #     if hasattr(self, 'is_player') and self.is_player and self in room['players']:
+        #         room['players'].remove(self)
 
-            if not room['players'] and 'game_loop_task' in room and room['game_loop_task']:
-                room['game_loop_task'].cancel()
-                room['game_loop_task'] = None
+        #     if not room['players'] and 'game_loop_task' in room and room['game_loop_task']:
+        #         room['game_loop_task'].cancel()
+        #         room['game_loop_task'] = None
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -205,7 +207,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             asyncio.create_task(player.send(json.dumps(response)))
 
         # Verificar se o jogo terminou
-        if room['score'][0] == 11 or room['score'][1] == 11:
+        if room['score'][0] ==11 or room['score'][1] == 11:
             logger.info(f"Detectou fim de partida {room['score'][0]} - {room['score'][1]}")
             if room['score'][0] == 11:
                 winner = room['players'][0].user.username
@@ -215,7 +217,8 @@ class PongConsumer(AsyncWebsocketConsumer):
                 winner = room['players'][1].user.username
 
             logger.info(f"winner and loser: {winner} - {loser}")
-            await self.end_game(room, winner, loser)
+            for player in room['players']:
+                await player.end_game(room, winner, loser)
 
     async def end_game(self, room, winner, loser):
         logger.info('function end_game called')
@@ -238,12 +241,13 @@ class PongConsumer(AsyncWebsocketConsumer):
             'loser': loser,
             'winner_score': winner_score,
             'loser_score': loser_score,
-            'timestamp': int(time.time()),  # Adicionando timestamp
+            'timestamp': formatted_time,  # Adicionando timestamp
             'game_type': 'pong'
         }
 
         # Salvar partida no banco de dados
         # PARA CORRIGIR SO SALVA NO PLAYER QUE FICA ONLINE
+
         await self.save_match_history(to_save) 
 
         # Enviar resultado para todos os jogadores
@@ -251,6 +255,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             await player.send(json.dumps(result))
 
         # Limpar o estado da sala
+        await self.close()
         del PongConsumer.rooms[self.room.code]
 
     async def save_match_history(self, match_data):
