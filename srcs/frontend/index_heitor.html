@@ -93,8 +93,6 @@
     </style>
 </head>
 <body>
-    <h2>Chat</h2>
-    <a href="chat.html" class="btn btn-primary">Chat</a>
     <div class="form-container">
         <div>
             <h2>User Registration</h2>
@@ -152,7 +150,7 @@
         <button type="button" id="getUserProfileBtn">Get Other User Profile</button>
         <!-- Add other profile fields as necessary here -->
     </form>
-
+    
     <div class="profile-container">
         <h2 class="profile-heading">User Profile</h2>
         <div class="profile-info">
@@ -209,7 +207,7 @@
             <label>Blocked Users:</label>
             <ul id="blockedList"></ul>
         </div>
-
+        
         <h3 class="profile-heading">Snake Match History</h3>
         <table id="snakeMatchHistory">
             <thead>
@@ -253,9 +251,9 @@
             <label for="profileImageUpload">Upload Profile Image:</label>
             <input type="file" id="profileImageUpload">
         </div>
-
+    
         <button type="button" id="updateProfileBtn">Update Profile</button>
-
+        
         <h2>Manage Friends</h2>
         <form id="friendForm">
             <div class="form-group">
@@ -265,7 +263,7 @@
             <button type="button" id="addFriendBtn">Add Friend</button>
             <button type="button" id="removeFriendBtn">Remove Friend</button>
         </form>
-
+        
         <h2>Manage Blocked Users</h2>
         <form id="blockForm">
             <div class="form-group">
@@ -820,10 +818,10 @@
 
                 const loserCell = document.createElement('td');
                 loserCell.textContent = match.loser;
-
+                
                 const loserScoreCell = document.createElement('td');
                 loserScoreCell.textContent = match.loser_score;
-
+        
 
                 row.appendChild(timestamp);
                 row.appendChild(winnerCell);
