@@ -3,9 +3,9 @@ function makeSignInPage() {
 	<div class="login-box">
 		<!-- <div class="login-title">Sign In 2Play</div> -->
 		<div class="login-middle-box">
-			<div class="login-title">Sign In to Your Account</div>
-			<div id="signInForm">
-				<form class="login-form" id="userSignInForm">
+			<div class="login-title">Login Account</div>
+			<div class="login-form" id="signInForm">
+				<form id="userSignInForm">
 					<!-- Username input -->
 						<label class="font-custom" for="form1Example1">USERNAME</label>
 						<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" autofocus>

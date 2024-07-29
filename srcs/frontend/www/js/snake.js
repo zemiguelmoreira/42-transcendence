@@ -207,7 +207,8 @@ function initializeSnakeGame() {
     };
 
     // Tempo mínimo em milissegundos entre mudanças de direção
-    const keyDelay = 500; // Ajuste esse valor conforme necessário
+    const keyDelay = 1000; // Ajuste esse valor conforme necessário
+    console.log(keyDelay)
 
     // Armazena o último tempo em que cada tecla foi pressionada
     const lastKeyPressWASD = {

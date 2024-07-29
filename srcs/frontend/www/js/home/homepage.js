@@ -51,15 +51,6 @@ function makeHomePage() {
             </div>
             <div class="home-box" id="mainContent">
                 <!-- Conteúdo será carregado aqui -->
-
-
-
-
-
-
-
-
-				
             </div>
 	`;
 }

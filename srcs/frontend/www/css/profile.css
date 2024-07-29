@@ -1,0 +1,124 @@
+.profile-container {
+    align-items: flex-start;
+    background-color: rgba(255, 255, 255, 0.75);
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    justify-content: space-between;
+    margin: 0 auto;
+    overflow: auto;
+    padding: 20px;
+    width: 100%;
+}
+
+.profile-left {
+    border-right: 1px solid #ddd;
+    flex: 1;
+    margin-right: 20px;
+    margin-top: 20px;
+    max-width: 300px;
+    text-align: center;
+}
+
+.profile-left h3 {
+    margin-bottom: 20px;
+}
+
+.profile-left img {
+    border-radius: 50%;
+    height: 250px;
+    margin-bottom: 10px;
+    object-fit: cover;
+    width: 250px;
+}
+
+.profile-right {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
+
+.profile-title {
+    color: #0056b3;
+    font-family: 'CustomFont';
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    margin-top: 75px;
+}
+
+.profile-info {
+    margin-bottom: 10px;
+}
+
+.profile-info label {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.profile-description {
+    font-size: 1.2em;
+    margin-left: 10px;
+}
+
+.friends-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.friends-title {
+    color: #0056b3;
+    font-family: 'CustomFont';
+    font-size: 1.0em;
+    margin-bottom: 15px;
+}
+
+.friends-table {
+    border-collapse: collapse;
+    width: 90%;
+    align-self: center;
+}
+
+.friends-table th, .friends-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.friends-table th {
+    background-color: #f2f2f2;
+}
+
+.game-list {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.game-list th, .game-list td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.game-list th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.status-icon {
+    background-color: grey; /* Default color */
+    border-radius: 50%;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+}
+
+.status-icon.green {
+    background-color: green;
+}
+
+.status-icon.red {
+    background-color: red;
+}

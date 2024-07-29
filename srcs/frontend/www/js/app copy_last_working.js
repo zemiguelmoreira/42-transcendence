@@ -29,7 +29,7 @@ function deactivateLinks(links) {
 
 
 async function goTo() {
- 
+
 	try {
 		const accessToken = localStorage.getItem('access_token');
 		const payload = testToken(accessToken);
@@ -41,16 +41,16 @@ async function goTo() {
 			navigateTo(`/user/${username}`);
 		else
 			navigateTo('/');
-	} catch(e) {
+	} catch (e) {
 		e.status = "400";
 		e.message = "home page user!";
 		navigateTo(`/error/${e.status}/${e.message}`);
-	} 
+	}
 }
 
 
 async function userForHistory() {
- 
+
 	try {
 		const accessToken = localStorage.getItem('access_token');
 		const payload = testToken(accessToken);
@@ -59,9 +59,9 @@ async function userForHistory() {
 		let username = await getNamebyId(payload.user_id);
 		console.log(username);
 		return username;
-	} catch(e) {
+	} catch (e) {
 		return null;
-	} 
+	}
 }
 
 //um estado inicial diferente e baseado no token - não utilizada
@@ -122,32 +122,32 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
 	// e.preventDefault();
 
-    window.addEventListener('popstate', (e) => {
-        console.log(e.state);
-        if (e.state) {
-            const matchedRoute = matchRoute(e.state.page);
-            if (matchedRoute) {
-                matchedRoute.page.loadContent(matchedRoute.params);
-            }
-        } 
+	window.addEventListener('popstate', (e) => {
+		console.log(e.state);
+		if (e.state) {
+			const matchedRoute = matchRoute(e.state.page);
+			if (matchedRoute) {
+				matchedRoute.page.loadContent(matchedRoute.params);
+			}
+		}
 		else {
-             // console.log('aqui');
-            // history.replaceState(null, '', '/');
-            // return;
+			// console.log('aqui');
+			// history.replaceState(null, '', '/');
+			// return;
 			console.log('aqui');
-            // tenho de definir um default state para o event.state quando for null
-            const defaultState = { page: '/' };  // page que é default state
-            history.replaceState(defaultState, '', '/');
-            
-            // Carregue o conteúdo da página padrão
-            const matchedRoute = matchRoute(defaultState.page);
-            if (matchedRoute) {
-                matchedRoute.page.loadContent(matchedRoute.params);
+			// tenho de definir um default state para o event.state quando for null
+			const defaultState = { page: '/' };  // page que é default state
+			history.replaceState(defaultState, '', '/');
+
+			// Carregue o conteúdo da página padrão
+			const matchedRoute = matchRoute(defaultState.page);
+			if (matchedRoute) {
+				matchedRoute.page.loadContent(matchedRoute.params);
 			}
 
 			// initializeState();
-		}	
-    });
+		}
+	});
 
 
 
@@ -173,16 +173,16 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	// 	e.preventDefault();
 	// 	console.log('teste reload');
 	// 	const defaultState = { page: '/' };  // page que é default state
-    //         history.replaceState(defaultState, '', '/');
+	//         history.replaceState(defaultState, '', '/');
 	// 	const matchedRoute = matchRoute(defaultState.page);
-    //         if (matchedRoute) {
-    //             matchedRoute.page.loadContent(matchedRoute.params);
+	//         if (matchedRoute) {
+	//             matchedRoute.page.loadContent(matchedRoute.params);
 	// 		}
 	// });
 
 
 	// desativa o F5 e i ctrlKey + r
-	document.addEventListener('keydown', function(e) {
+	document.addEventListener('keydown', function (e) {
 		if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
 			e.preventDefault();
 			alert("A atualização da página foi desabilitada.");
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	});
 
 	if (!viewToken()) // mudar colocar not para funcionar corretamente
-    	navigateTo('/');
+		navigateTo('/');
 	else {
 		goTo();
 	}
@@ -210,47 +210,47 @@ document.addEventListener('DOMContentLoaded', function (e) {
 // }
 
 
-function navigateTo(url, replace=false) {
+function navigateTo(url, replace = false) {
 
-    const matchedRoute = matchRoute(url);
+	const matchedRoute = matchRoute(url);
 
-    if (matchedRoute) {
-        console.log('navigate url: ', url);
+	if (matchedRoute) {
+		console.log('navigate url: ', url);
 
 		if (replace)
-			history.replaceState({page: '/'}, '', '/');
+			history.replaceState({ page: '/' }, '', '/');
 		else
-        	history.pushState({ page: url }, '', url);
+			history.pushState({ page: url }, '', url);
 
-        matchedRoute.page.loadContent(matchedRoute.params);
+		matchedRoute.page.loadContent(matchedRoute.params);
 
-    } else {
-        console.error('Page not found: ' + url);
-    }
+	} else {
+		console.error('Page not found: ' + url);
+	}
 }
 
 
 
 function matchRoute(route) {
-    for (let path in pages) {
-        const paramNames = [];
-        const regexPath = path.replace(/:([^\/]+)/g, (full, key) => {
-            paramNames.push(key);
-            return '([^\\/]+)';
-        });
-        const regex = new RegExp('^' + regexPath + '$');
+	for (let path in pages) {
+		const paramNames = [];
+		const regexPath = path.replace(/:([^\/]+)/g, (full, key) => {
+			paramNames.push(key);
+			return '([^\\/]+)';
+		});
+		const regex = new RegExp('^' + regexPath + '$');
 		console.log('regex: ', regex);
-        const match = route.match(regex);
+		const match = route.match(regex);
 		console.log('match: ', match);
-        if (match) {
-            const params = {};
-            paramNames.forEach((name, index) => {
-                params[name] = match[index + 1];
-            });
-            return { page: pages[path], params: params };
-        }
-    }
-    return null;
+		if (match) {
+			const params = {};
+			paramNames.forEach((name, index) => {
+				params[name] = match[index + 1];
+			});
+			return { page: pages[path], params: params };
+		}
+	}
+	return null;
 }
 
 

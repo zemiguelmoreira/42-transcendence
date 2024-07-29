@@ -8,7 +8,6 @@ import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
 import { home_page } from "./homepage.js";
 
-
 // função para a home page
 function home() {
 	console.log('Loading home page content');
@@ -40,10 +39,10 @@ function homeLogin(username) {
 	// document.getElementById('root').insertAdjacentHTML('afterbegin', navbar3);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
 
-	document.getElementById('home').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}`);
-	});
+	// document.getElementById('homeButton').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}`);
+	// });
 	
 	document.getElementById('logOut').addEventListener('click', (e) => {
 		e.preventDefault();
