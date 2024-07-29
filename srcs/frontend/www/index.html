@@ -294,18 +294,20 @@
     </form>
 
     <h1>Pong on line test area:</h1>
-    <form id="startPongOnlineForm">
-        <label for="user2-pong">User 2:</label>
-        <input type="text" id="user2-pong" name="user2-pong" required>
-        <button type="submit">Start Game</button>
+    <form id="createRoomForm">
+        <label for="authorizedUser">Guest User:</label>
+        <input type="text" id="authorizedUser" name="authorizedUser" required>
+        <button type="button" id="createRoomButton">Create Room</button>
     </form>
+    <div id="roomCodeDisplay"></div>
 
-    <form id="joinPongOnlineForm">
-        <label for="roomName">Room Name:</label>
-        <input type="text" id="roomName" name="roomName" required>
-        <button type="submit">Join Game</button>
+    <!-- Formulário para ingressar em uma sala existente -->
+    <form id="joinRoomForm">
+        <label for="roomCodeInput">Enter Room Code:</label>
+        <input type="text" id="roomCodeInput" name="roomCodeInput" required>
+        <button type="button" id="joinRoomButton" type="submit">Join Room</button>
     </form>
-    <h1>Snake on line test area:</h1>
+    <!-- <h1>Snake on line test area:</h1>
     <form id="startSnakeOnlineForm">
         <label for="user2-snake">User 2:</label>
         <input type="text" id="user2-snake" name="user2-snake" required>
@@ -316,8 +318,9 @@
         <label for="roomName">Room Name:</label>
         <input type="text" id="roomName" name="roomName" required>
         <button type="submit">Join Game</button>
-    </form>
-    <canvas id="pongCanvas" width="800" height="600"></canvas>
+    </form> -->
+    <!-- 1180x620 -->
+    <canvas id="pongCanvas" width="1180" height="620"></canvas>
     <!-- SCRIPTS  -->
     <script defer src="generator.js"></script>
     <script src="pong.js"></script>
