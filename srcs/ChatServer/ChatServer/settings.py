@@ -12,7 +12,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = 'django-insecure-5#7iau#$ez1(m%-1b^v$-y!@e(!5v_(gprh#ki2_=6f-bts_4u'
 SECRET_KEY = os.getenv('CHATSERVER_SECRET_KEY')
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_jwt_secret_key')
-JWT_ALGORITHM = 'HS256'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -42,12 +41,10 @@ SIMPLE_JWT = {
 # Application definition
 
 INSTALLED_APPS = [
-    'chat',
     'daphne',
+    'chat',
     'channels',
     'rest_framework',
-    'rest_framework_simplejwt',
-    'channels_redis',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -65,7 +62,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 
@@ -153,10 +149,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Daphne
 ASGI_APPLICATION = 'ChatServer.asgi.application'
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("redis", 6379)],
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.getenv('REDIS_URL', 'redis://localhost:6379'))],
         },
     },
 }

@@ -1,50 +1,10 @@
-- ideias
-	status model
-	socket script
-	fetch token, isauth
-	jwt no chat secret key partilhado docker env
+possibilidade de fazer o chat, em vez de ter event handler de TO e FROM, fazer um array de rooms, e criar um event handler para criar room de chat privado. possivelmente uma melhor opcao se usar abas/janelas para chat privado.
 
+proibir nome Transcendence
 
-	<!-- websocket script , checkar se tem token primeiro -->
-	<script>
-        let statusSocket;
+ordenar lista online
 
-        function connectStatusWebSocket() {
-            if (statusSocket && statusSocket.readyState === WebSocket.OPEN) {
-                console.log("WebSocket is already open");
-                return;
-            }
+mudar nome botao reject - decline
 
-            statusSocket = new WebSocket(
-                'ws://'
-                + window.location.host
-                + '/ws/status/'
-            );
-
-            statusSocket.onopen = function(e) {
-                console.log("WebSocket connection for status established");
-            };
-
-            statusSocket.onclose = function(e) {
-                console.error('Status WebSocket closed unexpectedly');
-                // Try to reconnect after 1 second
-                setTimeout(connectStatusWebSocket, 1000);
-            };
-
-            statusSocket.onerror = function(err) {
-                console.error('WebSocket error observed:', err);
-                statusSocket.close();  // Close the connection on error
-            };
-        }
-
-        // Establish WebSocket connection on page load
-        window.onload = connectStatusWebSocket;
-		// window.onload = function() {
-    	// 	connectStatusWebSocket();
-
-    	// 	// If your SPA uses some custom routing, you might want to reconnect WebSocket on route changes
-    	// 	window.addEventListener('hashchange', connectStatusWebSocket, false);
-  		// 	// or if using History API
-   		// 	window.addEventListener('popstate', connectStatusWebSocket, false);
-		// };
-    </script>
+    <h2>Chat</h2>
+    <a href="chat.html" class="btn btn-primary">Chat</a>
