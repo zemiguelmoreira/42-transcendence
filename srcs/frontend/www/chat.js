@@ -6,6 +6,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const chatMessageSubmit = document.getElementById("chat-message-submit");
     const onlineUsersList = document.getElementById("online-users-list");
 
+document.getElementById('inviteButton').addEventListener('click', function() {
+        const inviteMessage = {
+            invite: true,
+            recipient: selectedUser
+        };
+        chatSocket.send(JSON.stringify(inviteMessage));
+        console.log('Invite sent to', selectedUser);
+});
+
+
     const token = localStorage.getItem('accessToken');
 
     const chatSocket = new WebSocket(
@@ -13,10 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     chatSocket.onopen = function() {
-        console.log('WebSocket connection established');
+        // console.log('WebSocket connection established');
     };
 
-    chatSocket.onmessage = function(e) {
+    chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
 
         if (data.message) {
@@ -30,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 messageElement.style.color = "lightblue";
             } else if (data.selfdm) {
                 messageElement.style.color = "lightgreen";
-            } else if (data.warning) {
-                messageElement.style.color = "lightcoral";
+            } else if (data.error) {
+                messageElement.style.color = "red";
             }
             messageElement.innerHTML = `${sender}: ${message}`;
 
@@ -39,6 +49,22 @@ document.addEventListener("DOMContentLoaded", function () {
             chatLog.scrollTop = chatLog.scrollHeight;
 
             console.log('Received message:', data);
+        } else if (data.invite) {
+            const sender = data.sender;
+            const invite_message = sender + ' has invited you to play a game of pong! ';
+            const inviteElement = document.createElement("div");
+            inviteElement.style.color = "coralpink";
+            inviteElement.innerHTML = invite_message;
+            const inviteButton = document.createElement("button");
+            inviteButton.textContent = "Accept Invite";
+            inviteButton.onclick = function() {
+                // Handle invite acceptance
+                console.log('Invite accepted');
+                // You can add more logic here to handle the invite acceptance
+            };
+            inviteElement.appendChild(inviteButton);
+            chatLog.appendChild(inviteElement);
+            chatLog.scrollTop = chatLog.scrollHeight;
         } else if (data.online_users) {
             onlineUsersList.innerHTML = '';
             data.online_users.forEach(function(user) {
@@ -57,16 +83,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 };
                 onlineUsersList.appendChild(userElement);
             });
-            console.log('Online users:', data.online_users);
+            // console.log('Online users:', data.online_users);
         }
     };
 
     chatSocket.onclose = function(e) {
-        console.log('WebSocket connection closed');
+        // console.log('WebSocket connection closed');
     };
 
     chatSocket.onerror = function(error) {
-        console.error('WebSocket error:', error);
+        // console.error('WebSocket error:', error);
     };
 
     chatMessageSubmit.onclick = function() {
@@ -81,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
             chatSocket.send(JSON.stringify(messageData));
             chatMessageInput.value = "";
         }
-        console.log('Message sent:', message);
+        // console.log('Message sent:', message);
     };
 
     chatMessageInput.addEventListener("keyup", function(e) {
@@ -90,3 +116,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+

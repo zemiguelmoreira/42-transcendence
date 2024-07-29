@@ -1,1 +1,5 @@
 possibilidade de fazer o chat, em vez de ter event handler de TO e FROM, fazer um array de rooms, e criar um event handler para criar room de chat privado. possivelmente uma melhor opcao se usar abas/janelas para chat privado.
+
+proibir nome Transcendence
+
+ordenar lista online

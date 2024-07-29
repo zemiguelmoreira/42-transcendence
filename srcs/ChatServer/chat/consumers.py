@@ -10,6 +10,8 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
+import logging
+logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -24,9 +26,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             access_token = AccessToken(self.token)
             self.user = await self.get_user_from_token(access_token)
             if not self.user:
+                self.authenticated = False
                 await self.close()
                 return
         except (InvalidToken, TokenError):
+            self.authenticated = False
             await self.close()
             return
 
@@ -41,6 +45,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         ChatConsumer.online_users.add(self.user.username)
 
         await self.accept()
+        self.authenticated = True
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -53,11 +58,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.user_group_name,
             {
                 'type': 'system.message',
-                'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat in open chat.'
+                'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.'
             }
         )
 
     async def disconnect(self, close_code):
+        if not self.authenticated:
+            return
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 
@@ -72,29 +79,45 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+        message = text_data_json.get("message", None)
+        logging.info(f"Message received: {message}")
         recipient = text_data_json.get("recipient", None)
-        # If private
-        if recipient:
-            recipient_group_name = "user_%s" % recipient
-            # If sent to self
-            if recipient == self.user.username:
+        invite = text_data_json.get("invite", None)
+        logging.info(f"Invite: {invite}")
+        # If invite to game
+        if invite:
+            if not recipient or recipient == self.user.username:
                 await self.channel_layer.group_send(
-                recipient_group_name, {"type": "self.dm", "message": message}
+                    self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
                 )
                 return
-            # To
             await self.channel_layer.group_send(
-                recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
+                recipient_group_name, {"type": "invite.message", "sender": self.user.username}
             )
-            # From
-            await self.channel_layer.group_send(
-                self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
-            )
-        else: # If public
+            return
+        # If public
+        if not recipient:
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "chat.message", "message": message, "sender": self.user.username}
             )
+            return
+        # If private
+        recipient_group_name = "user_%s" % recipient
+        # If sent to self
+        if recipient == self.user.username:
+            await self.channel_layer.group_send(
+            recipient_group_name, {"type": "self.dm", "message": message}
+            )
+            return
+        # To
+        await self.channel_layer.group_send(
+            recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
+        )
+        # From
+        await self.channel_layer.group_send(
+            self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
+        )
+
 
     async def chat_message(self, event):
         message = event["message"]
@@ -126,10 +149,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({"message": message, "system": True, "sender": "Transcendence"}))
 
-    async def warning_message(self, event):
+    async def error_message(self, event):
         message = event["message"]
 
-        await self.send(text_data=json.dumps({"message": message, "system": True, "sender": "Warning"}))
+        await self.send(text_data=json.dumps({"message": message, "error": True, "sender": "Error"}))
+
+    async def invite_message(self, event):
+        sender = event["sender"]
+
+        await self.send(text_data=json.dumps({"invite": True, "sender": sender}))
 
     @database_sync_to_async
     def get_user_from_token(self, access_token):
