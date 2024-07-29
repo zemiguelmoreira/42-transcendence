@@ -6,15 +6,50 @@ import os
 from datetime import datetime
 import re
 
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['id', 'username', 'email', 'password']
+#         extra_kwargs = {'password': {'write_only': True}}
+    
+#     def create(self, validated_data):
+#         user = User.objects.create_user(**validated_data)
+#         return user
+
+
 class UserSerializer(serializers.ModelSerializer):
+
+    email = serializers.EmailField(required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'password', 'confirm_password']
         extra_kwargs = {'password': {'write_only': True}}
+
+
+    def validate(self, data):
+        # Verifica se o email já está em uso
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError({"email": "This email is already in use."})
+
+        # Verifica se as senhas correspondem
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError({"password": "Passwords do not match"})
+        
+        # Retorna os dados validados, usado para dizer ao Rest que os dados passaram a validação e podem ser utilizados
+        return data
     
     def create(self, validated_data):
+        #retirar o confirm_password da criação do user
+        validated_data.pop('confirm_password', None)
+        print("Validated data before user creation:", validated_data)
         user = User.objects.create_user(**validated_data)
+        print(f"User created: {user}")
         return user
+
+
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     friend_list = serializers.ListField(child=serializers.CharField(), required=False)
