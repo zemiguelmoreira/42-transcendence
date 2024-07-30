@@ -15,8 +15,7 @@ logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    online_users = set()
-    online_sessions = {}
+    online_users = {}
     invited = {}
 
     async def connect(self):
@@ -44,13 +43,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
         await self.accept()
+        self.authenticated = True
+
+        if self.user.username not in self.online_users:
+            self.online_users[self.user.username] = 1
+        else:
+            self.online_users[self.user.username] += 1
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.channel_layer.group_add(self.user_group_name, self.channel_name)
-
-        self.online_users.add(self.user.username)
-        self.authenticated = True
-        self.online_sessions[self.user.username] += 1
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -72,9 +73,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
-        if not self.online_sessions[self.user.username]:
-            self.online_sessions[self.user.username] -= 1
-            self.online_users.discard(self.user.username)
+        if self.online_users[self.user.username] > 1:
+            self.online_users[self.user.username] -= 1
+        elif self.online_users[self.user.username] == 1:
+            del self.online_users[self.user.username]
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -82,6 +84,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'online_users': sorted(list(self.online_users))
                 }
             )
+        return
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
