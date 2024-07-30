@@ -33,7 +33,7 @@ function makeHomePage() {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                         aria-expanded="false">
-                                        <img src="./files/user-icon-03.png" alt="User Icon" width="30" height="30">
+                                        <img src="../files/user-icon-03.png" alt="User Icon" width="30" height="30">
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>

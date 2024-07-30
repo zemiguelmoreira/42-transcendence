@@ -21,7 +21,7 @@ async function registerUser() {
 
 		if (response.ok) {
 			// resposta.innerHTML = "User registered successfully!";
-			alert('User registered successfully!');
+			alert('<div class="font-custom">User registered successfully!</div>');
 		} else {
 			const data = await response.json();
 			throw new Error(data.detail || 'Registration failed');

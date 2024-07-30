@@ -7,7 +7,7 @@ function makeSignInPage() {
 			<div class="login-form" id="signInForm">
 				<form id="userSignInForm">
 					<!-- Username input -->
-						<label class="font-custom" for="form1Example1">USERNAME</label>
+						<label class="font-custom --bs-green" for="form1Example1">USERNAME</label>
 						<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" autofocus>
 					<!-- Password input -->
 						<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
@@ -16,22 +16,17 @@ function makeSignInPage() {
 						<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
 						<button type="submit" id="signInUser42" class="btn btn-outline-custom button-size">SIGN IN WITH 42</button>
 						<p id="error-message" style="display: none; color: red;"></p>
+						<button class="btn btn-outline-secondary button-size" onclick="history.back()">Go back</button>
 				</form>
 
 				<form id="qrCodeForm" style="display: none;">
-					<div>
-						<p id="qr-code" style="background-color: white;"></p>
-					</div>
+						<p class="qr-code-box" id="qr-code" style="background-color: white;"></p>
 					<div id="codeDiv">
-						<label for="code">enter 2FA code</label>
-						<input type="text" name="qrCode" id="code" placeholder="enter 2FA code">
+						<label class="font-custom" for="code">Two-Factor Authentication</label>
+						<input  class="form-control button-size" type="text" name="qrCode" id="code" placeholder="Enter 2FA code here">
 					</div>
-					<div>
-						<button type="submit" id="verifyQrCode" class="bbtn btn-outline-success button-size">verify code</button>
-					</div>
-					<div>
+						<button type="submit" id="verifyQrCode" class="btn btn-outline-success button-size">verify code</button>
 						<p id="error-message-code" style="display: none; color: red;"></p>
-					</div>
 				</form>
 			</div>
 		</div>
