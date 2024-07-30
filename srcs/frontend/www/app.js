@@ -30,6 +30,7 @@ async function registerUser() {
     const username = document.getElementById('regUsername').value;
     const email = document.getElementById('regEmail').value;
     const password = document.getElementById('regPassword').value;
+    const confirm_password = document.getElementById('confirmPassword').value;
 
     try {
         const response = await fetch('/api/user/register/', {
@@ -41,6 +42,7 @@ async function registerUser() {
                 username: username,
                 email: email,
                 password: password,
+                confirm_password: confirm_password,
             }),
         });
 

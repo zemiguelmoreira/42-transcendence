@@ -7,16 +7,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const onlineUsersList = document.getElementById("online-users-list");
 
     document.getElementById('inviteButton').addEventListener('click', function() {
-        if (selectedUser) {
+        // if (selectedUser) {
             const inviteMessage = {
                 "type": "invite",
                 "recipient": selectedUser
             };
             chatSocket.send(JSON.stringify(inviteMessage));
             console.log('Invite sent to', selectedUser);
-        } else {
-            console.log('No user selected for invite.');
-        }
+        // } else {
+        //     console.log('No user selected for invite.');
+        // }
     });
 
     const token = localStorage.getItem('accessToken');
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     "type": "invite_response",
                 };
                 chatSocket.send(JSON.stringify(inviteAccepted));
-                console.log('Invite accepted');
+                // console.log('Invite accepted');
                 acceptButton.disabled = true;
                 rejectButton.disabled = true;
                 // Handle start game

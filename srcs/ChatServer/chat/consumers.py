@@ -16,6 +16,8 @@ User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     online_users = set()
+    online_sessions = {}
+    invited = {}
 
     async def connect(self):
         # Extract token from query string
@@ -39,19 +41,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = "chat_%s" % self.room_name
         self.user_group_name = "user_%s" % self.user.username
 
+
+
+        await self.accept()
+
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.channel_layer.group_add(self.user_group_name, self.channel_name)
 
-        ChatConsumer.online_users.add(self.user.username)
-
-        await self.accept()
+        self.online_users.add(self.user.username)
         self.authenticated = True
+        self.online_sessions[self.user.username] += 1
 
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'update.status',
-                'online_users': list(ChatConsumer.online_users)
+                'online_users': sorted(list(self.online_users))
             }
         )
         await self.channel_layer.group_send(
@@ -67,21 +72,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
-
-        ChatConsumer.online_users.discard(self.user.username)
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'update.status',
-                'online_users': list(ChatConsumer.online_users)
-            }
-        )
+        if not self.online_sessions[self.user.username]:
+            self.online_sessions[self.user.username] -= 1
+            self.online_users.discard(self.user.username)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'update.status',
+                    'online_users': sorted(list(self.online_users))
+                }
+            )
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json.get("message", None)
         recipient = text_data_json.get("recipient", None)
         msgtype = text_data_json.get("type", None)
+
         # If invite to game
         if msgtype == "invite":
             if not recipient or recipient == self.user.username:
@@ -89,6 +96,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
                 )
                 return
+            if self.invited.get(recipient, False):
+                await self.channel_layer.group_send(
+                    self.user_group_name, {"type": "error.message", "message": "You already sent an invite."}
+                )
+                return
+            self.invited[recipient] = True
             recipient_group_name = "user_%s" % recipient
             await self.channel_layer.group_send(
                 recipient_group_name, {"type": "invite.message", "sender": self.user.username}
@@ -101,6 +114,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 inviter_group_name, {"type": "invite.response", "invitee": self.user.username, "accepted": accepted}
             )
+            self.invited[self.user.username] = False
             # if accepted:
             return
 
