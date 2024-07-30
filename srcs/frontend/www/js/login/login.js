@@ -122,9 +122,8 @@ async function sendIUser(userOrEmail, password, allURL) {
 					const successDiv = successContainer(username);
 					document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 					if (viewToken()) {
-						// showSuccessMessageSignIn(username);
+						showSuccessMessageSignIn(username);
 						// Adiciona o conteúdo de home_page após o login bem-sucedido
-						document.getElementById('root').innerHTML = home_page;
 					} else {
 						throw { message: `User ${username} not validated - bad request`, status: 404 };
 					}

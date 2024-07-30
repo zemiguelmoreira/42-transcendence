@@ -171,43 +171,43 @@ async function home_button() {
 let snakeScriptLoaded = false; // Variável para rastrear se o script foi carregado
 
 async function snakeGame() {
-    try {
-        const response = await fetch('../snake.html');
-        if (response.ok) {
+	try {
+		const response = await fetch('../snake.html');
+		if (response.ok) {
 			console.log("FETCH SNAKE HTML OK")
-            const content = await response.text();
-            document.getElementById('mainContent').innerHTML = content;
+			const content = await response.text();
+			document.getElementById('mainContent').innerHTML = content;
 
-            // Verificar se o script já foi carregado
-            if (!snakeScriptLoaded) {
-                const scriptElement = document.createElement('script');
-                scriptElement.src = '../js/snake.js';
-                scriptElement.onload = () => {
-                    snakeScriptLoaded = true;
-                };
-                scriptElement.onerror = () => {
-                    console.error('Erro ao carregar o script snake.js');
-                };
-                document.body.appendChild(scriptElement);
-            } else {
-                // Se o script já foi carregado, executa o código manualmente
-                // Se o script não for executado automaticamente após o carregamento,
-                // você pode chamar funções específicas diretamente aqui.
-                // Por exemplo:
-                if (typeof initializeSnakeGame === 'function') {
-                    initializeSnakeGame(); // Chame uma função de inicialização definida em snake.js
-                }
-            }
-        } else {
-            console.error('Erro ao carregar o arquivo snake.html');
-        }
-    } catch (error) {
-        console.error('Erro ao carregar o conteúdo:', error);
-    }
+			// Verificar se o script já foi carregado
+			if (!snakeScriptLoaded) {
+				const scriptElement = document.createElement('script');
+				scriptElement.src = '../js/snake.js';
+				scriptElement.onload = () => {
+					snakeScriptLoaded = true;
+				};
+				scriptElement.onerror = () => {
+					console.error('Erro ao carregar o script snake.js');
+				};
+				document.body.appendChild(scriptElement);
+			} else {
+				// Se o script já foi carregado, executa o código manualmente
+				// Se o script não for executado automaticamente após o carregamento,
+				// você pode chamar funções específicas diretamente aqui.
+				// Por exemplo:
+				if (typeof initializeSnakeGame === 'function') {
+					initializeSnakeGame(); // Chame uma função de inicialização definida em snake.js
+				}
+			}
+		} else {
+			console.error('Erro ao carregar o arquivo snake.html');
+		}
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
 }
 
 async function snakeGameOptions() {
-    try {
+	try {
 		document.getElementById('mainContent').innerHTML = `
 		<div class="organize">
 			<div class="organize-title">SNAKE OPTIONS</div>
@@ -241,90 +241,48 @@ async function snakeGameOptions() {
 			</div>
 		</div>
 		`;
-    } catch (error) {
-        console.error('Erro ao carregar o conteúdo:', error);
-    }
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
 }
 
-// async function snakeGameOptions() {
-//     // Função para adicionar event listeners aos botões
-//     function addEventListenersToButtons() {
-//         const buttons = document.querySelectorAll('.snake-button');
-
-//         buttons.forEach(button => {
-//             button.addEventListener('click', async function (event) {
-//                 event.preventDefault();
-
-//                 // Carregar dinamicamente o CSS
-//                 const linkElement = document.createElement('link');
-//                 linkElement.rel = 'stylesheet';
-//                 linkElement.href = './css/snake.css';
-//                 document.head.appendChild(linkElement);
-
-//                 // Carregar o conteúdo HTML
-//                 try {
-//                     const response = await fetch('./snake-options.html');
-//                     if (response.ok) {
-//                         const content = await response.text();
-//                         document.getElementById('mainContent').innerHTML = content;
-
-//                         // Reatribuir event listeners aos novos botões
-//                         addEventListenersToButtons();
-
-//                         // Inserir dinamicamente o script do jogo
-//                         const scriptElement = document.createElement('script');
-
-//                         document.body.appendChild(scriptElement);
-//                     } else {
-//                         console.error('Erro ao carregar o arquivo snake-options.html');
-//                     }
-//                 } catch (error) {
-//                     console.error('Erro ao carregar o conteúdo:', error);
-//                 }
-//             });
-//         });
-//     }
-//     // Adicionar event listeners aos botões na carga inicial da página
-//     addEventListenersToButtons();
-// }
-
 async function pongGame() {
-    try {
-        const response = await fetch('./pong.html');
-        if (response.ok) {
-            const content = await response.text();
-            document.getElementById('mainContent').innerHTML = content;
+	try {
+		const response = await fetch('./pong.html');
+		if (response.ok) {
+			const content = await response.text();
+			document.getElementById('mainContent').innerHTML = content;
 
-            // Verificar se o script já foi carregado
-            if (!snakeScriptLoaded) {
-                const scriptElement = document.createElement('script');
-                scriptElement.src = './js/pong.js';
-                scriptElement.onload = () => {
-                    snakeScriptLoaded = true;
-                };
-                scriptElement.onerror = () => {
-                    console.error('Erro ao carregar o script pong.js');
-                };
-                document.body.appendChild(scriptElement);
-            } else {
-                // Se o script já foi carregado, executa o código manualmente
-                // Se o script não for executado automaticamente após o carregamento,
-                // você pode chamar funções específicas diretamente aqui.
-                // Por exemplo:
-                if (typeof initializeSnakeGame === 'function') {
-                    initializeSnakeGame(); // Chame uma função de inicialização definida em snake.js
-                }
-            }
-        } else {
-            console.error('Erro ao carregar o arquivo pong.html');
-        }
-    } catch (error) {
-        console.error('Erro ao carregar o conteúdo:', error);
-    }
+			// Verificar se o script já foi carregado
+			if (!snakeScriptLoaded) {
+				const scriptElement = document.createElement('script');
+				scriptElement.src = './js/pong.js';
+				scriptElement.onload = () => {
+					snakeScriptLoaded = true;
+				};
+				scriptElement.onerror = () => {
+					console.error('Erro ao carregar o script pong.js');
+				};
+				document.body.appendChild(scriptElement);
+			} else {
+				// Se o script já foi carregado, executa o código manualmente
+				// Se o script não for executado automaticamente após o carregamento,
+				// você pode chamar funções específicas diretamente aqui.
+				// Por exemplo:
+				if (typeof initializeSnakeGame === 'function') {
+					initializeSnakeGame(); // Chame uma função de inicialização definida em snake.js
+				}
+			}
+		} else {
+			console.error('Erro ao carregar o arquivo pong.html');
+		}
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
 }
 
 async function pongGameOptions() {
-    try {
+	try {
 		document.getElementById('mainContent').innerHTML = `
 		<div class="organize">
 			<div class="organize-title">PONG OPTIONS</div>
@@ -358,37 +316,126 @@ async function pongGameOptions() {
 			</div>
 		</div>
 		`;
-    } catch (error) {
-        console.error('Erro ao carregar o conteúdo:', error);
-    }
-}snakeGame
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+}
 
 async function profile() {
 
 	// Carregar o conteúdo HTML
 	try {
-		const response = await fetch('./profile.html');
-		if (response.ok) {
-			const content = await response.text();
-			document.getElementById('mainContent').innerHTML = content;
-
-			// Encontrar e executar os scripts dentro do conteúdo carregado
-			const scriptTags = document.getElementById('mainContent').getElementsByTagName('script');
-			for (const scriptTag of scriptTags) {
-				const newScript = document.createElement('script');
-				newScript.text = scriptTag.text;
-				document.body.appendChild(newScript);
-			}
-		} else {
-			console.error('Erro ao carregar o arquivo profile.html');
-		}
+		document.getElementById('mainContent').innerHTML = `
+		<div class="profile-container">
+			<div class="profile-left">
+				<img src="../files/ialves-m.jpg" alt="User Photo">
+				<h3 id="username">Pastilhex</h3>
+				<div class="friends-list">
+					<h3 class="friends-title">Friends</h3>
+					<table class="friends-table">
+						<thead>
+							<tr>
+								<th>Status</th>
+								<th>Username</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><span class="status-icon green"></span></td>
+								<td>user1</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon red"></span></td>
+								<td>user2</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon green"></span></td>
+								<td>user3</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon red"></span></td>
+								<td>user4</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon green"></span></td>
+								<td>user5</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon red"></span></td>
+								<td>user6</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon green"></span></td>
+								<td>user7</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon red"></span></td>
+								<td>user8</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon green"></span></td>
+								<td>user9</td>
+							</tr>
+							<tr>
+								<td><span class="status-icon red"></span></td>
+								<td>user10</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="profile-right">
+				<div class="profile-title">Pastilhex Profile</div>
+				<div class="profile-info">
+					<label class="profile-label" for="name">Name:</label>
+					<span class="profile-description" id="name">John Doe</span>
+				</div>
+				<div class="profile-info">
+					<label for="username">Username:</label>
+					<span class="profile-description" id="username">john_doe</span>
+				</div>
+				<div class="profile-info">
+					<label for="email">Email:</label>
+					<span class="profile-description" id="email">john.doe@example.com</span>
+				</div>
+				<div class="profile-title">Games Played</div>
+				<table class="game-list">
+					<thead>
+						<tr>
+							<th>Game</th>
+							<th>Date</th>
+							<th>Score</th>
+							<th>Wins</th>
+							<th>Loses</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Pong</td>
+							<td>2024-07-01</td>
+							<td>10</td>
+							<td>10</td>
+							<td>10</td>
+						</tr>
+						<tr>
+							<td>Snake</td>
+							<td>2024-07-02</td>
+							<td>15</td>
+							<td>15</td>
+							<td>15</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		`;
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
 };
 
 document.addEventListener('DOMContentLoaded', function (e) {
-	
+
 	console.log("EVENT LISTENER")
 
 	// e.preventDefault();
@@ -430,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
 	// verificar periodicamente se o refresh token está válido
 	setInterval(verifyToken, 1800000); // 5000 milisegundos = 5s conversão miliseg = minutosx60x1000
-	
+
 	if (!viewTokenRefresh()) // mudar colocar not para funcionar corretamente
 		navigateTo('/');
 	else {
@@ -478,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 		}
 
 	});
-	
+
 });
 
 
