@@ -16,7 +16,7 @@ function makeSignInPage() {
 						<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
 						<button type="submit" id="signInUser42" class="btn btn-outline-custom button-size">SIGN IN WITH 42</button>
 						<p id="error-message" style="display: none; color: red;"></p>
-						<button class="btn btn-outline-secondary button-size" onclick="history.back()">Go back</button>
+						<button class="btn btn-outline-secondary button-size" id="backButton">GO BACK</button>
 				</form>
 
 				<form id="qrCodeForm" style="display: none;">
