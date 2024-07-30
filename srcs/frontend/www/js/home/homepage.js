@@ -21,7 +21,7 @@ function makeHomePage() {
 								aria-expanded="false">GAMES</a>
 							<ul class="dropdown-menu">
 								<li><a class="pong-button dropdown-item" href="#">Pong</a></li>
-								<li><a class="snake-button dropdown-item" href="#">Snake</a></li>
+								<li><a  id="snake-navbar" class="snake-button dropdown-item" href="#">Snake</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -65,7 +65,7 @@ function makeHomePage() {
 			<div class="card-body">
 				<h5 class="card-title">SNAKE</h5>
 				<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and itself.</p>
-				<a href="#" class="btn btn-primary card-btn snake-button">Let's Play</a>
+				<a href="#" id="snake-card" class="btn btn-primary card-btn snake-button">Let's Play</a>
 			</div>
 		</div>
 

@@ -8,7 +8,7 @@ import { signIn } from "../login/login.js";
 import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage } from "../profile/userProfile.js";
-
+import { snakeOptions } from "../games/snake-options.js";
 
 const pages = {
     '/': {
@@ -94,8 +94,15 @@ const pages = {
 		access: () => !!localStorage.getItem('access_token'), //testar
 	  	redirect: '/'
     },
+	'/user/:username/snake': {
+        loadContent: function(params) {
+            console.log('Loading user profile search user page-no results content for', params.username);
+			snakeOptions(params.username);
+        },
+		access: () => !!localStorage.getItem('access_token'), //testar
+	  	redirect: '/'
+    },
     // Outras páginas...
 };
-
 
 export { pages }

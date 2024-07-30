@@ -1,6 +1,4 @@
-// Função para inicializar o jogo
 function initializeSnakeGame() {
-	// Certifique-se de que a variável do canvas é sempre inicializada corretamente
 	const canvas = document.querySelector("canvas");
 	if (!canvas) {
 		console.error("Canvas não encontrado!");
@@ -14,13 +12,19 @@ function initializeSnakeGame() {
 	const finalScore = document.querySelector(".final-score > span");
 	const canvasWidth = canvas.width;
 	const canvasHeight = canvas.height;
-	const audio = new Audio("./assets/audio.mp3");
+	const audio = new Audio("../assets/audio.mp3");
 	const size = 20;
 	const initialPosition1 = { x: size * 3, y: size * 3 };
 	const initialPosition2 = { x: canvasWidth - (size * 4), y: canvasHeight - (size * 4) };
 
+
+
 	let player1Name = document.querySelector(".snake-ply1");
 	let player2Name = document.querySelector(".snake-ply2");
+	console.log(player1Name, player2Name);
+
+
+
 	let isGameRunning = true;
 	let snake1 = [initialPosition1];
 	let snake2 = [initialPosition2];
