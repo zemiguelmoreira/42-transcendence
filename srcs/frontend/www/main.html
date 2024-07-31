@@ -36,22 +36,23 @@
 									<a class="nav-link" href="#">CHAT</a>
 								</li>
 								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-										aria-expanded="false">GAMES</a>
+									<a class="nav-link dropdown-toggle" href="#" role="button"
+										data-bs-toggle="dropdown" aria-expanded="false">GAMES</a>
 									<ul class="dropdown-menu">
-										<li><a class="pong-button dropdown-item" href="#">Pong</a></li>
-										<li><a class="snake-button dropdown-item" href="#">Snake</a></li>
+										<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
+										<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
 									</ul>
 								</li>
 							</ul>
 							<form class="d-flex" role="search">
-								<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+								<input class="form-control me-2" type="search" placeholder="Search"
+									aria-label="Search">
 								<button class="btn btn-outline-success" type="submit">Search</button>
 							</form>
 							<ul class="navbar-nav">
 								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-										aria-expanded="false">
+									<a class="nav-link dropdown-toggle" href="#" role="button"
+										data-bs-toggle="dropdown" aria-expanded="false">
 										<img src="./files/user-icon-03.png" alt="User Icon" width="30" height="30">
 									</a>
 									<ul class="dropdown-menu dropdown-menu-end">
@@ -70,31 +71,57 @@
 			</div>
 			<div class="home-box" id="mainContent">
 				<!-- Conteúdo será carregado aqui -->
-
-				<div class="snake-content">
-					<div class="snake-container">
-						<div class="snake-box snake-score1">
-							<span class="snake-ply1">Snake 1</span>
-							<span class="snake-score1--value">00</span>
-						</div>
-						<div class="snake-logo">
-							<img src="../files/macro2snake.png" alt="Snake Logo">
-						</div>
-						<div class="snake-box snake-score2">
-							<span class="snake-ply2">Snake 2</span>
-							<span class="snake-score2--value">00</span>
-						</div>
+				<div class="card" style="width: 18rem;">
+					<img src="./files/minipong.png" class="card-img-top" alt="Enter to play">
+					<div class="card-body">
+						<h5 class="card-title">PONG</h5>
+						<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score
+							points.</p>
+						<a href="#" id="pong-card" class="btn btn-primary card-btn pong-button">Let's Play</a>
 					</div>
-					<div class="snake-box"><canvas width="980" height="420"></canvas></div>
 				</div>
-				<script src="./js/games/snake.js"></script>
-
+		
+				<div class="card" style="width: 18rem;">
+					<img src="./files/mini2snake.png" class="card-img-top" alt="Enter to play">
+					<div class="card-body">
+						<h5 class="card-title">SNAKE</h5>
+						<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and
+							itself.</p>
+						<a href="#" id="snake-card" class="btn btn-primary card-btn snake-button">Let's Play</a>
+					</div>
+				</div>
+		
+				<div class="card" style="width: 18rem;">
+					<img src="./files/minichat.png" class="card-img-top" alt="Enter to chat">
+					<div class="card-body">
+						<h5 class="card-title">CHAT</h5>
+						<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.
+						</p>
+						<a href="#" class="btn btn-primary card-btn">Let's Talk</a>
+					</div>
+				</div>
+			</div>
+			<div class="message-bar">
+				<div id="slidingMessage" class="sliding-message"></div>
 			</div>
 		</div>
-	</div>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-		crossorigin="anonymous"></script>
+		<div class="message-bar">
+			<div id="slidingMessage" class="sliding-message"></div>
+		</div>
+		<script>
+			function displaySlidingMessage(message) {
+				const slidingMessageDiv = document.getElementById('slidingMessage');
+				slidingMessageDiv.textContent = message;
+				slidingMessageDiv.style.animation = 'none';
+				slidingMessageDiv.offsetHeight; 
+				slidingMessageDiv.style.animation = null;
+			}
+			displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+		</script>
+		
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+			crossorigin="anonymous"></script>
 </body>
 
 

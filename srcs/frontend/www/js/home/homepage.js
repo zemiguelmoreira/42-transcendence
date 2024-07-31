@@ -78,6 +78,9 @@ function makeHomePage() {
 			</div>
 		</div>
 	</div>
+	<div class="message-bar">
+		<div id="slidingMessage" class="sliding-message"></div>
+	</div>
 	`;
 }
 

@@ -90,4 +90,15 @@ function homeLogin(username) {
 
 }
 
+// function displaySlidingMessage(message) {
+// 	console.log('displaySlidingMessage');
+// 	const slidingMessageDiv = document.getElementById('slidingMessage');
+// 	slidingMessageDiv.textContent = message;
+// 	slidingMessageDiv.style.animation = 'none';
+// 	slidingMessageDiv.offsetHeight; 
+// 	slidingMessageDiv.style.animation = null;
+// }
+
+// displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+
 export { home, homeLogin }

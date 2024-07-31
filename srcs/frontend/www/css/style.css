@@ -195,14 +195,14 @@ h2 {
 }
 
 .home-box {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-evenly;
-	align-items: center;
-	position: relative;
-	overflow: hidden;
-	width: 100%;
-	height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-grow: 1; /* Ensures home-box takes up available space */
+    padding: 20px;
+    overflow-y: auto; /* Adds scrolling if needed */
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .organize {
@@ -329,19 +329,49 @@ h2 {
 }
 
 .main-box {
-	background-image: url(../files/background_retro_03.jpg);
-	background-size: cover;
-	border-radius: 20px;
-	display: flex;
-	flex-direction: column;
-	width: 1000px;
-	height: 600px;
-	position: absolute;
-	top: 20%;
-	left: 50%;
-	transform: translateX(-50%);
-	overflow: auto;
-	z-index: 1;
+    background-image: url(../files/background_retro_03.jpg);
+    background-size: cover;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distributes space between elements */
+    width: 1000px;
+    height: 620px;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden; /* Ensures content stays within the box */
+    z-index: 1;
+}
+.message-bar {
+    background-color: rgba(0, 0, 0, 0.5); /* Cor de fundo para visualizar melhor */
+    border-radius: 0 0 20px 20px;
+    height: 40px;
+    width: 100%;
+    position: relative;
+    overflow: hidden; /* Para evitar que o texto saia da barra */
+	
+}
+
+.sliding-message {
+	font-family: customFont;
+    white-space: nowrap; /* Evita que o texto quebre a linha */
+    position: absolute;
+    top: 18%;
+    transform: translateY(-50%);
+    font-size: 14px;
+	color: #78BF40;
+    animation: slide-in 20s linear infinite; /* Animação de deslizamento */
+}
+
+@keyframes slide-in {
+    0% {
+        transform: translateX(100%); /* Inicia fora da tela à direita */
+    }
+    100% {
+        transform: translateX(-100%); /* Sai da tela à esquerda */
+    }
 }
 
 
