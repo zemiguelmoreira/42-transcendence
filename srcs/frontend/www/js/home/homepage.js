@@ -20,8 +20,8 @@ function makeHomePage() {
 							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
 								aria-expanded="false">GAMES</a>
 							<ul class="dropdown-menu">
-								<li><a class="pong-button dropdown-item" href="#">Pong</a></li>
-								<li><a  id="snake-navbar" class="snake-button dropdown-item" href="#">Snake</a></li>
+								<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
+								<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -52,16 +52,16 @@ function makeHomePage() {
 	<div class="home-box" id="mainContent">
 		<!-- Conteúdo será carregado aqui -->
 		<div class="card" style="width: 18rem;">
-			<img src="../files/minipong.png" class="card-img-top" alt="...">
+			<img src="../files/minipong.png" class="card-img-top" alt="Enter to play">
 			<div class="card-body">
 				<h5 class="card-title">PONG</h5>
 				<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score points.</p>
-				<a href="#" class="btn btn-primary card-btn pong-button">Let's Play</a>
+				<a href="#" id="pong-card" class="btn btn-primary card-btn pong-button">Let's Play</a>
 			</div>
 		</div>
 
 		<div class="card" style="width: 18rem;">
-			<img src="../files/mini2snake.png" class="card-img-top" alt="...">
+			<img src="../files/mini2snake.png" class="card-img-top" alt="Enter to play">
 			<div class="card-body">
 				<h5 class="card-title">SNAKE</h5>
 				<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and itself.</p>
@@ -70,7 +70,7 @@ function makeHomePage() {
 		</div>
 
 		<div class="card" style="width: 18rem;">
-			<img src="../files/minichat.png" class="card-img-top" alt="...">
+			<img src="../files/minichat.png" class="card-img-top" alt="Enter to chat">
 			<div class="card-body">
 				<h5 class="card-title">CHAT</h5>
 				<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.</p>

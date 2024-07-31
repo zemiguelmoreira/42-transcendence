@@ -26,14 +26,19 @@ body {
 }
 
 .btn-outline-custom {
-    color: #8740BF; /* Cor do texto */
-    border-color: #8740BF; /* Cor da borda */
+	color: #8740BF;
+	/* Cor do texto */
+	border-color: #8740BF;
+	/* Cor da borda */
 }
 
 .btn-outline-custom:hover {
-    color: white; /* Cor do texto quando o botão é hover */
-    background-color: #8740BF; /* Cor do fundo quando o botão é hover */
-    border-color: #8740BF; /* Cor da borda quando o botão é hover */
+	color: white;
+	/* Cor do texto quando o botão é hover */
+	background-color: #8740BF;
+	/* Cor do fundo quando o botão é hover */
+	border-color: #8740BF;
+	/* Cor da borda quando o botão é hover */
 }
 
 .btn {
@@ -55,53 +60,55 @@ body {
 }
 
 h1 {
-    font-family: 'Exo';
-    font-size: 100px; /* Tamanho padrão */
-    letter-spacing: 0.03em;
-    margin: 3vh;
-    position: relative;
-    transform: skew(-15deg);
-    z-index: 2;
+	font-family: 'Exo';
+	font-size: 100px;
+	/* Tamanho padrão */
+	letter-spacing: 0.03em;
+	margin: 3vh;
+	position: relative;
+	transform: skew(-15deg);
+	z-index: 2;
 }
 
 h1::after {
-    background:
-        radial-gradient(white 3%, rgba(255, 255, 255, 0.3) 15%, rgba(255, 255, 255, 0.05) 60%, transparent 80%),
-        radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 5% 100%,
-        radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 70% 5%;
-    background-repeat: no-repeat;
-    content: '';
-    height: 0.4em;
-    position: absolute;
-    right: 0.5vw;
-    top: -0.1vh;
-    width: 2vw;
+	background:
+		radial-gradient(white 3%, rgba(255, 255, 255, 0.3) 15%, rgba(255, 255, 255, 0.05) 60%, transparent 80%),
+		radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 5% 100%,
+		radial-gradient(rgba(255, 255, 255, 0.2) 50%, transparent 60%) 50% 50% / 70% 5%;
+	background-repeat: no-repeat;
+	content: '';
+	height: 0.4em;
+	position: absolute;
+	right: 0.5vw;
+	top: -0.1vh;
+	width: 2vw;
 }
 
 h1 span:first-child {
-    -webkit-text-stroke: 0.3vh rgba(0, 0, 0, 0.5);
-    display: block;
-    text-shadow: 0 0 0.5vh #8ba2d0, 0 0 1vh black, 0 0 5vh #165ff3;
+	-webkit-text-stroke: 0.3vh rgba(0, 0, 0, 0.5);
+	display: block;
+	text-shadow: 0 0 0.5vh #8ba2d0, 0 0 1vh black, 0 0 5vh #165ff3;
 }
 
 h1 span:last-child {
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    -webkit-text-stroke: 0.1vh #94a0b9;
-    background-image: linear-gradient(#032d50 25%, #00a1ef 35%, white 50%, #20125f 50%, #8313e7 55%, #ff61af 75%);
-    left: 0;
-    position: absolute;
-    top: 0;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	-webkit-text-stroke: 0.1vh #94a0b9;
+	background-image: linear-gradient(#032d50 25%, #00a1ef 35%, white 50%, #20125f 50%, #8313e7 55%, #ff61af 75%);
+	left: 0;
+	position: absolute;
+	top: 0;
 }
 
 h2 {
-    color: white;
-    font-family: 'Mr Dafoe';
-    font-size: 50px; /* Tamanho padrão */
-    margin-top: -8.5vh;
-    text-shadow: 0 0 0.5vh #fff, 0 0 2vh #fe05e1, 0 0 3vh #fe05e1;
-    transform: rotate(-7deg);
-    z-index: 2;
+	color: white;
+	font-family: 'Mr Dafoe';
+	font-size: 50px;
+	/* Tamanho padrão */
+	margin-top: -8.5vh;
+	text-shadow: 0 0 0.5vh #fff, 0 0 2vh #fe05e1, 0 0 3vh #fe05e1;
+	transform: rotate(-7deg);
+	z-index: 2;
 }
 
 
@@ -120,14 +127,16 @@ h2 {
 
 /* Media Query para telas menores que 200px */
 @media (max-width: 900px) {
-    h1 {
-        font-size: 75px; /* Tamanho ajustado */
-    }
+	h1 {
+		font-size: 75px;
+		/* Tamanho ajustado */
+	}
 
 	h2 {
-        font-size: 40px; /* Tamanho ajustado */
-        margin-top: -7vh;
-    }
+		font-size: 40px;
+		/* Tamanho ajustado */
+		margin-top: -7vh;
+	}
 
 	.lines {
 		margin-top: 70px;
@@ -137,35 +146,37 @@ h2 {
 		height: 30px;
 		width: 100%;
 	}
-	
+
 }
 
 @media (max-width: 700px) {
-    h1 {
-        font-size: 50px; /* Tamanho ajustado */
-    }
+	h1 {
+		font-size: 50px;
+		/* Tamanho ajustado */
+	}
 
-    h1::after {
-        height: 0.2em;
-        right: 1vw;
-        top: -0.1em;
-        width: 1vw;
-    }
+	h1::after {
+		height: 0.2em;
+		right: 1vw;
+		top: -0.1em;
+		width: 1vw;
+	}
 
-    h1 span:first-child {
-        -webkit-text-stroke: 0.15vh rgba(0, 0, 0, 0.5);
-        text-shadow: 0 0 0.25vh #8ba2d0, 0 0 0.5vh black, 0 0 2.5vh #165ff3;
-    }
+	h1 span:first-child {
+		-webkit-text-stroke: 0.15vh rgba(0, 0, 0, 0.5);
+		text-shadow: 0 0 0.25vh #8ba2d0, 0 0 0.5vh black, 0 0 2.5vh #165ff3;
+	}
 
-    h1 span:last-child {
-        -webkit-text-stroke: 0.05vh #94a0b9;
-    }
+	h1 span:last-child {
+		-webkit-text-stroke: 0.05vh #94a0b9;
+	}
 
-    h2 {
-        font-size: 30px; /* Tamanho ajustado */
-        margin-top: -50px;
-    }
-	
+	h2 {
+		font-size: 30px;
+		/* Tamanho ajustado */
+		margin-top: -50px;
+	}
+
 	.lines {
 		margin-top: 60px;
 		background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
@@ -174,7 +185,7 @@ h2 {
 		height: 22px;
 		width: 100%;
 	}
-	
+
 }
 
 
@@ -265,7 +276,7 @@ h2 {
 	margin-bottom: 5px;
 }
 
-.login-form{
+.login-form {
 	width: 250px;
 	align-content: center;
 }
@@ -381,4 +392,18 @@ h2 {
 
 .qr-code-box {
 	border-radius: 5px;
+}
+
+.success-message {
+	font-family: 'CustomFont';
+	color: #78BF40;
+	font-size: 12px;
+	width: 80%;
+	height: 80%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	margin: 0 auto;
 }
