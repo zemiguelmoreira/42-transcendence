@@ -6,22 +6,22 @@ function makeRegisterPage() {
 			<div class="" id="registerForm">
 				<form class="login-form" id="userRegisterForm">
 					<!-- Username input -->
-						<label class="font-custom" for="form1Example1">USERNAME</label>
-						<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="Username">
+					<label class="font-custom" for="form1Example1">USERNAME</label>
+					<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="Username">
 					<!-- Email input -->
-						<label class="font-custom" for="form1Example2">EMAIL</label>
-						<input type="email" class="form-control button-size" id="form1Example2" name="email" placeholder="Email">
+					<label class="font-custom" for="form1Example2">EMAIL</label>
+					<input type="email" class="form-control button-size" id="form1Example2" name="email" placeholder="Email">
 					<!-- Password input -->
-						<label class="font-custom" for="form1Example3">PASSWORD</label>
-						<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="Password">
+					<label class="font-custom" for="form1Example3">PASSWORD</label>
+					<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="Password">
 					<!-- Confirm Password input -->
-						<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
-						<input type="password" class="form-control button-size" id="form1Example4" name="password2" placeholder="Confirm password">
+					<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
+					<input type="password" class="form-control button-size" id="form1Example4" name="password2" placeholder="Confirm password">
 					<!-- Submit button -->
-						<button type="submit" id="signUp" class="btn btn-outline-success button-size">SIGN UP</button>
-					<p class="font-custom">or</p>
-						<a id="signIn" class="btn btn-outline-custom button-size" href="">SIGN IN</a>
-						<p id="error-message" style="display: none; color: red;"></p>
+					<button type="submit" id="signUp" class="btn btn-outline-custom button-size">SIGN UP</button>
+					<label class="font-custom" >OR</label>
+					<a id="signIn" class="btn btn-outline-success button-size" href="">SIGN IN</a>
+					<p id="error-message" style="display: none; color: red;"></p>
 				</form>
 			</div>
 		</div>

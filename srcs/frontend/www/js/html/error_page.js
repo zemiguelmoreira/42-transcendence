@@ -1,24 +1,13 @@
-
-
-
-
-
 function displayPageError(status, message) {
-	return `<div id="body_error">
-	<div class="container_error">
-		<h1 id="h1_error">:(</h1><br>
-		<h2 id="h2_error">A <span>
-				<span class="error-text">${status}</span> <span class="replacement-text">42 Transcendence</span>
-			</span>
-			error occured, ${message}.
-		</h2><br><br>
-		<h3 id="h3_error"><a id="a_error" href="">Return to home</a></h3>
-	</div>
-</div>`;
+	return `
+		<div class="login-box" id="body_error">
+			<div class="success-message">
+				<div id="h1_error"><h3>Something went wrong!</h3></div>
+				<div id="h2_error">Error ${status} occured ("${message}").</div>
+				<div id="h3_error"><button class="btn btn-outline-warning button-size" id="a_error" href="">Return to home</button></div>
+			</div>
+		</div>
+	`;
 }
 
-
-
-
 export { displayPageError }
-

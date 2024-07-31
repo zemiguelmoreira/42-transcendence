@@ -1,20 +1,18 @@
 
-
 // limpa um elemento div - usado com o div do index - root
 function limparDivAll(divId) {
-    var div = document.getElementById(divId);
-    if(div) {
-        var children = div.childNodes;
-        for(var i = children.length - 1; i >= 0; i--) {
-            var child = children[i];
+	var div = document.getElementById(divId);
+	if (div) {
+		var children = div.childNodes;
+		for (var i = children.length - 1; i >= 0; i--) {
+			var child = children[i];
 			console.log(child.id);
-            div.removeChild(child);
-        }
-    } else {
-        console.error("O elemento com o ID fornecido não foi encontrado.");
-    }
+			div.removeChild(child);
+		}
+	} else {
+		console.error("O elemento com o ID fornecido não foi encontrado.");
+	}
 }
-
 
 // Mostra a  mensagem de erro após fetch no register
 function displayError(errorMessage) {
@@ -32,7 +30,6 @@ function displayError(errorMessage) {
 		}
 	}
 }
-
 
 // Mostra a  mensagem de erro após fetch no login
 function displayErrorSignIn(errorMessage) {
@@ -53,36 +50,44 @@ function displayErrorSignIn(errorMessage) {
 	}
 }
 
-
 // Após login mensagem de sucesso
 function successContainer(success_message) {
-	return `<div class="row justify-content-center my-auto">
-	<div class="col-auto">
-		<div class="success-message" id="successMessage" style="display: none; font-size: 30px;">Welcome ${success_message}</div>
+	return `
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="successMessage" >User ${success_message} logged in with success.</div>
+			</div>
+		</div>
 	</div>
-</div>`;
+	`;
 }
-
 
 // Após registo - mensagem de sucesso
 function successContainerRegister(success_message) {
-	return `<div class="row justify-content-center my-auto">
-	<div class="col-auto">
-		<div class="success-message" id="successMessage" style="display: none; font-size: 30px;">User ${success_message} registered with success</div>
+	return `
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="successMessage" >User ${success_message} registered with success.</div>
+			</div>
+		</div>
 	</div>
-</div>`;
+	`;
 }
-
 
 // Após falha no token refresh - mensagem de sucesso
 function messageContainerToken() {
-	return `<div class="row justify-content-center my-auto">
-	<div class="col-auto">
-		<div class="success-message" id="tokenMessage" style="display: none; font-size: 30px;">Your session has expired. Login again!!</div>
+	return `
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="tokenMessage" >Your session has expired. Login again!!</div>
+			</div>
+		</div>
 	</div>
-</div>`;
+	`;
 }
-
 
 // De reserva desactiva os links, pode ser util na home page
 function deactivateLinks(links) {
@@ -96,6 +101,5 @@ function deactivateLinks(links) {
 		}
 	}
 }
-
 
 export { limparDivAll, displayError, displayErrorSignIn, successContainer, successContainerRegister, messageContainerToken }
