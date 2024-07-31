@@ -78,14 +78,6 @@ function homeLogin(username) {
 	// 	getUser(username);
 	// });
 
-	document.getElementById('backButton').addEventListener('click', function () {
-		if (window.history.length > 1) {
-			window.history.back();
-		} else {
-			alert('Não há páginas anteriores no histórico.');
-		}
-	});
-
 	// document.getElementById('logOut').addEventListener('click', (e) => {
 	// 	e.preventDefault();
 	// 	removeToken();

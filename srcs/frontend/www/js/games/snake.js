@@ -1,4 +1,8 @@
+console.log("Snake game script loaded!");
+
 function initializeSnakeGame() {
+	console.log("ENTROU NO SNAKE GAME");
+
 	const canvas = document.querySelector("canvas");
 	if (!canvas) {
 		console.error("Canvas não encontrado!");
@@ -9,10 +13,9 @@ function initializeSnakeGame() {
 	const score2 = document.querySelector(".snake-score2--value");
 	console.log(score1, score2);
 
-	const finalScore = document.querySelector(".final-score > span");
 	const canvasWidth = canvas.width;
 	const canvasHeight = canvas.height;
-	const audio = new Audio("../assets/audio.mp3");
+	const audio = new Audio("../../assets/audio.mp3");
 	const size = 20;
 	const initialPosition1 = { x: size * 3, y: size * 3 };
 	const initialPosition2 = { x: canvasWidth - (size * 4), y: canvasHeight - (size * 4) };
@@ -200,8 +203,6 @@ function initializeSnakeGame() {
 			loser = player2Name.textContent;
 			winnerScore = player1Score;
 		}
-
-		finalScore.innerText = `${winner} wins with ${winnerScore} points`;
 
 		console.log(`Game Over! ${winner} wins with ${winnerScore} points`);
 		const gameData = {

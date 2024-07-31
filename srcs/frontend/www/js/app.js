@@ -275,12 +275,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	});
 
 	// desativa o F5 e i ctrlKey + r
-	// document.addEventListener('keydown', function (e) {
-	// 	if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-	// 		e.preventDefault();
-	// 		alert("A atualização da página foi desabilitada.");
-	// 	}
-	// });
+	document.addEventListener('keydown', function (e) {
+		if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+			e.preventDefault();
+			alert("A atualização da página foi desabilitada.");
+		}
+	});
 
 	// verificar periodicamente se o refresh token está válido
 	setInterval(verifyToken, 1800000); // 5000 milisegundos = 5s conversão miliseg = minutosx60x1000

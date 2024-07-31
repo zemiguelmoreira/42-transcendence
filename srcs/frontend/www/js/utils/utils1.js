@@ -53,9 +53,11 @@ function displayErrorSignIn(errorMessage) {
 // Após login mensagem de sucesso
 function successContainer(success_message) {
 	return `
-	<div">
-		<div>
-			<div class="success-message" id="successMessage" >User ${success_message} login with success.</div>
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="successMessage" >User ${success_message} logged in with success.</div>
+			</div>
 		</div>
 	</div>
 	`;
@@ -64,9 +66,11 @@ function successContainer(success_message) {
 // Após registo - mensagem de sucesso
 function successContainerRegister(success_message) {
 	return `
-	<div>
-		<div>
-			<div class="success-message" id="successMessage" >User ${success_message} registered with success.</div>
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="successMessage" >User ${success_message} registered with success.</div>
+			</div>
 		</div>
 	</div>
 	`;
@@ -75,9 +79,11 @@ function successContainerRegister(success_message) {
 // Após falha no token refresh - mensagem de sucesso
 function messageContainerToken() {
 	return `
-	<div>
-		<div>
-			<div class="success-message" id="tokenMessage" >Your session has expired. Login again!!</div>
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="tokenMessage" >Your session has expired. Login again!!</div>
+			</div>
 		</div>
 	</div>
 	`;

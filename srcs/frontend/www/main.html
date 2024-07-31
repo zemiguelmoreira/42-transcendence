@@ -71,18 +71,23 @@
 			<div class="home-box" id="mainContent">
 				<!-- Conteúdo será carregado aqui -->
 
-
-				<div class="login-box" id="body_error">
-					<div class="success-message">
-						<div id="h1_error">
-							<h3>Something went wrong!</h3>
+				<div class="snake-content">
+					<div class="snake-container">
+						<div class="snake-box snake-score1">
+							<span class="snake-ply1">Snake 1</span>
+							<span class="snake-score1--value">00</span>
 						</div>
-						<div id="h2_error">A ${status} error occured, ${message}.</div>
-						<div id="h3_error"><button class="btn btn-outline-warning button-size" id="a_error"
-								href="">Return to home</button></div>
+						<div class="snake-logo">
+							<img src="../files/macro2snake.png" alt="Snake Logo">
+						</div>
+						<div class="snake-box snake-score2">
+							<span class="snake-ply2">Snake 2</span>
+							<span class="snake-score2--value">00</span>
+						</div>
 					</div>
+					<div class="snake-box"><canvas width="980" height="420"></canvas></div>
 				</div>
-
+				<script src="./js/games/snake.js"></script>
 
 			</div>
 		</div>
@@ -90,7 +95,6 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
 		crossorigin="anonymous"></script>
-	<script src="./js/script.js"></script>
 </body>
 
 

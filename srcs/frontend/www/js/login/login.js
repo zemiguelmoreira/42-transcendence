@@ -9,6 +9,8 @@ import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import WebSocketInstance from "../socket/websocket.js";
 import { home_page } from "../home/homepage.js";
+import { goTo } from "../app.js";
+
 
 function insertInputValidation1(userSigInForm) {
 	for (let element of userSigInForm.elements) {
@@ -58,14 +60,26 @@ function showSuccessMessageSignIn(username) {
 }
 
 function signIn() {
-	document.getElementById('root').innerHTML = "";
-	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
-	// document.getElementById('home').addEventListener('click', (e) => {
-	//     e.preventDefault();
-	//     navigateTo('/');
-	// });
-	const signInUser = document.querySelector('#signInUser');
-	signInUser.addEventListener('click', userSignIn);
+
+	if (!localStorage.getItem('access_token')) {
+		document.getElementById('root').innerHTML = "";
+		document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
+
+		// document.getElementById('home').addEventListener('click', (e) => {
+		//     e.preventDefault();
+		//     navigateTo('/');
+		// });
+
+		const signInUser = document.querySelector('#signInUser');
+		signInUser.addEventListener('click', userSignIn);
+		document.getElementById('backButton').addEventListener('click', function () {
+			e.preventDefault();
+			navigateTo('/');
+		});
+	}
+	else {
+		goTo();
+	}
 }
 
 async function sendIUser(userOrEmail, password, allURL) {

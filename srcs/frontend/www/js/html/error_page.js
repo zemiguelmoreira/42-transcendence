@@ -3,7 +3,7 @@ function displayPageError(status, message) {
 		<div class="login-box" id="body_error">
 			<div class="success-message">
 				<div id="h1_error"><h3>Something went wrong!</h3></div>
-				<div id="h2_error">A ${status} error occured, ${message}.</div>
+				<div id="h2_error">Error ${status} occured ("${message}").</div>
 				<div id="h3_error"><button class="btn btn-outline-warning button-size" id="a_error" href="">Return to home</button></div>
 			</div>
 		</div>

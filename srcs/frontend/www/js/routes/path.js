@@ -9,6 +9,7 @@ import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
+import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
 
 const pages = {
@@ -102,6 +103,13 @@ const pages = {
 	'/user/:username/snake': {
 		loadContent: function (params) {
 			snakeOptions(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'), //testar
+		redirect: '/'
+	},	
+	'/user/:username/snake-game-local': {
+		loadContent: function (params) {
+			snakeGameLocal(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), //testar
 		redirect: '/'

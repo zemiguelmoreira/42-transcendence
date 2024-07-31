@@ -1,11 +1,20 @@
 import { navigateTo } from "../app.js";
 
 function snakeOptions(username) {
+
 	const snakePage = snakeGameOptions();
-	document.getElementById('homeButton').addEventListener('click', (e) => {
+
+	// document.getElementById('homeButton').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}`);
+	// });
+
+	console.log("PASSOU NO SNACK OPTIONS");
+	document.getElementById('snakeGame').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo(`/user/${username}`);
+		navigateTo(`/user/${username}/snake-game-local`);
 	});
+
 }
 
 function snakeGameOptions() {
@@ -18,7 +27,7 @@ function snakeGameOptions() {
 					<div class="card-body">
 						<h5 class="card-title">SNAKE LOCAL DUEL</h5>
 						<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score points.</p>
-						<a href="#" class="btn btn-primary card-btn" id="pongGame">Let's Play</a>
+						<a href="#" class="btn btn-primary card-btn" id="snakeGame">Let's Play</a>
 					</div>
 				</div>
 

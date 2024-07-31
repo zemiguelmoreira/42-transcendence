@@ -21,7 +21,6 @@ async function pongGameOptions() {
 						<a href="#" class="btn btn-primary card-btn" id="pongGame">Let's Play</a>
 					</div>
 				</div>
-
 				<div class="card" style="width: 18rem;">
 					<img src="../../files/online_play.jpg" class="card-img-top" alt="alt="Enter to play"">
 					<div class="card-body">
