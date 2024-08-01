@@ -200,7 +200,7 @@ h2 {
     justify-content: space-evenly;
     align-items: center;
     flex-grow: 1; /* Ensures home-box takes up available space */
-    padding: 20px;
+    /* padding: 20px; */
     overflow-y: auto; /* Adds scrolling if needed */
     background-color: rgba(0, 0, 0, 0.5);
 }

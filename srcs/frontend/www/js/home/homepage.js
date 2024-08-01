@@ -14,7 +14,7 @@ function makeHomePage() {
 							<a class="nav-link active" aria-current="page" href="#" id="homeButton">HOME</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="#">CHAT</a>
+							<a class="nav-link" id="chatButton" href="#">CHAT</a>
 						</li>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"

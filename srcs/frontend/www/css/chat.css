@@ -1,0 +1,97 @@
+/* Estilização padrão para os itens da lista */
+.user-item {
+    padding-left: 20px;
+    cursor: pointer;
+    position: relative;
+}
+
+.user-item:hover {
+    padding-left: 20px;
+    cursor: pointer;
+    position: relative;
+	border: 1px solid #8840bf;
+}
+
+/* Estilização para o usuário selecionado */
+.user-item.selected {
+    background-color: #8840bf;
+    color: white;
+	font-weight: bold;
+}
+
+
+
+/* Ajusta o texto para não se sobrepor ao quadrado */
+.user-item.selected {
+	padding-right: 25px; 
+}
+
+ul {
+	list-style-type: none;
+	padding: 0;
+}
+
+.chat-container {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	width: 100%;
+}
+
+.users-list {
+	width: 20%;
+	border-right: 1px solid #ccc;
+	padding: 10px;
+	color: yellowgreen;
+}
+
+.chat-window {
+	width: 80%;
+	display: flex;
+	flex-direction: column;
+}
+
+.messages {
+	flex: 1;
+	padding: 10px;
+	overflow-y: auto;
+	border-bottom: 1px solid #ccc;
+
+}
+
+.message-input {
+	display: flex;
+	padding: 10px;
+}
+
+.message-input input {
+	flex: 1;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.message-input button {
+	padding: 10px 20px;
+	border: none;
+	background-color: #007bff;
+	color: white;
+	border-radius: 5px;
+	margin-left: 10px;
+}
+
+.message-private {
+    color: lightpink;
+}
+
+.message-system {
+    color: lightblue;
+}
+
+.message-selfdm {
+    color: lightgreen;
+}
+
+.message-error {
+    color: red;
+}

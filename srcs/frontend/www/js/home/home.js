@@ -70,9 +70,32 @@ function homeLogin(username) {
 		else
 			navigateTo('/signIn');
 	});
+	
+	document.getElementById('logOut').addEventListener('click', (e) => {
+		e.preventDefault();
+		removeToken(username);
+		setTimeout(function() {
+			navigateTo('/');
+		}, 2000);
+	});
+	
+	document.getElementById('chatButton').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/chat`);
+	});
+	
 
-
-
+	
+	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+	function displaySlidingMessage(message) {
+		console.log('displaySlidingMessage');
+		const slidingMessageDiv = document.getElementById('slidingMessage');
+		slidingMessageDiv.textContent = message;
+		slidingMessageDiv.style.animation = 'none';
+		slidingMessageDiv.offsetHeight; 
+		slidingMessageDiv.style.animation = null;
+	}
+	
 	// document.getElementById('search-form').addEventListener('submit', (e) => {
 	// 	e.preventDefault();
 	// 	getUser(username);
@@ -83,31 +106,9 @@ function homeLogin(username) {
 	// 	getUser(username);
 	// });
 
-	document.getElementById('logOut').addEventListener('click', (e) => {
-		e.preventDefault();
-		removeToken(username);
-		
-		// Se deseja atrasar a execução de alguma ação, faça dentro do setTimeout
-		setTimeout(function() {
-			// Aqui você pode manipular o DOM, exibir a mensagem, etc.
-			navigateTo('/');
-		}, 2000);
-	});
-
 	// document.getElementById('testeLink').addEventListener('click', (e) => {
 	// 	e.preventDefault();
 	// });
-
-	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
-
-	function displaySlidingMessage(message) {
-		console.log('displaySlidingMessage');
-		const slidingMessageDiv = document.getElementById('slidingMessage');
-		slidingMessageDiv.textContent = message;
-		slidingMessageDiv.style.animation = 'none';
-		slidingMessageDiv.offsetHeight; 
-		slidingMessageDiv.style.animation = null;
-	}
 	
 }
 

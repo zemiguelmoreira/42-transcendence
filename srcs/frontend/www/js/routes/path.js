@@ -11,6 +11,7 @@ import { userProfilePage } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
+import { chatWindow } from "../chat/chat-window.js";
 
 const pages = {
 	'/': {
@@ -117,6 +118,13 @@ const pages = {
 	'/user/:username/pong': {
 		loadContent: function (params) {
 			pongOptions(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'), //testar
+		redirect: '/'
+	},
+	'/user/:username/chat': {
+		loadContent: function (params) {
+			chatWindow(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), //testar
 		redirect: '/'
