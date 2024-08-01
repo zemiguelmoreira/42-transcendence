@@ -1,6 +1,7 @@
 
 import WebSocketInstance from "../socket/websocket.js";
 import { navigateTo } from "../app.js";
+import { logoutContainer } from "./utils1.js";
 
 // Função de parse do Token
 function parseJwt(token) {
@@ -71,9 +72,18 @@ function viewTokenRefresh() {
 
 
 // Função que remove os tokens
-function removeToken() {
+function removeToken(username) {
 	try {
 		const token = localStorage.getItem('access_token');
+
+		// Verificar se o token existe
+		console.log(`Item com chave "${token}" encontrado na localStorage.`);
+
+		// Mensagem de saida
+		const successLogOut = logoutContainer(username);
+		// document.getElementById('root').insertAdjacentHTML('afterbegin', successLogOut);
+
+		// Remover os tokens
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('refresh_token');
 		console.log(`Item com chave "${token}" removido com sucesso da localStorage.`);

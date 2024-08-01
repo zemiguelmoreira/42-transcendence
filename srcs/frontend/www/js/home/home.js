@@ -9,8 +9,11 @@ import { home_page } from "./homepage.js";
 
 function home() {
 	console.log('Loading home page content');
+
 	document.getElementById('root').innerHTML = '';
+
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
+
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo('/signIn');
@@ -68,6 +71,8 @@ function homeLogin(username) {
 			navigateTo('/signIn');
 	});
 
+
+
 	// document.getElementById('search-form').addEventListener('submit', (e) => {
 	// 	e.preventDefault();
 	// 	getUser(username);
@@ -78,27 +83,33 @@ function homeLogin(username) {
 	// 	getUser(username);
 	// });
 
-	// document.getElementById('logOut').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	removeToken();
-	// 	navigateTo('/');
-	// });
+	document.getElementById('logOut').addEventListener('click', (e) => {
+		e.preventDefault();
+		removeToken(username);
+		
+		// Se deseja atrasar a execução de alguma ação, faça dentro do setTimeout
+		setTimeout(function() {
+			// Aqui você pode manipular o DOM, exibir a mensagem, etc.
+			navigateTo('/');
+		}, 2000);
+	});
 
 	// document.getElementById('testeLink').addEventListener('click', (e) => {
 	// 	e.preventDefault();
 	// });
 
+	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+
+	function displaySlidingMessage(message) {
+		console.log('displaySlidingMessage');
+		const slidingMessageDiv = document.getElementById('slidingMessage');
+		slidingMessageDiv.textContent = message;
+		slidingMessageDiv.style.animation = 'none';
+		slidingMessageDiv.offsetHeight; 
+		slidingMessageDiv.style.animation = null;
+	}
+	
 }
 
-// function displaySlidingMessage(message) {
-// 	console.log('displaySlidingMessage');
-// 	const slidingMessageDiv = document.getElementById('slidingMessage');
-// 	slidingMessageDiv.textContent = message;
-// 	slidingMessageDiv.style.animation = 'none';
-// 	slidingMessageDiv.offsetHeight; 
-// 	slidingMessageDiv.style.animation = null;
-// }
-
-// displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
 
 export { home, homeLogin }

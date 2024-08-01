@@ -50,6 +50,19 @@ function displayErrorSignIn(errorMessage) {
 	}
 }
 
+// Após logout mensagem de sucesso
+function logoutContainer(username) {
+	document.getElementById('root').innerHTML = `
+	<div class="login-box" id="body_error">
+		<div class="success-message">
+			<div id="h1_error">
+				<div class="success-message" id="successMessage" >User ${username} just logged out with success.</div>
+			</div>
+		</div>
+	</div>
+	`;
+}
+
 // Após login mensagem de sucesso
 function successContainer(success_message) {
 	return `
@@ -102,4 +115,4 @@ function deactivateLinks(links) {
 	}
 }
 
-export { limparDivAll, displayError, displayErrorSignIn, successContainer, successContainerRegister, messageContainerToken }
+export { limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken }
