@@ -74,7 +74,7 @@ function makeHomePage() {
 			<div class="card-body">
 				<h5 class="card-title">CHAT</h5>
 				<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.</p>
-				<a href="#" class="btn btn-primary card-btn">Let's Talk</a>
+				<a href="#" class="btn btn-primary card-btn" id="chatCard">Let's Talk</a>
 			</div>
 		</div>
 	</div>

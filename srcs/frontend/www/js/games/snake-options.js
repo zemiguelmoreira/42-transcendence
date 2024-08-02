@@ -20,7 +20,6 @@ function snakeOptions(username) {
 function snakeGameOptions() {
 	try {
 		document.getElementById('mainContent').innerHTML = `
-
 			<div class="card" style="width: 18rem;">
 				<img src="../../files/local_play.jpg" class="card-img-top" alt="alt="Enter to play"">
 				<div class="card-body">

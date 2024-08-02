@@ -83,6 +83,11 @@ function homeLogin(username) {
 		e.preventDefault();
 		navigateTo(`/user/${username}/chat`);
 	});
+
+	document.getElementById('chatCard').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/chat`);
+	});
 	
 
 	
