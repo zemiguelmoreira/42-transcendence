@@ -1,21 +1,21 @@
 /* Estilização padrão para os itens da lista */
 .user-item {
-    padding-left: 20px;
-    cursor: pointer;
-    position: relative;
+	padding-left: 20px;
+	cursor: pointer;
+	position: relative;
 }
 
 .user-item:hover {
-    padding-left: 20px;
-    cursor: pointer;
-    position: relative;
+	padding-left: 20px;
+	cursor: pointer;
+	position: relative;
 	border: 1px solid #8840bf;
 }
 
 /* Estilização para o usuário selecionado */
 .user-item.selected {
-    background-color: #8840bf;
-    color: white;
+	background-color: #8840bf;
+	color: white;
 	font-weight: bold;
 }
 
@@ -23,7 +23,7 @@
 
 /* Ajusta o texto para não se sobrepor ao quadrado */
 .user-item.selected {
-	padding-right: 25px; 
+	padding-right: 25px;
 }
 
 ul {
@@ -81,17 +81,58 @@ ul {
 }
 
 .message-private {
-    color: lightpink;
+	color: lightpink;
 }
 
 .message-system {
-    color: lightblue;
+	color: lightblue;
 }
 
 .message-selfdm {
-    color: lightgreen;
+	color: lightgreen;
 }
 
 .message-error {
-    color: red;
+	color: red;
+}
+
+.btn {
+	text-align: left;
+}
+
+.btn-group {
+	width: 100%;
+	padding: 1px;
+}
+
+.btn-left {
+	width: 90%;
+}
+
+.btn-right {
+	width: 10%;
+}
+
+.btn-secondary {
+	--bs-btn-bg: #05fe2260;
+	--bs-btn-color: #fff;
+	--bs-btn-border-color: #00000000;
+	--bs-btn-hover-color: #fff;
+	--bs-btn-hover-bg: #fe05e160;
+	--bs-btn-hover-border-color: #00000000;
+	--bs-btn-focus-shadow-rgb: 130, 138, 145;
+	--bs-btn-active-color: #fff;
+	--bs-btn-active-bg: #fe05e160;
+	--bs-btn-active-border-color: #00000000;
+	--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+	--bs-btn-disabled-color: #fff;
+	--bs-btn-disabled-bg: #05fe2260;
+	--bs-btn-disabled-border-color: #00000000;
+
+}
+
+.dropdown-menu {
+	--bs-dropdown-min-width: 0;
+	--bs-dropdown-padding-y: 0;
+	--bs-dropdown-link-hover-bg: #fe05e160;
 }
