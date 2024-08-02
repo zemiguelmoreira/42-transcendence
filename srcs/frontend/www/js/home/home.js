@@ -6,6 +6,7 @@ import { getUser } from "../search/search_user.js";
 import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
 import { home_page } from "./homepage.js";
+import { displaySlidingMessage } from "../utils/utils1.js";
 
 function home() {
 	console.log('Loading home page content');
@@ -89,17 +90,19 @@ function homeLogin(username) {
 		navigateTo(`/user/${username}/chat`);
 	});
 	
+	document.getElementById('search-form').addEventListener('submit', (e) => {
+		e.preventDefault();
+		getUser(username);
+	});
 
-	
+	document.getElementById('search-btn').addEventListener('click', (e) => {
+		e.preventDefault();
+		getUser(username);
+	});
+
 	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
-	function displaySlidingMessage(message) {
-		console.log('displaySlidingMessage');
-		const slidingMessageDiv = document.getElementById('slidingMessage');
-		slidingMessageDiv.textContent = message;
-		slidingMessageDiv.style.animation = 'none';
-		slidingMessageDiv.offsetHeight; 
-		slidingMessageDiv.style.animation = null;
-	}
+
+}
 	
 	// document.getElementById('search-form').addEventListener('submit', (e) => {
 	// 	e.preventDefault();
@@ -115,7 +118,6 @@ function homeLogin(username) {
 	// 	e.preventDefault();
 	// });
 	
-}
 
 
 export { home, homeLogin }

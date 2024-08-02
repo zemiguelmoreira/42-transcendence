@@ -135,108 +135,108 @@ function matchRoute(route) {
 // 	// Carregar o conteúdo HTML
 // 	try {
 // 		document.getElementById('mainContent').innerHTML = `
-// 		<div class="profile-container">
-// 			<div class="profile-left">
-// 				<img src="../files/ialves-m.jpg" alt="User Photo">
-// 				<h3 id="username">Pastilhex</h3>
-// 				<div class="friends-list">
-// 					<h3 class="friends-title">Friends</h3>
-// 					<table class="friends-table">
-// 						<thead>
-// 							<tr>
-// 								<th>Status</th>
-// 								<th>Username</th>
-// 							</tr>
-// 						</thead>
-// 						<tbody>
-// 							<tr>
-// 								<td><span class="status-icon green"></span></td>
-// 								<td>user1</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon red"></span></td>
-// 								<td>user2</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon green"></span></td>
-// 								<td>user3</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon red"></span></td>
-// 								<td>user4</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon green"></span></td>
-// 								<td>user5</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon red"></span></td>
-// 								<td>user6</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon green"></span></td>
-// 								<td>user7</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon red"></span></td>
-// 								<td>user8</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon green"></span></td>
-// 								<td>user9</td>
-// 							</tr>
-// 							<tr>
-// 								<td><span class="status-icon red"></span></td>
-// 								<td>user10</td>
-// 							</tr>
-// 						</tbody>
-// 					</table>
-// 				</div>
-// 			</div>
-// 			<div class="profile-right">
-// 				<div class="profile-title">My Profile</div>
-// 				<div class="profile-info">
-// 					<label class="profile-label" for="name">Name:</label>
-// 					<span class="profile-description" id="name">John Doe</span>
-// 				</div>
-// 				<div class="profile-info">
-// 					<label for="username">Username:</label>
-// 					<span class="profile-description" id="username">john_doe</span>
-// 				</div>
-// 				<div class="profile-info">
-// 					<label for="email">Email:</label>
-// 					<span class="profile-description" id="email">john.doe@example.com</span>
-// 				</div>
-// 				<div class="profile-title">Games Played</div>
-// 				<table class="game-list">
-// 					<thead>
-// 						<tr>
-// 							<th>Game</th>
-// 							<th>Date</th>
-// 							<th>Score</th>
-// 							<th>Wins</th>
-// 							<th>Loses</th>
-// 						</tr>
-// 					</thead>
-// 					<tbody>
-// 						<tr>
-// 							<td>Pong</td>
-// 							<td>2024-07-01</td>
-// 							<td>10</td>
-// 							<td>10</td>
-// 							<td>10</td>
-// 						</tr>
-// 						<tr>
-// 							<td>Snake</td>
-// 							<td>2024-07-02</td>
-// 							<td>15</td>
-// 							<td>15</td>
-// 							<td>15</td>
-// 						</tr>
-// 					</tbody>
-// 				</table>
-// 			</div>
-// 		</div>
+		// <div class="profile-container">
+		// 	<div class="profile-left">
+		// 		<img src="../files/ialves-m.jpg" alt="User Photo">
+		// 		<h3 id="username">Pastilhex</h3>
+		// 		<div class="friends-list">
+		// 			<h3 class="friends-title">Friends</h3>
+		// 			<table class="friends-table">
+		// 				<thead>
+		// 					<tr>
+		// 						<th>Status</th>
+		// 						<th>Username</th>
+		// 					</tr>
+		// 				</thead>
+		// 				<tbody>
+		// 					<tr>
+		// 						<td><span class="status-icon green"></span></td>
+		// 						<td>user1</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon red"></span></td>
+		// 						<td>user2</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon green"></span></td>
+		// 						<td>user3</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon red"></span></td>
+		// 						<td>user4</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon green"></span></td>
+		// 						<td>user5</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon red"></span></td>
+		// 						<td>user6</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon green"></span></td>
+		// 						<td>user7</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon red"></span></td>
+		// 						<td>user8</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon green"></span></td>
+		// 						<td>user9</td>
+		// 					</tr>
+		// 					<tr>
+		// 						<td><span class="status-icon red"></span></td>
+		// 						<td>user10</td>
+		// 					</tr>
+		// 				</tbody>
+		// 			</table>
+		// 		</div>
+		// 	</div>
+		// 	<div class="profile-right">
+		// 		<div class="profile-title">My Profile</div>
+		// 		<div class="profile-info">
+		// 			<label class="profile-label" for="name">Name:</label>
+		// 			<span class="profile-description" id="name">John Doe</span>
+		// 		</div>
+		// 		<div class="profile-info">
+		// 			<label for="username">Username:</label>
+		// 			<span class="profile-description" id="username">john_doe</span>
+		// 		</div>
+		// 		<div class="profile-info">
+		// 			<label for="email">Email:</label>
+		// 			<span class="profile-description" id="email">john.doe@example.com</span>
+		// 		</div>
+		// 		<div class="profile-title">Games Played</div>
+		// 		<table class="game-list">
+		// 			<thead>
+		// 				<tr>
+		// 					<th>Game</th>
+		// 					<th>Date</th>
+		// 					<th>Score</th>
+		// 					<th>Wins</th>
+		// 					<th>Loses</th>
+		// 				</tr>
+		// 			</thead>
+		// 			<tbody>
+		// 				<tr>
+		// 					<td>Pong</td>
+		// 					<td>2024-07-01</td>
+		// 					<td>10</td>
+		// 					<td>10</td>
+		// 					<td>10</td>
+		// 				</tr>
+		// 				<tr>
+		// 					<td>Snake</td>
+		// 					<td>2024-07-02</td>
+		// 					<td>15</td>
+		// 					<td>15</td>
+		// 					<td>15</td>
+		// 				</tr>
+		// 			</tbody>
+		// 		</table>
+		// 	</div>
+		// </div>
 // 		`;
 // 	} catch (error) {
 // 		console.error('Erro ao carregar o conteúdo:', error);

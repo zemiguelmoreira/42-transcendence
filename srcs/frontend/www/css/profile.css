@@ -1,25 +1,27 @@
 .profile-container {
-    align-items: flex-start;
-    background-color: rgba(255, 255, 255, 0.75);
-    border-radius: 0 0 20px 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: row;
-    height: 100%;
     justify-content: space-between;
+    align-items: flex;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    width: 100%;
     margin: 0 auto;
     overflow: auto;
-    padding: 20px;
-    width: 100%;
 }
 
 .profile-left {
     border-right: 1px solid #ddd;
+	background-color: rgba(255, 255, 255);
     flex: 1;
-    margin-right: 20px;
-    margin-top: 20px;
     max-width: 300px;
+	height: 100%;
     text-align: center;
+	overflow: auto;
+	display: flex;
+	justify-content: baseline;
+	align-items: center;
+	flex-direction: column;
 }
 
 .profile-left h3 {
@@ -28,24 +30,30 @@
 
 .profile-left img {
     border-radius: 50%;
-    height: 250px;
-    margin-bottom: 10px;
+    border: 2px solid #ddd;
+	height: 250px;
+    margin-top: 30px;
+    margin-bottom: 30px;
     object-fit: cover;
     width: 250px;
 }
 
 .profile-right {
+	background-image: linear-gradient(to right, rgb(255, 255, 255), rgba(0, 0, 0, 0.1));
     display: flex;
     flex-direction: column;
-    flex: 2;
+    flex: 1;
+	padding-right: 20px;
+	padding-left: 20px;
+	overflow-y: scroll;
 }
 
 .profile-title {
     color: #0056b3;
     font-family: 'CustomFont';
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    margin-top: 75px;
+    font-size: 20px;
+    margin-top: 35px;
+	margin-bottom: 10px;
 }
 
 .profile-info {
@@ -66,7 +74,7 @@
     display: flex;
     flex-direction: column;
     margin-top: 20px;
-    width: 100%;
+    width: 80%;
 }
 
 .friends-title {
@@ -121,4 +129,8 @@
 
 .status-icon.red {
     background-color: red;
+}
+
+table {
+	margin-bottom: 20px;
 }

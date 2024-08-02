@@ -1,60 +1,230 @@
-
+// Página de perfil
 function makeProfilePage(data) {
 	return `
-		<div class="d-flex flex-column vh-100" id="reg">
-			<nav class="navbar navbar-expand-xxl navbar-dark p-4" id="navBar">
-				<div class="container-fluid">
-					<a class="navbar-brand" href="" id="home">Transcendence</a>
-					<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
-						data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
-						aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					<div class="collapse navbar-collapse" id="navbarNavDropdown">
-						<ul class="navbar-nav ms-4 me-auto">
-							<li class="nav-item">
-								<a class="nav-link" href="" id="gameLink" data-value="game">Games</a>
-							</li>
-						</ul>
-						<form id="search-form" class="d-flex ms-auto me-3" role="search">
-							<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
-								aria-label="Search">
-							<button id="search-btn" class="btn btn-outline-primary" type="submit">Search</button>
-						</form>
-						<ul class="navbar-nav flex-row mt-3 mt-xxl-0">
-							<li class="nav-item">
-								<button id="logOut" class="btn btn-primary w-100" type="button">logout</button>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</nav>
-
-			<div class="container profile-container my-6">
-				<div class="row">
-					<div class="col-lg-3 text-center">
-						<div class="customTooltip">
-							<a href="">
-								<img src="/assets/avatar.png" alt="Profile Picture" class="profile-pic">
+	<div class="navbar-div">
+		<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+			<div class="container-fluid">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+					aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item">
+							<a class="nav-link active" aria-current="page" href="#" id="homeButton">HOME</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="chatButton" href="#">CHAT</a>
+						</li>
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+								aria-expanded="false">GAMES</a>
+							<ul class="dropdown-menu">
+								<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
+								<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
+							</ul>
+						</li>
+					</ul>
+					<form id="search-form" class="d-flex" role="search">
+						<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
+							aria-label="Search">
+						<button id="search-btn" class="btn btn-outline-success" type="submit">Search</button>
+					</form>
+					<ul class="navbar-nav">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+								aria-expanded="false">
+								<img src="../../files/user-icon-03.png" alt="User Icon" width="30" height="30">
 							</a>
-							<span class="customTooltiptext">change your photo</span>
-						</div>
-						<div id="editProfile" class="d-grid mt-5 mx-auto">
-							<button class="btn btn-secondary" type="button">edit profile</button>
-						</div>
-					</div>
-					<div class="col-lg-9 mt-5 profile-info">
-						<h1>${data.username}</h1>
-						<p><strong>Username:</strong> ${data.username}</p>
-						<p><strong>Email:</strong> ${data.email}</p>
-						<p><strong>Biografia:</strong> Esta é uma breve biografia sobre o user. Pode-se adicionar mais informações aqui, como os interesses, hobbies, ou qualquer outra coisa que for interessante compartilhar. Os campos podem ter outros nomes</p>
-						<p><strong>Localização:</strong> Cidade, País</p>
-					</div>
+							<ul class="dropdown-menu dropdown-menu-end">
+								<li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>
+								<li><a class="dropdown-item" href="#">Settings</a></li>
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li><a class="dropdown-item" id="logOut" href="#">Logout</a></li>
+							</ul>
+						</li>
+					</ul>
 				</div>
 			</div>
-		</div>`;
+		</nav>
+	</div>
+	<div class="profile-container">
+		<div class="profile-left">
+			<img src="../../files/ialves-m.jpg" alt="User Photo">
+			<h3 id="username">${data.name}</h3>
+			<button id="editProfile" type="button" class="btn btn-secondary btn-sm">Edit Profile</button>
+			<div class="friends-list">
+				<h3 class="friends-title">Friends</h3>
+				<table class="friends-table">
+					<thead>
+						<tr>
+							<th>Status</th>
+							<th>Username</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="status-icon green"></span></td>
+							<td>user1</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon red"></span></td>
+							<td>user2</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon green"></span></td>
+							<td>user3</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon red"></span></td>
+							<td>user4</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon green"></span></td>
+							<td>user5</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon red"></span></td>
+							<td>user6</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon green"></span></td>
+							<td>user7</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon red"></span></td>
+							<td>user8</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon green"></span></td>
+							<td>user9</td>
+						</tr>
+						<tr>
+							<td><span class="status-icon red"></span></td>
+							<td>user10</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="profile-right">
+			<div class="profile-title">My Profile</div>
+			<div class="profile-info">
+				<label for="username">Username:</label>
+				<span class="profile-description" id="username">${data.username}</span>
+			</div>
+			<div class="profile-info">
+				<label class="profile-label" for="name">Name:</label>
+				<span class="profile-description" id="name">${data.alias_name}</span>
+			</div>
+			<div class="profile-info">
+				<label for="email">Email:</label>
+				<span class="profile-description" id="email">${data.email}</span>
+			</div>
+			<div class="profile-title">Games Statistics</div>
+			<table class="game-list">
+				<thead>
+					<tr>
+						<th>Game</th>
+						<th>Score</th>
+						<th>Wins</th>
+						<th>Loses</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Pong</td>
+						<td>${data.pong_rank}</td>
+						<td>${data.pong_wins}</td>
+						<td>${data.pong_losses}</td>
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>${data.snake_rank}</td>
+						<td>${data.snake_wins}</td>
+						<td>${data.snake_losses}</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="profile-title">Matches History</div>
+			<table class="game-list">
+				<thead>
+					<tr>
+						<th>Game</th>
+						<th>Date</th>
+						<th>Winner</th>
+						<th>Looser</th>
+						<th>Winner Score</th>
+						<th>Looser Score</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Pong</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+									<td>${data.pong_winner}</td>
+									<td>${data.pong_looser}</td>
+									<td>${data.pong_winner_score}</td>
+									<td>${data.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+									<td>${data.pong_winner}</td>
+									<td>${data.pong_looser}</td>
+									<td>${data.pong_winner_score}</td>
+									<td>${data.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Pong</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+									<td>${data.pong_winner}</td>
+									<td>${data.pong_looser}</td>
+									<td>${data.pong_winner_score}</td>
+									<td>${data.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+									<td>${data.pong_winner}</td>
+									<td>${data.pong_looser}</td>
+									<td>${data.pong_winner_score}</td>
+									<td>${data.pong_looser_score}</td> -->
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="message-bar">
+		<div id="slidingMessage" class="sliding-message"></div>
+	</div>
+	`;
 }
 
+// Página de edição de perfil
 function makeEditProfilePage(data) {
 	return `
 	<div class="d-flex flex-column vh-100" id="reg">
@@ -123,110 +293,242 @@ function makeEditProfilePage(data) {
 					</div>
 				</div>
 			</div>
-		<\div>`;
+		`;
 }
 
-
+// Resultado da busca de outro usuário
 function makeProfilePageSearchOther(data) {
 	return `
-		<div class="d-flex flex-column vh-100" id="reg">
-			<nav class="navbar navbar-expand-xxl navbar-dark p-4" id="navBar">
-				<div class="container-fluid">
-					<a class="navbar-brand" href="" id="home">Transcendence</a>
-					<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
-						data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
-						aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					<div class="collapse navbar-collapse" id="navbarNavDropdown">
-						<ul class="navbar-nav ms-4 me-auto">
-							<li class="nav-item">
-								<a class="nav-link" href="" id="gameLink" data-value="game">Games</a>
-							</li>
-						</ul>
-						<form id="search-form" class="d-flex ms-auto me-3" role="search">
-							<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
-								aria-label="Search">
-							<button id="search-btn" class="btn btn-outline-primary" type="submit">Search</button>
-						</form>
-						<ul class="navbar-nav flex-row mt-3 mt-xxl-0">
-							<li class="nav-item me-3">
-								<button id="back-profile" class="btn btn-outline-secondary w-100" type="button">myprofile</button>
-							</li>
-							<li class="nav-item">
-								<button id="logOut" class="btn btn-primary w-100" type="button">logout</button>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</nav>
-
-			<div class="container profile-container my-6">
-				<div class="row">
-					<div class="col-lg-3 text-center">
-						<div>
-							<a href="">
-								<img src="/assets/avatar.png" alt="Profile Picture" class="profile-pic">
+	<div class="navbar-div">
+		<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+			<div class="container-fluid">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+					aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item">
+							<a class="nav-link active" aria-current="page" href="#" id="homeButton">HOME</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="chatButton" href="#">CHAT</a>
+						</li>
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+								aria-expanded="false">GAMES</a>
+							<ul class="dropdown-menu">
+								<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
+								<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
+							</ul>
+						</li>
+					</ul>
+					<form id="search-form" class="d-flex" role="search">
+						<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
+							aria-label="Search">
+						<button id="search-btn" class="btn btn-outline-success" type="submit">Search</button>
+					</form>
+					<ul class="navbar-nav">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+								aria-expanded="false">
+								<img src="./files/user-icon-03.png" alt="User Icon" width="30" height="30">
 							</a>
-						</div>
-						<div id="editProfile" class="d-grid mt-5 mx-auto">
-							<button class="btn btn-secondary" type="button">send message</button>
-						</div>
-					</div>
-					<div class="col-lg-9 mt-5 profile-info">
-						<h1>${data.username}</h1>
-						<p><strong>Username:</strong> ${data.username}</p>
-						<p><strong>Email:</strong> ${data.email}</p>
-						<p><strong>Biografia:</strong> Esta é uma breve biografia sobre o user. Pode-se adicionar mais informações aqui, como os interesses, hobbies, ou qualquer outra coisa que for interessante compartilhar. Os campos podem ter outros nomes</p>
-						<p><strong>Localização:</strong> Cidade, País</p>
-					</div>
+							<ul class="dropdown-menu dropdown-menu-end">
+								<li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>
+								<li><a class="dropdown-item" href="#">Settings</a></li>
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li><a class="dropdown-item" id="logOut" href="#">Logout</a></li>
+							</ul>
+						</li>
+					</ul>
 				</div>
 			</div>
-		</div>`;
-}
+		</nav>
+	</div>
+	<div class="profile-container">
+		<div class="profile-left">
+			<img id="profile-img" src="./files/ialves-m.jpg" alt="User Photo">
+			<h3 id="username">${data.alias_name}</h3>
+		</div>
 
+
+		<div class="profile-right">
+			<div class="profile-title">My Profile</div>
+			<div class="profile-info">
+				<label class="profile-label" for="name">Name:</label>
+				<span class="profile-description" id="name">${data.username}</span>
+			</div>
+			<div class="profile-info">
+				<label for="username">Username:</label>
+				<span class="profile-description" id="username">${data.alias_name}</span>
+			</div>
+			<div class="profile-info">
+				<label for="email">Email:</label>
+				<span class="profile-description" id="email">${data.email}</span>
+			</div>
+
+			
+			<div class="profile-title">Games Statistics</div>
+			<table class="game-list">
+				<thead>
+					<tr>
+						<th>Game</th>
+						<th>Score</th>
+						<th>Wins</th>
+						<th>Loses</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Pong</td>
+						<td>${data.pong_rank}</td>
+						<td>${data.pong_wins}</td>
+						<td>${data.pong_losses}</td>
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>${data.snake_rank}</td>
+						<td>${data.snake_wins}</td>
+						<td>${data.snake_losses}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="profile-title">Matches History</div>
+			<table class="game-list">
+				<thead>
+					<tr>
+						<th>Game</th>
+						<th>Date</th>
+						<th>Winner</th>
+						<th>Looser</th>
+						<th>Winner Score</th>
+						<th>Looser Score</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Pong</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+						<td>${data.pong_winner}</td>
+						<td>${data.pong_looser}</td>
+						<td>${data.pong_winner_score}</td>
+						<td>${data.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+						<td>${data.pong_winner}</td>
+						<td>${data.pong_looser}</td>
+						<td>${data.pong_winner_score}</td>
+						<td>${data.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Pong</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+						<td>${data.pong_winner}</td>
+						<td>${data.pong_looser}</td>
+						<td>${data.pong_winner_score}</td>
+						<td>${data.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.pong_date}</td>
+						<td>${data.pong_winner}</td>
+						<td>${data.pong_looser}</td>
+						<td>${data.pong_winner_score}</td>
+						<td>${data.pong_looser_score}</td> -->
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	`;
+}
 
 function noResultsPage(searchValue) {
 	return `
-		<div class="d-flex flex-column vh-100" id="reg">
-			<nav class="navbar navbar-expand-xxl navbar-dark" id="navBar">
-				<div class="container-fluid">
-					<a class="navbar-brand" href="" id="home">Transcendence</a>
-					<button class="navbar-toggler border border-0" type="button" data-bs-toggle="collapse"
-						data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
-						aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					<div class="collapse navbar-collapse" id="navbarNavDropdown">
-						<ul class="navbar-nav ms-4 me-auto">
-							<li class="nav-item">
-								<a class="nav-link" href="" id="gameLink" data-value="game">Games</a>
-							</li>
-						</ul>
-						<form id="search-form" class="d-flex ms-auto me-3" role="search">
-							<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
-								aria-label="Search">
-							<button id="search-btn" class="btn btn-outline-primary" type="submit">Search</button>
-						</form>
-						<ul class="navbar-nav flex-row mt-3 mt-xxl-0">
-							<li class="nav-item">
-								<button id="logOut" class="btn btn-primary w-100" type="button">logout</button>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</nav>
-
-			<div class="container profile-container my-6">
-				<div class="row">
-					<div class="col-lg-9 mt-5 profile-info">
-						<h2><strong>no results for: ${searchValue}</h2>
-					</div>
-					<button id="backButton" class="btn btn-outline-secondary" type="button">back</button>
+	<div class="navbar-div">
+		<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+			<div class="container-fluid">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+					aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item">
+							<a class="nav-link active" aria-current="page" href="#" id="homeButton">HOME</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="chatButton" href="#">CHAT</a>
+						</li>
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+								aria-expanded="false">GAMES</a>
+							<ul class="dropdown-menu">
+								<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
+								<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
+							</ul>
+						</li>
+					</ul>
+					<form id="search-form" class="d-flex" role="search">
+						<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
+							aria-label="Search">
+						<button id="search-btn" class="btn btn-outline-success" type="submit">Search</button>
+					</form>
+					<ul class="navbar-nav">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+								aria-expanded="false">
+								<img src="./files/user-icon-03.png" alt="User Icon" width="30" height="30">
+							</a>
+							<ul class="dropdown-menu dropdown-menu-end">
+								<li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>
+								<li><a class="dropdown-item" href="#">Settings</a></li>
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li><a class="dropdown-item" id="logOut" href="#">Logout</a></li>
+							</ul>
+						</li>
+					</ul>
 				</div>
 			</div>
-		</div>`;
+		</nav>
+	</div>
+	<div class="profile-container">
+		<div class="profile-left"></div>
+		<div class="profile-right">
+			<div class="profile-title">No results found.</div>
+		</div>
+	</div>
+	`;
 }
-
 
 export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage }

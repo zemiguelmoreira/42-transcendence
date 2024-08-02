@@ -1,4 +1,4 @@
-
+import { displaySlidingMessage } from "../utils/utils1.js";
 import { makeProfilePage } from "./profilePages.js";
 import { removeToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
@@ -12,32 +12,33 @@ function userProfilePage(userData, username) {
 	const profilePageData = makeProfilePage(userData.user);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageData);
 
-	document.getElementById('home').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}`);
-	});
+	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
 
-	document.getElementById('logOut').addEventListener('click', (e) => {
-		e.preventDefault();
-		removeToken();
-		navigateTo('/');
-	});
+	// document.getElementById('homeButton').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}`);
+	// });
 
-	document.querySelector("#editProfile").addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/profile/edit`);
-	});
+	// document.getElementById('logOut').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	removeToken();
+	// 	navigateTo('/');
+	// });
 
-	document.getElementById('search-form').addEventListener('submit', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
+	// document.querySelector("#editProfile").addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}/profile/edit`);
+	// });
 
-	document.getElementById('search-btn').addEventListener('click', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
+	// document.getElementById('search-form').addEventListener('submit', (e) => {
+	// 	e.preventDefault();
+	// 	getUser(username);
+	// });
+
+	// document.getElementById('search-btn').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	getUser(username);
+	// });
 }
-
 
 export { userProfilePage }

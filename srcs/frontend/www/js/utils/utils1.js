@@ -1,3 +1,12 @@
+// Objetivo: Funções auxiliares para o frontend
+function displaySlidingMessage(message) {
+	console.log('displaySlidingMessage');
+	const slidingMessageDiv = document.getElementById('slidingMessage');
+	slidingMessageDiv.textContent = message;
+	slidingMessageDiv.style.animation = 'none';
+	slidingMessageDiv.offsetHeight; 
+	slidingMessageDiv.style.animation = null;
+}
 
 // limpa um elemento div - usado com o div do index - root
 function limparDivAll(divId) {
@@ -115,4 +124,4 @@ function deactivateLinks(links) {
 	}
 }
 
-export { limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken }
+export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken }

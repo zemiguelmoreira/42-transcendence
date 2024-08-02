@@ -20,25 +20,18 @@ body {
 .button-size {
 	margin-top: 10px;
 	margin-bottom: 10px;
-	/* padding: 15px; */
 	width: 100%;
-	/* color: #8740BF; */
 }
 
 .btn-outline-custom {
 	color: #8740BF;
-	/* Cor do texto */
 	border-color: #8740BF;
-	/* Cor da borda */
 }
 
 .btn-outline-custom:hover {
 	color: white;
-	/* Cor do texto quando o botão é hover */
 	background-color: #8740BF;
-	/* Cor do fundo quando o botão é hover */
 	border-color: #8740BF;
-	/* Cor da borda quando o botão é hover */
 }
 
 .btn {
@@ -62,7 +55,6 @@ body {
 h1 {
 	font-family: 'Exo';
 	font-size: 100px;
-	/* Tamanho padrão */
 	letter-spacing: 0.03em;
 	margin: 3vh;
 	position: relative;
@@ -104,7 +96,6 @@ h2 {
 	color: white;
 	font-family: 'Mr Dafoe';
 	font-size: 50px;
-	/* Tamanho padrão */
 	margin-top: -8.5vh;
 	text-shadow: 0 0 0.5vh #fff, 0 0 2vh #fe05e1, 0 0 3vh #fe05e1;
 	transform: rotate(-7deg);
@@ -125,16 +116,13 @@ h2 {
 	z-index: 0;
 }
 
-/* Media Query para telas menores que 200px */
 @media (max-width: 900px) {
 	h1 {
 		font-size: 75px;
-		/* Tamanho ajustado */
 	}
 
 	h2 {
 		font-size: 40px;
-		/* Tamanho ajustado */
 		margin-top: -7vh;
 	}
 
@@ -152,7 +140,6 @@ h2 {
 @media (max-width: 700px) {
 	h1 {
 		font-size: 50px;
-		/* Tamanho ajustado */
 	}
 
 	h1::after {
@@ -173,7 +160,6 @@ h2 {
 
 	h2 {
 		font-size: 30px;
-		/* Tamanho ajustado */
 		margin-top: -50px;
 	}
 
@@ -199,9 +185,8 @@ h2 {
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    flex-grow: 1; /* Ensures home-box takes up available space */
-    /* padding: 20px; */
-    overflow-y: auto; /* Adds scrolling if needed */
+    flex-grow: 1;
+    overflow-y: auto;
     background-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -344,6 +329,7 @@ h2 {
     overflow: hidden; /* Ensures content stays within the box */
     z-index: 1;
 }
+
 .message-bar {
     background-color: rgba(0, 0, 0, 0.5); /* Cor de fundo para visualizar melhor */
     border-radius: 0 0 20px 20px;
@@ -373,7 +359,6 @@ h2 {
         transform: translateX(-100%); /* Sai da tela à esquerda */
     }
 }
-
 
 .nav-link img {
 	border-radius: 50%;

@@ -19,7 +19,7 @@ function userSearchPage(dataUserSearch, username) {
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageDataSearch);
 
-	document.getElementById('home').addEventListener('click', (e) => {
+	document.getElementById('homeButton').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}`);
 	});
@@ -40,10 +40,10 @@ function userSearchPage(dataUserSearch, username) {
 		getUser(username);
 	});
 
-	document.getElementById('back-profile').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/profile`);
-	});
+	// document.getElementById('back-profile').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}/profile`);
+	// });
 }
 
 
@@ -54,7 +54,7 @@ function noResults(username, query) {
 	const noResultsUserId = noResultsPage(query);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', noResultsUserId);
 
-	document.getElementById('home').addEventListener('click', (e) => {
+	document.getElementById('homeButton').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}`);
 	});
@@ -74,13 +74,13 @@ function noResults(username, query) {
 		getUser(username);
 	});
 
-	document.getElementById('backButton').addEventListener('click', function () {
-		if (window.history.length > 1) {
-			window.history.back();
-		} else {
-			alert('Não há páginas anteriores no histórico.');
-		}
-	});
+	// document.getElementById('backButton').addEventListener('click', function () {
+	// 	if (window.history.length > 1) {
+	// 		window.history.back();
+	// 	} else {
+	// 		alert('Não há páginas anteriores no histórico.');
+	// 	}
+	// });
 
 }
 
