@@ -41,7 +41,8 @@ ul {
 .users-list {
 	width: 20%;
 	border-right: 1px solid #ccc;
-	padding: 10px;
+	padding: 8px;
+	padding-top: 12px;
 	color: yellowgreen;
 }
 
@@ -49,11 +50,12 @@ ul {
 	width: 80%;
 	display: flex;
 	flex-direction: column;
+	padding: 10px;
+	padding-top: 7px;
 }
 
 .messages {
 	flex: 1;
-	padding: 10px;
 	overflow-y: auto;
 	border-bottom: 1px solid #ccc;
 
@@ -73,27 +75,60 @@ ul {
 
 .message-input button {
 	padding: 10px 20px;
-	border: none;
-	background-color: #007bff;
+	background-color: #007bff90;
 	color: white;
 	border-radius: 5px;
 	margin-left: 10px;
 }
 
 .message-private {
-	color: lightpink;
+    background-color: #f8d7da90;
+    color: #721c24;
+    padding: 5px;
+    margin: 5px 0;
+	border-radius: 5px
 }
 
 .message-system {
-	color: lightblue;
+    background-color: #d1ecf190;
+    color: #0c5460;
+    padding: 5px;
+    margin: 5px 0;
+	border-radius: 5px
 }
 
 .message-selfdm {
-	color: lightgreen;
+    background-color: #d4edda90;
+    color: #155724;
+    padding: 5px;
+    margin: 5px 0;
+	border-radius: 5px
 }
 
 .message-error {
-	color: red;
+    background-color: #f8d7da90;
+    color: #721c24;
+    padding: 5px;
+    margin: 5px 0;
+	border-radius: 5px
+}
+
+.message-default {
+    background-color: #ffffff90;
+    color: #000000;
+    padding: 5px;
+    margin: 5px 0;
+	border-radius: 5px
+}
+
+.message-sender {
+    font-weight: bold;
+}
+
+.message-content {
+    display: inline-block;
+    margin-left: 5px;
+    color: #ffffff;
 }
 
 /* .btn {
@@ -128,11 +163,28 @@ ul {
 	--bs-btn-disabled-color: #fff;
 	--bs-btn-disabled-bg: #05fe2260;
 	--bs-btn-disabled-border-color: #00000000;
-
 }
 
 .dropdown-menu {
 	--bs-dropdown-min-width: 0;
 	--bs-dropdown-padding-y: 0;
 	--bs-dropdown-link-hover-bg: #fe05e160;
+}
+
+.dropdown-toggle-split {
+	--bs-btn-bg: #05fe2260;
+	--bs-btn-color: #fff;
+	--bs-btn-border-color: #00000000;
+	--bs-btn-hover-color: #fff;
+	--bs-btn-hover-bg: #fe05e160;
+	--bs-btn-hover-border-color: #00000000;
+	--bs-btn-focus-shadow-rgb: 130, 138, 145;
+	--bs-btn-active-color: #fff;
+	--bs-btn-active-bg: #fe05e160;
+	--bs-btn-active-border-color: #00000000;
+	--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+	--bs-btn-disabled-color: #fff;
+	--bs-btn-disabled-bg: #05fe2260;
+	--bs-btn-disabled-border-color: #00000000;
+
 }

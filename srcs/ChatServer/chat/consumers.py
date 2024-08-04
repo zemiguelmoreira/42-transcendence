@@ -15,194 +15,201 @@ logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    online_users = {}
-    invited = {}
+	online_users = {}
+	invited = {}
 
-    async def connect(self):
-        # Extract token from query string
-        self.token = self.scope['query_string'].decode().split('=')[1]
+	async def connect(self):
+		# Extraindo o token da query string e validando-o
+		self.token = self.scope['query_string'].decode().split('=')[1]
 
-        # Handle token
-        try:
-            access_token = AccessToken(self.token)
-            self.user = await self.get_user_from_token(access_token)
-            if not self.user:
-                self.authenticated = False
-                await self.close()
-                return
-        except (InvalidToken, TokenError):
-            self.authenticated = False
-            await self.close()
-            return
+		# Tentando validar o token e obter o usuário
+		try:
+			access_token = AccessToken(self.token)
+			self.user = await self.get_user_from_token(access_token)
+			if not self.user:
+				self.authenticated = False
+				await self.close()
+				return
+		except (InvalidToken, TokenError):
+			self.authenticated = False
+			await self.close()
+			return
 
-        # Set room and user group names
-        self.room_name = 'all'
-        self.room_group_name = "chat_%s" % self.room_name
-        self.user_group_name = "user_%s" % self.user.username
+		# Configurando os grupos do canal de WebSocket
+		self.room_name = 'all'
+		self.room_group_name = "chat_%s" % self.room_name
+		self.user_group_name = "user_%s" % self.user.username
+
+		# Aceitando a conexão WebSocket
+		await self.accept()
+		self.authenticated = True
+
+		# Gerenciando o estado dos usuários online
+		if self.user.username not in self.online_users:
+			self.online_users[self.user.username] = 1
+		else:
+			self.online_users[self.user.username] += 1
+
+		# Adicionando o usuário aos grupos de canal
+		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+		await self.channel_layer.group_add(self.user_group_name, self.channel_name)
+
+		# Enviando uma mensagem de atualização do status dos usuários online para todos
+		await self.channel_layer.group_send(
+			self.room_group_name,
+			{
+				'type': 'update.status',
+				'online_users': sorted(list(self.online_users))
+			}
+		)
+
+		# Enviando uma mensagem de boas-vindas ao usuário recém-conectado
+		await self.channel_layer.group_send(
+			self.user_group_name,
+			{
+				'type': 'system.message',
+				'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.'
+			}
+		)
+
+	async def disconnect(self, close_code):
+		if not self.authenticated:
+			return
+
+		# Removendo o usuário dos grupos de canal
+		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+		await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
+
+		# Atualizando o estado dos usuários online
+		if self.online_users[self.user.username] > 1:
+			self.online_users[self.user.username] -= 1
+		elif self.online_users[self.user.username] == 1:
+			del self.online_users[self.user.username]
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': 'update.status',
+					'online_users': sorted(list(self.online_users))
+				}
+			)
+		return
+
+	async def receive(self, text_data):
+		text_data_json = json.loads(text_data)
+		message = text_data_json.get("message", None)
+		recipient = text_data_json.get("recipient", None)
+		msgtype = text_data_json.get("type", None)
+
+		# Se for um convite para jogo
+		if msgtype == "invite":
+			if not recipient or recipient == self.user.username:
+				await self.channel_layer.group_send(
+					self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
+				)
+				return
+			if self.invited.get(recipient, False):
+				await self.channel_layer.group_send(
+					self.user_group_name, {"type": "error.message", "message": "You already sent an invite."}
+				)
+				return
+			self.invited[recipient] = True
+			recipient_group_name = "user_%s" % recipient
+			await self.channel_layer.group_send(
+				recipient_group_name, {"type": "invite.message", "sender": self.user.username}
+			)
+			return
+		elif msgtype == "invite_response":
+			inviter = text_data_json.get("inviter", None)
+			accepted = text_data_json.get("accepted", False)
+			inviter_group_name = "user_%s" % inviter
+			await self.channel_layer.group_send(
+				inviter_group_name, {"type": "invite.response", "invitee": self.user.username, "accepted": accepted}
+			)
+			self.invited[self.user.username] = False
+			return
+
+		# Se for uma mensagem pública
+		if not recipient:
+			await self.channel_layer.group_send(
+				self.room_group_name, {"type": "chat.message", "message": message, "sender": self.user.username}
+			)
+			return
+
+		# Se for uma mensagem privada
+		recipient_group_name = "user_%s" % recipient
+		if recipient == self.user.username:
+			await self.channel_layer.group_send(
+				recipient_group_name, {"type": "self.dm", "message": message}
+			)
+			return
+
+		# Enviando para o destinatário
+		await self.channel_layer.group_send(
+			recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
+		)
+		# Enviando confirmação para o remetente
+		await self.channel_layer.group_send(
+			self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
+		)
+
+	async def chat_message(self, event):
+		message = event["message"]
+		sender = event["sender"]
+
+		await self.send(text_data=json.dumps({"message": message, "sender": sender}))
+
+	async def receive_dm(self, event):
+		message = event["message"]
+		sender = event["sender"]
+
+		if sender == self.user.username:
+			return
+		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
+
+	async def send_dm(self, event):
+		message = event["message"]
+		dest = event["dest"]
+
+		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "To " + dest}))
+
+	async def self_dm(self, event):
+		message = event["message"]
+
+		await self.send(text_data=json.dumps({"message": message, "selfdm": True, "sender": "Me"}))
+
+	async def system_message(self, event):
+		message = event["message"]
+
+		await self.send(text_data=json.dumps({"message": message, "system": True, "sender": "Transcendence"}))
+
+	async def error_message(self, event):
+		message = event["message"]
+
+		await self.send(text_data=json.dumps({"message": message, "error": True, "sender": "Error"}))
+
+	async def invite_message(self, event):
+		sender = event["sender"]
+
+		await self.send(text_data=json.dumps({"invite": True, "sender": sender}))
+
+	async def invite_response(self, event):
+		invitee = event["invitee"]
+		accepted = event["accepted"]
+		await self.send(text_data=json.dumps({"invite_response": True, "invitee": invitee, "accepted": accepted}))
 
 
+	@database_sync_to_async
+	def get_user_from_token(self, access_token):
+		try:
+			user_id = access_token['user_id']
+			user = User.objects.get(id=user_id)
+			return user
+		except (User.DoesNotExist):
+			return None
 
-        await self.accept()
-        self.authenticated = True
+	async def update_status(self, event):
+		online_users = event['online_users']
 
-        if self.user.username not in self.online_users:
-            self.online_users[self.user.username] = 1
-        else:
-            self.online_users[self.user.username] += 1
-
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.channel_layer.group_add(self.user_group_name, self.channel_name)
-
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'update.status',
-                'online_users': sorted(list(self.online_users))
-            }
-        )
-        await self.channel_layer.group_send(
-            self.user_group_name,
-            {
-                'type': 'system.message',
-                'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.'
-            }
-        )
-
-    async def disconnect(self, close_code):
-        if not self.authenticated:
-            return
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
-        if self.online_users[self.user.username] > 1:
-            self.online_users[self.user.username] -= 1
-        elif self.online_users[self.user.username] == 1:
-            del self.online_users[self.user.username]
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'update.status',
-                    'online_users': sorted(list(self.online_users))
-                }
-            )
-        return
-
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json.get("message", None)
-        recipient = text_data_json.get("recipient", None)
-        msgtype = text_data_json.get("type", None)
-
-        # If invite to game
-        if msgtype == "invite":
-            if not recipient or recipient == self.user.username:
-                await self.channel_layer.group_send(
-                    self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
-                )
-                return
-            if self.invited.get(recipient, False):
-                await self.channel_layer.group_send(
-                    self.user_group_name, {"type": "error.message", "message": "You already sent an invite."}
-                )
-                return
-            self.invited[recipient] = True
-            recipient_group_name = "user_%s" % recipient
-            await self.channel_layer.group_send(
-                recipient_group_name, {"type": "invite.message", "sender": self.user.username}
-            )
-            return
-        elif msgtype == "invite_response":
-            inviter = text_data_json.get("inviter", None)
-            accepted = text_data_json.get("accepted", False)
-            inviter_group_name = "user_%s" % inviter
-            await self.channel_layer.group_send(
-                inviter_group_name, {"type": "invite.response", "invitee": self.user.username, "accepted": accepted}
-            )
-            self.invited[self.user.username] = False
-            # if accepted:
-            return
-
-        # If public
-        if not recipient:
-            await self.channel_layer.group_send(
-                self.room_group_name, {"type": "chat.message", "message": message, "sender": self.user.username}
-            )
-            return
-        # If private
-        recipient_group_name = "user_%s" % recipient
-        # If sent to self
-        if recipient == self.user.username:
-            await self.channel_layer.group_send(
-            recipient_group_name, {"type": "self.dm", "message": message}
-            )
-            return
-        # To
-        await self.channel_layer.group_send(
-            recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
-        )
-        # From
-        await self.channel_layer.group_send(
-            self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
-        )
-
-
-    async def chat_message(self, event):
-        message = event["message"]
-        sender = event["sender"]
-
-        await self.send(text_data=json.dumps({"message": message, "sender": sender}))
-
-    async def receive_dm(self, event):
-        message = event["message"]
-        sender = event["sender"]
-
-        if sender == self.user.username:
-            return
-        await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
-
-    async def send_dm(self, event):
-        message = event["message"]
-        dest = event["dest"]
-
-        await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "To " + dest}))
-
-    async def self_dm(self, event):
-        message = event["message"]
-
-        await self.send(text_data=json.dumps({"message": message, "selfdm": True, "sender": "Me"}))
-
-    async def system_message(self, event):
-        message = event["message"]
-
-        await self.send(text_data=json.dumps({"message": message, "system": True, "sender": "Transcendence"}))
-
-    async def error_message(self, event):
-        message = event["message"]
-
-        await self.send(text_data=json.dumps({"message": message, "error": True, "sender": "Error"}))
-
-    async def invite_message(self, event):
-        sender = event["sender"]
-
-        await self.send(text_data=json.dumps({"invite": True, "sender": sender}))
-
-    async def invite_response(self, event):
-        invitee = event["invitee"]
-        accepted = event["accepted"]
-        await self.send(text_data=json.dumps({"invite_response": True, "invitee": invitee, "accepted": accepted}))
-
-
-    @database_sync_to_async
-    def get_user_from_token(self, access_token):
-        try:
-           user_id = access_token['user_id']
-           user = User.objects.get(id=user_id)
-           return user
-        except (User.DoesNotExist):
-            return None
-
-    async def update_status(self, event):
-        online_users = event['online_users']
-
-        await self.send(text_data=json.dumps({
-            'online_users': online_users
-        }))
+		await self.send(text_data=json.dumps({
+			'online_users': online_users
+		}))

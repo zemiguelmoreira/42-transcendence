@@ -96,7 +96,7 @@ h2 {
 	color: white;
 	font-family: 'Mr Dafoe';
 	font-size: 50px;
-	margin-top: -8.5vh;
+	margin-top: -80px;
 	text-shadow: 0 0 0.5vh #fff, 0 0 2vh #fe05e1, 0 0 3vh #fe05e1;
 	transform: rotate(-7deg);
 	z-index: 2;
@@ -104,7 +104,7 @@ h2 {
 
 
 .lines {
-	margin-top: 80px;
+	margin-top: 90px;
 	background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
 	background-size: 1px 0.5em;
 	box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
@@ -123,11 +123,11 @@ h2 {
 
 	h2 {
 		font-size: 40px;
-		margin-top: -7vh;
+		margin-top: -70px;
 	}
 
 	.lines {
-		margin-top: 70px;
+		margin-top: 80px;
 		background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
 		background-size: .5px 0.5em;
 		box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
@@ -160,11 +160,11 @@ h2 {
 
 	h2 {
 		font-size: 30px;
-		margin-top: -50px;
+		margin-top: -60px;
 	}
 
 	.lines {
-		margin-top: 60px;
+		margin-top: 70px;
 		background: linear-gradient(rgba(89, 193, 254, 0.2) 20%, #59c1fe 40%, #59c1fe 60%, rgba(89, 193, 254, 0.2) 80%);
 		background-size: .5px 0.5em;
 		box-shadow: 0 0 1em rgba(89, 193, 254, 0.4);
@@ -173,8 +173,6 @@ h2 {
 	}
 
 }
-
-
 
 .transcendence-title {
 	margin-top: 30px;
