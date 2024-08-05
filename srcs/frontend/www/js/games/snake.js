@@ -251,8 +251,8 @@ function initializeSnakeGame() {
 		drawSnake(snake2, "blue");
 
 		// Desenha o timer sobre o estado do jogo
-		ctx.font = "150px Arial";
-		ctx.fillStyle = "black";
+		ctx.font = "120px CustomFont";
+		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText(time, canvasWidth / 2, canvasHeight / 2);

@@ -107,17 +107,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
 				)
 				return
-			if self.invited.get(recipient, False):
-				await self.channel_layer.group_send(
-					self.user_group_name, {"type": "error.message", "message": "You already sent an invite."}
-				)
-				return
-			self.invited[recipient] = True
+
+			# Remover a verificação de convite anterior e permitir múltiplos convites
+			if self.invited.get(recipient) is None:
+				self.invited[recipient] = []
+
+			# Registrar o convite com um identificador único (ex: timestamp ou outro ID)
+			invitation_id = f"{self.user.username}-{recipient}-{len(self.invited[recipient]) + 1}"
+			self.invited[recipient].append(invitation_id)
+
 			recipient_group_name = "user_%s" % recipient
 			await self.channel_layer.group_send(
 				recipient_group_name, {"type": "invite.message", "sender": self.user.username}
 			)
 			return
+
 		elif msgtype == "invite_response":
 			inviter = text_data_json.get("inviter", None)
 			accepted = text_data_json.get("accepted", False)
@@ -125,7 +129,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 				inviter_group_name, {"type": "invite.response", "invitee": self.user.username, "accepted": accepted}
 			)
-			self.invited[self.user.username] = False
+
+			# Após aceitar/rejeitar, remover o convite específico da lista
+			if inviter in self.invited and self.invited[inviter]:
+				self.invited[inviter].pop(0)  # Remove o convite mais antigo, pode ajustar para remover por ID
+				if not self.invited[inviter]:
+					del self.invited[inviter]  # Limpa se não houver mais convites pendentes
 			return
 
 		# Se for uma mensagem pública
@@ -196,7 +205,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		invitee = event["invitee"]
 		accepted = event["accepted"]
 		await self.send(text_data=json.dumps({"invite_response": True, "invitee": invitee, "accepted": accepted}))
-
 
 	@database_sync_to_async
 	def get_user_from_token(self, access_token):

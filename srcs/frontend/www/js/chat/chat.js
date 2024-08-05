@@ -1,3 +1,5 @@
+import { displaySlidingMessage } from "../utils/utils1.js";
+
 export function initializeChat() {
 
 	console.log('Loading chat page content');
@@ -54,6 +56,8 @@ export function initializeChat() {
 			chatLog.appendChild(messageElement);
 			chatLog.scrollTop = chatLog.scrollHeight;
 
+			displaySlidingMessage(messageElement.textContent);
+
 			console.log('Received message:', data);
 
 		} else if (data.invite) {
@@ -61,13 +65,21 @@ export function initializeChat() {
 			const sender = data.sender;
 			const inviteMessage = `${sender} has invited you to play a game of pong! `;
 			const inviteElement = document.createElement("div");
-			inviteElement.classList.add('message-content');
+			inviteElement.classList.add('message-default');
 			inviteElement.style.color = "coralpink";
-			inviteElement.innerHTML = inviteMessage;
-
+			
+			// Cria o contêiner de texto
+			const messageText = document.createElement("span");
+			messageText.textContent = inviteMessage;
+			
+			// Cria o contêiner para os botões
+			const buttonContainer = document.createElement("div");
+			buttonContainer.classList.add('button-container');
+			
+			// Cria o botão de aceitar
 			const acceptButton = document.createElement("button");
 			acceptButton.textContent = "Accept";
-			acceptButton.classList.add('btn', 'btn-success','btn-sm');
+			acceptButton.classList.add('accept-button');
 			acceptButton.onclick = function () {
 				const inviteAccepted = {
 					"accepted": true,
@@ -77,12 +89,12 @@ export function initializeChat() {
 				chatSocket.send(JSON.stringify(inviteAccepted));
 				acceptButton.disabled = true;
 				rejectButton.disabled = true;
-				// Handle start game
 			};
-
+			
+			// Cria o botão de rejeitar
 			const rejectButton = document.createElement("button");
 			rejectButton.textContent = "Reject";
-			rejectButton.classList.add('btn', 'btn-danger','btn-sm');
+			rejectButton.classList.add('reject-button');
 			rejectButton.onclick = function () {
 				const inviteRejected = {
 					"accepted": false,
@@ -90,16 +102,22 @@ export function initializeChat() {
 					"type": "invite_response",
 				};
 				chatSocket.send(JSON.stringify(inviteRejected));
-				console.log('Invite rejected');
 				acceptButton.disabled = true;
 				rejectButton.disabled = true;
 			};
-
-			inviteElement.appendChild(acceptButton);
-			inviteElement.appendChild(rejectButton);
+			
+			// Adiciona os botões ao contêiner de botões
+			buttonContainer.appendChild(acceptButton);
+			buttonContainer.appendChild(rejectButton);
+			
+			// Adiciona o texto e o contêiner de botões ao elemento de convite
+			inviteElement.appendChild(messageText);
+			inviteElement.appendChild(buttonContainer);
+			
+			// Adiciona o elemento de convite ao log de chat
 			chatLog.appendChild(inviteElement);
 			chatLog.scrollTop = chatLog.scrollHeight;
-
+			
 		} else if (data.invite_response) {
 
 			const invitee = data.invitee;
@@ -168,14 +186,33 @@ export function initializeChat() {
 				action2.href = "#";
 				action2.textContent = "View Profile";
 
-				const action3 = document.createElement("a");
-				action3.classList.add("dropdown-item");
-				action3.id = `inviteButton-${user}`;  // Define um ID único baseado no nome do usuário
-				action3.href = "#";
-				action3.textContent = "Invite to play";
+				const action3 = document.createElement("hr");
+				action3.classList.add("dropdown-divider");
+
+				const action4 = document.createElement("a");
+				action4.classList.add("dropdown-item");
+				action4.id = `inviteButton-${user}`;  // Define um ID único baseado no nome do usuário
+				action4.href = "#";
+				action4.textContent = "Invite to play Pong";
 
 				// Adiciona o evento de clique ao botão de convite
-				action3.addEventListener('click', () => {
+				action4.addEventListener('click', () => {
+					const inviteMessage = {
+						"type": "invite",
+						"recipient": user  // Usa o nome do usuário como identificador
+					};
+					chatSocket.send(JSON.stringify(inviteMessage));
+					console.log('Invite sent to', user);
+				});
+
+				const action5 = document.createElement("a");
+				action5.classList.add("dropdown-item");
+				action5.id = `inviteButton-${user}`;  // Define um ID único baseado no nome do usuário
+				action5.href = "#";
+				action5.textContent = "Invite to play Snake";
+
+				// Adiciona o evento de clique ao botão de convite
+				action5.addEventListener('click', () => {
 					const inviteMessage = {
 						"type": "invite",
 						"recipient": user  // Usa o nome do usuário como identificador
@@ -187,6 +224,8 @@ export function initializeChat() {
 				dropdownMenu.appendChild(action1);
 				dropdownMenu.appendChild(action2);
 				dropdownMenu.appendChild(action3);
+				dropdownMenu.appendChild(action4);
+				dropdownMenu.appendChild(action5);
 
 				// Cria um container para os botões e o dropdown
 				const btnGroup = document.createElement("div");

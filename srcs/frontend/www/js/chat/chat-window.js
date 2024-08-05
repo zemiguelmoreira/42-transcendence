@@ -26,6 +26,7 @@ function chatWindow(username) {
 			console.log('Carregando o script chat.js');
 		
 			const scriptElement = document.createElement('script');
+			scriptElement.type = 'module';
 			scriptElement.src = '../../js/chat/chat.js';
 			scriptElement.onload = () => {
 				window.chatScriptLoaded = true;
