@@ -99,6 +99,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		message = text_data_json.get("message", None)
 		recipient = text_data_json.get("recipient", None)
 		msgtype = text_data_json.get("type", None)
+		game = text_data_json.get("game", None)  # Captura o nome do jogo
 
 		# Se for um convite para jogo
 		if msgtype == "invite":
@@ -108,17 +109,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				)
 				return
 
-			# Remover a verificação de convite anterior e permitir múltiplos convites
 			if self.invited.get(recipient) is None:
 				self.invited[recipient] = []
 
-			# Registrar o convite com um identificador único (ex: timestamp ou outro ID)
 			invitation_id = f"{self.user.username}-{recipient}-{len(self.invited[recipient]) + 1}"
 			self.invited[recipient].append(invitation_id)
 
 			recipient_group_name = "user_%s" % recipient
 			await self.channel_layer.group_send(
-				recipient_group_name, {"type": "invite.message", "sender": self.user.username}
+				recipient_group_name, {
+					"type": "invite.message",
+					"sender": self.user.username,
+					"game": game  # Inclui o nome do jogo na mensagem
+				}
 			)
 			return
 
@@ -127,14 +130,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			accepted = text_data_json.get("accepted", False)
 			inviter_group_name = "user_%s" % inviter
 			await self.channel_layer.group_send(
-				inviter_group_name, {"type": "invite.response", "invitee": self.user.username, "accepted": accepted}
+				inviter_group_name, {
+					"type": "invite.response",
+					"invitee": self.user.username,
+					"accepted": accepted,
+					"game": game  # Inclui o nome do jogo na resposta
+				}
 			)
 
-			# Após aceitar/rejeitar, remover o convite específico da lista
 			if inviter in self.invited and self.invited[inviter]:
-				self.invited[inviter].pop(0)  # Remove o convite mais antigo, pode ajustar para remover por ID
+				self.invited[inviter].pop(0)
 				if not self.invited[inviter]:
-					del self.invited[inviter]  # Limpa se não houver mais convites pendentes
+					del self.invited[inviter]
 			return
 
 		# Se for uma mensagem pública
@@ -198,13 +205,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def invite_message(self, event):
 		sender = event["sender"]
+		game = event.get("game", "a game")  # Obtém o nome do jogo, com valor padrão
 
-		await self.send(text_data=json.dumps({"invite": True, "sender": sender}))
+		await self.send(text_data=json.dumps({
+			"invite": True,
+			"sender": sender,
+			"game": game  # Inclui o nome do jogo na mensagem enviada ao cliente
+		}))
 
 	async def invite_response(self, event):
 		invitee = event["invitee"]
 		accepted = event["accepted"]
-		await self.send(text_data=json.dumps({"invite_response": True, "invitee": invitee, "accepted": accepted}))
+		game = event.get("game", "a game")  # Obtém o nome do jogo, com valor padrão
+
+		await self.send(text_data=json.dumps({
+			"invite_response": True,
+			"invitee": invitee,
+			"accepted": accepted,
+			"game": game  # Inclui o nome do jogo na resposta enviada ao cliente
+		}))
+
 
 	@database_sync_to_async
 	def get_user_from_token(self, access_token):

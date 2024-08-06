@@ -332,29 +332,31 @@ h2 {
     background-color: rgba(0, 0, 0, 0.5); /* Cor de fundo para visualizar melhor */
     border-radius: 0 0 20px 20px;
     height: 40px;
-    width: 100%;
+    width: 998px; /* Largura do container */
     position: relative;
     overflow: hidden; /* Para evitar que o texto saia da barra */
-	box-shadow: inset 0 10px 10px -5px rgba(255, 255, 255, 0.75);
+    box-shadow: inset 0 10px 10px -5px rgba(255, 255, 255, 0.75);
 }
 
 .sliding-message {
-	font-family: customFont;
+    font-family: customFont;
     white-space: nowrap; /* Evita que o texto quebre a linha */
     position: absolute;
     top: 18%;
     transform: translateY(-50%);
     font-size: 14px;
-	color: #78BF40;
-    animation: slide-in 20s linear infinite; /* Animação de deslizamento */
+    color: #78BF40;
+    /* Ajuste a largura para garantir que o texto deslize completamente */
+    width: 100%; /* Duas vezes a largura do container */
+    animation: slide-in 30s linear infinite; /* Animação de deslizamento */
 }
 
 @keyframes slide-in {
     0% {
-        transform: translateX(130%); /* Inicia fora da tela à direita */
+        transform: translateX(100%); /* Começa fora da tela à direita */
     }
     100% {
-        transform: translateX(-100%); /* Sai da tela à esquerda */
+        transform: translateX(-100%); /* Termina fora da tela à esquerda */
     }
 }
 

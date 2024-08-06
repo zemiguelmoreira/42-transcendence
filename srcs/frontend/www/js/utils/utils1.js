@@ -1,11 +1,26 @@
 // Objetivo: Funções auxiliares para o frontend
 function displaySlidingMessage(message) {
-	console.log('displaySlidingMessage');
-	const slidingMessageDiv = document.getElementById('slidingMessage');
-	slidingMessageDiv.textContent = message;
-	slidingMessageDiv.style.animation = 'none';
-	slidingMessageDiv.offsetHeight; 
-	slidingMessageDiv.style.animation = null;
+    console.log('displaySlidingMessage');
+
+    // Garantir que a mensagem tenha pelo menos 60 caracteres
+    const minLength = 10;
+    if (message.length < minLength) {
+        // Adiciona espaços em branco para alcançar o comprimento mínimo
+        message = message.padEnd(minLength, ' ');
+    }
+
+    const slidingMessageDiv = document.getElementById('slidingMessage');
+    slidingMessageDiv.textContent = message;
+
+    // Reiniciar a animação
+    slidingMessageDiv.style.animation = 'none';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            slidingMessageDiv.style.animation = 'slide-in 20s linear infinite';
+        });
+    });
+
+	console.log(message);
 }
 
 // limpa um elemento div - usado com o div do index - root

@@ -56,10 +56,10 @@ ul {
 }
 
 .messages {
-	flex: 1;
 	overflow-y: auto;
 	border-bottom: 1px solid #ccc;
 	padding-right: 10px;
+	height: 455px;
 }
 
 .message-input {
@@ -89,7 +89,8 @@ ul {
     color: #721c24;
     padding: 5px;
     margin: 5px 0;
-	border-radius: 5px
+	border-radius: 5px;
+	margin-bottom: 10px;
 }
 
 .message-system {
@@ -97,7 +98,8 @@ ul {
     color: #0c5460;
     padding: 5px;
     margin: 5px 0;
-	border-radius: 5px
+	margin-bottom: 9px;
+	border-radius: 5px;
 }
 
 .message-selfdm {
@@ -105,7 +107,8 @@ ul {
     color: #155724;
     padding: 5px;
     margin: 5px 0;
-	border-radius: 5px
+	margin-bottom: 10px;
+	border-radius: 5px;
 }
 
 .message-error {
@@ -113,10 +116,23 @@ ul {
     color: #721c24;
     padding: 5px;
     margin: 5px 0;
-	border-radius: 5px
+	border-radius: 5px;
 }
 
 .message-default {
+    background-color: #ffffff90;
+    color: #000000;
+    padding: 5px;
+    margin: 5px 0;
+	border-radius: 5px;
+
+	display: flex;
+    justify-content: start;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.message-invite {
     background-color: #ffffff90;
     color: #000000;
     padding: 5px;
@@ -129,6 +145,16 @@ ul {
     margin-bottom: 10px;
 }
 
+.message-invite-response {
+    background-color: #d4edda90;
+    color: #155724;
+    padding: 5px;
+    margin: 5px 0;
+	margin-bottom: 10px;
+	border-radius: 5px;
+}
+
+
 .message-sender {
     font-weight: bold;
 }
@@ -137,6 +163,12 @@ ul {
     display: inline-block;
     margin-left: 5px;
     color: #000;
+}
+
+.btn {
+    overflow: hidden; /* Esconde o excesso de texto */
+    white-space: nowrap; /* Impede que o texto quebre em múltiplas linhas */
+    text-overflow: ellipsis; /* Adiciona "..." ao final do texto que ultrapassa */
 }
 
 .btn-group {
@@ -153,6 +185,9 @@ ul {
 }
 
 .btn-secondary {
+	border:1px solid #3b6e22;
+	box-shadow:inset 0px 1px 0px 0px #9acc85;
+
 	--bs-btn-bg: #05fe2260;
 	--bs-btn-color: #fff;
 	--bs-btn-border-color: #00000000;
