@@ -46,6 +46,7 @@ function chatWindow(username) {
     } catch (error) {
         console.error('Erro ao carregar o conteúdo:', error);
     }
+
 }
 
 export { chatWindow }

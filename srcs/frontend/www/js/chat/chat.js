@@ -1,4 +1,12 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
+import { viewUserProfile } from "../search/search_user.js";
+
+function requestUserName() {
+    const request = {
+        "type": "request_user_name"
+    };
+    chatSocket.send(JSON.stringify(request));
+}
 
 export function initializeChat() {
 
@@ -20,6 +28,7 @@ export function initializeChat() {
 
 	chatSocket.onmessage = function (e) {
 		let data;
+
 		try {
 			data = JSON.parse(e.data);
 		} catch (error) {
@@ -63,65 +72,65 @@ export function initializeChat() {
 
 		} else if (data.invite) {
 
-            const sender = data.sender;
-            const game = data.game;
-            const inviteMessage = `${sender} has invited you to play a game of ${game}! `;
-            const inviteElement = document.createElement("div");
-            inviteElement.classList.add('message-invite');
-            inviteElement.style.color = "coralpink";
+			const sender = data.sender;
+			const game = data.game;
+			const inviteMessage = `${sender} has invited you to play a game of ${game}! `;
+			const inviteElement = document.createElement("div");
+			inviteElement.classList.add('message-invite');
+			inviteElement.style.color = "coralpink";
 
-            // Create text container
-            const messageText = document.createElement("span");
-            messageText.textContent = inviteMessage;
+			// Create text container
+			const messageText = document.createElement("span");
+			messageText.textContent = inviteMessage;
 
-            // Create button container
-            const buttonContainer = document.createElement("div");
-            buttonContainer.classList.add('button-container');
+			// Create button container
+			const buttonContainer = document.createElement("div");
+			buttonContainer.classList.add('button-container');
 
-            // Create accept button
-            const acceptButton = document.createElement("button");
-            acceptButton.textContent = "Accept";
-            acceptButton.classList.add('accept-button');
-            acceptButton.onclick = function () {
-                const inviteAccepted = {
-                    "accepted": true,
-                    "inviter": sender,
-                    "type": "invite_response",
-                };
-                chatSocket.send(JSON.stringify(inviteAccepted));
-                acceptButton.disabled = true;
-                rejectButton.disabled = true;
-            };
+			// Create accept button
+			const acceptButton = document.createElement("button");
+			acceptButton.textContent = "Accept";
+			acceptButton.classList.add('accept-button');
+			acceptButton.onclick = function () {
+				const inviteAccepted = {
+					"accepted": true,
+					"inviter": sender,
+					"type": "invite_response",
+				};
+				chatSocket.send(JSON.stringify(inviteAccepted));
+				acceptButton.disabled = true;
+				rejectButton.disabled = true;
+			};
 
-            // Create reject button
-            const rejectButton = document.createElement("button");
-            rejectButton.textContent = "Reject";
-            rejectButton.classList.add('reject-button');
-            rejectButton.onclick = function () {
-                const inviteRejected = {
-                    "accepted": false,
-                    "inviter": sender,
-                    "type": "invite_response",
-                };
-                chatSocket.send(JSON.stringify(inviteRejected));
-                acceptButton.disabled = true;
-                rejectButton.disabled = true;
-            };
+			// Create reject button
+			const rejectButton = document.createElement("button");
+			rejectButton.textContent = "Reject";
+			rejectButton.classList.add('reject-button');
+			rejectButton.onclick = function () {
+				const inviteRejected = {
+					"accepted": false,
+					"inviter": sender,
+					"type": "invite_response",
+				};
+				chatSocket.send(JSON.stringify(inviteRejected));
+				acceptButton.disabled = true;
+				rejectButton.disabled = true;
+			};
 
-            // Add buttons to button container
-            buttonContainer.appendChild(acceptButton);
-            buttonContainer.appendChild(rejectButton);
+			// Add buttons to button container
+			buttonContainer.appendChild(acceptButton);
+			buttonContainer.appendChild(rejectButton);
 
-            // Add text and button container to invite element
-            inviteElement.appendChild(messageText);
-            inviteElement.appendChild(buttonContainer);
+			// Add text and button container to invite element
+			inviteElement.appendChild(messageText);
+			inviteElement.appendChild(buttonContainer);
 
-            // Add invite element to chat log
-            chatLog.appendChild(inviteElement);
-            chatLog.scrollTop = chatLog.scrollHeight;
+			// Add invite element to chat log
+			chatLog.appendChild(inviteElement);
+			chatLog.scrollTop = chatLog.scrollHeight;
 
-            displaySlidingMessage(inviteMessage);
-			
+			displaySlidingMessage(inviteMessage);
+
 		} else if (data.invite_response) {
 
 			const invitee = data.invitee;
@@ -141,138 +150,205 @@ export function initializeChat() {
 			chatLog.appendChild(inviteResponseElement);
 			chatLog.scrollTop = chatLog.scrollHeight;
 
-        } else if (data.online_users) {
-            onlineUsersList.innerHTML = '';
-            data.online_users.forEach(function (user) {
-                // Cria o botão principal (lado esquerdo do split)
-                const userButton = document.createElement("button");
-                userButton.textContent = user;
-                userButton.classList.add("btn", "btn-secondary", "btn-sm", "btn-left");
-                userButton.setAttribute('type', 'button');
+		} else if (data.online_users) {
+			onlineUsersList.innerHTML = '';
+			data.online_users.forEach(function (user) {
+				// Cria o botão principal (lado esquerdo do split)
+				const userButton = document.createElement("button");
+				userButton.textContent = user;
+				userButton.classList.add("btn", "btn-secondary", "btn-sm", "btn-left");
+				userButton.setAttribute('type', 'button');
 
-                userButton.addEventListener('click', () => {
-                    if (userButton.classList.contains('active')) {
-                        userButton.classList.remove('active');
-                        selectedUser = null;
-                        console.log(`Usuário ${user} foi desmarcado.`);
-                    } else {
-                        const activeButtons = document.querySelectorAll('#online-users-list .active');
-                        activeButtons.forEach((btn) => btn.classList.remove('active'));
+				userButton.addEventListener('click', () => {
+					if (userButton.classList.contains('active')) {
+						userButton.classList.remove('active');
+						selectedUser = null;
+						console.log(`Usuário ${user} foi desmarcado.`);
+					} else {
+						const activeButtons = document.querySelectorAll('#online-users-list .active');
+						activeButtons.forEach((btn) => btn.classList.remove('active'));
 
-                        userButton.classList.add('active');
-                        selectedUser = user;
-                        console.log(`Usuário ${user} clicado e selecionado.`);
-                    }
-                });
+						userButton.classList.add('active');
+						selectedUser = user;
+						console.log(`Usuário ${user} clicado e selecionado.`);
+					}
+				});
 
-                // Cria o botão dropdown (lado direito do split)
-                const dropdownToggle = document.createElement("button");
-                dropdownToggle.classList.add("btn", "btn-sm", "btn-secondary", "dropdown-toggle", "dropdown-toggle-split", "btn-right");
-                dropdownToggle.setAttribute('type', 'button');
-                dropdownToggle.setAttribute('data-bs-toggle', 'dropdown');
-                dropdownToggle.setAttribute('aria-haspopup', 'true');
-                dropdownToggle.setAttribute('aria-expanded', 'false');
+				// Cria o botão dropdown (lado direito do split)
+				const dropdownToggle = document.createElement("button");
+				dropdownToggle.classList.add("btn", "btn-sm", "btn-secondary", "dropdown-toggle", "dropdown-toggle-split", "btn-right");
+				dropdownToggle.setAttribute('type', 'button');
+				dropdownToggle.setAttribute('data-bs-toggle', 'dropdown');
+				dropdownToggle.setAttribute('aria-haspopup', 'true');
+				dropdownToggle.setAttribute('aria-expanded', 'false');
 
-                // Cria o menu dropdown
-                const dropdownMenu = document.createElement("div");
-                dropdownMenu.classList.add("dropdown-menu");
+				// Cria o menu dropdown
+				const dropdownMenu = document.createElement("div");
+				dropdownMenu.classList.add("dropdown-menu");
 
-                // Adiciona itens ao menu dropdown
-                const action1 = document.createElement("a");
-                action1.classList.add("dropdown-item");
-                action1.href = "#";
-                action1.textContent = "Add Friend";
+				// Adiciona o evento de clique ao botão de adicionar amigo
+				const action1 = document.createElement("a");
+				action1.classList.add("dropdown-item");
+				action1.href = "#";
+				action1.textContent = "Add Friend";
 
-                const action2 = document.createElement("a");
-                action2.classList.add("dropdown-item");
-                action2.href = "#";
-                action2.textContent = "View Profile";
+				// Adiciona o evento de clique ao botão de visualizar perfil
+				const action2 = document.createElement("a");
+				action2.classList.add("dropdown-item");
+				action2.href = "#";
+				action2.textContent = "View Profile";
+				action2.addEventListener('click', (e) => {
+					console.log('viewProfile clicked');
+					e.preventDefault();
+					const userProfileRequest = {
+						"type": "get_user_from_token"
+					};
+					chatSocket.send(JSON.stringify(userProfileRequest));	41
+					viewUserProfile(user, userProfileRequest);
+					console.log('userProfileRequest sent');
+				});
 
-                const action3 = document.createElement("hr");
-                action3.classList.add("dropdown-divider");
+				
+				const action3 = document.createElement("hr");
+				action3.classList.add("dropdown-divider");
 
-                const action4 = document.createElement("a");
-                action4.classList.add("dropdown-item");
-                action4.id = `inviteButtonPong-${user}`;  // Define um ID único baseado no nome do usuário
-                action4.href = "#";
-                action4.textContent = "Invite to play Pong";
 
-                // Adiciona o evento de clique ao botão de convite
-                action4.addEventListener('click', () => {
-                    const inviteMessage = {
-                        "type": "invite",
-                        "recipient": user,  // Usa o nome do usuário como identificador
-                        "game": "Pong"
-                    };
-                    chatSocket.send(JSON.stringify(inviteMessage));
-                    console.log('Invite sent to', user);
-                });
+				const action4 = document.createElement("a");
+				action4.classList.add("dropdown-item");
+				// Define um ID único baseado no nome do usuário, talvez seja necessário para iniciar a partida dos jogos
+				action4.id = `inviteButtonPong-${user}`;
+				action4.href = "#";
+				action4.textContent = "Invite to play Pong";
+				// Adiciona o evento de clique ao botão de convite
+				action4.addEventListener('click', () => {
+					const inviteMessage = {
+						"type": "invite",
+						"recipient": user,  // Usa o nome do usuário como identificador
+						"game": "Pong"
+					};
+					chatSocket.send(JSON.stringify(inviteMessage));
+					console.log('Invite sent to', user);
+				});
 
-                const action5 = document.createElement("a");
-                action5.classList.add("dropdown-item");
-                action5.id = `inviteButtonSnake-${user}`;  // Define um ID único baseado no nome do usuário
-                action5.href = "#";
-                action5.textContent = "Invite to play Snake";
 
-                // Adiciona o evento de clique ao botão de convite
-                action5.addEventListener('click', () => {
-                    const inviteMessage = {
-                        "type": "invite",
-                        "recipient": user,  // Usa o nome do usuário como identificador
-                        "game": "Snake"
-                    };
-                    chatSocket.send(JSON.stringify(inviteMessage));
-                    console.log('Invite sent to', user);
-                });
+				const action5 = document.createElement("a");
+				action5.classList.add("dropdown-item");
+				action5.id = `inviteButtonSnake-${user}`;
+				action5.href = "#";
+				action5.textContent = "Invite to play Snake";
 
-                dropdownMenu.appendChild(action1);
-                dropdownMenu.appendChild(action2);
-                dropdownMenu.appendChild(action3);
-                dropdownMenu.appendChild(action4);
-                dropdownMenu.appendChild(action5);
+				// Adiciona o evento de clique ao botão de convite
+				action5.addEventListener('click', () => {
+					const inviteMessage = {
+						"type": "invite",
+						"recipient": user,  // Usa o nome do usuário como identificador
+						"game": "Snake"
+					};
+					chatSocket.send(JSON.stringify(inviteMessage));
+					console.log('Invite sent to', user);
+				});
 
-                // Cria um container para os botões e o dropdown
-                const btnGroup = document.createElement("div");
-                btnGroup.classList.add("btn-group");
-                btnGroup.appendChild(userButton);
-                btnGroup.appendChild(dropdownToggle);
-                btnGroup.appendChild(dropdownMenu);
+				dropdownMenu.appendChild(action1);
+				dropdownMenu.appendChild(action2);
+				dropdownMenu.appendChild(action3);
+				dropdownMenu.appendChild(action4);
+				dropdownMenu.appendChild(action5);
 
-                // Adiciona o grupo de botões à lista de usuários online
-                onlineUsersList.appendChild(btnGroup);
-            });
-            console.log('Online users:', data.online_users);
-        }
-    };
+				// Cria um container para os botões e o dropdown
+				const btnGroup = document.createElement("div");
+				btnGroup.classList.add("btn-group");
+				btnGroup.appendChild(userButton);
+				btnGroup.appendChild(dropdownToggle);
+				btnGroup.appendChild(dropdownMenu);
 
-    chatSocket.onclose = function (e) {
-        console.log('WebSocket connection closed:', e);
-    };
+				// Adiciona o grupo de botões à lista de usuários online
+				onlineUsersList.appendChild(btnGroup);
 
-    chatSocket.onerror = function (error) {
-        console.error('WebSocket error:', error);
-    };
+				// Events
+				{
+					// Adiciona os eventos de clique dos restantes botões da página
+					document.getElementById('homeButton').addEventListener('click', (e) => {
+						e.preventDefault();
+						navigateTo(`/user/${username}`);
+					});
 
-    chatMessageSubmit.onclick = function () {
-        const message = chatMessageInput.value;
-        if (message) {
-            const messageData = {
-                "message": message
-            };
-            if (selectedUser) {
-                messageData.recipient = selectedUser;
-                messageData.type = "private";
-            }
-            chatSocket.send(JSON.stringify(messageData));
-            chatMessageInput.value = '';
-        }
-    };
+					document.getElementById('snake-navbar').addEventListener('click', (e) => {
+						e.preventDefault();
+						navigateTo(`/user/${username}/snake`);
+					});
 
-    // Listen for 'Enter' key press in the message input field
-    chatMessageInput.addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-            chatMessageSubmit.click();
-            event.preventDefault(); // Prevent the default action
-        }
-    });
+					document.getElementById('pong-navbar').addEventListener('click', (e) => {
+						e.preventDefault();
+						navigateTo(`/user/${username}/pong`);
+					});
+
+					document.getElementById('viewProfile').addEventListener('click', (e) => {
+						e.preventDefault();
+						if (viewToken())
+							fetchUserProfile(username); //utilizar as funções verificar tokens
+						else
+							navigateTo('/signIn');
+					});
+
+					document.getElementById('logOut').addEventListener('click', (e) => {
+						e.preventDefault();
+						removeToken(username);
+						setTimeout(function () {
+							navigateTo('/');
+						}, 2000);
+					});
+
+					document.getElementById('chatButton').addEventListener('click', (e) => {
+						e.preventDefault();
+						navigateTo(`/user/${username}/chat`);
+					});
+
+					document.getElementById('search-form').addEventListener('submit', (e) => {
+						e.preventDefault();
+						getUser(username);
+					});
+
+					document.getElementById('search-btn').addEventListener('click', (e) => {
+						e.preventDefault();
+						getUser(username);
+					});
+
+				}
+			});
+			console.log('Online users:', data.online_users);
+		}
+	};
+
+	chatSocket.onclose = function (e) {
+		console.log('WebSocket connection closed:', e);
+	};
+
+	chatSocket.onerror = function (error) {
+		console.error('WebSocket error:', error);
+	};
+
+	chatMessageSubmit.onclick = function () {
+		const message = chatMessageInput.value;
+		if (message) {
+			const messageData = {
+				"message": message
+			};
+			if (selectedUser) {
+				messageData.recipient = selectedUser;
+				messageData.type = "private";
+			}
+			chatSocket.send(JSON.stringify(messageData));
+			chatMessageInput.value = '';
+		}
+	};
+
+	// Listen for 'Enter' key press in the message input field
+	chatMessageInput.addEventListener('keypress', function (event) {
+		if (event.key === 'Enter') {
+			chatMessageSubmit.click();
+			event.preventDefault(); // Prevent the default action
+		}
+	});
+
+
 }

@@ -14,6 +14,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
+
 class ChatConsumer(AsyncWebsocketConsumer):
 	online_users = {}
 	invited = {}
@@ -101,8 +102,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		msgtype = text_data_json.get("type", None)
 		game = text_data_json.get("game", None)  # Captura o nome do jogo
 
+		if msgtype == "get_user_from_token":
+			await self.get_user_from_token(self.token)
+			return
+		
 		# Se for um convite para jogo
-		if msgtype == "invite":
+		elif msgtype == "invite":
 			if not recipient or recipient == self.user.username:
 				await self.channel_layer.group_send(
 					self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
@@ -168,6 +173,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
 		)
 
+		# Print the token to the terminal
+		# print(self.token)
+
 	async def chat_message(self, event):
 		message = event["message"]
 		sender = event["sender"]
@@ -225,6 +233,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"game": game  # Inclui o nome do jogo na resposta enviada ao cliente
 		}))
 
+	async def send_user_info(self):
+		if self.user.is_authenticated:
+			await self.send(text_data=json.dumps({
+				"type": "user_info",
+				"username": self.user.username,
+				"email": self.user.email,  # Se precisar de mais dados, adicione aqui
+			}))
+		else:
+			await self.send(text_data=json.dumps({
+				"type": "error",
+				"message": "User is not authenticated."
+			}))
 
 	@database_sync_to_async
 	def get_user_from_token(self, access_token):

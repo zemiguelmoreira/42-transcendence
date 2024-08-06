@@ -15,6 +15,7 @@ function userSearchPage(dataUserSearch, username) {
 	// const rootDiv = document.getElementById('root');
 	// rootDiv.innerHTML = makeProfilePage(dataUserSearch);
 	// console.log(dataUserSearch);
+
 	limparDivAll('root');
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageDataSearch);
@@ -24,10 +25,35 @@ function userSearchPage(dataUserSearch, username) {
 		navigateTo(`/user/${username}`);
 	});
 
+	document.getElementById('snake-navbar').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/snake`);
+	});
+
+	document.getElementById('pong-navbar').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/pong`);
+	});
+
+	document.getElementById('viewProfile').addEventListener('click', (e) => {
+		e.preventDefault();
+		if (viewToken())
+			fetchUserProfile(username); //utilizar as funções verificar tokens
+		else
+			navigateTo('/signIn');
+	});
+	
 	document.getElementById('logOut').addEventListener('click', (e) => {
 		e.preventDefault();
-		removeToken();
-		navigateTo('/');
+		removeToken(username);
+		setTimeout(function() {
+			navigateTo('/');
+		}, 2000);
+	});
+	
+	document.getElementById('chatButton').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/chat`);
 	});
 
 	document.getElementById('search-form').addEventListener('submit', (e) => {
@@ -46,11 +72,10 @@ function userSearchPage(dataUserSearch, username) {
 	// });
 }
 
-
 function noResults(username, query) {
 
 	limparDivAll('root');
-	console.log(query);
+	// console.log(query);
 	const noResultsUserId = noResultsPage(query);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', noResultsUserId);
 
@@ -84,14 +109,13 @@ function noResults(username, query) {
 
 }
 
-
 async function getUser(username) {
 
 	// let csrfToken;
 
 	// try {
 	//     csrfToken = await getCsrfToken();
-	//     console.log(csrfToken);
+	// console.log(csrfToken);
 
 	//     if (!csrfToken) {
 	//         throw {
@@ -101,7 +125,7 @@ async function getUser(username) {
 	//         };
 	//     }
 	// } catch (error) {
-	//     console.log(error.message, error.status, error.status_msn);
+	//    console.log(error.message, error.status, error.status_msn);
 	//     navigateTo(`/error/${error.status}/${error.message}`);
 	//     return;
 	// }
@@ -113,30 +137,37 @@ async function getUser(username) {
 		}
 	}
 
+	console.log('Parametro recebido: ', username);
+
 	try {
-		// em todos os fetchs em que o user está ligado verificara os tokens
-		// const csrfToken = await getCsrfToken();
-		const query = document.getElementById('search-input').value;
+		let query;
 
+		const searchInputElement = document.getElementById('search-input');
+		
+		try {
+			query = searchInputElement.value;
+		} catch (e) {
+			console.error('Error:', e);
+			navigateTo(`/error/${e.status}/${e.message}`);
+		}
+
+		// Agora tenta obter o perfil do usuário com a query
 		const user = await getUserProfileByUsername(query);
-
-		console.log('resposta no getUser', user);
+		console.log('Resposta no getUser: ', user);
 
 		if (user.status && user.status === 404) {
+			// Se o usuário não for encontrado, navega para a página de "sem resultados"
 			navigateTo(`/user/${username}/profile/search/noresults/${query}`);
 			return;
-
 		} else if (user.status && user.status === 401) {
-
-			// após o fetch da função getUserProfileByUsername se não existir token refresh devolve 401 - sem permissão
-			// console.log('teste chegaste aqui sem token');
+			// Se o usuário não tiver permissão (status 401), mostra mensagem e redireciona para login
 			const messageDiv = messageContainerToken();
 			document.getElementById('root').innerHTML = "";
 			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
-			console.log('message problems com refresh token: ');
+			console.log('Problemas com o token de refresh: ');
 			const messageContainer = document.getElementById('tokenMessage');
 			messageContainer.style.display = 'block'; // Exibe a mensagem
-			// console.log('passei no show message token');
+	
 			setTimeout(function () {
 				messageContainer.style.display = 'none';
 				navigateTo(`/signIn`);
@@ -144,26 +175,91 @@ async function getUser(username) {
 			return;
 		}
 
-		console.log("user: ", user);
+		dataUserSearch = user;
+		console.log(dataUserSearch);
+
+		if (username === dataUserSearch.user.username) {
+			// Se o usuário pesquisado for o próprio usuário logado, navega para o perfil dele
+			console.log('Usuário pesquisado é o próprio usuário logado.');
+			dataUserFromSearch = user;
+			console.log('data user from search', dataUserFromSearch);
+			navigateTo(`/user/${username}/profile`);
+		} else {
+			// Caso contrário, navega para o perfil do usuário pesquisado
+			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
+		}
+	
+	} catch (e) {
+		// Em caso de erro, navega para a página de erro correspondente
+		console.error('Error:', e);
+		navigateTo(`/error/${e.status}/${e.message}`);
+	}
+	
+
+}
+
+async function viewUserProfile(otherUser, username) {
+
+	const conf = {
+		method: 'GET',
+		headers: {
+			// 'X-CSRFToken': csrfToken
+		}
+	}
+
+	console.log('Parametros recebidos, user: ', otherUser, ', username: ', username);
+
+	try {
+		// Primeiro, tenta obter o valor do input de busca (search-input)
+		let query = otherUser;
+
+		// Agora tenta obter o perfil do usuário com a query
+		const user = await getUserProfileByUsername(query);
+		console.log('Resposta no getUser: ', user);
+
+		if (user.status && user.status === 404) {
+			// Se o usuário não for encontrado, navega para a página de "sem resultados"
+			navigateTo(`/user/${username}/profile/search/noresults/${query}`);
+			return;
+
+		} else if (user.status && user.status === 401) {
+			// Se o usuário não tiver permissão (status 401), mostra mensagem e redireciona para login
+			const messageDiv = messageContainerToken();
+			document.getElementById('root').innerHTML = "";
+			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
+			console.log('Problemas com o token de refresh: ');
+			const messageContainer = document.getElementById('tokenMessage');
+			messageContainer.style.display = 'block'; // Exibe a mensagem
+
+			setTimeout(function () {
+				messageContainer.style.display = 'none';
+				navigateTo(`/signIn`);
+			}, 2000); // 1000 milissegundos = 1 segundo
+			return;
+		}
+
+		// console.log("user: ", user);
 
 		dataUserSearch = user;
 		console.log(dataUserSearch);
 
 		if (username === dataUserSearch.user.username) {
-			console.log('teste passei aqui');
+			// Se o usuário pesquisado for o próprio usuário logado, navega para o perfil dele
+			console.log('Usuário pesquisado é o próprio usuário logado.');
 			dataUserFromSearch = user;
-			console.log('data user from search', dataUserFromSearch);
 			navigateTo(`/user/${username}/profile`);
-		}
-		else
-			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
 
+		} else {
+			// Caso contrário, navega para o perfil do usuário pesquisado
+			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
+		}
+	
 	} catch (e) {
-		// console.error('Error:', e);
+		// Em caso de erro, navega para a página de erro correspondente
+		console.error('Error:', e);
 		navigateTo(`/error/${e.status}/${e.message}`);
 	}
 
 }
 
-
-export { dataUserSearch, dataUserFromSearch, getUser, userSearchPage, noResults }
+export { dataUserSearch, dataUserFromSearch, getUser, viewUserProfile, userSearchPage, noResults }
