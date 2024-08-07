@@ -470,6 +470,7 @@ function makeProfilePageSearchOther(data) {
 	`;
 }
 
+// Página de erro de busca
 function noResultsPage(searchValue) {
 	return `
 	<div class="navbar-div">

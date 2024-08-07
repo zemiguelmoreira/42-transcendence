@@ -9,34 +9,19 @@ import { home_page } from "./homepage.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 
 function home() {
-	console.log('Loading home page content');
-
 	document.getElementById('root').innerHTML = '';
-
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
-
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo('/signIn');
 	});
-
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
-
-	// document.getElementById('register').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo('/register');
-	// });
-	// document.getElementById('home').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo('/');
-	// });
 }
 
-// // função para a home page -  user com tokens
 function homeLogin(username) {
 	console.log('Loading homeLogin page content');
-	document.getElementById('root').innerHTML = ''; // Apenas um teste
+	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
 
 	document.getElementById('homeButton').addEventListener('click', (e) => {
@@ -67,7 +52,7 @@ function homeLogin(username) {
 	document.getElementById('viewProfile').addEventListener('click', (e) => {
 		e.preventDefault();
 		if (viewToken())
-			fetchUserProfile(username); //utilizar as funções verificar tokens
+			fetchUserProfile(username);
 		else
 			navigateTo('/signIn');
 	});
@@ -101,23 +86,6 @@ function homeLogin(username) {
 	});
 
 	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
-
 }
-	
-	// document.getElementById('search-form').addEventListener('submit', (e) => {
-	// 	e.preventDefault();
-	// 	getUser(username);
-	// });
-
-	// document.getElementById('search-btn').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	getUser(username);
-	// });
-
-	// document.getElementById('testeLink').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// });
-	
-
 
 export { home, homeLogin }

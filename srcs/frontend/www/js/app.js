@@ -17,15 +17,15 @@ async function goTo() {
 			await refreshAccessToken(); // faz o refresh do access token  se o refresh token etiver válido
 			const accessToken = localStorage.getItem('access_token');
 			const payload = testToken(accessToken);
-			console.log(payload);
+			// console.log(payload);
 			// se o token estiver expirado
 			if (!payload) {
 				navigateTo('/');
 				return;
 			}
-			console.log(payload.user_id);
+			// console.log(payload.user_id);
 			let username = await getNamebyId(payload.user_id);
-			console.log(username);
+			// console.log(username);
 			if (username) {
 				navigateTo(`/user/${username}`);
 				WebSocketInstance.connect();
@@ -74,7 +74,7 @@ async function goTo() {
 
 function navigateTo(url, replace = false, redirectsCount = 0) {
 	const MAX_REDIRECTS = 10; // Limite de redirecionamentos
-	console.log('redirects: ', redirectsCount);
+	// console.log('redirects: ', redirectsCount);
 	//Protect againts too many redirects only too console
 	// a colocar apage de erro para tratar
 	if (redirectsCount > MAX_REDIRECTS) {
@@ -82,14 +82,14 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 		return;
 	}
 	const matchedRoute = matchRoute(url);
-	console.log('matchedroute: ', matchedRoute);
+	// console.log('matchedroute: ', matchedRoute);
 	if (matchedRoute) {
-		console.log('navigate url: ', url);
+		// console.log('navigate url: ', url);
 		const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
-		console.log(accessAllowed);
+		// console.log(accessAllowed);
 		if (!accessAllowed) {
 			// history.replaceState({page: matchedRoute.page.redirect}, '', matchedRoute.page.redirect);
-			console.log('route1');
+			// console.log('route1');
 			navigateTo(matchedRoute.page.redirect, true, redirectsCount + 1);
 			return;
 		}
@@ -99,7 +99,7 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 				history.replaceState({ page: url }, '', url);
 			else
 				history.pushState({ page: url }, '', url);
-			console.log('route2');
+			// console.log('route2');
 			matchedRoute.page.loadContent(matchedRoute.params);
 			return;
 		}
@@ -116,9 +116,9 @@ function matchRoute(route) {
 			return '([^\\/]+)';
 		});
 		const regex = new RegExp('^' + regexPath + '$');
-		console.log('regex: ', regex);
+		// console.log('regex: ', regex);
 		const match = route.match(regex);
-		console.log('match: ', match);
+		// console.log('match: ', match);
 		if (match) {
 			const params = {};
 			paramNames.forEach((name, index) => {
@@ -130,130 +130,17 @@ function matchRoute(route) {
 	return null;
 }
 
-// async function profile() {
-
-// 	// Carregar o conteúdo HTML
-// 	try {
-// 		document.getElementById('mainContent').innerHTML = `
-		// <div class="profile-container">
-		// 	<div class="profile-left">
-		// 		<img src="../files/ialves-m.jpg" alt="User Photo">
-		// 		<h3 id="username">Pastilhex</h3>
-		// 		<div class="friends-list">
-		// 			<h3 class="friends-title">Friends</h3>
-		// 			<table class="friends-table">
-		// 				<thead>
-		// 					<tr>
-		// 						<th>Status</th>
-		// 						<th>Username</th>
-		// 					</tr>
-		// 				</thead>
-		// 				<tbody>
-		// 					<tr>
-		// 						<td><span class="status-icon green"></span></td>
-		// 						<td>user1</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon red"></span></td>
-		// 						<td>user2</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon green"></span></td>
-		// 						<td>user3</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon red"></span></td>
-		// 						<td>user4</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon green"></span></td>
-		// 						<td>user5</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon red"></span></td>
-		// 						<td>user6</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon green"></span></td>
-		// 						<td>user7</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon red"></span></td>
-		// 						<td>user8</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon green"></span></td>
-		// 						<td>user9</td>
-		// 					</tr>
-		// 					<tr>
-		// 						<td><span class="status-icon red"></span></td>
-		// 						<td>user10</td>
-		// 					</tr>
-		// 				</tbody>
-		// 			</table>
-		// 		</div>
-		// 	</div>
-		// 	<div class="profile-right">
-		// 		<div class="profile-title">My Profile</div>
-		// 		<div class="profile-info">
-		// 			<label class="profile-label" for="name">Name:</label>
-		// 			<span class="profile-description" id="name">John Doe</span>
-		// 		</div>
-		// 		<div class="profile-info">
-		// 			<label for="username">Username:</label>
-		// 			<span class="profile-description" id="username">john_doe</span>
-		// 		</div>
-		// 		<div class="profile-info">
-		// 			<label for="email">Email:</label>
-		// 			<span class="profile-description" id="email">john.doe@example.com</span>
-		// 		</div>
-		// 		<div class="profile-title">Games Played</div>
-		// 		<table class="game-list">
-		// 			<thead>
-		// 				<tr>
-		// 					<th>Game</th>
-		// 					<th>Date</th>
-		// 					<th>Score</th>
-		// 					<th>Wins</th>
-		// 					<th>Loses</th>
-		// 				</tr>
-		// 			</thead>
-		// 			<tbody>
-		// 				<tr>
-		// 					<td>Pong</td>
-		// 					<td>2024-07-01</td>
-		// 					<td>10</td>
-		// 					<td>10</td>
-		// 					<td>10</td>
-		// 				</tr>
-		// 				<tr>
-		// 					<td>Snake</td>
-		// 					<td>2024-07-02</td>
-		// 					<td>15</td>
-		// 					<td>15</td>
-		// 					<td>15</td>
-		// 				</tr>
-		// 			</tbody>
-		// 		</table>
-		// 	</div>
-		// </div>
-// 		`;
-// 	} catch (error) {
-// 		console.error('Erro ao carregar o conteúdo:', error);
-// 	}
-// };
-
 document.addEventListener('DOMContentLoaded', function (e) {
 
-	console.log("EVENT LISTENER")
+	// console.log("EVENT LISTENER")
 	// e.preventDefault();
 	window.addEventListener('popstate', (e) => {
-		console.log(e.state);
+		// console.log(e.state);
 		if (e.state) {
 			const matchedRoute = matchRoute(e.state.page);
-			console.log('matchedRoute: ', matchedRoute);
+			// console.log('matchedRoute: ', matchedRoute);
 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
-			console.log('init access: ', accessAllowed);
+			// console.log('init access: ', accessAllowed);
 			if (matchedRoute && accessAllowed) {
 				matchedRoute.page.loadContent(matchedRoute.params);
 			} else
@@ -262,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
 			// console.log('aqui');
 			// history.replaceState(null, '', '/');
 			// return;
-			console.log('aqui');
 			// tenho de definir um default state para o event.state quando for null
 			const defaultState = { page: '/' };  // page que é default state
 			history.replaceState(defaultState, '', '/');

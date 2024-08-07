@@ -1,14 +1,7 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
-import { viewUserProfile } from "../search/search_user.js";
+import { navigateTo } from "../app.js";
 
-function requestUserName() {
-    const request = {
-        "type": "request_user_name"
-    };
-    chatSocket.send(JSON.stringify(request));
-}
-
-export function initializeChat() {
+export function initializeChat(username) {
 
 	console.log('Loading chat page content');
 
@@ -151,14 +144,16 @@ export function initializeChat() {
 			chatLog.scrollTop = chatLog.scrollHeight;
 
 		} else if (data.online_users) {
+			
 			onlineUsersList.innerHTML = '';
+			
 			data.online_users.forEach(function (user) {
+
 				// Cria o botão principal (lado esquerdo do split)
 				const userButton = document.createElement("button");
 				userButton.textContent = user;
 				userButton.classList.add("btn", "btn-secondary", "btn-sm", "btn-left");
 				userButton.setAttribute('type', 'button');
-
 				userButton.addEventListener('click', () => {
 					if (userButton.classList.contains('active')) {
 						userButton.classList.remove('active');
@@ -200,26 +195,20 @@ export function initializeChat() {
 				action2.addEventListener('click', (e) => {
 					console.log('viewProfile clicked');
 					e.preventDefault();
-					const userProfileRequest = {
-						"type": "get_user_from_token"
-					};
-					chatSocket.send(JSON.stringify(userProfileRequest));	41
-					viewUserProfile(user, userProfileRequest);
+					navigateTo(`/user/${username}/profile/search/${username, user}`);
 					console.log('userProfileRequest sent');
 				});
 
-				
+				// Adiciona uma linha divisória
 				const action3 = document.createElement("hr");
 				action3.classList.add("dropdown-divider");
 
-
+				// Adiciona o botão de convite para jogar Pong
 				const action4 = document.createElement("a");
-				action4.classList.add("dropdown-item");
-				// Define um ID único baseado no nome do usuário, talvez seja necessário para iniciar a partida dos jogos
+				action4.classList.add("dropdown-item"); // Define um ID único baseado no nome do usuário, talvez seja necessário para iniciar a partida dos jogos
 				action4.id = `inviteButtonPong-${user}`;
 				action4.href = "#";
 				action4.textContent = "Invite to play Pong";
-				// Adiciona o evento de clique ao botão de convite
 				action4.addEventListener('click', () => {
 					const inviteMessage = {
 						"type": "invite",
@@ -230,14 +219,12 @@ export function initializeChat() {
 					console.log('Invite sent to', user);
 				});
 
-
+				// Adiciona o botão de convite para jogar Snake
 				const action5 = document.createElement("a");
 				action5.classList.add("dropdown-item");
 				action5.id = `inviteButtonSnake-${user}`;
 				action5.href = "#";
 				action5.textContent = "Invite to play Snake";
-
-				// Adiciona o evento de clique ao botão de convite
 				action5.addEventListener('click', () => {
 					const inviteMessage = {
 						"type": "invite",
@@ -248,6 +235,7 @@ export function initializeChat() {
 					console.log('Invite sent to', user);
 				});
 
+				// Adiciona os botões ao menu dropdown
 				dropdownMenu.appendChild(action1);
 				dropdownMenu.appendChild(action2);
 				dropdownMenu.appendChild(action3);

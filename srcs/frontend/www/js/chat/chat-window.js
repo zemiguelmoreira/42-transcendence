@@ -31,7 +31,7 @@ function chatWindow(username) {
 			scriptElement.onload = () => {
 				window.chatScriptLoaded = true;
 				// Inicializar o chat após o carregamento do script
-				initializeChat();
+				initializeChat(username);
 			};
 			scriptElement.onerror = () => {
 				console.error('Erro ao carregar o script chat.js');
@@ -40,7 +40,7 @@ function chatWindow(username) {
 		} else {
 			console.log('Script chat.js já carregado');
 			// Reativar o chat se o script já estiver carregado
-			initializeChat();
+			initializeChat(username);
 		}
 		
     } catch (error) {

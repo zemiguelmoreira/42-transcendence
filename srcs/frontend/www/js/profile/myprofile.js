@@ -122,7 +122,6 @@ async function getNamebyId(id) {
 	};
 }
 
-
 // Obtém os dados do user que está login e faz a página
 async function fetchUserProfile(username) {
 
@@ -187,6 +186,5 @@ async function fetchUserProfile(username) {
 		navigateTo(`/error/${e.status}/${e.message}`);
 	}
 }
-
 
 export { dataUser, getNamebyId, fetchUserProfile, getUserProfileByUsername };

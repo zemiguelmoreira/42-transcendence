@@ -12,10 +12,6 @@ let dataUserFromSearch;
 
 function userSearchPage(dataUserSearch, username) {
 
-	// const rootDiv = document.getElementById('root');
-	// rootDiv.innerHTML = makeProfilePage(dataUserSearch);
-	// console.log(dataUserSearch);
-
 	limparDivAll('root');
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageDataSearch);
@@ -198,68 +194,4 @@ async function getUser(username) {
 
 }
 
-async function viewUserProfile(otherUser, username) {
-
-	const conf = {
-		method: 'GET',
-		headers: {
-			// 'X-CSRFToken': csrfToken
-		}
-	}
-
-	console.log('Parametros recebidos, user: ', otherUser, ', username: ', username);
-
-	try {
-		// Primeiro, tenta obter o valor do input de busca (search-input)
-		let query = otherUser;
-
-		// Agora tenta obter o perfil do usuário com a query
-		const user = await getUserProfileByUsername(query);
-		console.log('Resposta no getUser: ', user);
-
-		if (user.status && user.status === 404) {
-			// Se o usuário não for encontrado, navega para a página de "sem resultados"
-			navigateTo(`/user/${username}/profile/search/noresults/${query}`);
-			return;
-
-		} else if (user.status && user.status === 401) {
-			// Se o usuário não tiver permissão (status 401), mostra mensagem e redireciona para login
-			const messageDiv = messageContainerToken();
-			document.getElementById('root').innerHTML = "";
-			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
-			console.log('Problemas com o token de refresh: ');
-			const messageContainer = document.getElementById('tokenMessage');
-			messageContainer.style.display = 'block'; // Exibe a mensagem
-
-			setTimeout(function () {
-				messageContainer.style.display = 'none';
-				navigateTo(`/signIn`);
-			}, 2000); // 1000 milissegundos = 1 segundo
-			return;
-		}
-
-		// console.log("user: ", user);
-
-		dataUserSearch = user;
-		console.log(dataUserSearch);
-
-		if (username === dataUserSearch.user.username) {
-			// Se o usuário pesquisado for o próprio usuário logado, navega para o perfil dele
-			console.log('Usuário pesquisado é o próprio usuário logado.');
-			dataUserFromSearch = user;
-			navigateTo(`/user/${username}/profile`);
-
-		} else {
-			// Caso contrário, navega para o perfil do usuário pesquisado
-			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
-		}
-	
-	} catch (e) {
-		// Em caso de erro, navega para a página de erro correspondente
-		console.error('Error:', e);
-		navigateTo(`/error/${e.status}/${e.message}`);
-	}
-
-}
-
-export { dataUserSearch, dataUserFromSearch, getUser, viewUserProfile, userSearchPage, noResults }
+export { dataUserSearch, dataUserFromSearch, getUser, userSearchPage, noResults }

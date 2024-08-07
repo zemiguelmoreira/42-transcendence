@@ -40,7 +40,7 @@ const pages = {
 			console.log('Loading user login page content for', params.username);
 			homeLogin(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	'/error/:status/:message': {
@@ -74,7 +74,7 @@ const pages = {
 				fetchUserProfile(params.username);
 			}
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	'/user/:username/profile/edit': {
@@ -82,7 +82,7 @@ const pages = {
 			console.log('Loading user profile edit page content for', params.username);
 			edit(dataUser, params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	'/user/:username/profile/search/:user': {
@@ -90,7 +90,7 @@ const pages = {
 			console.log('Loading user profile search user page content for', params.username);
 			userSearchPage(dataUserSearch, params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	'/user/:username/profile/search/noresults/:query': {
@@ -98,35 +98,35 @@ const pages = {
 			console.log('Loading user profile search user page-no results content for', params.username);
 			noResults(params.username, params.query);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	'/user/:username/snake': {
 		loadContent: function (params) {
 			snakeOptions(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},	
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
 			snakeGameLocal(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},	
 	'/user/:username/pong': {
 		loadContent: function (params) {
 			pongOptions(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	'/user/:username/chat': {
 		loadContent: function (params) {
 			chatWindow(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), //testar
+		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
 	},
 	// Outras páginas...
