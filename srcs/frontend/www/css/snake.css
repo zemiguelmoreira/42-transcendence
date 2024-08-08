@@ -11,7 +11,7 @@
 }
 
 .snake-container {
-	height: 116px;
+	height: 115px;
 	background-color: #b2bd09;
 	display: flex;
 	flex-direction: row;

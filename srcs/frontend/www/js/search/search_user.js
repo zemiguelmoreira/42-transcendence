@@ -5,67 +5,15 @@ import { limparDivAll } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
 import { messageContainerToken } from "../utils/utils1.js";
 
-
-
 let dataUserSearch;
 let dataUserFromSearch;
 
 function userSearchPage(dataUserSearch, username) {
 
-	limparDivAll('root');
+	document.getElementById('mainContent').innerHTML = '';
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
-	document.getElementById('root').insertAdjacentHTML('afterbegin', profilePageDataSearch);
 
-	document.getElementById('homeButton').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}`);
-	});
-
-	document.getElementById('snake-navbar').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/snake`);
-	});
-
-	document.getElementById('pong-navbar').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/pong`);
-	});
-
-	document.getElementById('viewProfile').addEventListener('click', (e) => {
-		e.preventDefault();
-		if (viewToken())
-			fetchUserProfile(username); //utilizar as funções verificar tokens
-		else
-			navigateTo('/signIn');
-	});
-	
-	document.getElementById('logOut').addEventListener('click', (e) => {
-		e.preventDefault();
-		removeToken(username);
-		setTimeout(function() {
-			navigateTo('/');
-		}, 2000);
-	});
-	
-	document.getElementById('chatButton').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/chat`);
-	});
-
-	document.getElementById('search-form').addEventListener('submit', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
-
-	document.getElementById('search-btn').addEventListener('click', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
-
-	// document.getElementById('back-profile').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo(`/user/${username}/profile`);
-	// });
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
 }
 
 function noResults(username, query) {
@@ -75,25 +23,25 @@ function noResults(username, query) {
 	const noResultsUserId = noResultsPage(query);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', noResultsUserId);
 
-	document.getElementById('homeButton').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}`);
-	});
+	// document.getElementById('homeButton').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}`);
+	// });
 
-	document.getElementById('logOut').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo('/');
-	});
+	// document.getElementById('logOut').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo('/');
+	// });
 
-	document.getElementById('search-form').addEventListener('submit', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
+	// document.getElementById('search-form').addEventListener('submit', (e) => {
+	// 	e.preventDefault();
+	// 	getUser(username);
+	// });
 
-	document.getElementById('search-btn').addEventListener('click', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
+	// document.getElementById('search-btn').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	getUser(username);
+	// });
 
 	// document.getElementById('backButton').addEventListener('click', function () {
 	// 	if (window.history.length > 1) {
@@ -190,8 +138,46 @@ async function getUser(username) {
 		console.error('Error:', e);
 		navigateTo(`/error/${e.status}/${e.message}`);
 	}
-	
 
 }
 
-export { dataUserSearch, dataUserFromSearch, getUser, userSearchPage, noResults }
+async function viewUserProfile(username, searchUser) {
+
+	const conf = {
+		method: 'GET',
+		headers: {
+			// 'X-CSRFToken': csrfToken
+		}
+	}
+	try {
+		let query = searchUser;
+		const user = await getUserProfileByUsername(query);
+		if (user.status && user.status === 404) {
+			navigateTo(`/user/${username}/profile/search/noresults/${query}`);
+			return;
+		} else if (user.status && user.status === 401) {
+			const messageDiv = messageContainerToken();
+			document.getElementById('root').innerHTML = "";
+			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
+			const messageContainer = document.getElementById('tokenMessage');
+			messageContainer.style.display = 'block';
+			setTimeout(function () {
+				messageContainer.style.display = 'none';
+				navigateTo(`/signIn`);
+			}, 2000);
+			return;
+		}
+		dataUserSearch = user;
+		console.log(dataUserSearch);
+		if (username === dataUserSearch.user.username) {
+			dataUserFromSearch = user;
+			navigateTo(`/user/${username}/profile`);
+		} else {
+			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
+		}
+	} catch (e) {
+		navigateTo(`/error/${e.status}/${e.message}`);
+	}
+}
+
+export { dataUserSearch, dataUserFromSearch, getUser, viewUserProfile, userSearchPage, noResults }

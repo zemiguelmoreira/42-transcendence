@@ -1,9 +1,14 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
+import { viewUserProfile } from "../search/search_user.js";
+import { viewToken } from "../utils/tokens.js";
+import { fetchUserProfile } from "../profile/myprofile.js";
+import { removeToken } from "../utils/tokens.js";
+import { getUser } from "../search/search_user.js";
 
 export function initializeChat(username) {
 
-	console.log('Loading chat page content');
+	// console.log('Loading chat page content');
 
 	let selectedUser = null;
 
@@ -16,7 +21,7 @@ export function initializeChat(username) {
 	const chatSocket = new WebSocket(`wss://${window.location.host}/chat/ws/?token=${token}`);
 
 	chatSocket.onopen = function () {
-		console.log('WebSocket connection established');
+		console.log('Chat page loaded. WebSocket connection established');
 	};
 
 	chatSocket.onmessage = function (e) {
@@ -60,8 +65,6 @@ export function initializeChat(username) {
 
 			if (data.selfdm)
 				displaySlidingMessage(messageElement.textContent);
-
-			console.log('Received message:', data);
 
 		} else if (data.invite) {
 
@@ -146,7 +149,6 @@ export function initializeChat(username) {
 		} else if (data.online_users) {
 			
 			onlineUsersList.innerHTML = '';
-			
 			data.online_users.forEach(function (user) {
 
 				// Cria o botão principal (lado esquerdo do split)
@@ -158,14 +160,14 @@ export function initializeChat(username) {
 					if (userButton.classList.contains('active')) {
 						userButton.classList.remove('active');
 						selectedUser = null;
-						console.log(`Usuário ${user} foi desmarcado.`);
+						// console.log(`Usuário ${user} foi desmarcado.`);
 					} else {
 						const activeButtons = document.querySelectorAll('#online-users-list .active');
 						activeButtons.forEach((btn) => btn.classList.remove('active'));
 
 						userButton.classList.add('active');
 						selectedUser = user;
-						console.log(`Usuário ${user} clicado e selecionado.`);
+						// console.log(`Usuário ${user} clicado e selecionado.`);
 					}
 				});
 
@@ -193,10 +195,9 @@ export function initializeChat(username) {
 				action2.href = "#";
 				action2.textContent = "View Profile";
 				action2.addEventListener('click', (e) => {
-					console.log('viewProfile clicked');
+					// console.log('viewProfile clicked');
 					e.preventDefault();
-					navigateTo(`/user/${username}/profile/search/${username, user}`);
-					console.log('userProfileRequest sent');
+					viewUserProfile(username, user);
 				});
 
 				// Adiciona uma linha divisória
@@ -303,7 +304,7 @@ export function initializeChat(username) {
 
 				}
 			});
-			console.log('Online users:', data.online_users);
+			// console.log('Online users:', data.online_users);
 		}
 	};
 

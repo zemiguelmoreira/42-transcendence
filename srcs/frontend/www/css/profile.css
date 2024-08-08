@@ -12,15 +12,15 @@
 
 .profile-left {
     border-right: 1px solid #ddd;
-	background-color: #ffffff;
+	background-color: #ffffffde;
     flex: 1;
 	border-radius: 10px;
     max-width: 300px;
 
 	margin: 10px;
 	margin-right: 5px;
-	padding-right: 20px;
-	height: 96%;
+	/* padding-right: 20px; */
+	/* height: 100%; */
     
 	text-align: center;
 	overflow: auto;
@@ -45,12 +45,12 @@
 }
 
 .profile-right {
-	background-color: #fff;
+	background-color: #ffffffde;
     display: flex;
     flex-direction: column;
     flex: 1;
 	border-radius: 10px;
-	height: 96%;
+	/* height: 100%; */
 	margin: 10px;
 	margin-left: 5px;
 	padding-right: 20px;
@@ -144,4 +144,12 @@
 
 table {
 	margin-bottom: 20px;
+}
+
+#editProfile {
+	--bs-btn-padding-x: 10px;
+	--bs-btn-padding-y: 10px;
+	--bs-btn-font-size: 12px;
+	--bs-btn-font-weight: 400;
+	--bs-btn-line-height: 0;
 }

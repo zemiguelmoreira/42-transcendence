@@ -186,6 +186,7 @@ h2 {
     flex-grow: 1;
     overflow-y: auto;
     background-color: rgba(0, 0, 0, 0.5);
+	height: 530px;
 }
 
 .organize {
@@ -331,7 +332,7 @@ h2 {
 .message-bar {
     background-color: rgba(0, 0, 0, 0.5); /* Cor de fundo para visualizar melhor */
     border-radius: 0 0 20px 20px;
-    height: 40px;
+    height: 30px;
     width: 998px; /* Largura do container */
     position: relative;
     overflow: hidden; /* Para evitar que o texto saia da barra */

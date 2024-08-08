@@ -20,7 +20,7 @@ function home() {
 }
 
 function homeLogin(username) {
-	console.log('Loading homeLogin page content');
+
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
 

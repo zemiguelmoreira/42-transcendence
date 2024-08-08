@@ -23,21 +23,21 @@ const pages = {
 	},
 	'/signIn': {
 		loadContent: function () {
-			console.log('Loading signIn page content');
+			// console.log('Loading signIn page content');
 			signIn();
 		},
 		access: true // rota publica
 	},
 	'/register': {
 		loadContent: function () {
-			console.log('Loading register page content');
+			// console.log('Loading register page content');
 			// register();
 		},
 		access: true //rota publica
 	},
 	'/user/:username': {
 		loadContent: function (params) {
-			console.log('Loading user login page content for', params.username);
+			// console.log('Loading user login page content for', params.username);
 			homeLogin(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), 
@@ -45,7 +45,7 @@ const pages = {
 	},
 	'/error/:status/:message': {
 		loadContent: function (params) {
-			console.log('Loading user error page content for', params.status, params.message);
+			// console.log('Loading user error page content for', params.status, params.message);
 			const makeError = displayPageError(params.status, params.message);
 			document.getElementById('root').innerHTML = '';
 			document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
@@ -63,9 +63,9 @@ const pages = {
 	},
 	'/user/:username/profile': {
 		loadContent: function (params) {
-			console.log('Loading user profile page content for', params.username);
-			console.log('dataUser no path: ', dataUser);
-			console.log('dataUserFromSearch no path: ', dataUserFromSearch);
+			// console.log('Loading user profile page content for', params.username);
+			// console.log('dataUser no path: ', dataUser);
+			// console.log('dataUserFromSearch no path: ', dataUserFromSearch);
 			if (dataUser)
 				userProfilePage(dataUser, params.username);
 			else if (dataUserFromSearch)
@@ -79,7 +79,7 @@ const pages = {
 	},
 	'/user/:username/profile/edit': {
 		loadContent: function (params) {
-			console.log('Loading user profile edit page content for', params.username);
+			// console.log('Loading user profile edit page content for', params.username);
 			edit(dataUser, params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), 
@@ -87,7 +87,7 @@ const pages = {
 	},
 	'/user/:username/profile/search/:user': {
 		loadContent: function (params) {
-			console.log('Loading user profile search user page content for', params.username);
+			// console.log('Loading user profile search user page content for', params.username);
 			userSearchPage(dataUserSearch, params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), 
@@ -95,7 +95,7 @@ const pages = {
 	},
 	'/user/:username/profile/search/noresults/:query': {
 		loadContent: function (params) {
-			console.log('Loading user profile search user page-no results content for', params.username);
+			// console.log('Loading user profile search user page-no results content for', params.username);
 			noResults(params.username, params.query);
 		},
 		access: () => !!localStorage.getItem('access_token'), 

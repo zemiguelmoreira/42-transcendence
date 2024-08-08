@@ -2,22 +2,6 @@ import { navigateTo } from "../app.js";
 
 function snakeOptions(username) {
 
-	const snakePage = snakeGameOptions();
-
-	// document.getElementById('homeButton').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo(`/user/${username}`);
-	// });
-
-	console.log("PASSOU NO SNACK OPTIONS");
-	document.getElementById('snakeGame').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/snake-game-local`);
-	});
-
-}
-
-function snakeGameOptions() {
 	try {
 		document.getElementById('mainContent').innerHTML = `
 			<div class="card" style="width: 18rem;">
@@ -28,7 +12,7 @@ function snakeGameOptions() {
 					<a href="#" class="btn btn-primary card-btn" id="snakeGame">Let's Play</a>
 				</div>
 			</div>
-
+	
 			<div class="card" style="width: 18rem;">
 				<img src="../../files/online_play.jpg" class="card-img-top" alt="alt="Enter to play"">
 				<div class="card-body">
@@ -37,7 +21,7 @@ function snakeGameOptions() {
 					<a href="#" class="btn btn-primary card-btn">Let's Play</a>
 				</div>
 			</div>
-
+	
 			<div class="card" style="width: 18rem;">
 				<img src="../../files/tournment.jpg" class="card-img-top" alt="alt="Enter to chat"">
 				<div class="card-body">
@@ -50,6 +34,12 @@ function snakeGameOptions() {
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
+
+	document.getElementById('snakeGame').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/snake-game-local`);
+	});
+
 }
 
 export { snakeOptions }
