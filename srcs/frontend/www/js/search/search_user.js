@@ -12,44 +12,15 @@ function userSearchPage(dataUserSearch, username) {
 
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
-
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
+
 }
 
 function noResults(username, query) {
 
-	limparDivAll('root');
-	// console.log(query);
+	document.getElementById('mainContent').innerHTML = '';
 	const noResultsUserId = noResultsPage(query);
-	document.getElementById('root').insertAdjacentHTML('afterbegin', noResultsUserId);
-
-	// document.getElementById('homeButton').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo(`/user/${username}`);
-	// });
-
-	// document.getElementById('logOut').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo('/');
-	// });
-
-	// document.getElementById('search-form').addEventListener('submit', (e) => {
-	// 	e.preventDefault();
-	// 	getUser(username);
-	// });
-
-	// document.getElementById('search-btn').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	getUser(username);
-	// });
-
-	// document.getElementById('backButton').addEventListener('click', function () {
-	// 	if (window.history.length > 1) {
-	// 		window.history.back();
-	// 	} else {
-	// 		alert('Não há páginas anteriores no histórico.');
-	// 	}
-	// });
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', noResultsUserId);
 
 }
 
@@ -87,7 +58,7 @@ async function getUser(username) {
 		let query;
 
 		const searchInputElement = document.getElementById('search-input');
-		
+
 		try {
 			query = searchInputElement.value;
 		} catch (e) {
@@ -111,7 +82,7 @@ async function getUser(username) {
 			console.log('Problemas com o token de refresh: ');
 			const messageContainer = document.getElementById('tokenMessage');
 			messageContainer.style.display = 'block'; // Exibe a mensagem
-	
+
 			setTimeout(function () {
 				messageContainer.style.display = 'none';
 				navigateTo(`/signIn`);
@@ -132,7 +103,7 @@ async function getUser(username) {
 			// Caso contrário, navega para o perfil do usuário pesquisado
 			navigateTo(`/user/${username}/profile/search/${dataUserSearch.user.username}`);
 		}
-	
+
 	} catch (e) {
 		// Em caso de erro, navega para a página de erro correspondente
 		console.error('Error:', e);
