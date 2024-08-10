@@ -31,6 +31,12 @@ class UserProfile(models.Model):
     snake_match_history = models.JSONField(default=list)  # [{'opponent': 'username', 'result': 'win/loss', 'date': 'timestamp'}, ...]
     snake_rank = models.IntegerField(default=0)  # Rank do usuário no Snake
 
+    def save(self, *args, **kwargs):
+        # Set alias_name to user's username if it's not provided
+        if not self.alias_name:
+            self.alias_name = self.user.username
+        super(UserProfile, self).save(*args, **kwargs)
+
     def generate_2fa_secret(self):
         self.two_factor_secret = pyotp.random_base32()
         self.save()

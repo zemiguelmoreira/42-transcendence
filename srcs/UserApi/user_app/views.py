@@ -75,7 +75,6 @@ class CreateUserView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
     View para o usuário autenticado visualizar e atualizar seu perfil. Verifica se o perfil
@@ -120,8 +119,6 @@ class DeleteUserView(generics.DestroyAPIView):
         
         user.delete()
         return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
-
-
 
 ### Views de Gestão de Amizades
 
@@ -264,7 +261,6 @@ class GetUserProfileView(generics.RetrieveAPIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class GetUserUsernameView(generics.RetrieveAPIView):
     """
     View para obter o username de um usuário específico com base no id disponível
@@ -299,7 +295,6 @@ class UpdateUserProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = TokenObtainPairSerializer
 
@@ -349,7 +344,6 @@ class GetQRCodeView(APIView):
 
         return Response({"svg": svg_img}, status=status.HTTP_200_OK)
 
-
 class Verify2FACodeView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -373,7 +367,6 @@ class Verify2FACodeView(APIView):
             })
         else:
             return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UpdateMatchHistoryView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]

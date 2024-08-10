@@ -75,330 +75,60 @@
 					</div>
 				</nav>
 			</div>
-			<div class="mainContent">
+			<div class="home-box">
+
+
+
+
+
 				<div class="profile-container">
 					<div class="profile-left">
-						<img src="../../files/ialves-m.jpg" alt="User Photo">
-						<h3 id="username">${data.name}</h3>
-						<button id="editProfile" type="button" class="btn btn-secondary btn-sm">Edit Profile</button>
-						<div class="friends-list">
-							<h3 class="friends-title">Friends</h3>
-							<table class="friends-table">
-								<thead>
-									<tr>
-										<th>Status</th>
-										<th>Username</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td><span class="status-icon green"></span></td>
-										<td>user1</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon red"></span></td>
-										<td>user2</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon green"></span></td>
-										<td>user3</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon red"></span></td>
-										<td>user4</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon green"></span></td>
-										<td>user5</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon red"></span></td>
-										<td>user6</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon green"></span></td>
-										<td>user7</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon red"></span></td>
-										<td>user8</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon green"></span></td>
-										<td>user9</td>
-									</tr>
-									<tr>
-										<td><span class="status-icon red"></span></td>
-										<td>user10</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
+						<img id="profile-img" src="./files/ialves-m.jpg" alt="User Photo" style="cursor: pointer;">
+
+						<form>
+							<div class="form-group">
+								<label for="exampleFormControlFile1">Click to choose new photo</label>
+								<input type="file" class="form-control-file" id="exampleFormControlFile1" style="display: none;">
+							</div>
+						</form>
+
+
 					</div>
+
 					<div class="profile-right">
-						<div class="profile-title">My Profile</div>
-						<div class="profile-info">
-							<label for="username">Username:</label>
-							<span class="profile-description" id="username">${data.username}</span>
-						</div>
+						<div class="profile-title">Edit ${data.username} profile</div>
 						<div class="profile-info">
 							<label class="profile-label" for="name">Name:</label>
-							<span class="profile-description" id="name">${data.alias_name}</span>
+							<div class="input-group mb-3">
+								<input type="text" class="form-profile" placeholder="Name" aria-label="Name"
+									aria-describedby="basic-addon1">
+							</div>
+						</div>
+						<div class="profile-info">
+							<label for="username">Username:</label>
+							<div class="input-group mb-3">
+								<input type="text" class="form-profile" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+							</div>
 						</div>
 						<div class="profile-info">
 							<label for="email">Email:</label>
 							<span class="profile-description" id="email">${data.email}</span>
+							<span for="email" class="warning-label">* Email not editable</span>
 						</div>
-						<div class="profile-title">Games Statistics</div>
-						<table class="game-list">
-							<thead>
-								<tr>
-									<th>Game</th>
-									<th>Score</th>
-									<th>Wins</th>
-									<th>Loses</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Pong</td>
-									<td>${data.pong_rank}</td>
-									<td>${data.pong_wins}</td>
-									<td>${data.pong_losses}</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>${data.snake_rank}</td>
-									<td>${data.snake_wins}</td>
-									<td>${data.snake_losses}</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="profile-title">Matches History</div>
-						<table class="game-list">
-							<thead>
-								<tr>
-									<th>Game</th>
-									<th>Date</th>
-									<th>Winner</th>
-									<th>Looser</th>
-									<th>Winner Score</th>
-									<th>Looser Score</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Pong</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>Pong</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-							</tbody>
-						</table>
+						<button type="button" class="btn btn-primary btn-sm">Update profile</button>
+
 					</div>
 				</div>
-			</div>
-			<div class="message-bar">
-				<div id="slidingMessage" class="sliding-message"></div>
-			</div>
-
-
-
-<!-- 
-			<div class="navbar-div">
-				<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-					<div class="container-fluid">
-						<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-							data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-							aria-expanded="false" aria-label="Toggle navigation">
-							<span class="navbar-toggler-icon"></span>
-						</button>
-						<div class="collapse navbar-collapse" id="navbarSupportedContent">
-							<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-								<li class="nav-item">
-									<a class="nav-link active" aria-current="page" href="#" id="homeButton">HOME</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="chatButton" href="#">CHAT</a>
-								</li>
-								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-										aria-expanded="false">GAMES</a>
-									<ul class="dropdown-menu">
-										<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
-										<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
-									</ul>
-								</li>
-							</ul>
-							<form id="search-form" class="d-flex" role="search">
-								<input id="search-input" class="form-control me-2" type="search" placeholder="Search"
-									aria-label="Search">
-								<button id="search-btn" class="btn btn-outline-success" type="submit">Search</button>
-							</form>
-							<ul class="navbar-nav">
-								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-										aria-expanded="false">
-										<img src="./files/user-icon-03.png" alt="User Icon" width="30" height="30">
-									</a>
-									<ul class="dropdown-menu dropdown-menu-end">
-										<li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>
-										<li><a class="dropdown-item" href="#">Settings</a></li>
-										<li>
-											<hr class="dropdown-divider">
-										</li>
-										<li><a class="dropdown-item" id="logOut" href="#">Logout</a></li>
-									</ul>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</nav>
-			</div>
-
-			<div class="mainContent">
-				<div class="profile-container">
-					<div class="profile-left">
-						<img id="profile-img" src="./files/ialves-m.jpg" alt="User Photo">
-						<h3 id="username">${data.alias_name}</h3>
-					</div>
-
-
-					<div class="profile-right">
-						<div class="profile-title">${data.username} Profile</div>
-						<div class="profile-info">
-							<label class="profile-label" for="name">Name:</label>
-							<span class="profile-description" id="name">${data.username}</span>
-						</div>
-						<div class="profile-info">
-							<label for="username">Username:</label>
-							<span class="profile-description" id="username">${data.alias_name}</span>
-						</div>
-						<div class="profile-info">
-							<label for="email">Email:</label>
-							<span class="profile-description" id="email">${data.email}</span>
-						</div>
-
-
-						<div class="profile-title">Games Statistics</div>
-						<table class="game-list">
-							<thead>
-								<tr>
-									<th>Game</th>
-									<th>Score</th>
-									<th>Wins</th>
-									<th>Loses</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Pong</td>
-									<td>${data.pong_rank}</td>
-									<td>${data.pong_wins}</td>
-									<td>${data.pong_losses}</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>${data.snake_rank}</td>
-									<td>${data.snake_wins}</td>
-									<td>${data.snake_losses}</td>
-								</tr>
-							</tbody>
-						</table>
-
-						<div class="profile-title">Matches History</div>
-						<table class="game-list">
-							<thead>
-								<tr>
-									<th>Game</th>
-									<th>Date</th>
-									<th>Winner</th>
-									<th>Looser</th>
-									<th>Winner Score</th>
-									<th>Looser Score</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Pong</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>Pong</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<div class="message-bar">
-				<div id="slidingMessage" class="sliding-message"></div>
-			</div> -->
 
 
 
 
-
-
-
-
-			<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-				integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO"
-				crossorigin="anonymous"></script>
-			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-				integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-				crossorigin="anonymous"></script>
+				<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+					integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO"
+					crossorigin="anonymous"></script>
+				<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+					integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+					crossorigin="anonymous"></script>
 
 </body>
 
