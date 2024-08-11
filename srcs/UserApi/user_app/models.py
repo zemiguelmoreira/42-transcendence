@@ -1,13 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 import pyotp
+import re
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, default='default.jpg')
-    alias_name = models.TextField(blank=True)
-    bio = models.TextField(blank=True)
+    alias_name = models.CharField(blank=True, max_length=20)
+    bio = models.TextField(blank=True, max_length=200)
     friend_list = models.JSONField(default=list)
     blocked_list = models.JSONField(default=list)
     is_logged_in = models.BooleanField(default=False)
@@ -36,6 +38,13 @@ class UserProfile(models.Model):
         if not self.alias_name:
             self.alias_name = self.user.username
         super(UserProfile, self).save(*args, **kwargs)
+
+    # def clean(self):
+    #     # Validate alias_name to not allow spaces or special characters
+    #     if self.alias_name:
+    #         if not re.match(r'^[\w-]+$', self.alias_name):
+    #             raise ValidationError("Alias name can only contain letters, numbers, and underscores.")
+    #     super(UserProfile, self).clean()
 
     def generate_2fa_secret(self):
         self.two_factor_secret = pyotp.random_base32()

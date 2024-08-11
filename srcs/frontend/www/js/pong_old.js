@@ -22,7 +22,7 @@ let stopFlag = false;
 async function createRoom() {
     const pong_accessToken = localStorage.getItem('accessToken');
     const authorizedUser = document.getElementById('authorizedUser').value;
-    console.log(authorizedUser);
+    // console.log(authorizedUser);
 
     try {
         const response = await fetch('/game/create-room/', {
@@ -36,7 +36,7 @@ async function createRoom() {
             }),
         });
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         if (!response.ok) {
             console.error('error:', data);
         }
@@ -49,7 +49,7 @@ async function createRoom() {
 function joinRoom() {
     const pong_accessToken = localStorage.getItem('accessToken');
     const roomCode = document.getElementById('roomCodeInput').value;
-    console.log(roomCode);
+    // console.log(roomCode);
 
     pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
 
@@ -57,7 +57,7 @@ function joinRoom() {
         const data = JSON.parse(event.data);
         // console.log('Received message:', data);
         if (data.action === 'unauthorized') {
-            console.log('not authorized');
+            // console.log('not authorized');
         } else if (data.action === 'assign_index') {
             playerIndex = data.player_index;
             ballPosition = data.ball_position;
@@ -82,7 +82,7 @@ function joinRoom() {
                 loser_score: loserScore,
                 timestamp: timestamp
             });
-            console.log(score);
+            // console.log(score);
             // Enviar dados do jogo para a API, nao esta funcionando.
             // try {
             //     const response = await fetch('/api/profile/update_match_history/', {
@@ -116,7 +116,7 @@ function joinRoom() {
     };
 
     pong_socket.onclose = function(event) {
-        console.log('WebSocket connection closed:', event);
+        // console.log('WebSocket connection closed:', event);
     };
 }
 
@@ -197,7 +197,7 @@ function countdown(callback) {
 }
 
 function startGame() {
-    console.log('Entered start game');
+    // console.log('Entered start game');
     countdown(gameLoop); // Inicia a contagem regressiva e depois o loop de renderização do jogo
 }
 

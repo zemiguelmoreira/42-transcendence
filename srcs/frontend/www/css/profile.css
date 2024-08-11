@@ -10,6 +10,10 @@
     overflow: auto;
 }
 
+
+.profile-left h3 {
+	margin-bottom: 20px;
+}
 .profile-left {
     border-right: 1px solid #ddd;
 	background-color: #ffffffde;
@@ -30,18 +34,13 @@
 	flex-direction: column;
 }
 
-.profile-left h3 {
-    margin-bottom: 20px;
-}
-
 .profile-left img {
-    border-radius: 50%;
-    border: 2px solid #ddd;
-	height: 250px;
-    margin-top: 30px;
-    margin-bottom: 30px;
-    object-fit: cover;
-    width: 250px;
+	border-radius: 50%;
+	height: 150px;
+	width: 150px;
+	margin-top: 30px;
+	margin-bottom: 10px;
+	object-fit: cover;
 }
 
 .profile-right {
@@ -61,19 +60,18 @@
 
 .profile-title {
     color: #0056b3;
+	background: linear-gradient(to right, #fff, #ffffff00);
     font-family: 'CustomFont';
-    font-size: 20px;
-    margin-top: 35px;
+    font-size: 16px;
+	padding: 6px;
+    margin-top: 14px;
 	margin-bottom: 10px;
+	text-align: left;
 }
 
 .profile-info {
-    margin-bottom: 10px;
-}
-
-.profile-info label {
-    font-size: 1.5em;
-    font-weight: bold;
+	/* font-family: 'CustomFont';
+	font-size: 12px; */
 }
 
 .profile-description {
@@ -81,6 +79,22 @@
     margin-left: 10px;
 }
 
+.input-group {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.input-group label {
+	margin-right: 10px;
+	width: 100px; /* Ajuste esta largura conforme necessário */
+}
+
+.input-group input {
+	flex-grow: 1;
+}
+
+/* Friends Table CSS */
 .friends-list {
     display: flex;
     flex-direction: column;
@@ -104,24 +118,20 @@
 .friends-table th, .friends-table td {
     border: 1px solid #ddd;
     padding: 8px;
-    text-align: left;
+}
+
+.friends-table th:first-child,
+.friends-table td:first-child {
+    width: 100%; /* First column takes up all available space */
+}
+
+.friends-table th:last-child,
+.friends-table td:last-child {
+    white-space: nowrap; /* Prevents text from wrapping */
+    width: 1%; /* Takes up the minimum space necessary */
 }
 
 .friends-table th {
-    background-color: #f2f2f2;
-}
-
-.game-list {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.game-list th, .game-list td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-
-.game-list th {
     background-color: #f2f2f2;
     text-align: left;
 }
@@ -142,23 +152,38 @@
     background-color: red;
 }
 
+.game-list {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.game-list th, .game-list td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.game-list th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
 table {
-	margin-bottom: 20px;
+	margin-bottom: 10px;
+	height: 90%;
 }
 
 #editProfile {
-	--bs-btn-padding-x: 10px;
+	--bs-btn-padding-x: 30px;
 	--bs-btn-padding-y: 10px;
-	--bs-btn-font-size: 12px;
-	--bs-btn-font-weight: 400;
 	--bs-btn-line-height: 0;
+	font-family: 'CustomFont';
+	font-size: 10px;
 }
 
 .form-profile {
-	font-family: 'CustomFont';
-	width: 250px;
-	height: 37px;
-	font-size: 12px;
+	width: 100%;
+	height: 35px;
+	font-size: 16px;
 	border-radius: 8px;
 	padding-left: 10px;
 	border: var(--bs-border-width) solid var(--bs-border-color);
@@ -173,4 +198,87 @@ table {
 .warning-label {
 	font-size: 12px;
 	color: red;
+}
+
+.update-profile {
+    border: 0px solid #0056b3;
+    width: 100%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+	justify-content: center;
+}
+
+.update-profile tbody {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+}
+
+.update-profile tr {
+    display: flex;
+    align-items: flex-start;
+    flex-grow: 0;
+    margin-bottom: 5px; /* Mínimo de espaço vertical */
+}
+
+.update-profile tr:last-child {
+    flex-grow: 1;
+    align-items: stretch;
+}
+
+.update-profile td {
+	/* padding: 2px 5px; */
+	/* border: 1px solid #0056b3; */
+	min-width: 150px;
+	/* margin: 3px; */
+	height: 100%;
+	/* background-color: #ffffffde; */
+}
+
+.update-profile .input-group {
+    display: flex;
+    align-items: flex-start;
+}
+
+.update-profile .input-group label {
+    margin-right: 10px;
+    width: 50px; /* Ajuste conforme necessário */
+    line-height: 1; /* Mínimo de altura de linha */
+}
+
+.update-profile .input-group input,
+.update-profile .input-group textarea {
+    flex-grow: 1;
+    margin: 0; /* Remove margens adicionais */
+}
+
+.update-profile td:first-child {
+	text-align: right; /* Primeira coluna ocupa todo o espaço disponível */
+	/* border: 1px solid #0056b3; */
+	padding: 8px 8px;
+}
+
+.update-profile td:last-child {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.bio-textarea {
+    flex-grow: 1;
+    width: 100%;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    resize: none; /* Impede que o usuário redimensione a área de texto */
+	height: 100%;
+	width: 100%;
+}
+
+.bio-textarea-title {
+	align-items: baseline;
 }

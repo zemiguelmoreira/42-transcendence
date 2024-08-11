@@ -19,7 +19,7 @@ function displaySlidingMessage(message) {
         });
     });
 
-	console.log(message);
+	// console.log(message);
 }
 
 // limpa um elemento div - usado com o div do index - root
@@ -29,7 +29,7 @@ function limparDivAll(divId) {
 		var children = div.childNodes;
 		for (var i = children.length - 1; i >= 0; i--) {
 			var child = children[i];
-			console.log(child.id);
+			// console.log(child.id);
 			div.removeChild(child);
 		}
 	} else {
@@ -61,7 +61,7 @@ function displayErrorSignIn(errorMessage) {
 	errorDiv.textContent = `${errorMessage}. Try again`;
 	errorDiv.style.display = 'block'; // Mostra a div de erro
 	const registerForm = document.querySelector('#userSignInForm');
-	console.log(registerForm);
+	// console.log(registerForm);
 	for (let element of registerForm.elements) {
 		if (element.classList.contains('form-control')) {
 			element.addEventListener('input', function () {
@@ -127,7 +127,7 @@ function messageContainerToken() {
 
 // De reserva desactiva os links, pode ser util na home page
 function deactivateLinks(links) {
-	console.log('desativar links', viewToken());
+	// console.log('desativar links', viewToken());
 	if (!viewToken()) {
 		for (let link of links) {
 			if (link.dataset.value) {

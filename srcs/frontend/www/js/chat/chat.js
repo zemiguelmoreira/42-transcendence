@@ -21,7 +21,7 @@ export function initializeChat(username) {
 	const chatSocket = new WebSocket(`wss://${window.location.host}/chat/ws/?token=${token}`);
 
 	chatSocket.onopen = function () {
-		console.log('Chat page loaded. WebSocket connection established');
+		// console.log('Chat page loaded. WebSocket connection established');
 	};
 
 	chatSocket.onmessage = function (e) {
@@ -63,7 +63,7 @@ export function initializeChat(username) {
 			chatLog.appendChild(messageElement);
 			chatLog.scrollTop = chatLog.scrollHeight;
 
-			if (data.selfdm)
+			if (data.private)
 				displaySlidingMessage(messageElement.textContent);
 
 		} else if (data.invite) {
@@ -149,7 +149,10 @@ export function initializeChat(username) {
 		} else if (data.online_users) {
 			
 			onlineUsersList.innerHTML = '';
+			console.log('Online users:', data.online_users);
+
 			data.online_users.forEach(function (user) {
+				console.log('User:', user);
 
 				// Cria o botão principal (lado esquerdo do split)
 				const userButton = document.createElement("button");
@@ -217,7 +220,7 @@ export function initializeChat(username) {
 						"game": "Pong"
 					};
 					chatSocket.send(JSON.stringify(inviteMessage));
-					console.log('Invite sent to', user);
+					// console.log('Invite sent to', user);
 				});
 
 				// Adiciona o botão de convite para jogar Snake
@@ -233,7 +236,7 @@ export function initializeChat(username) {
 						"game": "Snake"
 					};
 					chatSocket.send(JSON.stringify(inviteMessage));
-					console.log('Invite sent to', user);
+					// console.log('Invite sent to', user);
 				});
 
 				// Adiciona os botões ao menu dropdown
@@ -309,7 +312,7 @@ export function initializeChat(username) {
 	};
 
 	chatSocket.onclose = function (e) {
-		console.log('WebSocket connection closed:', e);
+		// console.log('WebSocket connection closed:', e);
 	};
 
 	chatSocket.onerror = function (error) {

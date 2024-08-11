@@ -8,13 +8,12 @@ import { saveToken, viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import WebSocketInstance from "../socket/websocket.js";
-import { home_page } from "../home/homepage.js";
 import { goTo } from "../app.js";
 
 
 function insertInputValidation1(userSigInForm) {
 	for (let element of userSigInForm.elements) {
-		console.log('elemento no validation: ', element);
+		// console.log('elemento no validation: ', element);
 		// Verifica se o elemento é do tipo input e tem a classe 'form-control'
 		if (element.classList.contains('form-control') && !element.value) {
 			element.classList.add('input-error');
@@ -39,7 +38,7 @@ function userSignIn(e) {
 	const userSignInForm = document.querySelector('#userSignInForm');
 	const userOrEmail1 = userSignInForm.elements.username.value;
 	const password1 = userSignInForm.elements.password.value;
-	console.log(userOrEmail1, password1);
+	// console.log(userOrEmail1, password1);
 	if (userOrEmail1 && password1) {
 		sendIUser(userOrEmail1, password1);
 		userSignInForm.elements.username.value = "";
@@ -91,25 +90,25 @@ async function sendIUser(userOrEmail, password, allURL) {
 	};
 	try {
 		const response = await fetch(`${baseURL}/token/`, conf);
-		console.log('response login: ', response);
+		// console.log('response login: ', response);
 		if (!response.ok) {
 			const errorData = await response.json();
-			console.log('errorData login: ', errorData.detail);
+			// console.log('errorData login: ', errorData.detail);
 			const errorObject = {
 				message: errorData.detail,
 				status: response.status,
 			};
-			console.log(errorObject.message, errorObject.status);
+			// console.log(errorObject.message, errorObject.status);
 			throw errorObject;
 		}
 		const data = await response.json();
-		console.log('data login: ', data);
+		// console.log('data login: ', data);
 		saveToken(data.access, data.refresh);
-		console.log('localstorage', viewToken());
+		// console.log('localstorage', viewToken());
 		const payload = testToken(data.access);
-		console.log(payload);
+		// console.log(payload);
 		let username = await getNamebyId(payload.user_id);
-		console.log(username);
+		// console.log(username);
 		const qr_code = await fetchQrCode();
 		if (qr_code) {
 			displayQrCode(qr_code);
@@ -121,11 +120,11 @@ async function sendIUser(userOrEmail, password, allURL) {
 		submitCode.addEventListener('click', async function (e) {
 			e.preventDefault();
 			const code = qrForm.elements.qrCode.value;
-			console.log('teste o code é: ', code);
+			// console.log('teste o code é: ', code);
 			if (code) {
 				try {
 					const result = await verifyCode(userOrEmail, code); // após verificação colocar os campos do qrCodeForm a zero
-					console.log('result status: ', result.status); // se não validar o result será um erro
+					// console.log('result status: ', result.status); // se não validar o result será um erro
 					if (result.status && result.status === 400)
 						throw { message: 'Invalid or expired 2FA code', status: 400 };
 					qrForm.elements.qrCode.value = "";

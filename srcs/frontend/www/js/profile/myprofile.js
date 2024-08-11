@@ -11,7 +11,7 @@ async function getUserProfileByUsername(username) {
 
     // try {
     //     csrfToken = await getCsrfToken();
-    //     console.log(csrfToken);
+        // console.log(csrfToken);
 
     //     if (!csrfToken) {
     //         throw {
@@ -21,7 +21,7 @@ async function getUserProfileByUsername(username) {
     //         };
     //     }
     // } catch (error) {
-    //     console.log(error.message, error.status, error.status_msn);
+        // console.log(error.message, error.status, error.status_msn);
     //     navigateTo(`/error/${error.status}/${error.message}`);
     //     return;
     // }
@@ -44,14 +44,14 @@ async function getUserProfileByUsername(username) {
 		// const csrfToken = await getCsrfToken(); // Obter o token CSRF
 		// const dados = { user: username };
 
-		console.log('username: ', username);
+		// console.log('username: ', username);
 		response = await fetchWithAuth(`/api/profile/get_user_profile/?username=${username}`, conf);
 
-		console.log('response no get de um user: ', response);
+		// console.log('response no get de um user: ', response);
 
 		if (!response.ok) {
 			const data = await response.json();
-			console.log(data);
+			// console.log(data);
 			throw {
 					message: 'not possible to fetch user profile',
 					status: 401,
@@ -60,10 +60,10 @@ async function getUserProfileByUsername(username) {
 
 		const data = await response.json();
 		// console.log("id: ");
-		console.log(data);
+		// console.log(data);
 		return data;
 	} catch (e) {
-		console.log('Error:', e.message);
+		// console.log('Error:', e.message);
 		return response;
 	};
 }
@@ -75,7 +75,7 @@ async function getNamebyId(id) {
 
     // try {
     //     csrfToken = await getCsrfToken();
-    //     console.log(csrfToken);
+        // console.log(csrfToken);
 
     //     if (!csrfToken) {
     //         throw {
@@ -85,7 +85,7 @@ async function getNamebyId(id) {
     //         };
     //     }
     // } catch (error) {
-    //     console.log(error.message, error.status, error.status_msn);
+        // console.log(error.message, error.status, error.status_msn);
     //     navigateTo(`/error/${error.status}/${error.message}`);
     //     return;
     // }
@@ -113,8 +113,8 @@ async function getNamebyId(id) {
 		}
 		const data = await response.json();
 		// console.log("id: ");
-		console.log(data);
-		console.log(data.username);
+		// console.log(data);
+		// console.log(data.username);
 		return data.username;
 	} catch (error) {
 		console.error('Error:', error);
@@ -129,7 +129,7 @@ async function fetchUserProfile(username) {
 
     // try {
     //     csrfToken = await getCsrfToken();
-    //     console.log(csrfToken);
+        // console.log(csrfToken);
 
     //     if (!csrfToken) {
     //         throw {
@@ -139,7 +139,7 @@ async function fetchUserProfile(username) {
     //         };
     //     }
     // } catch (error) {
-    //     console.log(error.message, error.status, error.status_msn);
+        // console.log(error.message, error.status, error.status_msn);
     //     navigateTo(`/error/${error.status}/${error.message}`);
     //     return;
     // }
@@ -176,7 +176,7 @@ async function fetchUserProfile(username) {
 		}
 
 		let data = await response.json();
-		console.log('data que vem do user: ', data);
+		// console.log('data que vem do user: ', data);
 		dataUser = data;
 
 		navigateTo(`/user/${username}/profile`);

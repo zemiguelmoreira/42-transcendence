@@ -32,14 +32,14 @@ class Languages {
 	
 	getBrowserLanguage() {
 		const language = navigator.language || navigator.userLanguage || 'en';
-		console.log('language: ', language.split('-')[0]);
+		// console.log('language: ', language.split('-')[0]);
 		return language.split('-')[0]; // para ter em conta o seguinte (ver browser), 'en-US' -> 'en'
 	}
 
 	
 	loadTranslations(language) {
 
-		console.log('language to fetch: ', language);
+		// console.log('language to fetch: ', language);
 		let response;
 
 		if (language === 'pt')
@@ -48,7 +48,7 @@ class Languages {
             response = words_en;
 
 		this.translations[language] = response
-		console.log(this.translations[language]);
+		// console.log(this.translations[language]);
 	}
 
 	
@@ -57,17 +57,17 @@ class Languages {
 		  this.loadTranslations(language);
 		}
 		this.currentLanguage = language;
-		console.log('current in set: ', this.currentLanguage);
+		// console.log('current in set: ', this.currentLanguage);
 		// this.applyTranslations();
 	}
 
 
 	// colocar o atributo data-i18n no elemento html
 	applyTranslations(page) {
-		console.log('teste languages');
+		// console.log('teste languages');
 		const elements = document.querySelectorAll('[data-i18n]');
-		console.log(elements);
-		console.log('current: ', this.currentLanguage);
+		// console.log(elements);
+		// console.log('current: ', this.currentLanguage);
 		elements.forEach(element => {
 		  const key = element.getAttribute('data-i18n');
 		  if (this.translations[this.currentLanguage][page][key]) {

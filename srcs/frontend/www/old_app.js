@@ -5,11 +5,11 @@ function connectWebSocket() {
     socket = new WebSocket(`wss://${window.location.host}/api/ws/user_status/?token=${accessToken}`);
 
     socket.onopen = function(event) {
-        console.log('WebSocket connected');
+        // console.log('WebSocket connected');
     };
 
     socket.onmessage = function(event) {
-        console.log('Message from server:', event.data);
+        // console.log('Message from server:', event.data);
     };
 
     socket.onerror = function(error) {
@@ -19,7 +19,7 @@ function connectWebSocket() {
     };
 
     socket.onclose = function(event) {
-        console.log('WebSocket closed:', event);
+        // console.log('WebSocket closed:', event);
         // localStorage.removeItem('accessToken');
         // localStorage.removeItem('refreshToken');
     };
@@ -52,9 +52,9 @@ async function registerUser() {
         } else {
             if (data.username) {
                 // throw new Error(data.username[0]);
-                console.log(data.username[0]);
+                // console.log(data.username[0]);
             } else {
-                console.log(data.detail);
+                // console.log(data.detail);
                 // throw new Error(data.detail || 'Registration failed');
             }
         }
@@ -86,7 +86,7 @@ async function loginUser() {
         if (response.ok) {
             const data = await response.json();
             accessToken = data.access;  // Salve o token de acesso
-            console.log("Access token: " + accessToken);
+            // console.log("Access token: " + accessToken);
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('verifyForm').style.display = 'block';
             await fetchQRCode();
@@ -116,7 +116,7 @@ async function fetchQRCode() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data.svg);
+            // console.log(data.svg);
             document.getElementById('qrcode').innerHTML = data.svg;
         } else {
             throw new Error('Failed to fetch QR code.');
@@ -152,7 +152,7 @@ async function verifyCode() {
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
             global_username = username;
-            console.log("2FA verified successfully.");
+            // console.log("2FA verified successfully.");
             document.getElementById('verifyMessage').textContent = '2FA verification successful. You are logged in.';
             alert('2FA verification successful. You are logged in.');
             document.getElementById('loginForm').style.display = 'block';
@@ -245,7 +245,7 @@ async function getUserProfile() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
             alert('Profile retrieved successfully!');
             updateProfileElements(data.user, data.profile);
         } else {
@@ -269,7 +269,7 @@ async function listAllUsers() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
             alert('Users listed in console.');
         } else {
             throw new Error('Failed to fetch users');
@@ -420,7 +420,7 @@ async function unblockUser() {
 async function getUserProfileByUsername() {
     const accessToken = localStorage.getItem('accessToken');
     const username = document.getElementById('searchUsername').value;
-    console.log(username);
+    // console.log(username);
 
     try {
         const response = await fetch(`/api/profile/get_user_profile/?username=${username}`, {
@@ -432,7 +432,7 @@ async function getUserProfileByUsername() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
             alert('User profile retrieved successfully!');
             // Atualize os elementos HTML com os dados do perfil
             updateProfileElements(data.user, data.profile);

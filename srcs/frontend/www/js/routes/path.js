@@ -66,8 +66,8 @@ const pages = {
 			// console.log('Loading user profile page content for', params.username);
 			// console.log('dataUser no path: ', dataUser);
 			// console.log('dataUserFromSearch no path: ', dataUserFromSearch);
-			console.log('params.username: ', params.username);
-			console.log('params: ', params);
+			// console.log('params.username: ', params.username);
+			// console.log('params: ', params);
 			if (dataUser)
 				userProfilePage(dataUser, params.username);
 			else if (dataUserFromSearch)

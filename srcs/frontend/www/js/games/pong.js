@@ -131,7 +131,7 @@ socket.onopen = function(event) {
 };
 
 socket.onclose = function(event) {
-    console.log('WebSocket connection closed:', event);
+    // console.log('WebSocket connection closed:', event);
 };
 
 function sendMoveCommand(direction) {

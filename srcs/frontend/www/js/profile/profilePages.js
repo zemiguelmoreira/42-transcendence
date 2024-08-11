@@ -1,70 +1,60 @@
 // Página de perfil
 function makeProfilePage(data) {
+	console.log("makeProfilePage: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
-			<img src="../../files/ialves-m.jpg" alt="User Picture">
+			<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
 			<h3 id="username">${data.profile.alias_name}</h3>
-			<button id="editProfile" type="button" class="btn btn-primary btn-sm">Edit Profile</button>
+			<button id="editProfile" type="button" class="btn btn-outline-custom btn-sm">Edit Profile</button>
 			<div class="friends-list">
 			<table class="friends-table">
 				<thead>
 					<tr>
 						<th>Friends</th>
 						<th>Status</th>
-						<th>Action</th> <!-- Nova coluna para a letra X -->
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td>user1</td>
 						<td><span class="status-icon green"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user2</td>
 						<td><span class="status-icon red"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user3</td>
 						<td><span class="status-icon green"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user4</td>
 						<td><span class="status-icon red"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user5</td>
 						<td><span class="status-icon green"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user6</td>
 						<td><span class="status-icon red"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user7</td>
 						<td><span class="status-icon green"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user8</td>
 						<td><span class="status-icon red"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user9</td>
 						<td><span class="status-icon green"></span></td>
-						<td>X</td>
 					</tr>
 					<tr>
 						<td>user10</td>
 						<td><span class="status-icon red"></span></td>
-						<td>X</td>
 					</tr>
 				</tbody>
 			</table>
@@ -121,52 +111,88 @@ function makeProfilePage(data) {
 
 // Página de edição de perfil
 function makeEditProfilePage(data) {
+	console.log("makeEditProfilePage: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
-			<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture" style="cursor: pointer;">
+			<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}" style="cursor: pointer;">
 			<form>
 				<div class="form-group">
 					<label for="choosePicture">Click to choose new picture</label>
 					<input type="file" class="form-control-file" id="choosePicture" style="display: none;">
 				</div>
-			</form>
+					<table class="image-grid">
+						<th colspan="3" >Image Gallery</th>
+						<tr>
+							<td><img src="srcs/UserApi/media/default.jpg" alt="Image 1"></td>
+							<td><img src="path_to_image_2.jpg" alt="Image 2"></td>
+							<td><img src="path_to_image_3.jpg" alt="Image 3"></td>
+						</tr>
+						<tr>
+							<td><img src="path_to_image_4.jpg" alt="Image 4"></td>
+							<td><img src="path_to_image_5.jpg" alt="Image 5"></td>
+							<td><img src="path_to_image_6.jpg" alt="Image 6"></td>
+						</tr>
+						<tr>
+							<td><img src="path_to_image_7.jpg" alt="Image 7"></td>
+							<td><img src="path_to_image_8.jpg" alt="Image 8"></td>
+							<td><img src="path_to_image_9.jpg" alt="Image 9"></td>
+						</tr>
+					</table>
+				</form>
 		</div>
-		<div class="profile-right">
-			<div class="profile-title">Edit ${data.username} profile</div>
-			<div class="profile-info">
-				<label class="profile-label" for="name">Name:</label>
-				<div class="input-group mb-3">
-					<input type="text" class="form-profile" placeholder="Name" aria-label="Name"
-						aria-describedby="basic-addon1">
-				</div>
-			</div>
-			<div class="profile-info">
-				<label for="username">Username:</label>
-				<div class="input-group mb-3">
-					<input type="text" class="form-profile" placeholder="Username" aria-label="Username"
-						aria-describedby="basic-addon1">
-				</div>
-			</div>
-			<div class="profile-info">
-				<label for="email">Email:</label>
-				<span class="profile-description" id="email">${data.email}</span>
-				<span for="email" class="warning-label">* Email not editable</span>
-			</div>
-			<button type="button" class="btn btn-primary btn-sm">Update profile</button>
 
+		<div class="profile-right">
+			<table class="update-profile">
+				<tbody>
+					<tr>
+						<td colspan="2"><div class="profile-title">Edit ${data.user.username} profile</div></td>
+					</tr>
+					<tr>
+						<td><div class="profile-info">Name:</div></td>
+						<td><div class="profile-description" for="name">${data.user.username}</div></td>
+					</tr>
+					<tr>
+						<td><div class="profile-info">Email:</div></td>
+						<td>
+							<div class="profile-description" id="email">${data.user.email}</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="profile-info">Nickname:</div>
+						</td>
+						<td>
+							<input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="profile-info">Bio: </div>
+						</td>
+						<td>
+							<textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
 		</div>
 	</div>
+
 	`;
 }
 
 // Resultado da busca de outro usuário
 function makeProfilePageSearchOther(data) {
+	console.log("makeProfilePageSearchOther: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
 			<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture">
 			<h3 id="username">${data.profile.alias_name}</h3>
+			
 		</div>
 
 

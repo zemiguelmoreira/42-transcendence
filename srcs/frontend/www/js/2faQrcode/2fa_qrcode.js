@@ -18,7 +18,7 @@ async function fetchQrCode() {
         }
 
         const data = await response.json();
-        console.log("SVG no fetchQRCode", data.svg);
+        // console.log("SVG no fetchQRCode", data.svg);
         return data.svg;
 
     } catch (error) {
@@ -47,7 +47,7 @@ function displayErrorCode(errorMessage) {
 	errorDiv.textContent = `${errorMessage}Try again`;
 	errorDiv.style.display = 'block'; // Mostra a div de erro
 	const registerForm = document.querySelector('#userSignInForm');
-	console.log(registerForm);
+	// console.log(registerForm);
 	for (let element of registerForm.elements) {
 		if (element.classList.contains('form-control')) {
 			element.addEventListener('input', function () {
@@ -62,7 +62,7 @@ function displayErrorCode(errorMessage) {
 
 async function verifyCode(userOrEmail, qrCode) {
     
-    console.log('qrCode no verify: ', qrCode);
+    // console.log('qrCode no verify: ', qrCode);
 
     const data = {
         username: userOrEmail,
@@ -82,23 +82,23 @@ async function verifyCode(userOrEmail, qrCode) {
     if (!response.ok) {
         
         const errorData = await response.json();
-        console.log('errorData login: ', errorData.detail);
+        // console.log('errorData login: ', errorData.detail);
         const errorObject = {
             message: errorData.detail,
             status: response.status,
             // status_msn: response.statusText
         };
-        console.log(errorObject.message, errorObject.status);
+        // console.log(errorObject.message, errorObject.status);
         return errorObject;
 
     } else {
 
         const data = await response.json();
 
-        console.log('data login no verifycode: ', data);
+        // console.log('data login no verifycode: ', data);
         saveToken(data.access, data.refresh);
         
-        console.log("2FA verified successfully.");
+        // console.log("2FA verified successfully.");
         return data;  
     }
 }

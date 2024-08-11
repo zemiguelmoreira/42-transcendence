@@ -290,6 +290,9 @@ class UpdateUserProfileView(APIView):
     def put(self, request, format=None):
         user_profile = UserProfile.objects.get(user=request.user)
         serializer = UserProfileSerializer(user_profile, data=request.data, partial=True, context={'request': request})
+        
+        logger.info(f'UpdateUserProfileView request data: {request.data}')
+		
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

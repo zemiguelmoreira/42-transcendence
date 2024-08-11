@@ -25,14 +25,14 @@ function testToken(token) {
 	
 		const currentTimestamp = Math.floor(Date.now() / 1000);
 		if (payload.exp < currentTimestamp) {
-			console.log('Token expirado');
+			// console.log('Token expirado');
 			return null;
 		} else {
-			console.log('Token válido');
+			// console.log('Token válido');
 			return payload;
 		}
 	} else {
-		console.log('Token não encontrado no localStorage');
+		// console.log('Token não encontrado no localStorage');
 		return payload;
 	}
 
@@ -45,7 +45,7 @@ function saveToken(access_token, refresh_token) {
         try {
             localStorage.setItem('access_token', access_token);
             localStorage.setItem('refresh_token', refresh_token);
-            console.log('Tokens salvo com sucesso na localStorage.');
+            // console.log('Tokens salvo com sucesso na localStorage.');
         } catch (error) {
             console.error('Erro ao salvar os tokens na localStorage:', error);
         }
@@ -77,7 +77,7 @@ function removeToken(username) {
 		const token = localStorage.getItem('access_token');
 
 		// Verificar se o token existe
-		console.log(`Item com chave "${token}" encontrado na localStorage.`);
+		// console.log(`Item com chave "${token}" encontrado na localStorage.`);
 
 		// Mensagem de saida
 		const successLogOut = logoutContainer(username);
@@ -86,7 +86,7 @@ function removeToken(username) {
 		// Remover os tokens
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('refresh_token');
-		console.log(`Item com chave "${token}" removido com sucesso da localStorage.`);
+		// console.log(`Item com chave "${token}" removido com sucesso da localStorage.`);
 	} catch (error) {
 		console.error(`Erro ao remover o item com chave "${token}" da localStorage:`, error);
 	}
@@ -98,18 +98,18 @@ function removeToken(username) {
 function verifyToken() {
 	// console.log('user is login na verifyToken: ', WebSocketInstance.state());
 	if(WebSocketInstance.state() === 1) {
-		console.log("estado da socket", WebSocketInstance.state()); // verificação da socket teste
+		// console.log("estado da socket", WebSocketInstance.state()); // verificação da socket teste
 		const token = localStorage.getItem('refresh_token');
 		if (!testToken(token)) {
-			console.log("desligar a socket");
+			// console.log("desligar a socket");
 			WebSocketInstance.close();
 			navigateTo('/');
 			removeToken();
 		} else {
-			console.log('token válido mantém a socket')
+			// console.log('token válido mantém a socket')
 		}
 	} else {
-		console.log('user is logout');
+		// console.log('user is logout');
 	}
 
 }

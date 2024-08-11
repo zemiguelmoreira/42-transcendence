@@ -19,7 +19,7 @@ async function fetchProtectedData() {
         }
 
         const data = await response.json();
-        console.log('Protected data:', data);
+        // console.log('Protected data:', data);
     } catch (error) {
         console.error(error.message);
     }
@@ -45,28 +45,28 @@ async function fetchWithAuth(url, options = {}) {
 
 	testToken(accessToken); //só para teste
 
-	console.log('access: ', accessToken);
-    console.log('validade: ', testToken(accessToken));
+	// console.log('access: ', accessToken);
+    // console.log('validade: ', testToken(accessToken));
 
     options.headers = {
         ...options.headers,
         'Authorization': `Bearer ${accessToken}`
     };
 
-	console.log('Headers before first request:', options.headers);
+	// console.log('Headers before first request:', options.headers);
 
     let response = await fetch(url, options);
-	console.log('url a fazer fetch: ', url);
+	// console.log('url a fazer fetch: ', url);
 
     if (response.status === 401) {
         const refreshed = await refreshAccessToken();
-		console.log(refreshed);
+		// console.log(refreshed);
         if (refreshed) {
-			console.log('access: ', localStorage.getItem('access_token'));
+			// console.log('access: ', localStorage.getItem('access_token'));
             options.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
             testToken(localStorage.getItem('access_token'));
-            console.log('Headers before second request:', options.headers);
-			console.log(url);
+            // console.log('Headers before second request:', options.headers);
+			// console.log(url);
             response = await fetch(url, options);
         }
         else {
@@ -105,8 +105,8 @@ async function refreshAccessToken() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log('data no refresh token function: ', data);
-            console.log('Novo token de acesso:', data.access);
+            // console.log('data no refresh token function: ', data);
+            // console.log('Novo token de acesso:', data.access);
 			localStorage.setItem('access_token', data.access);
 			return true;
         } else {

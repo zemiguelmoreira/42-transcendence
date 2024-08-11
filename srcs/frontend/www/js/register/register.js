@@ -11,7 +11,7 @@ import { successContainerRegister } from "../utils/utils1.js";
 //INSERE A CLASSE DE VALIDAÇÃO DO CAMPO - BORDER RED
 function insertInputValidation(registerForm) {
 	for (let element of registerForm.elements) {
-		console.log(element);
+		// console.log(element);
 
 		// Verifica se o elemento é do tipo input e tem a classe 'form-control'
 		if (element.classList.contains('form-control') && !element.value) {
@@ -36,7 +36,7 @@ function insertInputValidation(registerForm) {
 
 // FAZ O FETCH SE ESTIVER TUDO OK
 function fetchRegister(user, email, password, password2, registerForm) {
-	console.log(user, password, password2);
+	// console.log(user, password, password2);
 	registerUser(user, email, password, password2);
 	registerForm.elements.username.value = "";
 	registerForm.elements.email.value = "";
@@ -49,7 +49,7 @@ function handleSignUp(e) {
     e.preventDefault();
     const registerForm = document.querySelector('#userRegisterForm');
     const user = registerForm.elements.username.value;
-	console.log(user);
+	// console.log(user);
     const email = registerForm.elements.email.value;
     const password = registerForm.elements.password.value;
     const password2 = registerForm.elements.password2.value;
@@ -99,7 +99,7 @@ async function registerUser(user, email, password, password2) {
 
     // try {
     //     csrfToken = await getCsrfToken();
-    //     console.log(csrfToken);
+        // console.log(csrfToken);
 
     //     if (!csrfToken) {
     //         throw {
@@ -109,7 +109,7 @@ async function registerUser(user, email, password, password2) {
     //         };
     //     }
     // } catch (error) {
-    //     console.log(error.message, error.status, error.status_msn);
+        // console.log(error.message, error.status, error.status_msn);
     //     navigateTo(`/error/${error.status}/${error.message}`);
     //     return;
     // }
@@ -135,15 +135,15 @@ async function registerUser(user, email, password, password2) {
 	try {
 
 		const response = await fetch(`${baseURL}/user/register/`, configuracao);
-		console.log('response: ', response);
+		// console.log('response: ', response);
 
 		if (!response.ok) {
 			const errorData = await response.json(); // msn que vem do Django (serializer)
-			console.log('errorData: ', errorData);
+			// console.log('errorData: ', errorData);
             const message = Object.values(errorData)[0];
 			const input = Object.keys(errorData)[0];// só para controlo na consola
-			console.log('message: ', message);
-			console.log('input: ', input);
+			// console.log('message: ', message);
+			// console.log('input: ', input);
 			const errorObject = {
 				message: message,
 				status: response.status,
@@ -154,7 +154,7 @@ async function registerUser(user, email, password, password2) {
 		}
 
 		const data = await response.json();
-		console.log('data register: ', data);
+		// console.log('data register: ', data);
 		limparDivAll('root');
 		const successDiv = successContainerRegister(data.username);
 		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
@@ -162,12 +162,12 @@ async function registerUser(user, email, password, password2) {
 
 	} catch (e) {
 
-		console.log(e.message, e.status, e.status_msn);
+		// console.log(e.message, e.status, e.status_msn);
 
 		if (e.status === 400) {
 			const err_key = Object.keys(e.message)[0];
 			const err_message = e.message[err_key];
-			console.log(err_message);
+			// console.log(err_message);
 			displayError(err_message);
 		}
 		else {

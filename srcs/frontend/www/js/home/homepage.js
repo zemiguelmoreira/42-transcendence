@@ -1,4 +1,5 @@
-function makeHomePage() {
+function makeHomePage(data) {
+	// console.log('data no makeHomePage: ', data);
 	return `
 	<div class="navbar-div">
 		<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
@@ -31,7 +32,7 @@ function makeHomePage() {
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
 								aria-expanded="false">
-								<img src="../files/user-icon-03.png" alt="User Icon" width="30" height="30">
+								<img src="${data.profile.profile_image_url}" alt="User Icon" width="30" height="30">
 							</a>
 							<ul class="dropdown-menu dropdown-menu-end">
 								<li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>
@@ -82,6 +83,4 @@ function makeHomePage() {
 	`;
 }
 
-const home_page = makeHomePage();
-
-export { home_page }
+export { makeHomePage }

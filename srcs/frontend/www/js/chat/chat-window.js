@@ -23,7 +23,7 @@ function chatWindow(username) {
 		}
 		
 		if (!window.chatScriptLoaded) {
-			console.log('Carregando o script chat.js');
+			// console.log('Carregando o script chat.js');
 		
 			const scriptElement = document.createElement('script');
 			scriptElement.type = 'module';
@@ -38,7 +38,7 @@ function chatWindow(username) {
 			};
 			document.body.appendChild(scriptElement);
 		} else {
-			console.log('Script chat.js já carregado');
+			// console.log('Script chat.js já carregado');
 			// Reativar o chat se o script já estiver carregado
 			initializeChat(username);
 		}

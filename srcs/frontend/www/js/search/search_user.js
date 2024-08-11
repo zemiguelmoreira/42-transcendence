@@ -9,11 +9,10 @@ let dataUserSearch;
 let dataUserFromSearch;
 
 function userSearchPage(dataUserSearch, username) {
-
+	console.log('userSearchPage: ', dataUserSearch);
 	document.getElementById('mainContent').innerHTML = '';
-	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
+	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
-
 }
 
 function noResults(username, query) {
@@ -52,7 +51,7 @@ async function getUser(username) {
 		}
 	}
 
-	console.log('Parametro recebido: ', username);
+	// console.log('Parametro recebido: ', username);
 
 	try {
 		let query;
@@ -68,7 +67,7 @@ async function getUser(username) {
 
 		// Agora tenta obter o perfil do usuário com a query
 		const user = await getUserProfileByUsername(query);
-		console.log('Resposta no getUser: ', user);
+		// console.log('Resposta no getUser: ', user);
 
 		if (user.status && user.status === 404) {
 			// Se o usuário não for encontrado, navega para a página de "sem resultados"
@@ -79,7 +78,7 @@ async function getUser(username) {
 			const messageDiv = messageContainerToken();
 			document.getElementById('root').innerHTML = "";
 			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
-			console.log('Problemas com o token de refresh: ');
+			// console.log('Problemas com o token de refresh: ');
 			const messageContainer = document.getElementById('tokenMessage');
 			messageContainer.style.display = 'block'; // Exibe a mensagem
 
@@ -91,13 +90,13 @@ async function getUser(username) {
 		}
 
 		dataUserSearch = user;
-		console.log(dataUserSearch);
+		// console.log(dataUserSearch);
 
 		if (username === dataUserSearch.user.username) {
 			// Se o usuário pesquisado for o próprio usuário logado, navega para o perfil dele
-			console.log('Usuário pesquisado é o próprio usuário logado.');
+			// console.log('Usuário pesquisado é o próprio usuário logado.');
 			dataUserFromSearch = user;
-			console.log('data user from search', dataUserFromSearch);
+			// console.log('data user from search', dataUserFromSearch);
 			navigateTo(`/user/${username}/profile`);
 		} else {
 			// Caso contrário, navega para o perfil do usuário pesquisado
@@ -113,6 +112,7 @@ async function getUser(username) {
 }
 
 async function viewUserProfile(username, searchUser) {
+	console.log('viewUserProfile: ', searchUser);
 
 	const conf = {
 		method: 'GET',
@@ -139,7 +139,7 @@ async function viewUserProfile(username, searchUser) {
 			return;
 		}
 		dataUserSearch = user;
-		console.log(dataUserSearch);
+		// console.log(dataUserSearch);
 		if (username === dataUserSearch.user.username) {
 			dataUserFromSearch = user;
 			navigateTo(`/user/${username}/profile`);

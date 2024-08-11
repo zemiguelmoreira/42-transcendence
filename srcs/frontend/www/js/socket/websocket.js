@@ -27,30 +27,30 @@ class WebSocketService {
     const refreshToken = localStorage.getItem('refresh_token');
 
     if (!refreshToken || !this.testToken(refreshToken)) {
-      console.log('validade do token no connect: ', this.testToken(refreshToken));
-      console.log('No refresh token found or token invalid, cannot connect WebSocket');
+    //   console.log('validade do token no connect: ', this.testToken(refreshToken));
+    //   console.log('No refresh token found or token invalid, cannot connect WebSocket');
       return;
     }
     // faz o refresh do access token, mas já foi verificado se existe o access token
     if (!token || !this.testToken(token)) {
-      console.log('No access token found or access token invalid, websocket');
+    //   console.log('No access token found or access token invalid, websocket');
       refreshAccessToken();
     }
 
-    console.log('host no websocket: ', window.location.host);
+    // console.log('host no websocket: ', window.location.host);
     const path = `wss://${window.location.host}/api/ws/user_status/?token=${token}`;
     this.socketRef = new WebSocket(path);
     this.socketRef.onopen = () => {
-      console.log('WebSocket open');
+    //   console.log('WebSocket open');
     };
     this.socketRef.onmessage = e => {
-      console.log('Message from server: ', e.data);
+    //   console.log('Message from server: ', e.data);
     };
     this.socketRef.onerror = e => {
-      console.log('Websocket error: ', e.message);
+    //   console.log('Websocket error: ', e.message);
     };
     this.socketRef.onclose = () => {
-      console.log("WebSocket closed let's reopen");
+    //   console.log("WebSocket closed let's reopen");
       this.connect();
     };
   }
@@ -75,18 +75,18 @@ class WebSocketService {
     let payload; // neste momento está undefined
     if (token) {
       payload = this.parseJwt(token);
-      // console.log(payload); // Verifique as claims
+    //   console.log(payload); // Verifique as claims
     
       const currentTimestamp = Math.floor(Date.now() / 1000);
       if (payload.exp < currentTimestamp) {
-        console.log('Token inválido');
+        // console.log('Token inválido');
         return false;
       } else {
-        console.log('Token válido');
+        // console.log('Token válido');
         return true;
       }
     } else {
-      console.log('Token não encontrado no localStorage');
+    //   console.log('Token não encontrado no localStorage');
       return false;
     }
   }
