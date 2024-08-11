@@ -69,11 +69,6 @@
 	text-align: left;
 }
 
-.profile-info {
-	/* font-family: 'CustomFont';
-	font-size: 12px; */
-}
-
 .profile-description {
     font-size: 1.2em;
     margin-left: 10px;
@@ -281,4 +276,23 @@ table {
 
 .bio-textarea-title {
 	align-items: baseline;
+}
+
+.image-grid img {
+	width: 80px;
+	height: 80px;
+	object-fit: cover;
+	border-radius: 50%;
+	margin-right: 2px;
+	margin: 2px;
+}
+
+.image-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.form-group {
+	margin-bottom: 20px;
 }

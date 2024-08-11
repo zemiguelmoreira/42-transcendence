@@ -13,29 +13,45 @@ function edit(data, username) {
 	const editPageData = makeEditProfilePage(data);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', editPageData);
 
-	// Listener para clicar na imagem e abrir o seletor de arquivos
+	// Variável para armazenar o caminho da imagem selecionada
+	let selectedProfileImage = data.profile.profile_image_url;
+
+	// Listener para clicar na imagem de perfil e abrir o seletor de arquivos
 	document.getElementById('profile-img').addEventListener('click', function() {
 		document.getElementById('choosePicture').click();
 	});
-	
+
 	// Listener para atualizar a imagem do perfil quando o usuário escolhe um novo arquivo
 	document.getElementById('choosePicture').addEventListener('change', function(event) {
 		const reader = new FileReader();
 		reader.onload = function(e) {
-			document.getElementById('profile-img').src = e.target.result;
+			selectedProfileImage = e.target.result; // Atualiza a imagem selecionada
+			document.getElementById('profile-img').src = selectedProfileImage;
 		};
 		reader.readAsDataURL(event.target.files[0]);
 	});
-	
+
+	// Listener para clicar nas imagens dentro da tabela e mudar a imagem do perfil
+	const icons = document.querySelectorAll('.image-grid img');
+	icons.forEach(function(icon) {
+		icon.addEventListener('click', function() {
+			selectedProfileImage = this.src; // Atualiza a imagem selecionada
+			document.getElementById('profile-img').src = selectedProfileImage;
+		});
+	});
+
 	// Listener para o botão de atualização do perfil
 	document.getElementById('updateProfile').addEventListener('click', (e) => {
 		e.preventDefault();
-		updateUserProfile(data, username);
+		// Chama a função de atualização do perfil passando a imagem selecionada
+		updateUserProfile(data, username, selectedProfileImage);
 	});
 }
 
+
+
 // Função para atualizar o perfil do usuário
-async function updateUserProfile(data, username) {
+async function updateUserProfile(data, username, selectedProfileImage) {
 	const accessToken = localStorage.getItem('access_token');
 	const bio = document.getElementById('bioForm').value;
 	const alias_name = document.getElementById('usernameForm').value;
@@ -44,9 +60,15 @@ async function updateUserProfile(data, username) {
 	const formData = new FormData();
 	formData.append('bio', bio);
 	formData.append('alias_name', alias_name);
+
+	// Verifica se foi feita uma seleção de imagem local (upload)
 	if (profileImage) {
 		console.log('Profile image:', profileImage);
 		formData.append('profile_image', profileImage);
+	} else if (selectedProfileImage) {
+		// Se não houve upload, envia o URL da imagem selecionada da tabela
+		// Supondo que o backend possa lidar com uma URL ou você pode precisar ajustar o backend para suportar isso
+		formData.append('profile_image_url', selectedProfileImage);
 	}
 
 	try {
@@ -59,6 +81,7 @@ async function updateUserProfile(data, username) {
 		});
 
 		if (response.ok) {
+			// Atualiza a exibição do perfil do usuário após a atualização bem-sucedida
 			fetchUserProfile(username);
 			displaySlidingMessage('Profile updated successfully!');
 		} else {
@@ -69,5 +92,6 @@ async function updateUserProfile(data, username) {
 		alert('Failed to update profile. Please try again.');
 	}
 }
+
 
 export { edit }

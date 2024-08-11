@@ -122,21 +122,20 @@ function makeEditProfilePage(data) {
 					<input type="file" class="form-control-file" id="choosePicture" style="display: none;">
 				</div>
 					<table class="image-grid">
-						<th colspan="3" >Image Gallery</th>
 						<tr>
-							<td><img src="srcs/UserApi/media/default.jpg" alt="Image 1"></td>
-							<td><img src="path_to_image_2.jpg" alt="Image 2"></td>
-							<td><img src="path_to_image_3.jpg" alt="Image 3"></td>
-						</tr>
-						<tr>
-							<td><img src="path_to_image_4.jpg" alt="Image 4"></td>
-							<td><img src="path_to_image_5.jpg" alt="Image 5"></td>
-							<td><img src="path_to_image_6.jpg" alt="Image 6"></td>
-						</tr>
-						<tr>
-							<td><img src="path_to_image_7.jpg" alt="Image 7"></td>
-							<td><img src="path_to_image_8.jpg" alt="Image 8"></td>
-							<td><img src="path_to_image_9.jpg" alt="Image 9"></td>
+							<td><img src="../../../files/default.jpg" class="icons"></td>
+							<td><img src="../../../files/user(2).png" class="icons"></td>
+							<td><img src="../../../files/user(3).png" class="icons"></td>
+							</tr>
+							<tr>
+							<td><img src="../../../files/user(4).png" class="icons"></td>
+							<td><img src="../../../files/user(5).png" class="icons"></td>
+							<td><img src="../../../files/user(6).png" class="icons"></td>
+							</tr>
+							<tr>
+							<td><img src="../../../files/user(7).png" class="icons"></td>
+							<td><img src="../../../files/user(8).png" class="icons"></td>
+							<td><img src="../../../files/user(9).png" class="icons"></td>
 						</tr>
 					</table>
 				</form>

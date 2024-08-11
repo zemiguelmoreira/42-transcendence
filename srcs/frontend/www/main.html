@@ -76,45 +76,53 @@
 				</nav>
 			</div>
 			<div class="home-box">
-				
+
 				<div class="profile-container">
 					<div class="profile-left">
-						<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture" style="cursor: pointer;">
+						<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture"
+							style="cursor: pointer;">
 						<h3 id="alias-name">${data.profile.alias_name}</h3>
-				
+
 						<!-- New Image Grid Section -->
 						<table class="image-grid">
-							<th colspan="3" >Image Gallery</th>
 							<tr>
+								<td><img src="./files/default.jpg" alt="Image 9"></td>
 								<td><img src="./files/user(2).png" alt="Image 1"></td>
-								<td><img src="path_to_image_2.jpg" alt="Image 2"></td>
-								<td><img src="path_to_image_3.jpg" alt="Image 3"></td>
+								<td><img src="./files/user(3).png" alt="Image 2"></td>
 							</tr>
 							<tr>
-								<td><img src="path_to_image_4.jpg" alt="Image 4"></td>
-								<td><img src="path_to_image_5.jpg" alt="Image 5"></td>
-								<td><img src="path_to_image_6.jpg" alt="Image 6"></td>
+								<td><img src="./files/user(4).png" alt="Image 3"></td>
+								<td><img src="./files/user(5).png" alt="Image 4"></td>
+								<td><img src="./files/user(6).png" alt="Image 5"></td>
 							</tr>
 							<tr>
-								<td><img src="path_to_image_7.jpg" alt="Image 7"></td>
-								<td><img src="path_to_image_8.jpg" alt="Image 8"></td>
-								<td><img src="path_to_image_9.jpg" alt="Image 9"></td>
+								<td><img src="./files/user(7).png" alt="Image 6"></td>
+								<td><img src="./files/user(8).png" alt="Image 7"></td>
+								<td><img src="./files/user(9).png" alt="Image 8"></td>
 							</tr>
 						</table>
 					</div>
-			
+
 					<div class="profile-right">
 						<table class="update-profile">
 							<tbody>
 								<tr>
-									<td colspan="2"><div class="profile-title">Edit ${data.user.username} profile</div></td>
+									<td colspan="2">
+										<div class="profile-title">Edit ${data.user.username} profile</div>
+									</td>
 								</tr>
 								<tr>
-									<td><div class="profile-info">Name:</div></td>
-									<td><div class="profile-description" for="name">${data.user.username}</div></td>
+									<td>
+										<div class="profile-info">Name:</div>
+									</td>
+									<td>
+										<div class="profile-description" for="name">${data.user.username}</div>
+									</td>
 								</tr>
 								<tr>
-									<td><div class="profile-info">Email:</div></td>
+									<td>
+										<div class="profile-info">Email:</div>
+									</td>
 									<td>
 										<div class="profile-description" id="email">${data.user.email}</div>
 									</td>
@@ -124,7 +132,9 @@
 										<div class="profile-info">Nickname:</div>
 									</td>
 									<td>
-										<input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
+										<input type="text" class="form-profile" id="usernameForm" placeholder="Nickname"
+											aria-label="Nickname" aria-describedby="basic-addon1"
+											value="${data.profile.alias_name}" maxlength="20">
 									</td>
 								</tr>
 								<tr>
@@ -132,12 +142,13 @@
 										<div class="profile-info">Bio: </div>
 									</td>
 									<td>
-										<textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
+										<textarea class="bio-textarea" aria-label="With textarea" id="bioForm"
+											maxlength="200"></textarea>
 									</td>
 								</tr>
 							</tbody>
 						</table>
-			
+
 						<button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
 					</div>
 				</div>
