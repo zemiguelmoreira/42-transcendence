@@ -1,6 +1,7 @@
 
 import { SOCKET_URL_STATUS } from "../utils/settings.js";
 import { refreshAccessToken } from "../utils/fetchWithToken.js";
+import { navigateTo } from "../app.js";
 
 class WebSocketService {
 
@@ -21,7 +22,12 @@ class WebSocketService {
   }
 
 
-  connect() {
+  async connect() {
+
+    if (this.socketRef && (this.socketRef.readyState === WebSocket.OPEN || this.socketRef.readyState === WebSocket.CONNECTING)) {
+      console.log('WebSocket already connected or connecting.');
+      return;
+    }
 
     const token = localStorage.getItem('access_token');
     const refreshToken = localStorage.getItem('refresh_token');
@@ -34,7 +40,14 @@ class WebSocketService {
     // faz o refresh do access token, mas já foi verificado se existe o access token
     if (!token || !this.testToken(token)) {
       console.log('No access token found or access token invalid, websocket');
-      refreshAccessToken();
+      const refreshed = await refreshAccessToken(); // testar esta parte
+      if (refreshed)
+        token = localStorage.getItem('access_token'); // se fizer o refresh tem que ir buscar outra vez o token
+      else {
+        console.log(' error with refresh token in socket');
+        navigateTo('/');
+        return;
+      }
     }
 
     console.log('host no websocket: ', window.location.host);

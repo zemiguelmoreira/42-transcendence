@@ -9,11 +9,13 @@ import { home_page } from "./homepage.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 
 function home() {
+	console.log('Loading home page content');
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/signIn');
+		// navigateTo('/signIn');
+		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
 	});
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
@@ -49,10 +51,10 @@ function homeLogin(username) {
 		navigateTo(`/user/${username}/snake`);
 	});
 
-	document.getElementById('viewProfile').addEventListener('click', (e) => {
+	document.getElementById('viewProfile').addEventListener('click', async (e) => {
 		e.preventDefault();
 		if (viewToken())
-			fetchUserProfile(username);
+			await fetchUserProfile(username);
 		else
 			navigateTo('/signIn');
 	});

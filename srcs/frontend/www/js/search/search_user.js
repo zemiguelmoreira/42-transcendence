@@ -11,7 +11,8 @@ let dataUserFromSearch;
 function userSearchPage(dataUserSearch, username) {
 
 	document.getElementById('mainContent').innerHTML = '';
-	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
+	// const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
+	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
 
 }

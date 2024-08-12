@@ -1,7 +1,7 @@
 import { limparDivAll, displayError } from "../utils/utils1.js";
 import { register_page } from "./registerPage.js";
 import { getCsrfToken } from "../utils/tokenCsrf.js";
-import { baseURL, navigateTo } from "../app.js";
+import { baseURL, goTo, navigateTo } from "../app.js";
 import { successContainerRegister } from "../utils/utils1.js";
 
 
@@ -82,12 +82,20 @@ function handleSignUp(e) {
 // };
 
 
+//alteração para não entrar no sigIn se tiver token
 function showSuccessMessageRegister() {
 	var messageDiv = document.getElementById('successMessage');
 	messageDiv.style.display = 'block'; // Exibe a mensagem
 	setTimeout(function() {
 		messageDiv.style.display = 'none';
-		navigateTo(`/signIn`);
+		// console.log('função ternária');
+		// localStorage.getItem('access_token') ? goTo() : navigateTo(`/signIn`);
+		if (!localStorage.getItem('access_token')) {
+			navigateTo(`/signIn`);
+		} else {
+			goTo();
+			console.log('Current URL:', window.location.href);
+		}
 	}, 2000); // 1000 milissegundos = 1 segundos
 }
 

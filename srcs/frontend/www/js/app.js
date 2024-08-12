@@ -28,7 +28,7 @@ async function goTo() {
 			// console.log(username);
 			if (username) {
 				navigateTo(`/user/${username}`);
-				WebSocketInstance.connect();
+				await WebSocketInstance.connect(); //testar sem await 
 			}
 			else
 				navigateTo('/');
@@ -141,24 +141,40 @@ document.addEventListener('DOMContentLoaded', function (e) {
 			// console.log('matchedRoute: ', matchedRoute);
 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 			// console.log('init access: ', accessAllowed);
+
+			// codigo para evitar login através do state page - histórico
+			if (accessAllowed && e.state.page === "/signIn") {
+				if (!localStorage.getItem('access_token')) {
+					matchedRoute.page.loadContent(matchedRoute.params); }
+				else {
+					const defaultState = { page: '/' }
+					history.replaceState(defaultState, '', "/");
+					const matchedRoute = matchRoute(defaultState.page);
+					if (matchedRoute) {
+						matchedRoute.page.loadContent(matchedRoute.params);
+					}
+				}	  
+				return;
+			}
+
 			if (matchedRoute && accessAllowed) {
 				matchedRoute.page.loadContent(matchedRoute.params);
 			} else
 				navigateTo(e.state.page); // se não tivermos acesso à rota através do navigate fazemos o redirect
-		} else {
-			// console.log('aqui');
-			// history.replaceState(null, '', '/');
-			// return;
-			// tenho de definir um default state para o event.state quando for null
-			const defaultState = { page: '/' };  // page que é default state
-			history.replaceState(defaultState, '', '/');
-			// Carregue o conteúdo da página padrão
-			const matchedRoute = matchRoute(defaultState.page);
-			if (matchedRoute) {
-				matchedRoute.page.loadContent(matchedRoute.params);
-			}
-			// 	// initializeState();
-		}
+
+		} 
+		// else {
+			
+		// 	// tenho de definir um default state para o event.state quando for null
+		// 	const defaultState = { page: '/' };  // page que é default state
+		// 	history.replaceState(defaultState, '', '/');
+		// 	// Carregue o conteúdo da página padrão
+		// 	const matchedRoute = matchRoute(defaultState.page);
+		// 	if (matchedRoute) {
+		// 		matchedRoute.page.loadContent(matchedRoute.params);
+		// 	}
+			
+		// }
 	});
 
 	// desativa o F5 e i ctrlKey + r
