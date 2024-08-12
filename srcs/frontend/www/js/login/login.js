@@ -1,4 +1,4 @@
-import { limparDivAll } from "../utils/utils1.js";
+
 import { baseURL } from "../app.js";
 import { signIn_page } from "./loginPage.js";
 import { getCsrfToken } from "../utils/tokenCsrf.js";
@@ -8,7 +8,6 @@ import { saveToken, viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import WebSocketInstance from "../socket/websocket.js";
-import { goTo } from "../app.js";
 
 
 function insertInputValidation1(userSigInForm) {
@@ -60,25 +59,16 @@ function showSuccessMessageSignIn(username) {
 
 function signIn() {
 
-	if (!localStorage.getItem('access_token')) {
-		document.getElementById('root').innerHTML = "";
-		document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
+	document.getElementById('root').innerHTML = "";
+	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
 
-		// document.getElementById('home').addEventListener('click', (e) => {
-		//     e.preventDefault();
-		//     navigateTo('/');
-		// });
-
-		const signInUser = document.querySelector('#signInUser');
-		signInUser.addEventListener('click', userSignIn);
-		document.getElementById('backButton').addEventListener('click', function () {
-			e.preventDefault();
-			navigateTo('/');
-		});
-	}
-	else {
-		goTo();
-	}
+	const signInUser = document.querySelector('#signInUser');
+	signInUser.addEventListener('click', userSignIn);
+	document.getElementById('backButton').addEventListener('click', function (e) {
+		e.preventDefault();
+		navigateTo('/');
+	});
+	
 }
 
 async function sendIUser(userOrEmail, password, allURL) {

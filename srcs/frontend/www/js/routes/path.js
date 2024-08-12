@@ -11,7 +11,8 @@ import { userProfilePage } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
-import { chatWindow } from "../chat/chat-window.js";
+import { chatWindow } from "../chat/chat-window_old.js";
+import { doChat } from "../chat/chat-window.js";
 
 const pages = {
 	'/': {
@@ -126,7 +127,9 @@ const pages = {
 	},
 	'/user/:username/chat': {
 		loadContent: function (params) {
-			chatWindow(params.username);
+			// chatWindow(params.username);
+			console.log('Loading chat content for', params.username);
+			doChat(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'

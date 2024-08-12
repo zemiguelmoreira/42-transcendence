@@ -10,12 +10,14 @@ import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeHomePage } from "./homepage.js";
 
 function home() {
+	console.log('Loading home page content');
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
 
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo('/signIn');
+		// navigateTo('/signIn');
+		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
 	});
 
 	const signUp = document.querySelector('#signUp');
