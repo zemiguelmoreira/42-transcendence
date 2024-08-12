@@ -1,5 +1,5 @@
 // Objetivo: Funções auxiliares para o frontend
-function displaySlidingMessage(message) {
+function displaySlidingMessage(message, invite=false) {
 
     // Garantir que a mensagem tenha pelo menos 60 caracteres
     const minLength = 10;

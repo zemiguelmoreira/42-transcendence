@@ -113,72 +113,74 @@ function makeProfilePage(data) {
 function makeEditProfilePage(data) {
 	console.log("makeEditProfilePage: ", data);
 	return `
-	<div class="profile-container">
-		<div class="profile-left">
-			<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}" style="cursor: pointer;">
-			<form>
-				<div class="form-group">
-					<label for="choosePicture">Click to choose new picture</label>
-					<input type="file" class="form-control-file" id="choosePicture" style="display: none;">
+				<div class="profile-container">
+					<div class="profile-left">
+						<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}" style="cursor: pointer;">
+						<form>
+							<div class="form-group">
+								<label for="choosePicture">Click to choose new picture</label>
+								<input type="file" class="form-control-file" id="choosePicture" style="display: none;">
+							</div>
+								<table class="image-grid">
+									<tr>
+										<td><img src="../../../files/default.jpg" class="icons"></td>
+										<td><img src="../../../files/user(2).png" class="icons"></td>
+										<td><img src="../../../files/user(3).png" class="icons"></td>
+										</tr>
+										<tr>
+										<td><img src="../../../files/user(4).png" class="icons"></td>
+										<td><img src="../../../files/user(5).png" class="icons"></td>
+										<td><img src="../../../files/user(6).png" class="icons"></td>
+										</tr>
+										<tr>
+										<td><img src="../../../files/user(7).png" class="icons"></td>
+										<td><img src="../../../files/user(8).png" class="icons"></td>
+										<td><img src="../../../files/user(9).png" class="icons"></td>
+									</tr>
+								</table>
+							</form>
+					</div>
+			
+					<div class="profile-right">
+						<table class="update-profile">
+							<tbody>
+								<tr>
+									<td colspan="2"><div class="profile-title">Edit ${data.user.username} profile</div></td>
+								</tr>
+								<tr>
+									<td class="update-profile-center"><div class="profile-info">Name:</div></td>
+									<td><div class="profile-description" for="name">${data.user.username}</div></td>
+								</tr>
+								<tr>
+									<td class="update-profile-center"><div class="profile-info">Email:</div></td>
+									<td>
+										<div class="profile-description" id="email">${data.user.email}</div>
+									</td>
+								</tr>
+								<tr>
+									<td class="update-profile-center">
+										<div class="profile-info">Nickname:</div>
+									</td>
+									<td>
+										<input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
+									</td>
+								</tr>
+								<tr>
+									<td class="bio-textarea-title">
+										Bio:
+									</td>
+									<td>
+										<textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+							<button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
+							<button type="button" class="btn btn-outline-secondary btn-sm" id="back">Back</button>
+						</div>
+					</div>
 				</div>
-					<table class="image-grid">
-						<tr>
-							<td><img src="../../../files/default.jpg" class="icons"></td>
-							<td><img src="../../../files/user(2).png" class="icons"></td>
-							<td><img src="../../../files/user(3).png" class="icons"></td>
-							</tr>
-							<tr>
-							<td><img src="../../../files/user(4).png" class="icons"></td>
-							<td><img src="../../../files/user(5).png" class="icons"></td>
-							<td><img src="../../../files/user(6).png" class="icons"></td>
-							</tr>
-							<tr>
-							<td><img src="../../../files/user(7).png" class="icons"></td>
-							<td><img src="../../../files/user(8).png" class="icons"></td>
-							<td><img src="../../../files/user(9).png" class="icons"></td>
-						</tr>
-					</table>
-				</form>
-		</div>
-
-		<div class="profile-right">
-			<table class="update-profile">
-				<tbody>
-					<tr>
-						<td colspan="2"><div class="profile-title">Edit ${data.user.username} profile</div></td>
-					</tr>
-					<tr>
-						<td><div class="profile-info">Name:</div></td>
-						<td><div class="profile-description" for="name">${data.user.username}</div></td>
-					</tr>
-					<tr>
-						<td><div class="profile-info">Email:</div></td>
-						<td>
-							<div class="profile-description" id="email">${data.user.email}</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="profile-info">Nickname:</div>
-						</td>
-						<td>
-							<input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="profile-info">Bio: </div>
-						</td>
-						<td>
-							<textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-
-			<button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
-		</div>
-	</div>
 
 	`;
 }

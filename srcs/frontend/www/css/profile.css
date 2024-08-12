@@ -226,9 +226,10 @@ table {
 .update-profile td {
 	/* padding: 2px 5px; */
 	/* border: 1px solid #0056b3; */
-	min-width: 150px;
+	min-width: 90px;
 	/* margin: 3px; */
 	height: 100%;
+
 	/* background-color: #ffffffde; */
 }
 
@@ -250,16 +251,21 @@ table {
 }
 
 .update-profile td:first-child {
-	text-align: right; /* Primeira coluna ocupa todo o espaço disponível */
-	/* border: 1px solid #0056b3; */
-	padding: 8px 8px;
+    text-align: left; /* Mantém o alinhamento à esquerda */
+    font-weight: bold; /* Mantém o texto em negrito */
+}
+
+.update-profile-center {
+	align-content: center;
 }
 
 .update-profile td:last-child {
 	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: stretch;
+	/* background-color: azure; */
+	align-content: center;
+	/* display: flex; */
+	/* flex-direction: column; */
+	/* align-items: stretch; */
 }
 
 .bio-textarea {
@@ -275,7 +281,9 @@ table {
 }
 
 .bio-textarea-title {
-	align-items: baseline;
+    vertical-align: top; /* Assegura que o texto esteja no topo */
+    padding-top: 5px; /* Adiciona um pequeno padding opcional */
+    font-weight: bold; /* Garante que o texto esteja em negrito */
 }
 
 .image-grid img {

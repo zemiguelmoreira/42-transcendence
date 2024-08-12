@@ -82,7 +82,7 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 
 		if (response.ok) {
 			// Atualiza a exibição do perfil do usuário após a atualização bem-sucedida
-			fetchUserProfile(username);
+			await fetchUserProfile(username);
 			displaySlidingMessage('Profile updated successfully!');
 		} else {
 			throw new Error('Failed to update profile');
