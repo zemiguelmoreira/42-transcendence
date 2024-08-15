@@ -42,7 +42,7 @@ function initializeChat(username) {
 
         // trata game invite
         else if (data.invite) {
-            displayGameInvite(data, chatLog);
+            displayGameInvite(data, chatLog, chatSocket);
         }
 
         // trata invite response
@@ -52,7 +52,7 @@ function initializeChat(username) {
 
         // trata online users list
         else if (data.online_users) {
-            updateOnlineUsersList(username, data.online_users);
+            updateOnlineUsersList(username, data.online_users, chatSocket);
         }
 
     }
