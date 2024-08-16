@@ -70,7 +70,12 @@ async function homeLogin(username) {
             navigateTo('/signIn');
     });
 
-    document.getElementById('logOut').addEventListener('click', (e) => {
+    document.getElementById('viewSettings').addEventListener('click', (e) => {
+        e.preventDefault();
+            navigateTo('/signIn');
+    });
+
+	document.getElementById('logOut').addEventListener('click', (e) => {
         e.preventDefault();
         removeToken(username);
         setTimeout(function() {

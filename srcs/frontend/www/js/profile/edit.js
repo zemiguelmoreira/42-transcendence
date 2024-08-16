@@ -88,5 +88,4 @@ async function updateUserProfile(data, username, selectedProfileImage) {
     }
 }
 
-
 export { edit }

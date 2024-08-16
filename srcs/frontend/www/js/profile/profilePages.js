@@ -333,4 +333,130 @@ function noResultsPage(searchValue) {
 	`;
 }
 
-export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage }
+function makeProfileSettings(data) {
+	return `
+	<div class="profile-container">
+		<div class="profile-left">
+			<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture">
+			<h3 id="username">${data.profile.alias_name}</h3>
+			
+		</div>
+
+
+		<div class="profile-right">
+			<div class="profile-title">${data.user.username} Profile</div>
+			<div class="profile-info">
+				<label class="profile-label" for="name">Name:</label>
+				<span class="profile-description" id="name">${data.user.username}</span>
+			</div>
+			<div class="profile-info">
+				<label for="username">Username:</label>
+				<span class="profile-description" id="username">${data.profile.alias_name}</span>
+			</div>
+			<div class="profile-info">
+				<label for="email">Email:</label>
+				<span class="profile-description" id="email">${data.user.email}</span>
+			</div>
+
+			
+			<div class="profile-title">Games Statistics</div>
+			<table class="game-list">
+				<thead>
+					<tr>
+						<th>Game</th>
+						<th>Score</th>
+						<th>Wins</th>
+						<th>Loses</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Pong</td>
+						<td>${data.profile.pong_rank}</td>
+						<td>${data.profile.pong_wins}</td>
+						<td>${data.profile.pong_losses}</td>
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>${data.profile.snake_rank}</td>
+						<td>${data.profile.snake_wins}</td>
+						<td>${data.profile.snake_losses}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="profile-title">Matches History</div>
+			<table class="game-list">
+				<thead>
+					<tr>
+						<th>Game</th>
+						<th>Date</th>
+						<th>Winner</th>
+						<th>Looser</th>
+						<th>Winner Score</th>
+						<th>Looser Score</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Pong</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.profile.pong_date}</td>
+						<td>${data.profile.pong_winner}</td>
+						<td>${data.profile.pong_looser}</td>
+						<td>${data.profile.pong_winner_score}</td>
+						<td>${data.profile.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.profile.pong_date}</td>
+						<td>${data.profile.pong_winner}</td>
+						<td>${data.profile.pong_looser}</td>
+						<td>${data.profile.pong_winner_score}</td>
+						<td>${data.profile.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Pong</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.profile.pong_date}</td>
+						<td>${data.profile.pong_winner}</td>
+						<td>${data.profile.pong_looser}</td>
+						<td>${data.profile.pong_winner_score}</td>
+						<td>${data.profile.pong_looser_score}</td> -->
+					</tr>
+					<tr>
+						<td>Snake</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<!-- <td>${data.profile.pong_date}</td>
+						<td>${data.profile.pong_winner}</td>
+						<td>${data.profile.pong_looser}</td>
+						<td>${data.profile.pong_winner_score}</td>
+						<td>${data.profile.pong_looser_score}</td> -->
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	`;
+}
+
+
+export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage, makeProfileSettings }
