@@ -334,6 +334,7 @@ function noResultsPage(searchValue) {
 }
 
 function makeProfileSettings(data) {
+	console.log("makeProfileSettings: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
@@ -341,7 +342,6 @@ function makeProfileSettings(data) {
 			<h3 id="username">${data.profile.alias_name}</h3>
 			
 		</div>
-
 
 		<div class="profile-right">
 			<div class="profile-title">${data.user.username} Profile</div>

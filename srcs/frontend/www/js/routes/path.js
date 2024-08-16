@@ -13,6 +13,7 @@ import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
 import { chatWindow } from "../chat/chat-window_old.js";
 import { doChat } from "../chat/chat-window.js";
+import { makeProfileSettings } from "../profile/profilePages.js";
 
 const pages = {
 	'/': {
@@ -106,7 +107,9 @@ const pages = {
 	},
 	'/user/:username/settings': {
 		loadContent: function (params) {
-			makeProfileSettings(data);
+			console.log('Loading user profile settings');
+			console.log('dataUser no path: ', dataUser);
+			makeProfileSettings(dataUser);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

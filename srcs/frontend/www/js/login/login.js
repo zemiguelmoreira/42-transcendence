@@ -68,7 +68,7 @@ function signIn() {
 		e.preventDefault();
 		navigateTo('/');
 	});
-	
+
 }
 
 async function sendIUser(userOrEmail, password, allURL) {
