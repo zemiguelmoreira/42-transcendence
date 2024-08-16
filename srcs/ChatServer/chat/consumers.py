@@ -156,6 +156,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			)
 			return
 
+		if self.is_user_blocked(self, self.user, recipient):
+			return
+		
 		# Se for uma mensagem privada
 		recipient_group_name = "user_%s" % recipient
 		if recipient == self.user.username:
@@ -246,6 +249,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"message": "User is not authenticated."
 			}))
 
+	async def update_status(self, event):
+		online_users = event['online_users']
+
+		await self.send(text_data=json.dumps({
+			'online_users': online_users
+		}))
+
 	@database_sync_to_async
 	def get_user_from_token(self, access_token):
 		try:
@@ -254,10 +264,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			return user
 		except (User.DoesNotExist):
 			return None
-
-	async def update_status(self, event):
-		online_users = event['online_users']
-
-		await self.send(text_data=json.dumps({
-			'online_users': online_users
-		}))
+		
+	@database_sync_to_async
+	def get_blocked_list(self, user):
+		try:
+			user_profile = UserProfile.objects.get(user=user)
+			return user_profile.blocked_list
+		except UserProfile.DoesNotExist:
+			return []
+		
+	async def is_user_blocked(self, user, blocked_user):
+		blocked_list = await self.get_blocked_list(user)
+		return blocked_user in blocked_list
