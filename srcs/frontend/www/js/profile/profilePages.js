@@ -112,77 +112,89 @@ function makeProfilePage(data) {
 // Página de edição de perfil
 function makeEditProfilePage(data) {
 	console.log("makeEditProfilePage: ", data);
-	return `
-				<div class="profile-container">
-					<div class="profile-left">
-						<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}" style="cursor: pointer;">
-						<form>
-							<div class="form-group">
-								<label for="choosePicture">Click to choose new picture</label>
-								<input type="file" class="form-control-file" id="choosePicture" style="display: none;">
-							</div>
-								<table class="image-grid">
-									<tr>
-										<td><img src="../../../files/default.jpg" class="icons"></td>
-										<td><img src="../../../files/user(2).png" class="icons"></td>
-										<td><img src="../../../files/user(3).png" class="icons"></td>
-										</tr>
-										<tr>
-										<td><img src="../../../files/user(4).png" class="icons"></td>
-										<td><img src="../../../files/user(5).png" class="icons"></td>
-										<td><img src="../../../files/user(6).png" class="icons"></td>
-										</tr>
-										<tr>
-										<td><img src="../../../files/user(7).png" class="icons"></td>
-										<td><img src="../../../files/user(8).png" class="icons"></td>
-										<td><img src="../../../files/user(9).png" class="icons"></td>
-									</tr>
-								</table>
-							</form>
-					</div>
-			
-					<div class="profile-right">
-						<table class="update-profile">
-							<tbody>
-								<tr>
-									<td colspan="2"><div class="profile-title">Edit ${data.user.username} profile</div></td>
-								</tr>
-								<tr>
-									<td class="update-profile-center"><div class="profile-info">Name:</div></td>
-									<td><div class="profile-description" for="name">${data.user.username}</div></td>
-								</tr>
-								<tr>
-									<td class="update-profile-center"><div class="profile-info">Email:</div></td>
-									<td>
-										<div class="profile-description" id="email">${data.user.email}</div>
-									</td>
-								</tr>
-								<tr>
-									<td class="update-profile-center">
-										<div class="profile-info">Nickname:</div>
-									</td>
-									<td>
-										<input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
-									</td>
-								</tr>
-								<tr>
-									<td class="bio-textarea-title">
-										Bio:
-									</td>
-									<td>
-										<textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-							<button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
-							<button type="button" class="btn btn-outline-secondary btn-sm" id="back">Back</button>
-						</div>
-					</div>
-				</div>
 
-	`;
+	const imageMap = {
+		"../../../files/default.jpg": "default.jpg",
+		"../../../files/user(2).png": "user2.png",
+		"../../../files/user(3).png": "user3.png",
+		"../../../files/user(4).png": "user4.png",
+		"../../../files/user(5).png": "user5.png",
+		"../../../files/user(6).png": "user6.png",
+		"../../../files/user(7).png": "user7.png",
+		"../../../files/user(8).png": "user8.png",
+		"../../../files/user(9).png": "user9.png",
+	};
+
+	const imageRows = [];
+	const imageUrls = Object.keys(imageMap);
+
+	for (let i = 0; i < imageUrls.length; i += 3) {
+		const row = `
+            <tr>
+                <td><img src="${imageUrls[i]}" class="icons" data-filename="${imageMap[imageUrls[i]]}"></td>
+                <td>${imageUrls[i + 1] ? `<img src="${imageUrls[i + 1]}" class="icons" data-filename="${imageMap[imageUrls[i + 1]]}">` : ''}</td>
+                <td>${imageUrls[i + 2] ? `<img src="${imageUrls[i + 2]}" class="icons" data-filename="${imageMap[imageUrls[i + 2]]}">` : ''}</td>
+            </tr>
+        `;
+		imageRows.push(row);
+	}
+
+	return `
+        <div class="profile-container">
+            <div class="profile-left">
+                <img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}" style="cursor: pointer;">
+                <form>
+                    <div class="form-group">
+                        <label for="choosePicture">Click to choose new picture</label>
+                        <input type="file" class="form-control-file" id="choosePicture" style="display: none;">
+                    </div>
+                    <table class="image-grid">
+                        ${imageRows.join('')}
+                    </table>
+                </form>
+            </div>
+
+            <div class="profile-right">
+                <table class="update-profile">
+                    <tbody>
+                        <tr>
+                            <td colspan="2"><div class="profile-title">Edit ${data.user.username} profile</div></td>
+                        </tr>
+                        <tr>
+                            <td class="update-profile-center"><div class="profile-info">Name:</div></td>
+                            <td><div class="profile-description" for="name">${data.user.username}</div></td>
+                        </tr>
+                        <tr>
+                            <td class="update-profile-center"><div class="profile-info">Email:</div></td>
+                            <td>
+                                <div class="profile-description" id="email">${data.user.email}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="update-profile-center">
+                                <div class="profile-info">Nickname:</div>
+                            </td>
+                            <td>
+                                <input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="bio-textarea-title">
+                                Bio:
+                            </td>
+                            <td>
+                                <textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="back">Back</button>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // Resultado da busca de outro usuário
@@ -320,6 +332,5 @@ function noResultsPage(searchValue) {
 	</div>
 	`;
 }
-
 
 export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage }

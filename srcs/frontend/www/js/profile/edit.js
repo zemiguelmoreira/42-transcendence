@@ -48,49 +48,44 @@ function edit(data, username) {
 	});
 }
 
-
-
 // Função para atualizar o perfil do usuário
 async function updateUserProfile(data, username, selectedProfileImage) {
-	const accessToken = localStorage.getItem('access_token');
-	const bio = document.getElementById('bioForm').value;
-	const alias_name = document.getElementById('usernameForm').value;
-	const profileImage = document.getElementById('choosePicture').files[0];
+    const accessToken = localStorage.getItem('access_token');
+    const bio = document.getElementById('bioForm').value;
+    const alias_name = document.getElementById('usernameForm').value;
+    const profileImage = document.getElementById('choosePicture').files[0];
 
-	const formData = new FormData();
-	formData.append('bio', bio);
-	formData.append('alias_name', alias_name);
+    const formData = new FormData();
+    formData.append('bio', bio);
+    formData.append('alias_name', alias_name);
 
-	// Verifica se foi feita uma seleção de imagem local (upload)
-	if (profileImage) {
-		console.log('Profile image:', profileImage);
-		formData.append('profile_image', profileImage);
-	} else if (selectedProfileImage) {
-		// Se não houve upload, envia o URL da imagem selecionada da tabela
-		// Supondo que o backend possa lidar com uma URL ou você pode precisar ajustar o backend para suportar isso
-		formData.append('profile_image_url', selectedProfileImage);
-	}
+    if (profileImage) {
+        console.log('Profile image:', profileImage);
+        formData.append('profile_image', profileImage);
+    } else if (selectedProfileImage) {
+        // Envia a URL da imagem pré-existente
+        formData.append('profile_image_url', selectedProfileImage);
+    }
 
-	try {
-		const response = await fetch('/api/profile/update_profile/', {
-			method: 'PUT',
-			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-			},
-			body: formData,
-		});
+    try {
+        const response = await fetch('/api/profile/update_profile/', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: formData,
+        });
 
-		if (response.ok) {
-			// Atualiza a exibição do perfil do usuário após a atualização bem-sucedida
-			await fetchUserProfile(username);
-			displaySlidingMessage('Profile updated successfully!');
-		} else {
-			throw new Error('Failed to update profile');
-		}
-	} catch (error) {
-		console.error('Error updating profile:', error.message);
-		alert('Failed to update profile. Please try again.');
-	}
+        if (response.ok) {
+            await fetchUserProfile(username);
+            displaySlidingMessage('Profile updated successfully!');
+        } else {
+            throw new Error('Failed to update profile');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error.message);
+        alert('Failed to update profile. Please try again.');
+    }
 }
 
 
