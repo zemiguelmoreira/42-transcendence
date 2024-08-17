@@ -7,7 +7,7 @@ import { displayPageError } from "../html/error_page.js";
 import { signIn } from "../login/login.js";
 import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
-import { userProfilePage } from "../profile/userProfile.js";
+import { userProfilePage , displayFriendsList, displayBlockedList } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
@@ -99,6 +99,7 @@ const pages = {
 		loadContent: function (params) {
 			// console.log('Loading user profile search user page content for', params.username);
 			userSearchPage(dataUserSearch, params.username);
+			
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -119,6 +120,14 @@ const pages = {
 				document.getElementById('mainContent').innerHTML = '';
 				const profileSettings = makeProfileSettings(dataUser);
 				document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
+
+				displayFriendsList(true);
+				displayBlockedList();
+
+				// document.getElementById('removeFriend').addEventListener('click', async (e) => {
+				// 	e.preventDefault();
+				// 	await removeFriend(dataUserSearch.user.username, displaySlidingMessage);
+				// });
 			}
 		},
 		access: () => !!localStorage.getItem('access_token'),

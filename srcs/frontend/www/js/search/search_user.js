@@ -3,17 +3,30 @@ import { makeProfilePageSearchOther, noResultsPage } from "../profile/profilePag
 import { getCsrfToken } from "../utils/tokenCsrf.js";
 import { limparDivAll } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
-import { messageContainerToken } from "../utils/utils1.js";
+import { messageContainerToken , displaySlidingMessage } from "../utils/utils1.js";
+import { addFriend , blockUser } from "../utils/manageUsers.js";
 
 let dataUserSearch;
 let dataUserFromSearch;
 
-function userSearchPage(dataUserSearch, username) {
+async function userSearchPage(dataUserSearch, username) {
 	console.log('userSearchPage: ', dataUserSearch);
+	console.log('user', username);
+
 	document.getElementById('mainContent').innerHTML = '';
 	// const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch.user);
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
+
+	document.getElementById('addFriend').addEventListener('click', async (e) => {
+		e.preventDefault();
+		await addFriend(username, dataUserSearch.user.username, displaySlidingMessage);
+	});
+
+	document.getElementById('blockUser').addEventListener('click', (e) => {
+		e.preventDefault();
+		
+	});
 }
 
 function noResults(username, query) {

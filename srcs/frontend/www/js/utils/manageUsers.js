@@ -1,7 +1,8 @@
 
 async function addFriend(myUsername, friendUsername, displaySlidingMessage) {
+	console.log('addFriend: ', friendUsername);
+
 	const accessToken = localStorage.getItem('access_token');
-	// const friendUsername = document.getElementById('friendUsername').value;
 	try {
 		const response = await fetch('/api/profile/add_friend/', {
 			method: 'POST',
@@ -25,9 +26,9 @@ async function addFriend(myUsername, friendUsername, displaySlidingMessage) {
 	}
 }
 
-async function removeFriend() {
-	const accessToken = localStorage.getItem('accessToken');
-	const friendUsername = document.getElementById('friendUsername').value;
+async function removeFriend(friendUsername) {
+	const accessToken = localStorage.getItem('access_token');
+	// const friendUsername = document.getElementById('friendUsername').value;
 	try {
 		const response = await fetch('/api/profile/remove_friend/', {
 			method: 'POST',
@@ -52,7 +53,7 @@ async function removeFriend() {
 }
 
 async function blockUser() {
-	const accessToken = localStorage.getItem('accessToken');
+	const accessToken = localStorage.getItem('access_token');
 	const blockedUsername = document.getElementById('blockUsername').value;
 	try {
 		const response = await fetch('/api/profile/block_user/', {
@@ -78,7 +79,7 @@ async function blockUser() {
 }
 
 async function unblockUser() {
-	const accessToken = localStorage.getItem('accessToken');
+	const accessToken = localStorage.getItem('access_token');
 	const blockedUsername = document.getElementById('blockUsername').value;
 	try {
 		const response = await fetch('/api/profile/unblock_user/', {
@@ -103,4 +104,34 @@ async function unblockUser() {
 	}
 }
 
-export { addFriend, removeFriend, blockUser, unblockUser }
+async function fetchBlockedList() {
+	const accessToken = localStorage.getItem('access_token');
+	console.log('fetch');
+
+	if (!accessToken) {
+		alert('You are not logged in!');
+		return;
+	}
+
+	try {
+		const response = await fetch('/api/profile/blocked_list/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok ' + response.statusText);
+		}
+
+		const data = await response.json();
+		console.log('Blocked List:', data.blocked_list);
+	} catch (error) {
+		console.error('There was a problem with the fetch operation:', error);
+	}
+}
+
+
+
+export { addFriend, removeFriend, blockUser, unblockUser , fetchBlockedList}

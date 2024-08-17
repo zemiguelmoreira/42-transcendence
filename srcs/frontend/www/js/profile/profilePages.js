@@ -156,10 +156,10 @@ function makeProfilePageSearchOther(data) {
 			<img id="profile-img" src="${data.profile.profile_image_url}" alt="User Picture">
 			<h3 id="username">${data.profile.alias_name}</h3>
 			<div class="friends-list">
-				<button id="editProfile" type="button" class="btn btn-success btn-sm">Add Friend</button>
+				<button id="addFriend" type="button" class="btn btn-success btn-sm">Add Friend</button>
 			</div>
 			<div class="friends-list">
-				<button id="editProfile" type="button" class="btn btn-danger btn-sm">Block User</button>
+				<button id="blockUser" type="button" class="btn btn-danger btn-sm">Block User</button>
 			</div>
 		</div>
 
@@ -298,49 +298,9 @@ function makeProfileSettings(data) {
 			</div>
 			<div class="profile-right">
 				<div class="profile-title">Friends Management</div>
-				<table class="friends-management-table">
-					<thead>
-						<tr>
-							<th>Username</th>
-							<th>Online</th>
-							<th>Remove Friend</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>user1</td>
-							<td><span class="status-icon green"></span></td>
-							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove Friend</button></td>
-						</tr>
-						<tr>
-							<td>user2</td>
-							<td><span class="status-icon red"></span></td>
-							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove Friend</button></td>
-						</tr>
-					</tbody>
-				</table>
-				<div class="profile-title">Users Management</div>
-				<table class="friends-management-table">
-					<thead>
-						<tr>
-							<th>Username</th>
-							<th>Online</th>
-							<th>Unblock User</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>user1</td>
-							<td><span class="status-icon green"></span></td>
-							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Unblock User</button></td>
-						</tr>
-						<tr>
-							<td>user2</td>
-							<td><span class="status-icon red"></span></td>
-							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Unblock User</button></td>
-						</tr>
-					</tbody>
-				</table>
+				<div id="friends-list"></div>
+				<div class="profile-title">Blocked Users Management</div>
+				<div id="blocked-list"></div>
 			</div>
 		</div>
 	`;
