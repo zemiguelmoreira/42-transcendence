@@ -278,6 +278,7 @@
             </div>
             <button type="button" id="blockUserBtn">Block User</button>
         <button type="button" id="unblockUserBtn">Unblock User</button>
+        <button type="button" id="getBlockedListBtn">Get Blocked List</button>
     </form>
     <button id="delete-user-button">Delete Account</button>
 
@@ -322,6 +323,22 @@
         <button type="submit">Join Game</button>
     </form>
     <canvas id="pongCanvas" width="800" height="600"></canvas>
+
+    <h1>Game Rankings</h1>
+
+    <button onclick="fetchPongRankings()">Load Pong Rankings</button>
+    <ul id="pongRankings"></ul>
+
+    <button onclick="fetchSnakeRankings()">Load Snake Rankings</button>
+    <ul id="snakeRankings"></ul>
+
+    <h1>Friend List</h1>
+    <button onclick="fetchFriendList()">Get friend list</button>
+    <div id="friend-list" class="friend-list">
+        <!-- Friend list items will be injected here -->
+    </div>
+
+
     <!-- SCRIPTS  -->
     <script defer src="generator.js"></script>
     <script src="pong.js"></script>
@@ -877,6 +894,149 @@
             }
         }
 
+        async function fetchBlockedList() {
+            const accessToken = localStorage.getItem('accessToken');
+            console.log('fetch');
+
+            if (!accessToken) {
+                alert('You are not logged in!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/profile/blocked_list/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                const data = await response.json();
+                console.log('Blocked List:', data.blocked_list);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+
+
+        async function fetchPongRankings() {
+            const accessToken = localStorage.getItem('accessToken');
+
+            try {
+                const response = await fetch('/api/profile/pong_rankings/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Pong rankings');
+                }
+
+                const data = await response.json();
+                console.log('Pong Rankings:', data.pong_rankings);
+
+                const pongRankingsElement = document.getElementById('pongRankings');
+                pongRankingsElement.innerHTML = ''; // Clear previous results
+                data.pong_rankings.forEach(player => {
+                    const li = document.createElement('li');
+                    const img = document.createElement('img');
+                    img.src = `https://${window.location.host}${player.profile_image_url}` || 'default.jpg'; // Exibe uma imagem padrão se o profile_image for null
+                    console.log(img.src);
+                    img.alt = `${player.username}'s profile image`;
+                    img.width = 50; // Ajuste o tamanho conforme necessário
+                    img.height = 50; // Ajuste o tamanho conforme necessário
+                    li.appendChild(img);
+                    li.appendChild(document.createTextNode(` ${player.username}: ${player.pong_rank} XP`));
+                    pongRankingsElement.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Error fetching Pong rankings:', error.message);
+            }
+        }
+
+        async function fetchSnakeRankings() {
+            const accessToken = localStorage.getItem('accessToken');
+
+            try {
+                const response = await fetch('/api/profile/snake_rankings/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Snake rankings');
+                }
+
+                const data = await response.json();
+                console.log('Snake Rankings:', data.snake_rankings);
+
+                const snakeRankingsElement = document.getElementById('snakeRankings');
+                snakeRankingsElement.innerHTML = ''; // Clear previous results
+                data.snake_rankings.forEach(player => {
+                    const li = document.createElement('li');
+                    const img = document.createElement('img');
+                    img.src = `https://${window.location.host}${player.profile_image_url}`; // Exibe uma imagem padrão se o profile_image for null
+                    img.alt = `${player.username}'s profile image`;
+                    img.width = 50; // Ajuste o tamanho conforme necessário
+                    img.height = 50; // Ajuste o tamanho conforme necessário
+                    li.appendChild(img);
+                    li.appendChild(document.createTextNode(` ${player.username}: ${player.snake_rank} XP`));
+                    snakeRankingsElement.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Error fetching Snake rankings:', error.message);
+            }
+        }
+
+
+        async function fetchFriendList() {
+            const accessToken = localStorage.getItem('accessToken');
+            try {
+                const response = await fetch('/api/profile/friend_list/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                const friends = data.friends;
+
+                // Get the element to inject friend list items
+                const friendListElement = document.getElementById('friend-list');
+
+                // Clear the previous list
+                friendListElement.innerHTML = '';
+
+                // Loop through friends and add to the list
+                friends.forEach(friend => {
+                    const friendItem = document.createElement('div');
+                    friendItem.className = 'friend-item';
+                    friendItem.textContent = `${friend.username} - ${friend.is_logged_in ? 'Online' : 'Offline'}`;
+                    friendListElement.appendChild(friendItem);
+                });
+            } catch (error) {
+                console.error('Error fetching friend list:', error);
+            }
+        }
+
         document.getElementById('registerBtn').addEventListener('click', registerUser);
         document.getElementById('loginBtn').addEventListener('click', loginUser);
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
@@ -890,6 +1050,7 @@
         document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
         document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
         document.getElementById('delete-user-button').addEventListener('click', deleteUser);
+        document.getElementById('getBlockedListBtn').addEventListener('click', fetchBlockedList);
 
     </script>
 </body>
