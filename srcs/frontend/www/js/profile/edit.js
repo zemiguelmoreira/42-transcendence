@@ -4,7 +4,7 @@ import { removeToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
 import { getUser } from "../search/search_user.js";
 import { deleteProfile } from "./deleteAccount.js";
-import { displaySlidingMessage, limparDivAll } from "../utils/utils1.js";
+import { displaySlidingMessage } from "../utils/utils1.js";
 import { fetchUserProfile } from "./myprofile.js";
 
 // Funções na página edit

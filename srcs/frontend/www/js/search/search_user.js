@@ -113,7 +113,7 @@ async function getUser(username) {
 }
 
 async function viewUserProfile(username, searchUser) {
-	console.log('viewUserProfile: ', searchUser);
+	console.log('viewUserProfile: my: ', username, ' other: ', searchUser);
 
 	const conf = {
 		method: 'GET',

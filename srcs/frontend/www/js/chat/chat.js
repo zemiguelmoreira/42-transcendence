@@ -9,7 +9,6 @@ function initializeChat(username) {
 
 	// console.log('Loading chat page content');
 
-
 	const chatLog = document.getElementById("chat-log");
 	const chatMessageInput = document.getElementById("chat-message-input");
 	const chatMessageSubmit = document.getElementById("chat-message-submit");

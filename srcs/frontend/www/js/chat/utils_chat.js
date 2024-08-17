@@ -1,5 +1,6 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
+import { addFriend , removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
 
 let selectedUser = null;
 
@@ -39,7 +40,6 @@ function displayChatMessage(data, chatLog) {
 	}
 }
 
-
 // função para mostrar o convite to play game - (utiliza - createInviteElement() e createInviteResponseButton())
 function displayGameInvite(data, chatLog, chatSocket) {
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
@@ -50,7 +50,6 @@ function displayGameInvite(data, chatLog, chatSocket) {
 
 	displaySlidingMessage(inviteMessage);
 }
-
 
 // cria o convite
 function createInviteElement(inviteMessage, sender, chatSocket) {
@@ -77,7 +76,6 @@ function createInviteElement(inviteMessage, sender, chatSocket) {
 	return inviteElement;
 }
 
-
 // Cria os buttons de acordo com os argumentos
 function createInviteResponseButton(text, accepted, sender, chatSocket) {
 
@@ -100,7 +98,6 @@ function createInviteResponseButton(text, accepted, sender, chatSocket) {
 	
 }
 
-
 // Função que trata a resposta ao convite
 function handleInviteResponse(data, chatLog) {
 
@@ -121,7 +118,6 @@ function handleInviteResponse(data, chatLog) {
     chatLog.appendChild(inviteResponseElement);
     chatLog.scrollTop = chatLog.scrollHeight;
 }
-
 
 function updateOnlineUsersList(username, onlineUsers, chatSocket) {
     const onlineUsersList = document.getElementById("online-users-list");
@@ -175,13 +171,17 @@ function createDropdownToggle() {
 	return dropdownToggle;
 }
 
-
 // Cria o menu dropdown
 function createDropdownMenu(username, user, chatSocket) {
 	const dropdownMenu = document.createElement("div");
 	dropdownMenu.classList.add("dropdown-menu");
 
-	const action1 = createDropdownItem("Add Friend", "#");
+	console.log('DropDownMenu: username:', username, ' user:', user);
+	const action0 = createDropdownItem("Block User", "#");
+	const action1 = createDropdownItem("Add Friend", "#", async (e) => {
+		e.preventDefault();
+		await addFriend(username, user, displaySlidingMessage);
+	});
 	const action2 = createDropdownItem("View Profile", "#", async (e) => {
 		e.preventDefault();
 		await viewUserProfile(username, user);
@@ -194,6 +194,7 @@ function createDropdownMenu(username, user, chatSocket) {
 
 	// dropdownMenu.append(action1, action2, action3, action4, action5);
     dropdownMenu.appendChild(action1);
+    dropdownMenu.appendChild(action0);
     dropdownMenu.appendChild(action2);
     dropdownMenu.appendChild(action3);
     dropdownMenu.appendChild(action4);
@@ -201,7 +202,6 @@ function createDropdownMenu(username, user, chatSocket) {
 
 	return dropdownMenu;
 }
-
 
 function createDropdownItem(text, href, onClick) {
 	const item = document.createElement("a");
@@ -221,6 +221,5 @@ function sendGameInvite(user, game, chatSocket) {
 	chatSocket.send(JSON.stringify(inviteMessage));
 	console.log('Invite sent to', user);
 }
-
 
 export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList }

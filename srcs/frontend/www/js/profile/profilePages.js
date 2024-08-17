@@ -7,57 +7,7 @@ function makeProfilePage(data) {
 			<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
 			<h3 id="username">${data.profile.alias_name}</h3>
 			<button id="editProfile" type="button" class="btn btn-outline-custom btn-sm">Edit Profile</button>
-			<div class="friends-list">
-			<table class="friends-table">
-				<thead>
-					<tr>
-						<th>Friends</th>
-						<th>Status</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>user1</td>
-						<td><span class="status-icon green"></span></td>
-					</tr>
-					<tr>
-						<td>user2</td>
-						<td><span class="status-icon red"></span></td>
-					</tr>
-					<tr>
-						<td>user3</td>
-						<td><span class="status-icon green"></span></td>
-					</tr>
-					<tr>
-						<td>user4</td>
-						<td><span class="status-icon red"></span></td>
-					</tr>
-					<tr>
-						<td>user5</td>
-						<td><span class="status-icon green"></span></td>
-					</tr>
-					<tr>
-						<td>user6</td>
-						<td><span class="status-icon red"></span></td>
-					</tr>
-					<tr>
-						<td>user7</td>
-						<td><span class="status-icon green"></span></td>
-					</tr>
-					<tr>
-						<td>user8</td>
-						<td><span class="status-icon red"></span></td>
-					</tr>
-					<tr>
-						<td>user9</td>
-						<td><span class="status-icon green"></span></td>
-					</tr>
-					<tr>
-						<td>user10</td>
-						<td><span class="status-icon red"></span></td>
-					</tr>
-				</tbody>
-			</table>
+			<div id="friends-list" class="friends-list">
 
 			</div>
 		</div>
@@ -198,19 +148,23 @@ function makeEditProfilePage(data) {
 }
 
 // Resultado da busca de outro usuário
-function makeProfilePageSearchOther(data) {
+function makeProfilePageSearchOther(data) {	
 	console.log("makeProfilePageSearchOther: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
-			<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture">
+			<img id="profile-img" src="${data.profile.profile_image_url}" alt="User Picture">
 			<h3 id="username">${data.profile.alias_name}</h3>
-			
+			<div class="friends-list">
+				<button id="editProfile" type="button" class="btn btn-success btn-sm">Add Friend</button>
+			</div>
+			<div class="friends-list">
+				<button id="editProfile" type="button" class="btn btn-danger btn-sm">Block User</button>
+			</div>
 		</div>
 
-
 		<div class="profile-right">
-			<div class="profile-title">${data.user.username} Profile</div>
+			<div class="profile-title">Profile: ${data.user.username}</div>
 			<div class="profile-info">
 				<label class="profile-label" for="name">Name:</label>
 				<span class="profile-description" id="name">${data.user.username}</span>
@@ -336,125 +290,59 @@ function noResultsPage(searchValue) {
 function makeProfileSettings(data) {
 	console.log("makeProfileSettings: ", data);
 	return `
-	<div class="profile-container">
-		<div class="profile-left">
-			<img id="profile-img" src="../../files/ialves-m.jpg" alt="User Picture">
-			<h3 id="username">${data.profile.alias_name}</h3>
-			
+		<div class="profile-container">
+			<div class="profile-left">
+				<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
+				<h3 id="username">${data.profile.alias_name}</h3>
+				<div class="profile-title profile-settings-table-title">Settings</div>
+			</div>
+			<div class="profile-right">
+				<div class="profile-title">Friends Management</div>
+				<table class="friends-management-table">
+					<thead>
+						<tr>
+							<th>Username</th>
+							<th>Online</th>
+							<th>Remove Friend</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>user1</td>
+							<td><span class="status-icon green"></span></td>
+							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove Friend</button></td>
+						</tr>
+						<tr>
+							<td>user2</td>
+							<td><span class="status-icon red"></span></td>
+							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove Friend</button></td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="profile-title">Users Management</div>
+				<table class="friends-management-table">
+					<thead>
+						<tr>
+							<th>Username</th>
+							<th>Online</th>
+							<th>Unblock User</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>user1</td>
+							<td><span class="status-icon green"></span></td>
+							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Unblock User</button></td>
+						</tr>
+						<tr>
+							<td>user2</td>
+							<td><span class="status-icon red"></span></td>
+							<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Unblock User</button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
-
-		<div class="profile-right">
-			<div class="profile-title">${data.user.username} Profile</div>
-			<div class="profile-info">
-				<label class="profile-label" for="name">Name:</label>
-				<span class="profile-description" id="name">${data.user.username}</span>
-			</div>
-			<div class="profile-info">
-				<label for="username">Username:</label>
-				<span class="profile-description" id="username">${data.profile.alias_name}</span>
-			</div>
-			<div class="profile-info">
-				<label for="email">Email:</label>
-				<span class="profile-description" id="email">${data.user.email}</span>
-			</div>
-
-			
-			<div class="profile-title">Games Statistics</div>
-			<table class="game-list">
-				<thead>
-					<tr>
-						<th>Game</th>
-						<th>Score</th>
-						<th>Wins</th>
-						<th>Loses</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Pong</td>
-						<td>${data.profile.pong_rank}</td>
-						<td>${data.profile.pong_wins}</td>
-						<td>${data.profile.pong_losses}</td>
-					</tr>
-					<tr>
-						<td>Snake</td>
-						<td>${data.profile.snake_rank}</td>
-						<td>${data.profile.snake_wins}</td>
-						<td>${data.profile.snake_losses}</td>
-					</tr>
-				</tbody>
-			</table>
-
-			<div class="profile-title">Matches History</div>
-			<table class="game-list">
-				<thead>
-					<tr>
-						<th>Game</th>
-						<th>Date</th>
-						<th>Winner</th>
-						<th>Looser</th>
-						<th>Winner Score</th>
-						<th>Looser Score</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Pong</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-					<tr>
-						<td>Snake</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-					<tr>
-						<td>Pong</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-					<tr>
-						<td>Snake</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
-
 	`;
 }
 

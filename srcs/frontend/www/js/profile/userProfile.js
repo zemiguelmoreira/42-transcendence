@@ -9,6 +9,7 @@ function userProfilePage(userData) {
 
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
+	displayFriendsList(userData.profile.friend_list, "friends-list");
 
 	document.getElementById('editProfile').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -19,6 +20,7 @@ function userProfilePage(userData) {
 // Função para criar e exibir a tabela
 function displayMatchHistory(data, TableContainer) {
     // Cria a tabela e o cabeçalho
+	console.log('TableContainer:', TableContainer);
     let table = '<table class="game-list" border="1" cellspacing="0" cellpadding="5">';
     table += `
         <thead>
@@ -51,5 +53,46 @@ function displayMatchHistory(data, TableContainer) {
 	// Insere a tabela no contêiner
 	document.getElementById(TableContainer).innerHTML = table;
 }
+
+// Função para criar e exibir a tabela
+function displayFriendsList(data, TableContainer) {
+    // Cria a tabela e o cabeçalho
+    let table = '<table class="friends-table">';
+    let nbr = 0;
+	table += `
+		<thead>
+			<tr>
+				<th>Friends</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+        <tbody>
+    `;
+
+    // Itera sobre o array e cria uma linha para cada objeto
+	// 	<tr>
+	// 	<td>user1</td>
+	// 	<td><span class="status-icon green"></span></td>
+	//  </tr>
+    data.forEach(match => {
+        table += `
+            <tr>
+                <td>${match}</td>`;
+				if (match.status === 'online') {`
+	                <td>${match.winner_score}</td>
+				`} else {`
+					<td>${match.loser_score}</td>
+				`}`
+			</tr>
+        `;
+		nbr++;
+    });
+
+    table += '</tbody></table>';
+	
+	// Insere a tabela no contêiner
+	document.getElementById(TableContainer).innerHTML = table;
+}
+
 
 export { userProfilePage }

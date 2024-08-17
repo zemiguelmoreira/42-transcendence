@@ -1,7 +1,7 @@
 import { navigateTo } from "../app.js";
 import { register_page } from "../register/registerPage.js";
 import { viewToken } from "../utils/tokens.js";
-import { fetchUserProfile } from "../profile/myprofile.js";
+import { fetchUserProfile , fetchUserProfileSettings } from "../profile/myprofile.js";
 import { getUser } from "../search/search_user.js";
 import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
@@ -73,7 +73,10 @@ async function homeLogin(username) {
 	document.getElementById('viewSettings').addEventListener('click', (e) => {
 		e.preventDefault();
 		console.log('viewSettings clicked');
-		navigateTo(`/user/${username}/settings`);
+		if (viewToken())
+			fetchUserProfileSettings(username);
+		else
+			navigateTo('/signIn');
 	});
 
 	document.getElementById('logOut').addEventListener('click', (e) => {

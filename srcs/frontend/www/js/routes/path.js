@@ -84,7 +84,13 @@ const pages = {
 	'/user/:username/profile/edit': {
 		loadContent: function (params) {
 			// console.log('Loading user profile edit page content for', params.username);
-			edit(dataUser, params.username);
+			if (dataUser) {
+				edit(dataUser, params.username);
+			} else if (dataUserFromSearch) {
+				edit(dataUserFromSearch, params.username);
+			} else {	
+				fetchUserProfile(params.username);
+			}
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -106,10 +112,14 @@ const pages = {
 		redirect: '/'
 	},
 	'/user/:username/settings': {
-		loadContent: function (params) {
-			console.log('Loading user profile settings');
-			console.log('dataUser no path: ', dataUser);
-			makeProfileSettings(dataUser);
+		loadContent: function () {
+			console.log('Loading user profile settings page');
+			if (dataUser) {
+				console.log('dataUser no settings: ', dataUser);
+				document.getElementById('mainContent').innerHTML = '';
+				const profileSettings = makeProfileSettings(dataUser);
+				document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
+			}
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
