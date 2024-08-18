@@ -173,26 +173,38 @@ function createDropdownToggle() {
 
 // Cria o menu dropdown
 function createDropdownMenu(username, user, chatSocket) {
-	const dropdownMenu = document.createElement("div");
-	dropdownMenu.classList.add("dropdown-menu");
+    console.log('createDropdownMenu: username:', username, ' user:', user);
 
-	console.log('DropDownMenu: username:', username, ' user:', user);
-	const action0 = createDropdownItem("Block User", "#");
-	const action1 = createDropdownItem("Add Friend", "#", async (e) => {
-		e.preventDefault();
-		await addFriend(username, user, displaySlidingMessage);
-	});
-	const action2 = createDropdownItem("View Profile", "#", async (e) => {
-		e.preventDefault();
-		await viewUserProfile(username, user);
-	});
-	const action3 = document.createElement("hr");
-	action3.classList.add("dropdown-divider");
+    const dropdownMenu = document.createElement("div");
+    dropdownMenu.classList.add("dropdown-menu");
 
-	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong", chatSocket));
-	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(user, "Snake", chatSocket));
+    // Verifica se o username é igual ao user
+    if (username === user) {
+        // Retorna um menu desativado ou vazio
+        const disabledItem = document.createElement("span");
+        disabledItem.classList.add("dropdown-item", "disabled");
+        disabledItem.textContent = "Hi " + username + "!";
+        dropdownMenu.appendChild(disabledItem);
+        return dropdownMenu;
+    }
 
-	// dropdownMenu.append(action1, action2, action3, action4, action5);
+    // Caso contrário, cria o menu dropdown com as ações normais
+    const action0 = createDropdownItem("Block User", "#");
+    const action1 = createDropdownItem("Add Friend", "#", async (e) => {
+        e.preventDefault();
+        await addFriend(username, user, displaySlidingMessage);
+    });
+    const action2 = createDropdownItem("View Profile", "#", async (e) => {
+        e.preventDefault();
+        await viewUserProfile(username, user);
+    });
+    const action3 = document.createElement("hr");
+    action3.classList.add("dropdown-divider");
+
+    const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong", chatSocket));
+    const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(user, "Snake", chatSocket));
+
+    // Adiciona as ações ao menu dropdown
     dropdownMenu.appendChild(action1);
     dropdownMenu.appendChild(action0);
     dropdownMenu.appendChild(action2);
@@ -200,8 +212,9 @@ function createDropdownMenu(username, user, chatSocket) {
     dropdownMenu.appendChild(action4);
     dropdownMenu.appendChild(action5);
 
-	return dropdownMenu;
+    return dropdownMenu;
 }
+
 
 function createDropdownItem(text, href, onClick) {
 	const item = document.createElement("a");
