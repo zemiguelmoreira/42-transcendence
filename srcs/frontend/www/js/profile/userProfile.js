@@ -1,5 +1,7 @@
-import { makeProfilePage } from "./profilePages.js";
+import { makeProfilePage , makeSettingsPage } from "./profilePages.js";
 import { navigateTo } from "../app.js";
+import { removeFriend } from "../utils/manageUsers.js";
+import { displaySlidingMessage } from "../utils/utils1.js";
 
 function userProfilePage(userData) {
 
@@ -17,7 +19,6 @@ function userProfilePage(userData) {
 	});
 }
 
-// Função para criar e exibir a tabela
 function displayMatchHistory(data, TableContainer) {
     // Cria a tabela e o cabeçalho
 	console.log('TableContainer:', TableContainer);
@@ -54,7 +55,6 @@ function displayMatchHistory(data, TableContainer) {
 	document.getElementById(TableContainer).innerHTML = table;
 }
 
-// Função para criar e exibir a tabela
 async function displayFriendsList(is_setting = false) {
 
 	const accessToken = localStorage.getItem('access_token');
@@ -96,14 +96,13 @@ async function displayFriendsList(is_setting = false) {
 		`;
 
 		// Loop através da lista de amigos
-		friends.forEach(friend => {
-			console.log('friend:', friend);
+		friends.forEach((friend, index) => {
 			table += `
 				<tr>
 					<td>${friend.username}</td>
 					<td><span class="status-icon ${friend.is_logged_in ? 'green' : 'red'}"></span></td>`;
 			if (is_setting) {
-				table += `<td><button id="removeFriend" class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove Friend</button></td>`;
+				table += `<td><button id="removeFriend-${index}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${friend.username}">Remove Friend</button></td>`;
 			}
 			table += `</tr>`;
 		});
@@ -113,12 +112,24 @@ async function displayFriendsList(is_setting = false) {
 		// Insere a tabela no contêiner
 		document.getElementById("friends-list").innerHTML = table;
 
+		// Adiciona event listeners aos botões de remoção, se aplicável
+		if (is_setting) {
+			friends.forEach((friend, index) => {
+				const button = document.getElementById(`removeFriend-${index}`);
+				button.addEventListener('click', async (e) => {
+					e.preventDefault();
+					const friendUsername = button.getAttribute('data-username');
+					await removeFriend(friendUsername, displaySlidingMessage);
+					navigateTo(`/user/${username}/settings`);
+				});
+			});
+		}
+
 	} catch (error) {
 		console.error('Error fetching friend list:', error);
 	}
 }
 
-// Função para criar e exibir a tabela
 async function displayBlockedList() {
 
 	const accessToken = localStorage.getItem('access_token');
@@ -176,6 +187,15 @@ async function displayBlockedList() {
 	}
 }
 
+function profileSettings(dataUser) {
+	console.log('dataUser no settings: ', dataUser);
 
+	document.getElementById('mainContent').innerHTML = '';
+	const profileSettings = makeSettingsPage(dataUser);
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
 
-export { userProfilePage , displayFriendsList , displayBlockedList}
+	displayFriendsList(true);
+	displayBlockedList();
+}
+
+export { userProfilePage , displayFriendsList , displayBlockedList , profileSettings }

@@ -1,3 +1,5 @@
+// import { removeFriend } from "../utils/manageUsers";
+
 // Página de perfil
 function makeProfilePage(data) {
 	console.log("makeProfilePage: ", data);
@@ -204,7 +206,6 @@ function makeProfilePageSearchOther(data) {
 					</tr>
 				</tbody>
 			</table>
-
 			<div class="profile-title">Matches History</div>
 			<table class="game-list">
 				<thead>
@@ -274,7 +275,6 @@ function makeProfilePageSearchOther(data) {
 			</table>
 		</div>
 	</div>
-
 	`;
 }
 
@@ -287,8 +287,8 @@ function noResultsPage(searchValue) {
 	`;
 }
 
-function makeProfileSettings(data) {
-	console.log("makeProfileSettings: ", data);
+function makeSettingsPage(data) {
+	console.log("makeSettingsPage: ", data);
 	return `
 		<div class="profile-container">
 			<div class="profile-left">
@@ -306,5 +306,4 @@ function makeProfileSettings(data) {
 	`;
 }
 
-
-export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage, makeProfileSettings }
+export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage, makeSettingsPage }

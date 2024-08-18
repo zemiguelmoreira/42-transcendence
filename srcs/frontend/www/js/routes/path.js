@@ -7,13 +7,12 @@ import { displayPageError } from "../html/error_page.js";
 import { signIn } from "../login/login.js";
 import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
-import { userProfilePage , displayFriendsList, displayBlockedList } from "../profile/userProfile.js";
+import { userProfilePage , profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
 import { chatWindow } from "../chat/chat-window_old.js";
 import { doChat } from "../chat/chat-window.js";
-import { makeProfileSettings } from "../profile/profilePages.js";
 
 const pages = {
 	'/': {
@@ -116,18 +115,7 @@ const pages = {
 		loadContent: function () {
 			console.log('Loading user profile settings page');
 			if (dataUser) {
-				console.log('dataUser no settings: ', dataUser);
-				document.getElementById('mainContent').innerHTML = '';
-				const profileSettings = makeProfileSettings(dataUser);
-				document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
-
-				displayFriendsList(true);
-				displayBlockedList();
-
-				// document.getElementById('removeFriend').addEventListener('click', async (e) => {
-				// 	e.preventDefault();
-				// 	await removeFriend(dataUserSearch.user.username, displaySlidingMessage);
-				// });
+				profileSettings(dataUser);
 			}
 		},
 		access: () => !!localStorage.getItem('access_token'),

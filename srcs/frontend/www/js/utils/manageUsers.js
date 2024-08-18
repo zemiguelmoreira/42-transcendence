@@ -26,9 +26,10 @@ async function addFriend(myUsername, friendUsername, displaySlidingMessage) {
 	}
 }
 
-async function removeFriend(friendUsername) {
+async function removeFriend(friendUsername, displaySlidingMessage) {
+	console.log('removeFriend: ', friendUsername);
+
 	const accessToken = localStorage.getItem('access_token');
-	// const friendUsername = document.getElementById('friendUsername').value;
 	try {
 		const response = await fetch('/api/profile/remove_friend/', {
 			method: 'POST',
@@ -132,6 +133,4 @@ async function fetchBlockedList() {
 	}
 }
 
-
-
-export { addFriend, removeFriend, blockUser, unblockUser , fetchBlockedList}
+export { addFriend, removeFriend, blockUser, unblockUser , fetchBlockedList }
