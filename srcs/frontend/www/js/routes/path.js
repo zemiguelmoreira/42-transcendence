@@ -113,7 +113,6 @@ const pages = {
 	},
 	'/user/:username/settings': {
 		loadContent: function () {
-			console.log('Loading user profile settings page');
 			if (dataUser) {
 				profileSettings(dataUser);
 			}

@@ -27,7 +27,7 @@ function initializeChat(username) {
 
 		try {
 			data = JSON.parse(e.data);
-			console.log('Para consulta data do chat: ', data);
+			// console.log('Para consulta data do chat: ', data);
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
 			return;

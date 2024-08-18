@@ -72,7 +72,6 @@ async function homeLogin(username) {
 
 	document.getElementById('viewSettings').addEventListener('click', (e) => {
 		e.preventDefault();
-		console.log('viewSettings clicked');
 		if (viewToken())
 			fetchUserProfileSettings(username);
 		else

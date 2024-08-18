@@ -1,8 +1,13 @@
 
 async function addFriend(friendUsername, displaySlidingMessage) {
-	console.log('addFriend: ', friendUsername);
-
 	const accessToken = localStorage.getItem('access_token');
+
+	if (isUserBlocked(friendUsername)) {
+		console.log('User is blocked');
+		await unblockUser(friendUsername, displaySlidingMessage);
+	} else {
+		console.log('User is not blocked');
+	}
 	try {
 		const response = await fetch('/api/profile/add_friend/', {
 			method: 'POST',
@@ -16,6 +21,7 @@ async function addFriend(friendUsername, displaySlidingMessage) {
 		});
 
 		if (response.ok) {
+			console.log('Friend added successfully!');
 			displaySlidingMessage('Friend added successfully!');
 		} else {
 			throw new Error('Failed to add friend');
@@ -42,6 +48,7 @@ async function removeFriend(friendUsername, displaySlidingMessage) {
 		});
 
 		if (response.ok) {
+			console.log('Friend removed successfully!');
 			displaySlidingMessage('Friend removed successfully!');
 		} else {
 			throw new Error('Failed to remove friend');
@@ -53,10 +60,14 @@ async function removeFriend(friendUsername, displaySlidingMessage) {
 }
 
 async function blockUser(blockedUsername, displaySlidingMessage) {
-	console.log('blockUser: ', blockedUsername);
-
 	const accessToken = localStorage.getItem('access_token');
-	// const blockedUsername = document.getElementById('blockUsername').value;
+
+	if (isUserInFriendsList(blockedUsername)) {
+		console.log('User is in friends list');
+		await removeFriend(blockedUsername, displaySlidingMessage);
+	} else {
+		console.log('User is not in friends list');
+	}
 	try {
 		const response = await fetch('/api/profile/block_user/', {
 			method: 'POST',
@@ -70,6 +81,7 @@ async function blockUser(blockedUsername, displaySlidingMessage) {
 		});
 
 		if (response.ok) {
+			console.log('User blocked successfully!');
 			displaySlidingMessage('User blocked successfully!');
 		} else {
 			throw new Error('Failed to block user');
@@ -96,6 +108,7 @@ async function unblockUser(blockedUsername, displaySlidingMessage) {
 		});
 
 		if (response.ok) {
+			console.log('User unblocked successfully!');
 			displaySlidingMessage('User unblocked successfully!');
 		} else {
 			throw new Error('Failed to unblock user');
@@ -134,4 +147,69 @@ async function fetchBlockedList() {
 	}
 }
 
-export { addFriend, removeFriend, blockUser, unblockUser , fetchBlockedList }
+async function isUserBlocked(username) {
+	const accessToken = localStorage.getItem('access_token');
+
+	if (!accessToken) {
+		console.error('No access token found');
+		return false; // Retorna falso se não houver token
+	}
+
+	try {
+		const response = await fetch('/api/profile/blocked_list/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok: ' + response.statusText);
+		}
+
+		const data = await response.json();
+		console.log('Blocked List:', data.blocked_list);
+
+		// Verifica se o username está na lista de bloqueados
+		return data.blocked_list.includes(username);
+
+	} catch (error) {
+		console.error('Error fetching blocked list:', error);
+		return false; // Retorna falso em caso de erro
+	}
+}
+
+async function isUserInFriendsList(username) {
+	const accessToken = localStorage.getItem('access_token');
+
+	if (!accessToken) {
+		console.error('No access token found');
+		return false; // Retorna falso se não houver token
+	}
+
+	try {
+		const response = await fetch('/api/profile/friend_list/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		const data = await response.json();
+		const friends = data.friends;
+
+		// Verifica se o username está na lista de amigos
+		return friends.some(friend => friend.username === username);
+
+	} catch (error) {
+		console.error('Error fetching friend list:', error);
+		return false; // Retorna falso em caso de erro
+	}
+}
+
+export { addFriend, removeFriend, blockUser, unblockUser, fetchBlockedList }

@@ -199,7 +199,7 @@ async function displayBlockedList() {
 }
 
 function profileSettings(dataUser) {
-	console.log('dataUser no settings: ', dataUser);
+	// console.log('dataUser no settings: ', dataUser);
 
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);

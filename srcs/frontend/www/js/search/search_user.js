@@ -10,6 +10,7 @@ let dataUserSearch;
 let dataUserFromSearch;
 
 async function userSearchPage(dataUserSearch, username) {
+
 	console.log('userSearchPage: ', dataUserSearch);
 	console.log('user', username);
 
@@ -27,6 +28,7 @@ async function userSearchPage(dataUserSearch, username) {
 		e.preventDefault();
 		await blockUser(dataUserSearch.user.username, displaySlidingMessage);
 	});
+
 }
 
 function noResults(username, query) {

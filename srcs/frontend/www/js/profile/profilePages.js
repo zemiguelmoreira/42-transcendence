@@ -289,7 +289,7 @@ function noResultsPage(searchValue) {
 }
 
 function makeSettingsPage(data) {
-	console.log("makeSettingsPage: ", data);
+	// console.log("makeSettingsPage: ", data);
 	return `
 		<div class="profile-container">
 			<div class="profile-left">

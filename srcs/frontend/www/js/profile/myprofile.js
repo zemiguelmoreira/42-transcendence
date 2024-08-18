@@ -211,8 +211,6 @@ async function fetchUserProfileSettings(username) {
 		let data = await response.json();
 		dataUser = data;
 		
-		console.log('fetchUserProfileSettings: ', data);
-
 		navigateTo(`/user/${username}/settings`);
 
 	} catch (e) {

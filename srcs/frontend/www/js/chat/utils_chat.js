@@ -173,7 +173,6 @@ function createDropdownToggle() {
 
 // Cria o menu dropdown
 function createDropdownMenu(username, user, chatSocket) {
-    console.log('createDropdownMenu: username:', username, ' user:', user);
 
     const dropdownMenu = document.createElement("div");
     dropdownMenu.classList.add("dropdown-menu");
