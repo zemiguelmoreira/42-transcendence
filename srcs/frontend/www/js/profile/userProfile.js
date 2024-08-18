@@ -1,6 +1,6 @@
 import { makeProfilePage , makeSettingsPage } from "./profilePages.js";
 import { navigateTo } from "../app.js";
-import { removeFriend } from "../utils/manageUsers.js";
+import { removeFriend , unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 
 function userProfilePage(userData) {
@@ -108,7 +108,7 @@ async function displayFriendsList(is_setting = false) {
 		});
 
 		table += '</tbody></table>';
-		
+
 		// Insere a tabela no contêiner
 		document.getElementById("friends-list").innerHTML = table;
 
@@ -167,12 +167,11 @@ async function displayBlockedList() {
 		`;
 
 		// Loop através da lista de usuários bloqueados
-		data.blocked_list.forEach(user => {
-			console.log('blocked user:', user);
+		data.blocked_list.forEach((user, index) => {
 			table += `
 				<tr>
-					<td>${user.username}</td>
-					<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn" onclick="unblockUser('${user.username}')">Unblock User</button></td>
+					<td>${user}</td>
+					<td><button id="unblockUser-${index}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${user}">Unblock User</button></td>
 				</tr>
 			`;
 		});
@@ -181,6 +180,18 @@ async function displayBlockedList() {
 		
 		// Insere a tabela no contêiner
 		document.getElementById("blocked-list").innerHTML = table;
+
+		// Adiciona event listeners aos botões de desbloqueio
+		data.blocked_list.forEach((user, index) => {
+			const button = document.getElementById(`unblockUser-${index}`);
+			button.addEventListener('click', async (e) => {
+				e.preventDefault();
+				const usernameToUnblock = button.getAttribute('data-username');
+				await unblockUser(usernameToUnblock, displaySlidingMessage);
+				// Recarrega a lista de bloqueados após a ação
+				await displayBlockedList();
+			});
+		});
 
 	} catch (error) {
 		console.error('Error fetching blocked list:', error);

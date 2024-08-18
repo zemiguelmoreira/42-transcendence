@@ -1,4 +1,3 @@
-// import { removeFriend } from "../utils/manageUsers";
 
 // Página de perfil
 function makeProfilePage(data) {
@@ -150,7 +149,7 @@ function makeEditProfilePage(data) {
 }
 
 // Resultado da busca de outro usuário
-function makeProfilePageSearchOther(data) {	
+function makeProfilePageSearchOther(data) {
 	console.log("makeProfilePageSearchOther: ", data);
 	return `
 	<div class="profile-container">
@@ -281,9 +280,11 @@ function makeProfilePageSearchOther(data) {
 // Página de erro de busca
 function noResultsPage(searchValue) {
 	return `
-	<div class="mainContent">
-			<div class="profile-title">No results found.</div>
-	</div>
+		<div class="mainContent">
+			<div class="noResultFound">
+				<div class="noResultMsg">No results found</div>
+			</div>
+		</div>
 	`;
 }
 

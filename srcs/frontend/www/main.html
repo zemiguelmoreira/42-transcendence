@@ -23,7 +23,6 @@
 		</h1>
 		<div class="title-header"></div>
 		<div class="main-box neon-border" id="root">
-
 			<div class="navbar-div">
 				<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
 					<div class="container-fluid">
@@ -72,113 +71,14 @@
 			<div class="home-box">
 
 
-				<div class="profile-container">
-					<div class="profile-left">
-						<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
-						<h3 id="username">${data.profile.alias_name}</h3>
-
-						<table>
-							<tr>
-								<td colspan="2">
-									<div class="profile-title" style="text-align: center;">Settings</div>
-								</td>
-							</tr>
-							<tr>
-								<td><label for="username">Name:</label></td>
-								<td><span class="profile-description" id="username">${data.user.username}</span></td>
-							</tr>
-							<tr>
-								<td><label for="email">Email:</label></td>
-								<td><span class="profile-description" id="email">${data.user.email}</span></td>
-							</tr>
-							<tr>
-								<td><label class="profile-label" for="name">Nickname:</label></td>
-								<td><span class="profile-description" id="name">${data.profile.alias_name}</span></td>
-							</tr>
-						</table>
-
-					</div>
-					<div class="profile-right">
-
-
-						<!-- Friends Management Table -->
-						<div class="profile-title">Friends Management</div>
-						<table class="friends-management-table">
-							<thead>
-								<tr>
-									<th>Username</th>
-									<th>Online</th>
-									<th>Remove Friend</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>user1</td>
-									<td><span class="status-icon green"></span></td>
-									<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove</button></td>
-								</tr>
-								<tr>
-									<td>user2</td>
-									<td><span class="status-icon red"></span></td>
-									<td><button class="btn btn-outline-danger btn-sm friends-management-table-btn">Remove</button></td>
-								</tr>
-								<!-- Adicione mais linhas conforme necessário -->
-							</tbody>
-						</table>
-
-						<!-- Users Management Table -->
-						<div class="profile-title">Users Management</div>
-						<table class="friends-management-table">
-							<thead>
-								<tr>
-									<th>Username</th>
-									<th>Online</th>
-									<th>Add Friend</th>
-									<th>Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>user3</td>
-									<td><span class="status-icon green"></span></td>
-									<td><button class="btn btn-outline-success btn-sm friends-management-table-btn">Add Friend</button></td>
-									<td>
-										<div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
-											<input type="radio" class="btn-check" name="btnradio3" id="btnradio3-1" autocomplete="off" checked>
-											<label class="btn btn-outline-danger friends-management-table-btn" for="btnradio3-1">Blocked</label>
-
-											<input type="radio" class="btn-check" name="btnradio3" id="btnradio3-2" autocomplete="off">
-											<label class="btn btn-outline-success friends-management-table-btn" for="btnradio3-2">Unblocked</label>
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>user4</td>
-									<td><span class="status-icon red"></span></td>
-									<td><button class="btn btn-outline-success btn-sm friends-management-table-btn">Add Friend</button></td>
-									<td>
-										<div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
-											<input type="radio" class="btn-check" name="btnradio4" id="btnradio4-1" autocomplete="off" checked>
-											<label class="btn btn-outline-danger friends-management-table-btn" for="btnradio4-1">Blocked</label>
-
-											<input type="radio" class="btn-check" name="btnradio4" id="btnradio4-2" autocomplete="off">
-											<label class="btn btn-outline-success friends-management-table-btn" for="btnradio4-2">Unblocked</label>
-										</div>
-									</td>
-								</tr>
-								<!-- Adicione mais linhas conforme necessário -->
-							</tbody>
-						</table>
-					</div>
+			<div class="mainContent">
+				<div class="noResultFound">
+					<div class="noResultMsg">No results found</div>
 				</div>
+			</div>
 
 
-
-
-				<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO" crossorigin="anonymous"></script>
-				<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-</body>
-
-
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	</body>
 </html>

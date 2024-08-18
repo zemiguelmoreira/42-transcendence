@@ -11,8 +11,8 @@ import { userProfilePage , profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal } from "../games/snake-local.js";
 import { pongOptions } from "../games/pong-options.js";
-import { chatWindow } from "../chat/chat-window_old.js";
 import { doChat } from "../chat/chat-window.js";
+import { noResults } from "../search/search_user.js";
 
 const pages = {
 	'/': {

@@ -189,16 +189,22 @@ function createDropdownMenu(username, user, chatSocket) {
     }
 
     // Caso contrário, cria o menu dropdown com as ações normais
-    const action0 = createDropdownItem("Block User", "#");
+    const action0 = createDropdownItem("Block User", "#", async (e) => {
+        e.preventDefault();
+        await blockUser(user, displaySlidingMessage);
+    });
+
     const action1 = createDropdownItem("Add Friend", "#", async (e) => {
         e.preventDefault();
-        await addFriend(username, user, displaySlidingMessage);
+        await addFriend(user, displaySlidingMessage);
     });
-    const action2 = createDropdownItem("View Profile", "#", async (e) => {
+    
+	const action2 = createDropdownItem("View Profile", "#", async (e) => {
         e.preventDefault();
         await viewUserProfile(username, user);
     });
-    const action3 = document.createElement("hr");
+    
+	const action3 = document.createElement("hr");
     action3.classList.add("dropdown-divider");
 
     const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong", chatSocket));

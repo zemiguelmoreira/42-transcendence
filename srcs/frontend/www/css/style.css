@@ -28,7 +28,7 @@ body {
 	border-color: #8740BF;
 }
 
-.btn-outline-custom:hover {
+.btn-outline-custom:hover, .btn-outline-custom:focus {
 	color: white;
 	background-color: #8740BF;
 	border-color: #8740BF;
@@ -423,4 +423,21 @@ h2 {
 	align-items: center;
 	text-align: center;
 	margin: 0 auto;
+}
+
+.noResultFound {
+	background-color: #262626;
+	background-image: url(../files/noResultFound.png);
+	background-position: top;
+	background-size: cover;
+	width: 998px;
+	height: 568px;
+}
+
+.noResultMsg {
+	font-family: 'CustomFont';
+	font-size: 20px;
+	color: #262626;
+	text-align: center;
+	padding-top: 340px;
 }

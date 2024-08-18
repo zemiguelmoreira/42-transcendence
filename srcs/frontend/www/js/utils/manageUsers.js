@@ -1,5 +1,5 @@
 
-async function addFriend(myUsername, friendUsername, displaySlidingMessage) {
+async function addFriend(friendUsername, displaySlidingMessage) {
 	console.log('addFriend: ', friendUsername);
 
 	const accessToken = localStorage.getItem('access_token');
@@ -27,7 +27,6 @@ async function addFriend(myUsername, friendUsername, displaySlidingMessage) {
 }
 
 async function removeFriend(friendUsername, displaySlidingMessage) {
-	console.log('removeFriend: ', friendUsername);
 
 	const accessToken = localStorage.getItem('access_token');
 	try {
@@ -53,9 +52,11 @@ async function removeFriend(friendUsername, displaySlidingMessage) {
 	}
 }
 
-async function blockUser() {
+async function blockUser(blockedUsername, displaySlidingMessage) {
+	console.log('blockUser: ', blockedUsername);
+
 	const accessToken = localStorage.getItem('access_token');
-	const blockedUsername = document.getElementById('blockUsername').value;
+	// const blockedUsername = document.getElementById('blockUsername').value;
 	try {
 		const response = await fetch('/api/profile/block_user/', {
 			method: 'POST',
@@ -79,9 +80,9 @@ async function blockUser() {
 	}
 }
 
-async function unblockUser() {
+async function unblockUser(blockedUsername, displaySlidingMessage) {
 	const accessToken = localStorage.getItem('access_token');
-	const blockedUsername = document.getElementById('blockUsername').value;
+	// const blockedUsername = document.getElementById('blockUsername').value;
 	try {
 		const response = await fetch('/api/profile/unblock_user/', {
 			method: 'POST',

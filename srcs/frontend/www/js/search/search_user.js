@@ -20,12 +20,12 @@ async function userSearchPage(dataUserSearch, username) {
 
 	document.getElementById('addFriend').addEventListener('click', async (e) => {
 		e.preventDefault();
-		await addFriend(username, dataUserSearch.user.username, displaySlidingMessage);
+		await addFriend(dataUserSearch.user.username, displaySlidingMessage);
 	});
 
-	document.getElementById('blockUser').addEventListener('click', (e) => {
+	document.getElementById('blockUser').addEventListener('click', async (e) => {
 		e.preventDefault();
-		
+		await blockUser(dataUserSearch.user.username, displaySlidingMessage);
 	});
 }
 
