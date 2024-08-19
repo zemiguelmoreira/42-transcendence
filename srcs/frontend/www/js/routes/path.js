@@ -9,7 +9,8 @@ import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage , profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { snakeGameLocal } from "../games/snake-local.js";
+import { snakeGameLocal , snakeGameFreeForAll } from "../games/snake-pages.js";
+import { pongGameLocal } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { doChat } from "../chat/chat-window.js";
 import { noResults } from "../search/search_user.js";
@@ -134,9 +135,23 @@ const pages = {
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
+	'/user/:username/snake-game-free-for-all': {
+		loadContent: function (params) {
+			snakeGameFreeForAll(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
 	'/user/:username/pong': {
 		loadContent: function (params) {
 			pongOptions(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/pong-game-local': {
+		loadContent: function (params) {
+			pongGameLocal(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

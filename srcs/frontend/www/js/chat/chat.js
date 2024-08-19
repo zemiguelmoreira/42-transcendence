@@ -27,6 +27,7 @@ function initializeChat(username) {
 
 		try {
 			data = JSON.parse(e.data);
+			console.log('onmessage data: ', data);
 			// console.log('Para consulta data do chat: ', data);
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
@@ -46,7 +47,7 @@ function initializeChat(username) {
 
         // trata invite response
         else if (data.invite_response) {
-            handleInviteResponse(data, chatLog);
+            handleInviteResponse(username, data, chatLog);
         }
 
         // trata online users list
