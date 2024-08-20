@@ -11,6 +11,8 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 import logging
+import httpx
+
 logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
@@ -101,31 +103,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		recipient = text_data_json.get("recipient", None)
 		msgtype = text_data_json.get("type", None)
 		game = text_data_json.get("game", None)  # Captura o nome do jogo
+		roomCode = text_data_json.get("roomCode", None)  # Captura o código da sala
 
-		if msgtype == "get_user_from_token":
-			await self.get_user_from_token(self.token)
-			return
-		
 		# Se for um convite para jogo
-		elif msgtype == "invite":
+		if msgtype == "invite":
 			if not recipient or recipient == self.user.username:
 				await self.channel_layer.group_send(
-					self.user_group_name, {"type": "error.message", "message": "Select a user to invite."}
+					self.user_group_name, {"type": "error.message", "message": "Invite a valid user."}
 				)
 				return
 
-			if self.invited.get(recipient) is None:
-				self.invited[recipient] = []
-
-			invitation_id = f"{self.user.username}-{recipient}-{len(self.invited[recipient]) + 1}"
-			self.invited[recipient].append(invitation_id)
-
+			if self.invited.get(recipient, False):
+				await self.channel_layer.group_send(
+					self.user_group_name, {"type": "error.message", "message": "User already has an invite pending."}
+				)
+				return
+			if self.invited.get(self.user.username, False):
+				await self.channel_layer.group_send(
+					self.user_group_name, {"type": "error.message", "message": "You already have an invite pending."}
+				)
+				return
+			self.invited[recipient] = True
+			self.invited[self.user.username] = True
 			recipient_group_name = "user_%s" % recipient
 			await self.channel_layer.group_send(
 				recipient_group_name, {
 					"type": "invite.message",
 					"sender": self.user.username,
-					"game": game  # Inclui o nome do jogo na mensagem
+					"game": game,  # Inclui o nome do jogo na mensagem
+					"roomCode": roomCode,  # Inclui o código da sala na mensagem
 				}
 			)
 			return
@@ -142,11 +148,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"game": game  # Inclui o nome do jogo na resposta
 				}
 			)
-
-			if inviter in self.invited and self.invited[inviter]:
-				self.invited[inviter].pop(0)
-				if not self.invited[inviter]:
-					del self.invited[inviter]
+			self.invited[self.user.username] = False
+			self.invited[inviter] = False
 			return
 
 		# Se for uma mensagem pública
@@ -163,7 +166,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				recipient_group_name, {"type": "self.dm", "message": message}
 			)
 			return
-
 		# Enviando para o destinatário
 		await self.channel_layer.group_send(
 			recipient_group_name, {"type": "receive.dm", "message": message, "sender": self.user.username}
@@ -179,14 +181,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def chat_message(self, event):
 		message = event["message"]
 		sender = event["sender"]
-
-		await self.send(text_data=json.dumps({"message": message, "sender": sender}))
+		blocked_users = await self.get_blocked_user_list()
+		if blocked_users is None:
+			blocked_users = []
+			logging.error("Failed to get blocked users list.")
+		if sender in blocked_users:
+			return
+		if sender == self.user.username:
+			await self.send(text_data=json.dumps({"message": message, "self": True, "sender": "To all"}))
+		else:
+			await self.send(text_data=json.dumps({"message": message, "sender": sender}))
 
 	async def receive_dm(self, event):
 		message = event["message"]
 		sender = event["sender"]
-
-		if sender == self.user.username:
+		blocked_users = await self.get_blocked_user_list()
+		if blocked_users is None:
+			blocked_users = []
+			logging.error("Failed to get blocked users list.")
+		if sender == self.user.username or sender in blocked_users:
 			return
 		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
 
@@ -213,12 +226,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def invite_message(self, event):
 		sender = event["sender"]
-		game = event.get("game", "a game")  # Obtém o nome do jogo, com valor padrão
+		game = event.get("game", None)  # Obtém o nome do jogo, com valor padrão
+		roomCode = event.get("roomCode", None)  # Obtém o código da sala, com valor padrão
 
 		await self.send(text_data=json.dumps({
 			"invite": True,
 			"sender": sender,
-			"game": game  # Inclui o nome do jogo na mensagem enviada ao cliente
+			"game": game,  # Inclui o nome do jogo na mensagem enviada ao cliente
+			"roomCode": roomCode  # Inclui o código da sala na mensagem enviada ao cliente
 		}))
 
 	async def invite_response(self, event):
@@ -232,19 +247,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"accepted": accepted,
 			"game": game  # Inclui o nome do jogo na resposta enviada ao cliente
 		}))
-
-	async def send_user_info(self):
-		if self.user.is_authenticated:
-			await self.send(text_data=json.dumps({
-				"type": "user_info",
-				"username": self.user.username,
-				"email": self.user.email,  # Se precisar de mais dados, adicione aqui
-			}))
-		else:
-			await self.send(text_data=json.dumps({
-				"type": "error",
-				"message": "User is not authenticated."
-			}))
 
 	@database_sync_to_async
 	def get_user_from_token(self, access_token):
@@ -261,3 +263,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps({
 			'online_users': online_users
 		}))
+
+	async def get_blocked_user_list(self):
+		url = 'http://userapi:8000/profile/blocked_list/'
+		headers = {
+			'Authorization': f'Bearer {self.token}',
+		}
+
+		async with httpx.AsyncClient() as client:
+			response = await client.get(url, headers=headers)
+			if response.status_code == 200:
+				blocked_users = response.json().get('blocked_list', [])
+				return blocked_users
+			else:
+				return None

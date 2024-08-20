@@ -25,6 +25,7 @@ urlpatterns = [
     path('profile/get_user_username/', views.GetUserUsernameView.as_view(), name='get_user_username'),
     path('profile/update_match_history/', views.UpdateMatchHistoryView.as_view(), name='update_match_history'),
     path('auth/', include("rest_framework.urls")),
+    path('profile/blocked_list/', views.GetBlockedListView.as_view(), name='blocked?list'),
 ]
     # path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     # path('profile/', UserProfileView.as_view(), name='profile'),

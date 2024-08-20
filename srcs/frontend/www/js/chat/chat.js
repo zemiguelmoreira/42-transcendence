@@ -1,3 +1,4 @@
+import { displaySlidingMessage } from "../utils/utils1.js";
 import { displayChatMessage } from "./utils_chat.js";
 import { displayGameInvite } from "./utils_chat.js";
 import { handleInviteResponse } from "./utils_chat.js";
@@ -57,9 +58,15 @@ function initializeChat(username) {
 
     }
 
-	
+
 	chatSocket.onclose = function (e) {
-		// console.log('WebSocket connection closed:', e);
+		console.log('WebSocket connection closed:', e);
+		let data = {
+			"message": "Disconnected from chat.",
+			"system": True,
+			"sender": "Transcendence"
+		};
+		displayChatMessage(data, chatLog);
 	};
 
 

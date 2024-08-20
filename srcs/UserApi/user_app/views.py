@@ -63,14 +63,14 @@ class CreateUserView(generics.CreateAPIView):
     def perform_create(self, serializer):
         user = serializer.save()
         UserProfile.objects.create(user=user).generate_2fa_secret()
-        
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=False)
-        
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -82,7 +82,7 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
-    
+
 
     def get_object(self):
         # Verifica se o perfil existe para o usuário autenticado
@@ -95,7 +95,7 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
         user = self.request.user
         user_serializer = UserSerializer(user)
         profile_serializer = self.get_serializer(profile)
-        
+
         return Response({
             'user': user_serializer.data,
             'profile': profile_serializer.data
@@ -110,13 +110,13 @@ class DeleteUserView(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         user = request.user
         profile = UserProfile.objects.get(user=user)
-        
+
         # Deletar a imagem de perfil se não for a imagem padrão
         if profile.profile_image and profile.profile_image.name != 'default.jpg':
             image_path = profile.profile_image.path
             if os.path.exists(image_path):
                 os.remove(image_path)
-        
+
         user.delete()
         return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
@@ -137,7 +137,7 @@ class AddFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
         if friend_username == request.user.username:
             return Response({'error': 'Cannot add yourself as a friend'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             friend_user = User.objects.get(username=friend_username)
         except User.DoesNotExist:
@@ -183,7 +183,7 @@ class BlockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
         blocked_username = request.data.get('blocked_username')
         if not blocked_username:
             return Response({'error': 'Blocked username is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         if blocked_username == request.user.username:
             return Response({'error': 'Cannot block yourself'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -290,14 +290,14 @@ class UpdateUserProfileView(APIView):
     def put(self, request, format=None):
         user_profile = UserProfile.objects.get(user=request.user)
         serializer = UserProfileSerializer(user_profile, data=request.data, partial=True, context={'request': request})
-        
+
         logger.info(f'UpdateUserProfileView request data: {request.data}')
-		
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = TokenObtainPairSerializer
 
@@ -328,7 +328,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             'refresh': str(refresh),
             'access': access_token,
         }, status=status.HTTP_200_OK)
-    
+
 class GetQRCodeView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -428,3 +428,19 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class GetBlockedListView(APIView):
+    """
+    View para o usuário autenticado obter sua lista de bloqueios.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Obtém o perfil do usuário autenticado
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Retorna a lista de bloqueios
+        return Response({'blocked_list': profile.blocked_list}, status=status.HTTP_200_OK)

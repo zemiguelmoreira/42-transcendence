@@ -7,7 +7,7 @@ let selectedUser = null;
 function displayChatMessage(data, chatLog) {
 
 	const messageElement = document.createElement("div");
-	
+
     if (data.private) {
         messageElement.classList.add('message-private');
     } else if (data.system) {
@@ -34,9 +34,7 @@ function displayChatMessage(data, chatLog) {
 	chatLog.appendChild(messageElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
 
-	if (data.selfdm) {
-		displaySlidingMessage(messageElement.textContent);
-	}
+	displaySlidingMessage(messageElement.textContent);
 }
 
 
@@ -97,7 +95,7 @@ function createInviteResponseButton(text, accepted, sender, chatSocket) {
 		button.nextElementSibling.disabled = true;
 	};
 	return button;
-	
+
 }
 
 
@@ -107,19 +105,21 @@ function handleInviteResponse(data, chatLog) {
     const invitee = data.invitee;
     const accepted = data.accepted;
     let responseMessage;
+	const inviteResponseElement = document.createElement("div");
 
     if (accepted) {
-        responseMessage = `${invitee} has accepted your invite!`;
+		responseMessage = `${invitee} has accepted your invite!`;
+		inviteResponseElement.style.color = "lightgreen";
         // Handle game start
     } else {
         responseMessage = `${invitee} has declined your invite!`;
+		inviteResponseElement.style.color = "pink";
     }
 
-    const inviteResponseElement = document.createElement("div");
-    inviteResponseElement.style.color = "coralpink";
     inviteResponseElement.innerHTML = responseMessage;
     chatLog.appendChild(inviteResponseElement);
-    chatLog.scrollTop = chatLog.scrollHeight;
+	chatLog.scrollTop = chatLog.scrollHeight;
+	displaySlidingMessage(responseMessage);
 }
 
 

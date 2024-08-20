@@ -27,3 +27,4 @@ djangorestframework
 djangorestframework-simplejwt
 django-cors-headers
 channels_redis
+httpx
