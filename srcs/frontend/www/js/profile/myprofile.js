@@ -176,7 +176,7 @@ async function fetchUserProfile(username) {
 		}
 
 		let data = await response.json();
-		// console.log('data que vem do user: ', data);
+		console.log('data que vem do user: ', data);
 		dataUser = data;
 
 		navigateTo(`/user/${username}/profile`);

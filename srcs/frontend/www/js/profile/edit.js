@@ -6,6 +6,7 @@ import { getUser } from "../search/search_user.js";
 import { deleteProfile } from "./deleteAccount.js";
 import { displaySlidingMessage, limparDivAll } from "../utils/utils1.js";
 import { fetchUserProfile } from "./myprofile.js";
+import { homeLogin } from "../home/home.js";
 
 // Funções na página edit
 function edit(data, username) {
@@ -15,6 +16,7 @@ function edit(data, username) {
 
 	// Variável para armazenar o caminho da imagem selecionada
 	let selectedProfileImage = data.profile.profile_image_url;
+    console.log('image url: ', selectedProfileImage);
 
 	// Listener para clicar na imagem de perfil e abrir o seletor de arquivos
 	document.getElementById('profile-img').addEventListener('click', function() {
@@ -37,6 +39,7 @@ function edit(data, username) {
 		icon.addEventListener('click', function() {
 			selectedProfileImage = this.src; // Atualiza a imagem selecionada
 			document.getElementById('profile-img').src = selectedProfileImage;
+            console.log('image url: ', selectedProfileImage);
 		});
 	});
 
@@ -46,6 +49,8 @@ function edit(data, username) {
 		// Chama a função de atualização do perfil passando a imagem selecionada
 		updateUserProfile(data, username, selectedProfileImage);
 	});
+
+    console.log('image url: ', selectedProfileImage);
 }
 
 // Função para atualizar o perfil do usuário
@@ -64,7 +69,13 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         formData.append('profile_image', profileImage);
     } else if (selectedProfileImage) {
         // Envia a URL da imagem pré-existente
-        formData.append('profile_image_url', selectedProfileImage);
+        // formData.append('profile_image', selectedProfileImage);
+        // formData.append('profile_image_url', selectedProfileImage);
+        // Envia a URL da imagem pré-existente
+        const response = await fetch(selectedProfileImage);
+        const blob = await response.blob();
+        const file = new File([blob], 'profile_image.jpg', { type: blob.type });
+        formData.append('profile_image', file);
     }
 
     try {
@@ -77,6 +88,7 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         });
 
         if (response.ok) {
+            await homeLogin(username); // para teste a ver se funciona
             await fetchUserProfile(username);
             displaySlidingMessage('Profile updated successfully!');
         } else {
@@ -84,7 +96,8 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         }
     } catch (error) {
         console.error('Error updating profile:', error.message);
-        alert('Failed to update profile. Please try again.');
+        // alert('Failed to update profile. Please try again.');
+        displaySlidingMessage('Failed to update profile! Please try again.');
     }
 }
 

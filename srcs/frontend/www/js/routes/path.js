@@ -64,9 +64,9 @@ const pages = {
 	},
 	'/user/:username/profile': {
 		loadContent: function (params) {
-			// console.log('Loading user profile page content for', params.username);
-			// console.log('dataUser no path: ', dataUser);
-			// console.log('dataUserFromSearch no path: ', dataUserFromSearch);
+			console.log('Loading user profile page content for', params.username);
+			console.log('dataUser no path: ', dataUser);
+			console.log('dataUserFromSearch no path: ', dataUserFromSearch);
 			// console.log('params.username: ', params.username);
 			// console.log('params: ', params);
 			if (dataUser)
@@ -83,7 +83,10 @@ const pages = {
 	'/user/:username/profile/edit': {
 		loadContent: function (params) {
 			// console.log('Loading user profile edit page content for', params.username);
-			edit(dataUser, params.username);
+			if(!dataUser)
+				edit(dataUserFromSearch, params.username);
+			else
+				edit(dataUser, params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'), 
 		redirect: '/'
