@@ -3,7 +3,6 @@ let paddlePositions = "";
 let ballPosition = "";
 let playerIndex = null;
 let stopFlag = false;
-let pongScriptLoaded = false;
 
 let canvas, context;
 let backgroundImg, ballImg, paddle1Img, paddle2Img;

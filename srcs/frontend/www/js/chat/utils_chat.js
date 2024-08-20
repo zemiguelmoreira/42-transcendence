@@ -45,11 +45,11 @@ function displayChatMessage(data, chatLog) {
 
 // função para mostrar o convite to play game - (utiliza - createInviteElement() e createInviteResponseButton())
 function displayGameInvite(data, chatLog, chatSocket) {
-	// console.log('data: ', data);
+	console.log('displayGameInvite: ', data);
 
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
 
-	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket);
+	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode);
 
 	chatLog.appendChild(inviteElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
@@ -58,7 +58,7 @@ function displayGameInvite(data, chatLog, chatSocket) {
 }
 
 // cria o convite
-function createInviteElement(inviteMessage, sender, chatSocket) {
+function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
 	const inviteElement = document.createElement("div");
 	inviteElement.classList.add('message-invite');
 	inviteElement.style.color = "coralpink";
@@ -70,8 +70,8 @@ function createInviteElement(inviteMessage, sender, chatSocket) {
 	buttonContainer.classList.add('button-container');
 
 	console.log('chatSocket: ', chatSocket);
-	const acceptButton = createInviteResponseButton("Accept", true, sender, chatSocket);
-	const rejectButton = createInviteResponseButton("Reject", false, sender, chatSocket);
+	const acceptButton = createInviteResponseButton("Accept", true, sender, chatSocket, roomCode);
+	const rejectButton = createInviteResponseButton("Reject", false, sender, chatSocket, roomCode);
 
 	buttonContainer.appendChild(acceptButton);
 	buttonContainer.appendChild(rejectButton);
@@ -83,7 +83,7 @@ function createInviteElement(inviteMessage, sender, chatSocket) {
 }
 
 // Cria os buttons de acordo com os argumentos
-function createInviteResponseButton(text, accepted, sender, chatSocket) {
+function createInviteResponseButton(text, accepted, sender, chatSocket, roomCode) {
 
 	console.log('chatSocket_1: ', chatSocket);
 
@@ -99,6 +99,7 @@ function createInviteResponseButton(text, accepted, sender, chatSocket) {
 		chatSocket.send(JSON.stringify(response));
 		button.disabled = true;
 		button.nextElementSibling.disabled = true;
+		joinRoom(roomCode);
 	};
 	return button;
 }
@@ -242,9 +243,8 @@ function createDropdownItem(text, href, onClick) {
 async function sendGameInvite(username, user, game, chatSocket) {
 	console.log('user: ', user);
 
-
-	
 	roomCode = await createRoom(user);
+
 	console.log('Invite: roomCode: ', roomCode);
 
 	const inviteMessage = {
@@ -259,7 +259,7 @@ async function sendGameInvite(username, user, game, chatSocket) {
 
 	chatSocket.send(JSON.stringify(inviteMessage));
 
-	// joinRoom(roomCode);
+	joinRoom(roomCode);
 
 	// navigateTo(`/user/${username}/pong-game-local`);
 }

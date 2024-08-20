@@ -63,8 +63,11 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         console.log('Profile image:', profileImage);
         formData.append('profile_image', profileImage);
     } else if (selectedProfileImage) {
-        // Envia a URL da imagem pré-existente
-        formData.append('profile_image_url', selectedProfileImage);
+		// Envia a URL da imagem pré-existente
+		const response = await fetch(selectedProfileImage);
+		const blob = await response.blob();
+		const file = new File([blob], 'profile_image.jpg', { type: blob.type });
+		formData.append('profile_image', file);
     }
 
     try {
