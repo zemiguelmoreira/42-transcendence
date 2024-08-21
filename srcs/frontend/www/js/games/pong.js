@@ -12,6 +12,8 @@ const paddleWidth = 20;
 const paddleHeight = 100;
 const ballSize = 20;
 
+const winningScore = 10;  // Exemplo: O jogo termina quando um jogador atinge 10 pontos
+
 let paddleSpeed = 6;
 let ballSpeedX = 4;
 let ballSpeedY = 4;
@@ -41,6 +43,58 @@ let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
 let rightPaddleSound = new Audio('./files/pong-assets/pong.wav');
 let wallSound = new Audio('./files/pong-assets/wall.wav');
 let goalSound = new Audio('./files/pong-assets/goal.wav');
+
+let player1Name = "Ivo Marques"; // Nome do Jogador 1
+let player2Name = "Ricardo Andrade"; // Nome do Jogador 2
+
+function drawPONG(letterSpacing = 10) {
+    // Definir a fonte e o tamanho do texto
+    ctx.font = "bold 100px Arial";  // Escolha a fonte e o tamanho desejado
+    ctx.fillStyle = "gray";  // Cor do texto (branco)
+
+    // A palavra que queremos desenhar
+    const text = "PONG";
+
+    // Iniciar a posição X (a partir do centro do canvas, ajustando para o tamanho do texto e espaçamento)
+    const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing;
+    let xPosition = (canvasWidth - totalTextWidth) / 2;
+
+    // Definir a posição Y para o texto ficar na parte inferior do canvas
+    const yPosition = canvasHeight - 20;  // Afastar 20px da borda inferior
+
+    // Desenhar cada letra individualmente, aplicando o espaçamento
+    for (let i = 0; i < text.length; i++) {
+        ctx.fillText(text[i], xPosition, yPosition);
+        xPosition += ctx.measureText(text[i]).width + letterSpacing;  // Avançar a posição X, adicionando o espaçamento
+    }
+}
+
+function drawPlayerNames() {
+    backgroundCtx.font = "30px Arial"; // Defina o tamanho e a fonte do texto
+    backgroundCtx.fillStyle = "gray"; // Defina a cor do texto
+
+    // Posição X da linha vertical central
+    const centerLineX = canvasWidth / 2;
+
+    // Calcule a largura do nome do Player 1
+    const player1NameWidth = backgroundCtx.measureText(player1Name).width;
+
+    // Ajuste a posição X do nome do Player 1 para que a última letra fique a 20px da linha central
+    const player1X = centerLineX - player1NameWidth - 20;
+
+    // Alinhe o texto do Player 1 à esquerda
+    backgroundCtx.textAlign = "left";
+
+    // Posicione o Player 2 normalmente, à direita da linha central
+    const player2X = centerLineX + 20;
+
+    // Posição Y para os nomes
+    const nameY = 170; // Ajuste o valor conforme necessário para posicionar o nome abaixo dos dígitos
+
+    // Desenhe os nomes dos jogadores
+    backgroundCtx.fillText(player1Name, player1X, nameY); // Nome do Jogador 1
+    backgroundCtx.fillText(player2Name, player2X, nameY); // Nome do Jogador 2
+}
 
 function drawDigit(ctx, n, x, y) {
     const segmentSize = 20; // Tamanho de cada segmento (20x20 pixels)
@@ -160,11 +214,6 @@ function drawScores() {
     drawDigit(backgroundCtx, player2Score, player2X, 30); // Pontuação do Jogador 2
 }
 
-
-
-
-
-
 function drawRect(x, y, width, height, color, ctx) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, width, height);
@@ -185,7 +234,7 @@ function drawDashedLine() {
     backgroundCtx.moveTo(canvasWidth / 2, 0);  // Start at the top middle
     backgroundCtx.lineTo(canvasWidth / 2, canvasHeight);  // Draw to the bottom middle
     backgroundCtx.strokeStyle = "#fff";  // White color for the line
-    backgroundCtx.lineWidth = 20;  // Line width
+    backgroundCtx.lineWidth = 10;  // Line width
     backgroundCtx.stroke();  // Render the line
     backgroundCtx.setLineDash([]);  // Reset the dash settings
 }
@@ -212,43 +261,102 @@ function moveBall() {
     ballX += ballDirX;
     ballY += ballDirY;
 
-	// Ball collision with top/bottom walls
-	if (ballY <= 0 || ballY + ballSize >= canvasHeight) {
-		ballDirY *= -1;
-		wallSound.play(); // Reproduz o som ao bater na parede
-	}
+    // Colisão da bola com as paredes superiores/inferiores
+    if (ballY <= 0 || ballY + ballSize >= canvasHeight) {
+        ballDirY *= -1;
+        wallSound.play();  // Som de colisão com a parede
+    }
 
-	// Ball collision with left paddle
-	if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
-		ballDirX *= -1;
-		leftPaddleSound.play(); // Reproduz o som ao bater no paddle esquerdo
-	}
+    // Colisão da bola com os paddles
+    if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
+        ballDirX *= -1;
+        leftPaddleSound.play();  // Som de colisão com o paddle esquerdo
+    }
+    if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
+        ballDirX *= -1;
+        rightPaddleSound.play();  // Som de colisão com o paddle direito
+    }
 
-	// Ball collision with right paddle
-	if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
-		ballDirX *= -1;
-		rightPaddleSound.play(); // Reproduz o som ao bater no paddle direito
-	}
+    // Verificação de golo
+    if (ballX <= 0) {
+        player2Score++;
+        goalSound.play();  // Som de golo
+        resetBall();
 
-	// Ball out of bounds
-	if (ballX <= 0) {
-		player2Score++;
-		goalSound.play(); // Reproduz o som de gol
-		resetBall();
-	}
-	if (ballX + ballSize >= canvasWidth) {
-		player1Score++;
-		goalSound.play(); // Reproduz o som de gol
-		resetBall();
-	}
+        // Verifica se o jogador 2 venceu
+        if (player2Score >= winningScore) {
+            endGame();
+        }
+    }
+    if (ballX + ballSize >= canvasWidth) {
+        player1Score++;
+        goalSound.play();  // Som de golo
+        resetBall();
 
+        // Verifica se o jogador 1 venceu
+        if (player1Score >= winningScore) {
+            endGame();
+        }
+    }
 }
+
 
 function resetBall() {
     ballX = canvasWidth / 2 - ballSize / 2;
     ballY = canvasHeight / 2 - ballSize / 2;
-    ballDirX = -ballSpeedX; // Start ball moving towards player 2
-    ballDirY = ballSpeedY;
+
+    // Randomiza a direção da bola no eixo X e Y
+    ballDirX = (Math.random() < 0.5 ? -1 : 1) * ballSpeedX;
+    ballDirY = (Math.random() < 0.5 ? -1 : 1) * ballSpeedY;
+}
+
+function endGame() {
+    // Determina o vencedor e o perdedor
+    let winner, loser, winnerScore, loserScore;
+    
+    if (player1Score > player2Score) {
+        winner = player1Name;
+        loser = player2Name;
+        winnerScore = player1Score;
+        loserScore = player2Score;
+    } else {
+        winner = player2Name;
+        loser = player1Name;
+        winnerScore = player2Score;
+        loserScore = player1Score;
+    }
+
+    // Cria o objeto de dados do jogo
+    const gameData = {
+        winner: winner,
+        loser: loser,
+        winnerScore: winnerScore,
+        loserScore: loserScore,
+        player1: {
+            name: player1Name,
+            score: player1Score
+        },
+        player2: {
+            name: player2Name,
+            score: player2Score
+        }
+    };
+
+    // Converte o objeto para uma string JSON
+    const jsonData = JSON.stringify(gameData, null, 4);
+
+    // Baixa o arquivo JSON
+    downloadJSON(jsonData, "game_results.json");
+}
+
+function downloadJSON(data, filename) {
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 function updateGame() {
@@ -257,6 +365,12 @@ function updateGame() {
 
     // Draw the background and scores
     drawScores();
+
+    // Desenhar o título "PONG"
+    drawPONG();
+
+    // Draw player names
+    drawPlayerNames();
 
     // Update paddle and ball positions
     movePaddles();
