@@ -2,7 +2,7 @@ import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { addFriend , removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
 import { navigateTo } from "../app.js";
-import { createRoom , joinRoom } from "../games/pong.js";
+// import { createRoom , joinRoom } from "../games/pong.js";
 
 let selectedUser = null;
 let roomCode = null;

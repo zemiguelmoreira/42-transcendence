@@ -18,7 +18,10 @@ function pongGameLocal(username) {
 					<span class="pong-score2--value">00</span>
 				</div>
 			</div>
-			<div class="pong-box"><canvas width="980" height="420"></canvas></div>
+			<div class="pong-box">
+				<canvas id="pongBackgroundCanvas" width="980" height="500"></canvas>
+				<canvas id="pongCanvas" width="980" height="500"></canvas>
+			</div>
 		</div>
 		`;
 	} catch (error) {
