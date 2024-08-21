@@ -5,76 +5,36 @@
     box-sizing: border-box;
 }
 
-/* Define o estilo geral do body para centralizar o conteúdo */
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: #000; /* Ajuste a cor de fundo conforme necessário */
-}
-
-/* Define o estilo do container principal */
-.pong-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%; /* Garante que o container principal ocupe toda a largura disponível */
-    max-width: 980px; /* Limita a largura máxima para que caiba na tela */
-}
-
 /* Define o estilo do container dos canvases */
 .pong-box {
     position: relative;
-    width: 980px; /* Define a largura dos canvases */
-    height: 500px; /* Define a altura dos canvases */
+    width: 960px;
+    height: 560px;
+    margin: auto; /* Centraliza horizontalmente */
 }
 
-/* Define o estilo dos canvases para que ocupem o tamanho do container e se sobreponham */
+.pong-content {
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    width: 100%; /* Ocupa 100% da largura da tela */
+    height: 100%; /* Ocupa 100% da altura da tela */
+	background-color: #000;
+}
+
 #pongBackgroundCanvas, #pongCanvas {
-    position: absolute; /* Para que ambos os canvases se sobreponham */
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100%; /* Ocupa a largura total do container */
-    height: 100%; /* Ocupa a altura total do container */
+    width: 100%;
+    height: 100%;
 }
 
-/* Define a ordem de sobreposição dos canvases */
 #pongBackgroundCanvas {
-    z-index: 0; /* Canvas de fundo abaixo */
-	margin: 5px;
+    z-index: 0;
+    background-color: #000;
 }
 
 #pongCanvas {
-    z-index: 1; /* Canvas de primeiro plano acima */
-	margin: 5px;
-}
-
-/* Define o estilo do container das pontuações e logo */
-.pong-container {
-    display: flex;
-    justify-content: space-between;
-    width: 100%; /* Ajusta a largura para preencher o container */
-    max-width: 980px; /* Limita a largura máxima para que caiba na tela */
-    padding: 10px;
-    margin-bottom: 10px; /* Espaço abaixo do container dos canvases */
-	height: 58px;
-}
-
-.pong-logo img {
-    height: 50px; /* Ajuste a altura da imagem conforme necessário */
-}
-
-/* Define o estilo das caixas de pontuação */
-.pong-box {
-    padding: 10px;
-    color: #fff;
-    font-size: 18px;
-}
-
-/* Ajuste adicional para o texto dentro das caixas de pontuação */
-.pong-score1--value,
-.pong-score2--value {
-    font-weight: bold;
-    margin-left: 5px;
+    z-index: 1;
 }
