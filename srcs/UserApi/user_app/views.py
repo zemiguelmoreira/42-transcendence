@@ -170,6 +170,33 @@ class RemoveFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
             return Response({'status': 'friend removed'}, status=status.HTTP_200_OK)
         return Response({'error': 'Friend not found in friend list'}, status=status.HTTP_404_NOT_FOUND)
 
+class FriendListView(generics.GenericAPIView):
+    """
+    View para obter a lista de amigos do usuário autenticado com o username e o status de login.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Obter o perfil do usuário autenticado
+        user_profile = UserProfile.objects.get(user=request.user)
+
+        # Lista de usernames dos amigos
+        friend_usernames = user_profile.friend_list
+
+        # Obter os perfis dos amigos
+        friends_profiles = UserProfile.objects.filter(user__username__in=friend_usernames).select_related('user')
+
+        # Construir a resposta
+        response_data = [
+            {
+                'username': profile.user.username,
+                'is_logged_in': profile.is_logged_in
+            }
+            for profile in friends_profiles
+        ]
+
+        return Response({'friends': response_data}, status=status.HTTP_200_OK)
+
 ### Views de Gestão de Bloqueios
 
 class BlockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -218,6 +245,22 @@ class UnblockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
             profile.save()
             return Response({'status': 'user unblocked'}, status=status.HTTP_200_OK)
         return Response({'error': 'User not found in blocked list'}, status=status.HTTP_404_NOT_FOUND)
+
+class GetBlockedListView(APIView):
+    """
+    View para o usuário autenticado obter sua lista de bloqueios.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Obtém o perfil do usuário autenticado
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Retorna a lista de bloqueios
+        return Response({'blocked_list': profile.blocked_list}, status=status.HTTP_200_OK)
 
 ### Outras Views
 
@@ -429,18 +472,53 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class GetBlockedListView(APIView):
+
+class PongRankingListView(APIView):
     """
-    View para o usuário autenticado obter sua lista de bloqueios.
+    View para obter a lista de usuários baseada no ranking de Pong.
+    Retorna o username e o valor do pong_rank.
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Obtém o perfil do usuário autenticado
-        try:
-            profile = UserProfile.objects.get(user=request.user)
-        except UserProfile.DoesNotExist:
-            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        # Obter todos os perfis de usuários ordenados pelo pong_rank
+        pong_rankings = UserProfile.objects.order_by('-pong_rank').select_related('user')
 
-        # Retorna a lista de bloqueios
-        return Response({'blocked_list': profile.blocked_list}, status=status.HTTP_200_OK)
+        # Construindo a resposta com base nos dados
+        response_data = [
+            {
+                'username': profile.user.username,  # Acessando o username diretamente do relacionamento
+                'pong_rank': profile.pong_rank,
+                'profile_image_url': profile.profile_image.url if profile.profile_image else None  # Acessando a URL da imagem diretamente
+            }
+            for profile in pong_rankings
+        ]
+
+        return Response({'pong_rankings': response_data}, status=status.HTTP_200_OK)
+
+
+class SnakeRankingListView(APIView):
+    """
+    View para obter a lista de usuários baseada no ranking de Snake.
+    Retorna o username e o valor do snake_rank.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Obter todos os perfis de usuários ordenados pelo snake_rank
+        snake_rankings = UserProfile.objects.order_by('-snake_rank').select_related('user')
+
+        # Construindo a resposta com base nos dados
+        response_data = [
+            {
+                'username': profile.user.username,  # Acessando o username diretamente do relacionamento
+                'snake_rank': profile.snake_rank,
+                'profile_image_url': profile.profile_image.url if profile.profile_image else None  # Acessando a URL da imagem diretamente
+            }
+            for profile in snake_rankings
+        ]
+
+        return Response({'snake_rankings': response_data}, status=status.HTTP_200_OK)
+
+
+

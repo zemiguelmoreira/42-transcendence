@@ -1,18 +1,19 @@
 
 import { home, homeLogin } from "../home/home.js";
 import { dataUser, fetchUserProfile } from "../profile/myprofile.js";
-import { dataUserSearch, dataUserFromSearch, userSearchPage, noResults } from "../search/search_user.js";
+import { dataUserSearch, dataUserFromSearch, userSearchPage } from "../search/search_user.js";
 import { navigateTo } from "../app.js";
 import { displayPageError } from "../html/error_page.js";
 import { signIn } from "../login/login.js";
 import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
-import { userProfilePage } from "../profile/userProfile.js";
+import { userProfilePage , profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { snakeGameLocal } from "../games/snake-local.js";
+import { snakeGameLocal , snakeGameFreeForAll } from "../games/snake-pages.js";
+import { pongGameLocal } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
-import { chatWindow } from "../chat/chat-window_old.js";
 import { doChat } from "../chat/chat-window.js";
+import { noResults } from "../search/search_user.js";
 
 const pages = {
 	'/': {
@@ -41,7 +42,7 @@ const pages = {
 			// console.log('Loading user login page content for', params.username);
 			homeLogin(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/error/:status/:message': {
@@ -77,23 +78,30 @@ const pages = {
 				fetchUserProfile(params.username);
 			}
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/profile/edit': {
 		loadContent: function (params) {
 			// console.log('Loading user profile edit page content for', params.username);
-			edit(dataUser, params.username);
+			if (dataUser) {
+				edit(dataUser, params.username);
+			} else if (dataUserFromSearch) {
+				edit(dataUserFromSearch, params.username);
+			} else {	
+				fetchUserProfile(params.username);
+			}
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/profile/search/:user': {
 		loadContent: function (params) {
 			// console.log('Loading user profile search user page content for', params.username);
 			userSearchPage(dataUserSearch, params.username);
+			
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/profile/search/noresults/:query': {
@@ -101,28 +109,51 @@ const pages = {
 			// console.log('Loading user profile search user page-no results content for', params.username);
 			noResults(params.username, params.query);
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/settings': {
+		loadContent: function () {
+			if (dataUser) {
+				profileSettings(dataUser);
+			}
+		},
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/snake': {
 		loadContent: function (params) {
 			snakeOptions(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
-	},	
+	},
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
 			snakeGameLocal(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/snake-game-free-for-all': {
+		loadContent: function (params) {
+			snakeGameFreeForAll(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/pong': {
 		loadContent: function (params) {
 			pongOptions(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/pong-game-local': {
+		loadContent: function (params) {
+			pongGameLocal(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/chat': {
@@ -131,7 +162,7 @@ const pages = {
 			console.log('Loading chat content for', params.username);
 			doChat(params.username);
 		},
-		access: () => !!localStorage.getItem('access_token'), 
+		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	// Outras páginas...

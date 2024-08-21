@@ -5,29 +5,29 @@ function snakeOptions(username) {
 	try {
 		document.getElementById('mainContent').innerHTML = `
 			<div class="card" style="width: 18rem;">
-				<img src="../../files/local_play.jpg" class="card-img-top" alt="alt="Enter to play"">
+				<img src="../../files/1vs1SnakeLocal.png" class="card-img-top" alt="alt="Enter to play"">
 				<div class="card-body">
-					<h5 class="card-title">SNAKE LOCAL DUEL</h5>
-					<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score points.</p>
+					<h5 class="card-title">SNAKE LOCAL</h5>
+					<p class="card-text">Game where a "snake" eats food to grow and must avoid collisions. <b>Local friendly unranked game.</b></p>
 					<a href="#" class="btn btn-primary card-btn" id="snakeGame">Let's Play</a>
 				</div>
 			</div>
 	
 			<div class="card" style="width: 18rem;">
-				<img src="../../files/online_play.jpg" class="card-img-top" alt="alt="Enter to play"">
+				<img src="../../files/1vs1SnakeRemote.png" class="card-img-top" alt="alt="Enter to play"">
 				<div class="card-body">
-					<h5 class="card-title">SNAKE MULTIPLAYER</h5>
-					<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and itself.</p>
+					<h5 class="card-title">SNAKE REMOTE</h5>
+					<p class="card-text">Game where a "snake" eats food to grow and must avoid collisions. <b>Remote ranked game.</b></p>
 					<a href="#" class="btn btn-primary card-btn">Let's Play</a>
 				</div>
 			</div>
 	
 			<div class="card" style="width: 18rem;">
-				<img src="../../files/tournment.jpg" class="card-img-top" alt="alt="Enter to chat"">
+				<img src="../../files/4SnakeFreeForAll.png" class="card-img-top" alt="alt="Enter to chat"">
 				<div class="card-body">
-					<h5 class="card-title">SNAKE TOURNMENT</h5>
-					<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.</p>
-					<a href="#" class="btn btn-primary card-btn">Let's Talk</a>
+					<h5 class="card-title">SNAKE FREE FOR ALL</h5>
+					<p class="card-text"> Survive this epic 4 multiplayer "free for all" snake adventure. <b>Remote unranked game.</b></p>
+					<a href="#" class="btn btn-primary card-btn" id="snakeGameFreeForAll">Let's Play</a>
 				</div>
 			</div>
 		`;
@@ -38,6 +38,11 @@ function snakeOptions(username) {
 	document.getElementById('snakeGame').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}/snake-game-local`);
+	});
+
+	document.getElementById('snakeGameFreeForAll').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/snake-game-free-for-all`);
 	});
 
 }

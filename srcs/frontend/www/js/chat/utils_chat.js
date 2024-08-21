@@ -1,7 +1,11 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
+import { addFriend , removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
+import { navigateTo } from "../app.js";
+// import { createRoom , joinRoom } from "../games/pong.js";
 
 let selectedUser = null;
+let roomCode = null;
 
 // função para mostrar a msn de chat
 function displayChatMessage(data, chatLog) {
@@ -40,8 +44,11 @@ function displayChatMessage(data, chatLog) {
 
 // função para mostrar o convite to play game - (utiliza - createInviteElement() e createInviteResponseButton())
 function displayGameInvite(data, chatLog, chatSocket) {
+	console.log('displayGameInvite: ', data);
+
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
-	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket);
+
+	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode);
 
 	chatLog.appendChild(inviteElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
@@ -49,9 +56,8 @@ function displayGameInvite(data, chatLog, chatSocket) {
 	displaySlidingMessage(inviteMessage);
 }
 
-
 // cria o convite
-function createInviteElement(inviteMessage, sender, chatSocket) {
+function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
 	const inviteElement = document.createElement("div");
 	inviteElement.classList.add('message-invite');
 	inviteElement.style.color = "coralpink";
@@ -63,8 +69,8 @@ function createInviteElement(inviteMessage, sender, chatSocket) {
 	buttonContainer.classList.add('button-container');
 
 	console.log('chatSocket: ', chatSocket);
-	const acceptButton = createInviteResponseButton("Accept", true, sender, chatSocket);
-	const rejectButton = createInviteResponseButton("Reject", false, sender, chatSocket);
+	const acceptButton = createInviteResponseButton("Accept", true, sender, chatSocket, roomCode);
+	const rejectButton = createInviteResponseButton("Reject", false, sender, chatSocket, roomCode);
 
 	buttonContainer.appendChild(acceptButton);
 	buttonContainer.appendChild(rejectButton);
@@ -75,9 +81,8 @@ function createInviteElement(inviteMessage, sender, chatSocket) {
 	return inviteElement;
 }
 
-
 // Cria os buttons de acordo com os argumentos
-function createInviteResponseButton(text, accepted, sender, chatSocket) {
+function createInviteResponseButton(text, accepted, sender, chatSocket, roomCode) {
 
 	console.log('chatSocket_1: ', chatSocket);
 
@@ -93,14 +98,16 @@ function createInviteResponseButton(text, accepted, sender, chatSocket) {
 		chatSocket.send(JSON.stringify(response));
 		button.disabled = true;
 		button.nextElementSibling.disabled = true;
+		joinRoom(roomCode);
 	};
 	return button;
 
 }
 
-
 // Função que trata a resposta ao convite
-function handleInviteResponse(data, chatLog) {
+function handleInviteResponse(username, data, chatLog) {
+	console.log('data: ', data);
+	console.log('username: ', username);
 
     const invitee = data.invitee;
     const accepted = data.accepted;
@@ -122,7 +129,6 @@ function handleInviteResponse(data, chatLog) {
 	displaySlidingMessage(responseMessage);
 }
 
-
 function updateOnlineUsersList(username, onlineUsers, chatSocket) {
     const onlineUsersList = document.getElementById("online-users-list");
 	onlineUsersList.innerHTML = '';
@@ -134,6 +140,8 @@ function updateOnlineUsersList(username, onlineUsers, chatSocket) {
 
 // Cria o botão para cada user
 function createUserButtonGroup(username, user, chatSocket) {
+	console.log('username: ', username, 'user: ', user);
+
 	const userButton = document.createElement("button");
 	userButton.textContent = user;
 	userButton.classList.add("btn", "btn-secondary", "btn-sm", "btn-left");
@@ -175,34 +183,56 @@ function createDropdownToggle() {
 	return dropdownToggle;
 }
 
-
 // Cria o menu dropdown
 function createDropdownMenu(username, user, chatSocket) {
-	const dropdownMenu = document.createElement("div");
-	dropdownMenu.classList.add("dropdown-menu");
 
-	const action1 = createDropdownItem("Add Friend", "#");
+    const dropdownMenu = document.createElement("div");
+    dropdownMenu.classList.add("dropdown-menu");
+
+    // Verifica se o username é igual ao user
+    if (username === user) {
+        // Retorna um menu desativado ou vazio
+        const disabledItem = document.createElement("span");
+        disabledItem.classList.add("dropdown-item", "disabled");
+        disabledItem.textContent = "Hi " + username + "!";
+        dropdownMenu.appendChild(disabledItem);
+        return dropdownMenu;
+    }
+
+    // Caso contrário, cria o menu dropdown com as ações normais
+    const action0 = createDropdownItem("Block User", "#", async (e) => {
+        e.preventDefault();
+        await blockUser(user, displaySlidingMessage);
+    });
+
+    const action1 = createDropdownItem("Add Friend", "#", async (e) => {
+        e.preventDefault();
+        await addFriend(user, displaySlidingMessage);
+    });
+
 	const action2 = createDropdownItem("View Profile", "#", async (e) => {
-		e.preventDefault();
-		await viewUserProfile(username, user);
-	});
+        e.preventDefault();
+        await viewUserProfile(username, user);
+    });
+
 	const action3 = document.createElement("hr");
-	action3.classList.add("dropdown-divider");
+    action3.classList.add("dropdown-divider");
 
-	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong", chatSocket));
-	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(user, "Snake", chatSocket));
+    const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(username, user, "Pong", chatSocket));
+    const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(username, user, "Snake", chatSocket));
 
-	// dropdownMenu.append(action1, action2, action3, action4, action5);
+    // Adiciona as ações ao menu dropdown
     dropdownMenu.appendChild(action1);
+    dropdownMenu.appendChild(action0);
     dropdownMenu.appendChild(action2);
     dropdownMenu.appendChild(action3);
     dropdownMenu.appendChild(action4);
     dropdownMenu.appendChild(action5);
 
-	return dropdownMenu;
+    return dropdownMenu;
 }
 
-
+// Cria o item do dropdown menu
 function createDropdownItem(text, href, onClick) {
 	const item = document.createElement("a");
 	item.classList.add("dropdown-item");
@@ -212,15 +242,29 @@ function createDropdownItem(text, href, onClick) {
 	return item;
 }
 
-function sendGameInvite(user, game, chatSocket) {
+// Envia o convite para jogar
+async function sendGameInvite(username, user, game, chatSocket) {
+	console.log('user: ', user);
+
+	roomCode = await createRoom(user);
+
+	console.log('Invite: roomCode: ', roomCode);
+
 	const inviteMessage = {
 		"type": "invite",
 		"recipient": user,
-		"game": game
+		"game": game,
+		"roomCode": roomCode
 	};
-	chatSocket.send(JSON.stringify(inviteMessage));
-	console.log('Invite sent to', user);
-}
 
+	console.log('Invite sent to', user);
+	console.log('InviteMessage: ', inviteMessage);
+
+	chatSocket.send(JSON.stringify(inviteMessage));
+
+	joinRoom(roomCode);
+
+	// navigateTo(`/user/${username}/pong-game-local`);
+}
 
 export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList }

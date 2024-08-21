@@ -4,7 +4,7 @@ import { removeToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
 import { getUser } from "../search/search_user.js";
 import { deleteProfile } from "./deleteAccount.js";
-import { displaySlidingMessage, limparDivAll } from "../utils/utils1.js";
+import { displaySlidingMessage } from "../utils/utils1.js";
 import { fetchUserProfile } from "./myprofile.js";
 
 // Funções na página edit
@@ -63,8 +63,11 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         console.log('Profile image:', profileImage);
         formData.append('profile_image', profileImage);
     } else if (selectedProfileImage) {
-        // Envia a URL da imagem pré-existente
-        formData.append('profile_image_url', selectedProfileImage);
+		// Envia a URL da imagem pré-existente
+		const response = await fetch(selectedProfileImage);
+		const blob = await response.blob();
+		const file = new File([blob], 'profile_image.jpg', { type: blob.type });
+		formData.append('profile_image', file);
     }
 
     try {
@@ -87,6 +90,5 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         alert('Failed to update profile. Please try again.');
     }
 }
-
 
 export { edit }

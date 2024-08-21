@@ -36,7 +36,7 @@ function makeHomePage(data) {
 							</a>
 							<ul class="dropdown-menu dropdown-menu-end">
 								<li><a class="dropdown-item" id="viewProfile" href="#">Profile</a></li>
-								<li><a class="dropdown-item" href="#">Settings</a></li>
+								<li><a class="dropdown-item" id="viewSettings" href="#">Settings</a></li>
 								<li>
 									<hr class="dropdown-divider">
 								</li>

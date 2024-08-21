@@ -187,4 +187,35 @@ async function fetchUserProfile(username) {
 	}
 }
 
-export { dataUser, getNamebyId, fetchUserProfile, getUserProfileByUsername };
+// Obtém os dados do user que está login e faz a página
+async function fetchUserProfileSettings(username) {
+
+	const conf = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		}
+	}
+
+	try {
+		const response = await fetchWithAuth(`${baseURL}/profile/`, conf);
+
+		if (!response.ok) {
+			throw {
+				message: 'Failed to fetch user profile - protected',
+				status: 404,
+				status_msg: 'Internal Server Error - user id'
+			};
+		}
+
+		let data = await response.json();
+		dataUser = data;
+		
+		navigateTo(`/user/${username}/settings`);
+
+	} catch (e) {
+		navigateTo(`/error/${e.status}/${e.message}`);
+	}
+}
+
+export { dataUser, getNamebyId, fetchUserProfile, getUserProfileByUsername , fetchUserProfileSettings };
