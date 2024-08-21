@@ -36,6 +36,12 @@ let downPressed = false;
 let player1Score = 0;
 let player2Score = 0;
 
+// Variáveis globais para os sons
+let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
+let rightPaddleSound = new Audio('./files/pong-assets/pong.wav');
+let wallSound = new Audio('./files/pong-assets/wall.wav');
+let goalSound = new Audio('./files/pong-assets/goal.wav');
+
 function drawDigit(ctx, n, x, y) {
     const segmentSize = 20; // Tamanho de cada segmento (20x20 pixels)
     const segmentMargin = 0; // Espaçamento entre segmentos
@@ -206,28 +212,36 @@ function moveBall() {
     ballX += ballDirX;
     ballY += ballDirY;
 
-    // Ball collision with top/bottom walls
-    if (ballY <= 0 || ballY + ballSize >= canvasHeight) {
-        ballDirY *= -1;
-    }
+	// Ball collision with top/bottom walls
+	if (ballY <= 0 || ballY + ballSize >= canvasHeight) {
+		ballDirY *= -1;
+		wallSound.play(); // Reproduz o som ao bater na parede
+	}
 
-    // Ball collision with paddles
-    if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
-        ballDirX *= -1;
-    }
-    if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
-        ballDirX *= -1;
-    }
+	// Ball collision with left paddle
+	if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
+		ballDirX *= -1;
+		leftPaddleSound.play(); // Reproduz o som ao bater no paddle esquerdo
+	}
 
-    // Ball out of bounds
-    if (ballX <= 0) {
-        player2Score++;
-        resetBall();
-    }
-    if (ballX + ballSize >= canvasWidth) {
-        player1Score++;
-        resetBall();
-    }
+	// Ball collision with right paddle
+	if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
+		ballDirX *= -1;
+		rightPaddleSound.play(); // Reproduz o som ao bater no paddle direito
+	}
+
+	// Ball out of bounds
+	if (ballX <= 0) {
+		player2Score++;
+		goalSound.play(); // Reproduz o som de gol
+		resetBall();
+	}
+	if (ballX + ballSize >= canvasWidth) {
+		player1Score++;
+		goalSound.play(); // Reproduz o som de gol
+		resetBall();
+	}
+
 }
 
 function resetBall() {
