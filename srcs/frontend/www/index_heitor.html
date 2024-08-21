@@ -93,8 +93,6 @@
     </style>
 </head>
 <body>
-    <h2>Chat</h2>
-    <a href="chat.html" class="btn btn-primary">Chat</a>
     <div class="form-container">
         <div>
             <h2>User Registration</h2>
@@ -112,11 +110,24 @@
                     <input type="password" id="regPassword" placeholder="Enter password">
                 </div>
                 <div class="form-group">
-                    <label for="confirmPassword">Password:</label>
-                    <input type="password" id="confirmPassword" placeholder="Enter password">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm password">
                 </div>
                 <button type="button" id="registerBtn">Register</button>
             </form>
+        
+            <!-- Adiciona esta parte para a confirmação -->
+            <div id="confirmationSection">
+                <h2>Confirm Registration</h2>
+                <form id="confirmForm">
+                    <div class="form-group">
+                        <label for="regCode">Confirmation Code:</label>
+                        <input type="text" id="confirmCode" placeholder="Enter the code sent to your email">
+                    </div>
+                    <button type="button" id="confirmBtn">Confirm Registration</button>
+                </form>
+            </div>
+        
             <p id="registerMessage"></p>
         </div>
         <div>
@@ -393,19 +404,41 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert('User registered successfully!');
+                    alert('Please check your email for the confirmation code.');
+
                 } else {
-                    if (data.username) {
-                        // throw new Error(data.username[0]);
-                        console.log(data.username[0]);
-                    } else {
-                        console.log(data.detail);
-                        // throw new Error(data.detail || 'Registration failed');
-                    }
+                    console.log(data.detail || 'Registration failed');
                 }
             } catch (error) {
                 console.error('Error during registration:', error.message);
                 alert('Registration failed. Please check your inputs and try again.');
+            }
+        }
+
+        async function confirmRegistration() {
+            const code = document.getElementById('confirmCode').value;
+
+            try {
+                const response = await fetch('/api/user/confirm_register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('regEmail').value,
+                        code: code,
+                    }),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Registration confirmed successfully!');
+                } else {
+                    console.log(data.detail || 'Confirmation failed');
+                }
+            } catch (error) {
+                console.error('Error during confirmation:', error.message);
+                alert('Confirmation failed. Please check your inputs and try again.');
             }
         }
 
@@ -1037,6 +1070,7 @@
         }
 
         document.getElementById('registerBtn').addEventListener('click', registerUser);
+        document.getElementById('confirmBtn').addEventListener('click', confirmRegistration);
         document.getElementById('loginBtn').addEventListener('click', loginUser);
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
         document.getElementById('logoutBtn').addEventListener('click', logoutUser);
@@ -1048,8 +1082,9 @@
         document.getElementById('blockUserBtn').addEventListener('click', blockUser);
         document.getElementById('unblockUserBtn').addEventListener('click', unblockUser);
         document.getElementById('getUserProfileBtn').addEventListener('click', getUserProfileByUsername);
-        document.getElementById('delete-user-button').addEventListener('click', deleteUser);
-        document.getElementById('getBlockedListBtn').addEventListener('click', fetchBlockedList);
+        document.getElementById('registerBtn').addEventListener('click', registerUser);
+        document.getElementById('confirmBtn').addEventListener('click', confirmRegistration);
+
 
     </script>
 </body>

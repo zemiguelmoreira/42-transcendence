@@ -6,30 +6,24 @@ from rest_framework.views import APIView
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
 
-#para apagar as fotos
 import os
-from django.conf import settings
-
 import logging
-
-# import random
-# import string
-# from django.core.mail import send_mail
-
-import base64
 import qrcode
 import qrcode.image.svg
 import pyotp
-# import cairosvg
+import random
+import string
+from django.core.mail import send_mail
+from smtplib import SMTPException
+
+from django.core.cache import cache
 from io import BytesIO
 
 logging.basicConfig(level=logging.INFO)
@@ -37,43 +31,111 @@ logger = logging.getLogger(__name__)
 
 ### 2FA helpers
 
-# def generate_random_code(length=6):
-#     return ''.join(random.choices(string.digits, k=length))
+def generate_random_code(length=6):
+    return ''.join(random.choices(string.digits, k=length))
 
-# def send_2fa_code(user):
-#     code = generate_random_code()
-#     user.profile.two_factor_code = code
-#     user.profile.two_factor_expiry = timezone.now() + timedelta(minutes=10)
-#     user.profile.save()
-#     send_mail(
-#         'Your 2FA code',
-#         f'Your 2FA code is {code}',
-#         'transcendence42@gmx.com',
-#         [user.email],
-#         fail_silently=False,
-#     )
+def send_registration_code(email):
+    code = generate_random_code()
+    cache.set(f'registration_code_{email}', code, timeout=600)  # Armazena o código no cache por 10 minutos
+
+    try:
+        send_mail(
+            'Register confirmation - Transcendence',
+            f'Your confirmation code is {code}',
+            'transcendence42@gmx.com',
+            [email],
+            fail_silently=False,
+        )
+    except SMTPException as e:
+        logging.error(f"SMTP error occurred: {e}")
+        raise
+
+class ConfirmRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        logger.info(f'request: {request}')
+        email = request.data.get('email')
+        code = request.data.get('code')
+
+        if not email or not code:
+            return Response({"detail": "Email and code are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Obter o código de confirmação do cache
+        cached_code = cache.get(f'registration_code_{email}')
+
+        if cached_code and cached_code == code:
+            try:
+                user = User.objects.get(email=email)
+                user.is_active = True
+                user.save()
+                cache.delete(f'registration_code_{email}')  # Limpar o código do cache
+                return Response({"detail": "Registration confirmed successfully"}, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"detail": "Invalid or expired confirmation code"}, status=status.HTTP_400_BAD_REQUEST)
 
 ### Views de Criação e Atualização de Usuário
 
-class CreateUserView(generics.CreateAPIView):
+class CreateUserView(generics.GenericAPIView):
     permission_classes = [AllowAny]
-    queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    def perform_create(self, serializer):
-        user = serializer.save()
-        UserProfile.objects.create(user=user).generate_2fa_secret()
-
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=False)
+        serializer.is_valid(raise_exception=True)
 
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        email = serializer.validated_data['email']
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))  # Gera um código aleatório
+        
+        # Armazena os dados temporariamente no cache
+        cache.set(f'registration_data_{email}', serializer.validated_data, timeout=3600)  # Armazena por 1 hora
+        cache.set(f'registration_code_{email}', code, timeout=3600)
 
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # Envia o e-mail com o código
+        send_mail(
+            'Your Confirmation Code',
+            f'Your confirmation code is: {code}',
+            'transcendence42@gmx.com',
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({"detail": "Registration data received. Please check your email for the confirmation code."}, status=status.HTTP_200_OK)
+
+class ConfirmRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        code = request.data.get('code')
+
+        if not email or not code:
+            return Response({"detail": "Email and code are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verifica o código de confirmação do cache
+        cached_code = cache.get(f'registration_code_{email}')
+        cached_data = cache.get(f'registration_data_{email}')
+
+        if cached_code == code and cached_data:
+            # Cria o usuário com os dados armazenados
+            serializer = UserSerializer(data=cached_data)
+            if serializer.is_valid():
+                user = serializer.save()
+                user.is_active = True  # Ativa o usuário após a confirmação
+                user.save()
+                UserProfile.objects.create(user=user).generate_2fa_secret()
+                
+                # Limpa os dados do cache
+                cache.delete(f'registration_code_{email}')
+                cache.delete(f'registration_data_{email}')
+
+                return Response({"detail": "Registration confirmed and user activated successfully."}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"detail": "Invalid or expired confirmation code"}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
