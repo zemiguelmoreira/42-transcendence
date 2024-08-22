@@ -1,5 +1,6 @@
 
 import WebSocketInstance from "../socket/websocket.js";
+import chatSocketInstance from "../chat/chat_socket.js";
 import { navigateTo } from "../app.js";
 import { logoutContainer } from "./utils1.js";
 
@@ -112,6 +113,17 @@ function verifyToken() {
 		// console.log('user is logout');
 	}
 
+	if(chatSocketInstance.state() === 1) {
+		// console.log("estado da socket", WebSocketInstance.state()); // verificação da socket teste
+		const token = localStorage.getItem('refresh_token');
+		if (!testToken(token)) {
+			// console.log("desligar a socket chat");
+			chatSocketInstance.close();
+			navigateTo('/');
+			removeToken();
+		}
+
+	}
 }
 
 

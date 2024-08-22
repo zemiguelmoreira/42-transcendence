@@ -41,8 +41,13 @@ function showMessageToken() {
 // Faz o fetch ao server para rotas protegidas em caso de falta de access e refresh vai para a home
 async function fetchWithAuth(url, options = {}) {
 
-    const accessToken = localStorage.getItem('access_token');
+    let accessToken = localStorage.getItem('access_token');
+    if(!accessToken) {
+        console.log('token session', sessionStorage.getItem('access_token'));
+        accessToken = sessionStorage.getItem('access_token');
+    }
 
+    console.log('access_token: ', accessToken);
 	testToken(accessToken); //só para teste
 
 	// console.log('access: ', accessToken);
@@ -63,8 +68,15 @@ async function fetchWithAuth(url, options = {}) {
 		// console.log(refreshed);
         if (refreshed) {
 			// console.log('access: ', localStorage.getItem('access_token'));
-            options.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
-            testToken(localStorage.getItem('access_token'));
+            let new_accessToken = localStorage.getItem('access_token');
+            if(!new_accessToken) {
+                console.log('token session', sessionStorage.getItem('access_token'));
+                new_accessToken = sessionStorage.getItem('access_token');
+            }
+            // options.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
+            options.headers['Authorization'] = `Bearer ${new_accessToken}`;
+            // testToken(localStorage.getItem('access_token'));
+            testToken(new_accessToken);
             // console.log('Headers before second request:', options.headers);
 			// console.log(url);
             response = await fetch(url, options);
@@ -107,7 +119,13 @@ async function refreshAccessToken() {
             const data = await response.json();
             // console.log('data no refresh token function: ', data);
             // console.log('Novo token de acesso:', data.access);
-			localStorage.setItem('access_token', data.access);
+            //alteração devido a utilizar o sessionStorage
+            if (window.location.pathname && window.location.pathname === "/signIn") {
+                console.log('pathname-token: ', window.location.pathname);
+                sessionStorage.setItem('access_token', data.access);
+            } else {
+			    localStorage.setItem('access_token', data.access);
+            }
 			return true;
         } else {
             const errorData = await response.json();

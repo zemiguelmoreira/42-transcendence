@@ -1,4 +1,4 @@
-import { viewToken, viewTokenRefresh, testToken, verifyToken } from "./utils/tokens.js";
+import { viewToken, viewTokenRefresh, testToken, verifyToken, removeToken } from "./utils/tokens.js";
 import { getNamebyId } from "./profile/myprofile.js";
 import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
@@ -135,10 +135,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	// console.log("EVENT LISTENER")
 	// e.preventDefault();
 	window.addEventListener('popstate', (e) => {
-		// console.log(e.state);
+		console.log('state: ', e.state);
 		if (e.state) {
 			const matchedRoute = matchRoute(e.state.page);
-			// console.log('matchedRoute: ', matchedRoute);
+			console.log('matchedRoute history: ', matchedRoute);
 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 			// console.log('init access: ', accessAllowed);
 
@@ -153,6 +153,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
 					if (matchedRoute) {
 						matchedRoute.page.loadContent(matchedRoute.params);
 					}
+					// console.log('teste history -2');
+					// history.go(-2);
 				}	  
 				return;
 			}
@@ -165,16 +167,17 @@ document.addEventListener('DOMContentLoaded', function (e) {
 		} 
 		// else {
 			
-		// 	// tenho de definir um default state para o event.state quando for null
-		// 	const defaultState = { page: '/' };  // page que é default state
-		// 	history.replaceState(defaultState, '', '/');
-		// 	// Carregue o conteúdo da página padrão
-		// 	const matchedRoute = matchRoute(defaultState.page);
-		// 	if (matchedRoute) {
-		// 		matchedRoute.page.loadContent(matchedRoute.params);
-		// 	}
+			// tenho de definir um default state para o event.state quando for null
+			// const defaultState = { page: '/' };  // page que é default state
+			// history.replaceState(defaultState, '', '/');
+			// // Carregue o conteúdo da página padrão
+			// const matchedRoute = matchRoute(defaultState.page);
+			// if (matchedRoute) {
+			// 	matchedRoute.page.loadContent(matchedRoute.params);
+			// }
 			
 		// }
+		console.log('history');
 	});
 
 	// desativa o F5 e i ctrlKey + r
@@ -188,10 +191,29 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	// verificar periodicamente se o refresh token está válido
 	setInterval(verifyToken, 1800000); // 5000 milisegundos = 5s conversão miliseg = minutosx60x1000
 
-	if (!viewTokenRefresh()) // mudar colocar not para funcionar corretamente
-		navigateTo('/');
+	console.log('pathname-app.js: ', window.location.pathname); // Output: exemplo "/signIn"
+	console.log('href-app.js: ', window.location.href); // Output: exemplo "https://localhost/signIn"
+	// console.log(window.location.hash); // Output: "" se tivermos o hash nos endereços
+
+
+
+	if (!viewTokenRefresh()) {// mudar colocar not para funcionar corretamente
+		console.log('pathname-app.js1: ', window.location.pathname); // Output: exemplo "/signIn"
+		console.log('href-app.js1: ', window.location.href); // Output: exemplo "https://localhost/signIn"
+		navigateTo(window.location.pathname);
+	}
 	else {
-		goTo();
+		console.log('pathname-app.js2: ', window.location.pathname); // Output: exemplo "/signIn"
+		console.log('href-app.js2: ', window.location.href); // Output: exemplo "https://localhost/signIn"
+		if (window.location.pathname && window.location.pathname === "/signIn") {
+			localStorage.removeItem('access_token');
+			sessionStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
+			navigateTo(window.location.pathname);
+		}
+		else {
+			goTo();
+		}
 	}
 
 });

@@ -92,8 +92,11 @@ async function sendIUser(userOrEmail, password, allURL) {
 			throw errorObject;
 		}
 		const data = await response.json();
-		// console.log('data login: ', data);
-		saveToken(data.access, data.refresh);
+		console.log('data login: ', data);
+		// saveToken(data.access, data.refresh);
+		//ateração dos tokens
+		sessionStorage.setItem('access_token', data.access);
+		localStorage.setItem('refresh_token', data.refresh);
 		// console.log('localstorage', viewToken());
 		const payload = testToken(data.access);
 		// console.log(payload);
@@ -125,6 +128,7 @@ async function sendIUser(userOrEmail, password, allURL) {
 					const successDiv = successContainer(username);
 					document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 					if (viewToken()) {
+						sessionStorage.removeItem('access_token'); //apaga o token do sessionStorage colocado no login
 						showSuccessMessageSignIn(username);
 						// Adiciona o conteúdo de home_page após o login bem-sucedido
 					} else {
