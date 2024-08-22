@@ -228,7 +228,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		}))
 		logging.info("Status updated.")
 
-	# methods
+	# connection methods
 	async def validate_token(self):
 		# getting token from query string
 		token = self.scope['query_string'].decode().split('=')[1]
@@ -278,6 +278,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		except (User.DoesNotExist):
 			return None
 
+	# utility methods
 	async def add_online_user(self):
 		self.online_users[self.user.username] = self.online_users.get(self.user.username, 0) + 1
 		await self.update_user_status()
