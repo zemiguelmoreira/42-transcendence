@@ -59,22 +59,19 @@ function initializeChat(username) {
 
     }
 
-
 	chatSocket.onclose = function (e) {
 		console.log('WebSocket connection closed:', e);
-		let data = {
-			"message": "Disconnected from chat.",
-			"system": True,
-			"sender": "Transcendence"
-		};
-		displayChatMessage(data, chatLog);
+		// let data = {
+		// 	"message": "Disconnected from chat.",
+		// 	"system": True,
+		// 	"sender": "Transcendence"
+		// };
+		// displayChatMessage(data, chatLog);
 	};
-
 
 	chatSocket.onerror = function (error) {
 		console.error('WebSocket error:', error);
 	};
-
 
 	chatMessageSubmit.onclick = function () {
 		const message = chatMessageInput.value;
