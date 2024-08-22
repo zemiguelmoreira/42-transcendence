@@ -1,51 +1,170 @@
-// Get the two canvases and their contexts
-const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
-const backgroundCtx = backgroundCanvas.getContext("2d");
 
-const canvas = document.getElementById("pongCanvas");
-const ctx = canvas.getContext("2d");
+const paddleWidth = 10;
+const paddleHeight = 90;
+const ballSize = 10;
+const winningScore = 10;
 
-const canvasWidth = document.getElementById("pongCanvas").width;
-const canvasHeight = document.getElementById("pongCanvas").height;
-
-const paddleWidth = 20;
-const paddleHeight = 100;
-const ballSize = 20;
-
-const winningScore = 10;  // Exemplo: O jogo termina quando um jogador atinge 10 pontos
-
-let paddleSpeed = 6;
-let ballSpeedX = 4;
-let ballSpeedY = 4;
-
-// Paddle positions
+let paddleSpeed = 20;
+let ballSpeedX = 8;
+let ballSpeedY = 8;
 let leftPaddleY = canvasHeight / 2 - paddleHeight / 2;
 let rightPaddleY = canvasHeight / 2 - paddleHeight / 2;
-
-// Ball position and direction
 let ballX = canvasWidth / 2 - ballSize / 2;
 let ballY = canvasHeight / 2 - ballSize / 2;
 let ballDirX = ballSpeedX;
 let ballDirY = ballSpeedY;
-
-// Key states for both players
 let wPressed = false;
 let sPressed = false;
 let upPressed = false;
 let downPressed = false;
-
-// Scores
 let player1Score = 0;
 let player2Score = 0;
-
-// Variáveis globais para os sons
 let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
 let rightPaddleSound = new Audio('./files/pong-assets/pong.wav');
 let wallSound = new Audio('./files/pong-assets/wall.wav');
 let goalSound = new Audio('./files/pong-assets/goal.wav');
+let gameOver = false;
 
-let player1Name = "ialves-m"; // Nome do Jogador 1
-let player2Name = "hmaciel-"; // Nome do Jogador 2
+function setupPong() {
+	// Get the two canvases and their contexts
+	const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
+	const backgroundCtx = backgroundCanvas.getContext("2d");
+
+	const canvas = document.getElementById("pongCanvas");
+	const ctx = canvas.getContext("2d");
+
+	const canvasWidth = document.getElementById("pongCanvas").width;
+	const canvasHeight = document.getElementById("pongCanvas").height;
+}
+
+async function createRoom(authorizedUser) {
+	let data;
+    const pong_accessToken = localStorage.getItem('access_token');
+
+    try {
+        const response = await fetch('/game/create-room/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${pong_accessToken}`
+            },
+            body: JSON.stringify({
+                authorized_user: authorizedUser
+            }),
+        });
+        data = await response.json();
+        console.log("CreateRoom: ", data);
+        if (!response.ok) {
+            console.error('error:', data);
+        }
+    } catch (error) {
+		console.error('Error creating room:', error);
+    }
+
+	// joinRoom(data.code);
+	return data.code;
+}
+
+function joinRoom(roomCode) {
+	const pong_accessToken = localStorage.getItem('access_token');
+	
+	try {
+		document.getElementById('root').innerHTML = `
+			<div class="home-box">
+				<div class="pong-content">
+					<div class="pong-box">
+						<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
+						<canvas id="pongCanvas" width="960" height="560"></canvas>
+					</div>
+				</div>
+			</div>
+		`;
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+
+	setupPong();
+
+    pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
+
+    pong_socket.onmessage = async function(event) {
+        const data = JSON.parse(event.data);
+        if (data.action === 'unauthorized') {
+            // Tratamento para usuários não autorizados
+        } else if (data.action === 'assign_index') {
+            playerIndex = data.player_index;
+            ballPosition = data.ball_position;
+            paddlePositions = data.paddle_positions;
+        } else if (data.action === 'start_game') {
+            updateGame();
+        } else if (data.action === 'game_over' && !stopFlag) {
+            showEndScreen();
+            stopFlag = true;
+            const winner = data.winner;
+            const loser = data.loser;
+            const winnerScore = data.winner_score;
+            const loserScore = data.loser_score;
+            const gameType = 'pong';
+            const timestamp = new Date().toISOString();
+
+            const score = JSON.stringify({
+                winner: winner,
+                loser: loser,
+                game_type: gameType,
+                winner_score: winnerScore,
+                loser_score: loserScore,
+                timestamp: timestamp
+            });
+
+        } else {
+            ballPosition = data.ball_position;
+            paddlePositions = data.paddle_positions;
+        }
+    };
+
+    pong_socket.onopen = function(event) {
+        pong_socket.send(JSON.stringify({ action: 'join' }));
+    };
+
+    pong_socket.onclose = function(event) {
+        // console.log('WebSocket connection closed:', event);
+    };
+}
+
+function showEndScreen(winnerName) {
+    // Configurações do retângulo
+    const rectWidth = 400;
+    const rectHeight = 200;
+    const rectX = (canvasWidth - rectWidth) / 2;
+    const rectY = (canvasHeight - rectHeight) / 2;
+
+    // Desenha o retângulo
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";  // Fundo preto translúcido
+    ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+    // Texto do vencedor
+    ctx.fillStyle = "#fff";
+    ctx.font = "30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(`Vencedor: ${winnerName}`, canvasWidth / 2, rectY + 60);
+
+    // Desenha o botão
+    const buttonWidth = 200;
+    const buttonHeight = 50;
+    const buttonX = (canvasWidth - buttonWidth) / 2;
+    const buttonY = rectY + 100;
+
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+    // Texto do botão
+    ctx.fillStyle = "#000";
+    ctx.font = "20px Arial";
+    ctx.fillText("Voltar ao menu PONG", canvasWidth / 2, buttonY + 30);
+
+    // Adiciona o evento de clique no botão
+    canvas.addEventListener("click", handleButtonClick);
+}
 
 function drawPONG(letterSpacing = -5) {
     // Definir a fonte e o tamanho do texto
@@ -300,7 +419,6 @@ function moveBall() {
     }
 }
 
-
 function resetBall() {
     ballX = canvasWidth / 2 - ballSize / 2;
     ballY = canvasHeight / 2 - ballSize / 2;
@@ -311,6 +429,9 @@ function resetBall() {
 }
 
 function endGame() {
+	// Para o jogo
+	gameOver = true;
+
     // Determina o vencedor e o perdedor
     let winner, loser, winnerScore, loserScore;
     
@@ -326,27 +447,23 @@ function endGame() {
         loserScore = player1Score;
     }
 
-    // Cria o objeto de dados do jogo
+	gameType = 'pong',
+	timestamp = new Date().toISOString()
+	
+    // Gera o JSON com os resultados do jogo
     const gameData = {
-        winner: winner,
-        loser: loser,
-        winnerScore: winnerScore,
-        loserScore: loserScore,
-        player1: {
-            name: player1Name,
-            score: player1Score
-        },
-        player2: {
-            name: player2Name,
-            score: player2Score
-        }
+		winner: winner,
+		loser: loser,
+		game_type: gameType,
+		winner_score: winnerScore,
+		loser_score: loserScore,
+		timestamp: timestamp
     };
-
-    // Converte o objeto para uma string JSON
     const jsonData = JSON.stringify(gameData, null, 4);
-
-    // Baixa o arquivo JSON
     downloadJSON(jsonData, "game_results.json");
+
+    // Mostra a tela final com o vencedor e o botão de retorno
+    showEndScreen(winner);
 }
 
 function downloadJSON(data, filename) {
@@ -360,6 +477,10 @@ function downloadJSON(data, filename) {
 }
 
 function updateGame() {
+	if (gameOver) {
+        return;  // Se o jogo acabou, para o loop de atualização
+    }
+
     // Clear the canvas for the ball and paddles
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -382,6 +503,35 @@ function updateGame() {
 
     // Request next frame
     requestAnimationFrame(updateGame);
+}
+
+function countdown(callback) {
+    let count = 3;
+
+    function drawCountdown() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+        context.font = '48px Arial';
+        context.fillStyle = 'white';
+        context.textAlign = 'center';
+        context.fillText(count, canvas.width / 2, canvas.height / 2);
+    }
+
+    function updateCountdown() {
+        if (count > 0) {
+            drawCountdown();
+            count--;
+            setTimeout(updateCountdown, 1000);
+        } else {
+            callback();
+        }
+    }
+
+    updateCountdown();
+}
+
+function updateGame() {
+    countdown(gameLoop); 
 }
 
 // Handle keydown events
@@ -410,5 +560,22 @@ document.addEventListener("keyup", function (e) {
     }
 });
 
-// Start the game
+function handleButtonClick(event) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    // Configurações do botão
+    const buttonWidth = 200;
+    const buttonHeight = 50;
+    const buttonX = (canvasWidth - buttonWidth) / 2;
+    const buttonY = (canvasHeight - 200) / 2 + 100;
+
+    // Verifica se o clique foi dentro do botão
+    if (mouseX >= buttonX && mouseY >= buttonY && mouseX <= buttonX + buttonWidth && mouseY <= buttonY + buttonHeight) {
+        // Recarrega a página para voltar ao menu PONG
+        window.location.reload();  
+    }
+}
+
 updateGame();

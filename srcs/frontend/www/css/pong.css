@@ -19,6 +19,8 @@
     width: 960px;
     height: 560px;
     margin: auto; /* Centraliza horizontalmente */
+	border: 10px solid #fff;
+	border-radius: 15px;
 }
 
 .pong-content {
@@ -28,6 +30,7 @@
     width: 100%; /* Ocupa 100% da largura da tela */
     height: 100%; /* Ocupa 100% da altura da tela */
 	background-color: #000;
+
 }
 
 #pongBackgroundCanvas, #pongCanvas {
