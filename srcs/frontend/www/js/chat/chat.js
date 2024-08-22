@@ -1,9 +1,6 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
-
 import { selectedUser } from "./utils_chat.js";
 import chatSocketInstance from "./chat_socket.js";
-
-
 
 function initializeChat(username) {
 
@@ -15,55 +12,55 @@ function initializeChat(username) {
 	// const onlineUsersList = document.getElementById("online-users-list");
 
 	const token = localStorage.getItem('access_token');
-	// const chatSocket = new WebSocket(`wss://${window.location.host}/chat/ws/?token=${token}`);
+	const chatSocket = new WebSocket(`wss://${window.location.host}/chat/ws/?token=${token}`);
 
-	// chatSocket.onopen = function () {
-	// 	// console.log('Chat page loaded. WebSocket connection established');
-	// };
+	chatSocket.onopen = function () {
+		// console.log('Chat page loaded. WebSocket connection established');
+	};
 
-    // chatSocket.onmessage = function (e) {
+	chatSocket.onmessage = function (e) {
 
-	// 	let data;
+		let data;
 
-	// 	try {
-	// 		data = JSON.parse(e.data);
-	// 		console.log('Para consulta data do chat: ', data);
-	// 	} catch (error) {
-	// 		console.error('Error parsing WebSocket message:', error);
-	// 		return;
-	// 	}
 		try {
 			data = JSON.parse(e.data);
-			console.log('onmessage data: ', data);
-			
-			// console.log('Para consulta data do chat: ', data);
+			console.log('Para consulta data do chat: ', data);
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
 			return;
 		}
 
+	try {
+		data = JSON.parse(e.data);
+		console.log('onmessage data: ', data);
 
-    //     // trata a message data
-    //     if (data.message) {
-    //         displayChatMessage(data, chatLog);
-    //     }
+		// console.log('Para consulta data do chat: ', data);
+	} catch (error) {
+		console.error('Error parsing WebSocket message:', error);
+		return;
+	}
 
-    //     // trata game invite
-    //     else if (data.invite) {
-    //         displayGameInvite(data, chatLog, chatSocket);
-    //     }
+	//     // trata a message data
+	//     if (data.message) {
+	//         displayChatMessage(data, chatLog);
+	//     }
 
-    //     // trata invite response
-    //     else if (data.invite_response) {
-    //         handleInviteResponse(username, data, chatLog);
-    //     }
+	//     // trata game invite
+	//     else if (data.invite) {
+	//         displayGameInvite(data, chatLog, chatSocket);
+	//     }
 
-    //     // trata online users list
-    //     else if (data.online_users) {
-    //         updateOnlineUsersList(username, data.online_users, chatSocket);
-    //     }
+	//     // trata invite response
+	//     else if (data.invite_response) {
+	//         handleInviteResponse(username, data, chatLog);
+	//     }
 
-    }
+	//     // trata online users list
+	//     else if (data.online_users) {
+	//         updateOnlineUsersList(username, data.online_users, chatSocket);
+	//     }
+
+	}
 
 	chatSocket.onclose = function (e) {
 		console.log('WebSocket connection closed:', e);
@@ -74,9 +71,8 @@ function initializeChat(username) {
 		// };
 		// displayChatMessage(data, chatLog);
 	};
-    // }
+	// }
 
-	
 	// chatSocket.onclose = function (e) {
 	// 	// console.log('WebSocket connection closed:', e);
 	// };
@@ -110,10 +106,6 @@ function initializeChat(username) {
 			event.preventDefault(); // Prevent the default action
 		}
 	});
-
-
 }
-
-
 
 export { initializeChat }

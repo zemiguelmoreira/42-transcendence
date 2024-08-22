@@ -2,7 +2,7 @@ import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { addFriend, removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
 import { navigateTo } from "../app.js";
-import { createRoom , joinRoom } from "../games/pong-heitor.js";
+import { createRoom, joinRoom } from "../games/pong-heitor.js";
 import chatSocketInstance from "./chat_socket.js";
 
 let selectedUser = null;
@@ -44,12 +44,10 @@ function displayChatMessage(data, chatLog) {
 
 
 // função para mostrar o convite to play game - (utiliza - createInviteElement() e createInviteResponseButton())
-function displayGameInvite(data, chatLog) {
 function displayGameInvite(data, chatLog, chatSocket) {
 	console.log('displayGameInvite: ', data);
 
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
-	const inviteElement = createInviteElement(inviteMessage, data.sender);
 
 	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode);
 
@@ -61,7 +59,6 @@ function displayGameInvite(data, chatLog, chatSocket) {
 
 // cria o convite
 function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
-function createInviteElement(inviteMessage, sender) {
 	const inviteElement = document.createElement("div");
 	inviteElement.classList.add('message-invite');
 	inviteElement.style.color = "coralpink";
@@ -72,7 +69,7 @@ function createInviteElement(inviteMessage, sender) {
 	const buttonContainer = document.createElement("div");
 	buttonContainer.classList.add('button-container');
 
-	
+
 	const acceptButton = createInviteResponseButton("Accept", true, sender, roomCode);
 	const rejectButton = createInviteResponseButton("Reject", false, sender, roomCode);
 
@@ -216,7 +213,7 @@ function createDropdownMenu(username, user) {
 		await addFriend(user, displaySlidingMessage);
 	});
 
-	const action2 = createDropdownItem("View Profile", "#", async function() {
+	const action2 = createDropdownItem("View Profile", "#", async function () {
 		await viewUserProfile(username, user);
 	});
 
@@ -245,11 +242,11 @@ function createDropdownItem(text, href, onClick) {
 	item.textContent = text;
 	// if (onClick) item.addEventListener('click', onClick);
 	if (onClick) {
-		item.addEventListener('click', function(e) {
-		  e.preventDefault();
-		  onClick(); // Chama onClick sem passar o objeto event
+		item.addEventListener('click', function (e) {
+			e.preventDefault();
+			onClick(); // Chama onClick sem passar o objeto event
 		});
-	  }
+	}
 	return item;
 }
 
