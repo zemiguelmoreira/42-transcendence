@@ -1,8 +1,6 @@
-console.log("Snake game script loaded!");
-
-function initializeSnakeGame() {
+function initializeSnakeGameRemote() {
 	// Verifica se o canvas foi carregado corretamente
-	const canvas = document.getElementById('gameCanvasSnakeLocal');
+	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	if (!canvas) {
 		console.error("Canvas not found!");
 		return;
@@ -243,7 +241,7 @@ function initializeSnakeGame() {
 
 // Certifique-se de que o código de inicialização seja executado quando o script for carregado
 if (document.readyState === 'complete') {
-	initializeSnakeGame();
+	initializeSnakeGameRemote();
 } else {
-	window.addEventListener('load', initializeSnakeGame);
+	window.addEventListener('load', initializeSnakeGameRemote());
 }

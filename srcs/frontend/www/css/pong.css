@@ -5,6 +5,14 @@
     box-sizing: border-box;
 }
 
+/* Define a fonte personalizada */
+@font-face {
+	font-family: 'PongFont';
+	src: url('../fonts/pump.ttf') format('truetype');
+	font-style: normal;
+	font-weight: normal;
+}
+
 /* Define o estilo do container dos canvases */
 .pong-box {
     position: relative;

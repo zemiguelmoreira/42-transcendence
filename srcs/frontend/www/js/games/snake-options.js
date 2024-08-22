@@ -9,7 +9,7 @@ function snakeOptions(username) {
 				<div class="card-body">
 					<h5 class="card-title">SNAKE LOCAL</h5>
 					<p class="card-text">Game where a "snake" eats food to grow and must avoid collisions. <b>Local friendly unranked game.</b></p>
-					<a href="#" class="btn btn-primary card-btn" id="snakeGame">Let's Play</a>
+					<a href="#" class="btn btn-primary card-btn" id="snakeGameLocal">Let's Play</a>
 				</div>
 			</div>
 	
@@ -18,7 +18,7 @@ function snakeOptions(username) {
 				<div class="card-body">
 					<h5 class="card-title">SNAKE REMOTE</h5>
 					<p class="card-text">Game where a "snake" eats food to grow and must avoid collisions. <b>Remote ranked game.</b></p>
-					<a href="#" class="btn btn-primary card-btn">Let's Play</a>
+					<a href="#" class="btn btn-primary card-btn" id="snakeGameRemote">Let's Play</a>
 				</div>
 			</div>
 	
@@ -35,9 +35,14 @@ function snakeOptions(username) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
 
-	document.getElementById('snakeGame').addEventListener('click', (e) => {
+	document.getElementById('snakeGameLocal').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}/snake-game-local`);
+	});
+
+	document.getElementById('snakeGameRemote').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/snake-game-remote`);
 	});
 
 	document.getElementById('snakeGameFreeForAll').addEventListener('click', (e) => {

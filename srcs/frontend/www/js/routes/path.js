@@ -1,4 +1,3 @@
-
 import { home, homeLogin } from "../home/home.js";
 import { dataUser, fetchUserProfile } from "../profile/myprofile.js";
 import { dataUserSearch, dataUserFromSearch, userSearchPage } from "../search/search_user.js";
@@ -9,7 +8,7 @@ import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage , profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { snakeGameLocal , snakeGameFreeForAll } from "../games/snake-pages.js";
+import { snakeGameLocal , snakeGameRemote , snakeGameFreeForAll } from "../games/snake-pages.js";
 import { pongGameLocal } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { doChat } from "../chat/chat-window.js";
@@ -131,6 +130,13 @@ const pages = {
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
 			snakeGameLocal(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/snake-game-remote': {
+		loadContent: function (params) {
+			snakeGameRemote(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

@@ -44,19 +44,19 @@ let rightPaddleSound = new Audio('./files/pong-assets/pong.wav');
 let wallSound = new Audio('./files/pong-assets/wall.wav');
 let goalSound = new Audio('./files/pong-assets/goal.wav');
 
-let player1Name = "Ivo Marques"; // Nome do Jogador 1
-let player2Name = "Ricardo Andrade"; // Nome do Jogador 2
+let player1Name = "ialves-m"; // Nome do Jogador 1
+let player2Name = "hmaciel-"; // Nome do Jogador 2
 
-function drawPONG(letterSpacing = 10) {
+function drawPONG(letterSpacing = -5) {
     // Definir a fonte e o tamanho do texto
-    ctx.font = "bold 100px Arial";  // Escolha a fonte e o tamanho desejado
-    ctx.fillStyle = "gray";  // Cor do texto (branco)
+    ctx.font = "100px PongFont";  // Escolha a fonte e o tamanho desejado
+    ctx.fillStyle = "#69696950";  // Cor do texto (branco)
 
     // A palavra que queremos desenhar
     const text = "PONG";
 
     // Iniciar a posição X (a partir do centro do canvas, ajustando para o tamanho do texto e espaçamento)
-    const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing;
+    const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing - 15;
     let xPosition = (canvasWidth - totalTextWidth) / 2;
 
     // Definir a posição Y para o texto ficar na parte inferior do canvas
@@ -70,7 +70,7 @@ function drawPONG(letterSpacing = 10) {
 }
 
 function drawPlayerNames() {
-    backgroundCtx.font = "30px Arial"; // Defina o tamanho e a fonte do texto
+    backgroundCtx.font = "30px PongFont"; // Defina o tamanho e a fonte do texto
     backgroundCtx.fillStyle = "gray"; // Defina a cor do texto
 
     // Posição X da linha vertical central
@@ -175,7 +175,7 @@ function drawDigit(ctx, n, x, y) {
     ];
 
     // Define a cor do segmento
-    ctx.fillStyle = "gray"; // Branco
+    ctx.fillStyle = "white"; // Branco
 
     // Desenha o dígito
     const digitMatrix = digits[n];

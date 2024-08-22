@@ -1,5 +1,3 @@
-console.log("Snake game script loaded!");
-
 function initializeSnakeGameFreeForAll() {
     // Verifica se o canvas foi carregado corretamente
     const canvas = document.getElementById('gameCanvasSnakeFreeForAll');
