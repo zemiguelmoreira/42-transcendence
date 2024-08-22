@@ -8,7 +8,7 @@ function pongOptions(username) {
 				<div class="card-body">
 					<h5 class="card-title">PONG LOCAL</h5>
 					<p class="card-text">Old classic nostalgic table tennis game with paddles and a ball. <b>Local friendly unranked game.</b></p>
-					<a href="#" class="btn btn-primary card-btn" id="pongGame">Let's Play</a>
+					<a href="#" class="btn btn-primary card-btn" id="pongGameLocal">Let's Play</a>
 				</div>
 			</div>
 			<div class="card" style="width: 18rem;">
@@ -16,7 +16,7 @@ function pongOptions(username) {
 				<div class="card-body">
 					<h5 class="card-title">PONG REMOTE</h5>
 					<p class="card-text">Classic Pong online challenge against a ranked remote player. <b>Remote ranked game.</b></p>
-					<a href="#" class="btn btn-primary card-btn">Let's Play</a>
+					<a href="#" class="btn btn-primary card-btn" id="pongGameRemote">Let's Play</a>
 				</div>
 			</div>
 
@@ -25,7 +25,7 @@ function pongOptions(username) {
 				<div class="card-body">
 					<h5 class="card-title">PONG TOURNMENT</h5>
 					<p class="card-text">Organize a Pong tournament between several players locally. <b>Local friendly unranked game.</b></p>
-					<a href="#" class="btn btn-primary card-btn">Let's Talk</a>
+					<a href="#" class="btn btn-primary card-btn" id="pongGameTournament">Let's Talk</a>
 				</div>
 			</div>
 		`;
@@ -33,9 +33,19 @@ function pongOptions(username) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
 
-	document.getElementById('pongGame').addEventListener('click', (e) => {
+	document.getElementById('pongGameLocal').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}/pong-game-local`);
+	});
+
+	document.getElementById('pongGameRemote').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/pong-game-remote`);
+	});
+
+	document.getElementById('pongGameTournament').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/pong-game-tournament`);
 	});
 
 }

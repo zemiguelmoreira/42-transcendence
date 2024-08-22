@@ -6,10 +6,10 @@ import { displayPageError } from "../html/error_page.js";
 import { signIn } from "../login/login.js";
 import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
-import { userProfilePage , profileSettings } from "../profile/userProfile.js";
+import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { snakeGameLocal , snakeGameRemote , snakeGameFreeForAll } from "../games/snake-pages.js";
-import { pongGameLocal } from "../games/pong-pages.js";
+import { snakeGameLocal, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
+import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { doChat } from "../chat/chat-window.js";
 import { noResults } from "../search/search_user.js";
@@ -87,7 +87,7 @@ const pages = {
 				edit(dataUser, params.username);
 			} else if (dataUserFromSearch) {
 				edit(dataUserFromSearch, params.username);
-			} else {	
+			} else {
 				fetchUserProfile(params.username);
 			}
 		},
@@ -98,7 +98,7 @@ const pages = {
 		loadContent: function (params) {
 			// console.log('Loading user profile search user page content for', params.username);
 			userSearchPage(dataUserSearch, params.username);
-			
+
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -158,6 +158,20 @@ const pages = {
 	'/user/:username/pong-game-local': {
 		loadContent: function (params) {
 			pongGameLocal(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/pong-game-remote': {
+		loadContent: function (params) {
+			pongGameRemote(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/pong-game-tournament': {
+		loadContent: function (params) {
+			pongGameTournament(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

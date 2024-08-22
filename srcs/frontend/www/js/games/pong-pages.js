@@ -58,4 +58,33 @@ function pongGameRemote(username) {
 	}
 }
 
-export { pongGameLocal }
+function pongGameTournament(username) {
+	try {
+		document.getElementById('root').innerHTML = `
+			<div class="home-box">
+				<div class="pong-content">
+					<div class="pong-box">
+						<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
+						<canvas id="pongCanvas" width="960" height="560"></canvas>
+					</div>
+				</div>
+			</div>
+		`;
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+	if (!pongScriptLoaded) {
+		const scriptElement = document.createElement('script');
+		scriptElement.type = 'module';  // Define o script como módulo ES6
+		scriptElement.src = '../../js/games/pong-tournament.js';
+		scriptElement.onload = () => {
+			pongScriptLoaded = true;
+		};
+		scriptElement.onerror = () => {
+			console.error('Erro ao carregar o script pong.js');
+		};
+		document.body.appendChild(scriptElement);
+	}
+}
+
+export { pongGameLocal, pongGameRemote , pongGameTournament }
