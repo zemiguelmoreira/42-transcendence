@@ -20,19 +20,22 @@ import httpx
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+canvasHeight = 560
+canvasWidth = 960
+PADDLE_WIDTH = 10
+PADDLE_HEIGHT = 90
+BALL_SIZE = 10
+
 paddles_init_y = 310 - 62
-paddle1_init_x = 84
-paddle2_init_x = 1060
+paddle1_init_x = 0
+paddle2_init_x = canvasWidth - PADDLE_WIDTH
 
 border_limits_top = 75
 border_limits_botton = 543
 
-ball_init_x = 590
-ball_init_y = 310
+ball_init_x = canvasWidth / 2 - BALL_SIZE / 2
+ball_init_y = canvasHeight / 2 - BALL_SIZE / 2
 
-PADDLE_WIDTH = 35
-PADDLE_HEIGHT = 125
-BALL_SIZE = 30
 
 def is_goal_paddle1(ball_x):
     return ball_x > 1180
@@ -116,7 +119,8 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'action': 'assign_index',
                 'player_index': player_index,
                 'ball_position': room['ball_position'],
-                'paddle_positions': room['paddle_positions']
+                'paddle_positions': room['paddle_positions'],
+                'score': room['score']
             }))
 
         if len(room['players']) == 2:
@@ -200,7 +204,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         response = {
             'ball_position': room['ball_position'],
-            'paddle_positions': room['paddle_positions']
+            'paddle_positions': room['paddle_positions'],
+            'score': room['score']
         }
 
         for player in room['players']:
