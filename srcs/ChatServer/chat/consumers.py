@@ -99,6 +99,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			}
 		)
 		logging.info(f"Invite sent to {recipient}.")
+		# sys msg for user
+		await self.channel_layer.group_send(
+			self.user_group_name, {"type": "system.message", "message": f"Invite to play {game} sent to {recipient}."}
+		)
 
 	async def handle_invite_response(self, data):
 		game = data.get("game", None)
@@ -118,6 +122,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		# setting invite flags
 		self.invited[self.user.username] = False
 		self.invited[inviter] = False
+		# system msg for user
+		if accepted:
+			await self.channel_layer.group_send(
+				self.user_group_name, {"type": "system.message", "message": f"Invite to play {game} accepted from {inviter}."}
+			)
+		else:
+			await self.channel_layer.group_send(
+				self.user_group_name, {"type": "system.message", "message": f"Invite to play {game} declined from {inviter}."}
+			)
 
 	async def handle_private_message(self, data, recipient):
 		message = data.get("message", None)
