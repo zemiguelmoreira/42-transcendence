@@ -319,7 +319,46 @@ h2 {
 	left: 50%;
 	transform: translateX(-50%);
 	overflow: hidden;
-	z-index: 1;
+	z-index: 2;
+}
+
+.chatContainer {
+	position: absolute;
+	top: 20%;
+}
+
+.slidingChatContainer {
+	height: 300px;
+	padding: 10px;
+}
+
+.sliding-window {
+	width: 1000px;
+	height: 300px;
+	border: 1px solid #ccc;
+	background-color: #f1f1f1;
+	position: absolute;
+	top: 400px; /* Inicialmente escondida acima da janela principal */
+	left: calc(50% - 550px); /* Centraliza a janela verticalmente em relação à janela principal */
+	transition: top 0.5s ease;
+	z-index: 0;
+}
+
+.sliding-window.open {
+	top: 370px; /* Mostra a janela abaixo da janela principal */
+}
+
+.sliding-window.closed {
+	top: 600px; /* Move a janela para fora da tela acima */
+}
+
+#toggle-window-btn {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	width: 35px;
+	height: 35px;
+	border-radius: 50%;
 }
 
 .message-bar {

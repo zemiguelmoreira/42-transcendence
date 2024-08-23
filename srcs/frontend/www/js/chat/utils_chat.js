@@ -42,7 +42,6 @@ function displayChatMessage(data, chatLog) {
 	displaySlidingMessage(messageElement.textContent);
 }
 
-
 // função para mostrar o convite to play game - (utiliza - createInviteElement() e createInviteResponseButton())
 function displayGameInvite(data, chatLog, chatSocket) {
 	console.log('displayGameInvite: ', data);
@@ -133,6 +132,8 @@ function handleInviteResponse(username, data, chatLog) {
 }
 
 function updateOnlineUsersList(username, onlineUsers, chatSocket) {
+	console.log('Socket: updateOnlineUsersList: ', chatSocket);
+
 	const onlineUsersList = document.getElementById("online-users-list");
 	onlineUsersList.innerHTML = '';
 	onlineUsers.forEach(user => {
@@ -144,6 +145,7 @@ function updateOnlineUsersList(username, onlineUsers, chatSocket) {
 // Cria o botão para cada user
 function createUserButtonGroup(username, user, chatSocket) {
 	console.log('username: ', username, 'user: ', user);
+	console.log('Socket: createUserButtonGroup: ', chatSocket);
 
 	const userButton = document.createElement("button");
 	userButton.textContent = user;
@@ -188,6 +190,7 @@ function createDropdownToggle() {
 
 // Cria o menu dropdown
 function createDropdownMenu(username, user, chatSocket) {
+	console.log('Socket: createDropdownMenu: ', chatSocket);
 
 	const dropdownMenu = document.createElement("div");
 	dropdownMenu.classList.add("dropdown-menu");
@@ -253,6 +256,7 @@ function createDropdownItem(text, href, onClick) {
 // Envia o convite para jogar
 async function sendGameInvite(username, user, game, chatSocket) {
 	console.log('user: ', user);
+	console.log('Socket: sendGameInvite: ', chatSocket);
 
 	roomCode = await createRoom(user);
 
@@ -268,7 +272,7 @@ async function sendGameInvite(username, user, game, chatSocket) {
 	console.log('Invite sent to', user);
 	console.log('InviteMessage: ', inviteMessage);
 
-	chatSocket.send(JSON.stringify(inviteMessage));
+	chatSocket.send(inviteMessage);
 
 	joinRoom(roomCode);
 

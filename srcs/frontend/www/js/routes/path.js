@@ -11,7 +11,7 @@ import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
-import { doChat } from "../chat/chat-window.js";
+import { doChat } from "../chat/chat_window.js";
 import { noResults } from "../search/search_user.js";
 
 const pages = {

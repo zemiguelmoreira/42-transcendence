@@ -4,7 +4,6 @@ import { displayGameInvite } from "./utils_chat.js";
 import { handleInviteResponse } from "./utils_chat.js";
 import { updateOnlineUsersList } from "./utils_chat.js";
 
-
 class WebSocketService {
   static instance = null;
 
@@ -77,7 +76,7 @@ class WebSocketService {
           let data;
           try {
               data = JSON.parse(e.data);
-              console.log('Para consulta data do chat: ', data);
+            //   console.log('Para consulta data do chat: ', data);
           } catch (error) {
               console.error('Error parsing WebSocket message:', error);
               return;
@@ -86,11 +85,11 @@ class WebSocketService {
           if (data.message) {
               displayChatMessage(data, this.chatLog);
           } else if (data.invite) {
-              displayGameInvite(data, this.chatLog);
+              displayGameInvite(data, this.chatLog, this.socketRef);
           } else if (data.invite_response) {
               handleInviteResponse(data, this.chatLog);
           } else if (data.online_users) {
-              updateOnlineUsersList(username, data.online_users);
+              updateOnlineUsersList(username, data.online_users, this.socketRef);
           }
       };
 
@@ -158,5 +157,5 @@ class WebSocketService {
 
 
 const chatSocketInstance = WebSocketService.getInstance();
-  
+console.log('chatSocketInstance: ', chatSocketInstance);
 export default chatSocketInstance;
