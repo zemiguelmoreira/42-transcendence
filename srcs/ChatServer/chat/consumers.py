@@ -46,9 +46,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		msgtype = data.get("type", None)
 
 		message_type_map = {
-        "invite": self.handle_invite,
-        "invite_response": self.handle_invite_response,
-    }
+			"invite": self.handle_invite,
+			"invite_response": self.handle_invite_response,
+			"cancel_invite": self.handle_cancel_invite,
+		}
 		if msgtype in message_type_map:
 			await message_type_map[msgtype](data)
 			return
@@ -59,7 +60,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		else:
 			await self.handle_private_message(data, recipient)
 
+	# Adicionando a função handle_cancel_invite
+	async def handle_cancel_invite(self, data):
+		recipient = data.get("recipient", None)
 
+		# Verificando se o convite é válido
+		if not recipient or not self.invited.get(recipient, False):
+			await self.channel_layer.group_send(
+				self.user_group_name, {"type": "error.message", "message": "No invite to cancel."}
+			)
+			logging.error("Cancel Invite: No invite to cancel.")
+			return
+
+		# Removendo o convite
+		self.invited.pop(recipient, None)
+		self.invited[self.user.username] = False
+
+		# Notificando o destinatário que o convite foi cancelado
+		recipient_group_name = "user_%s" % recipient
+		await self.channel_layer.group_send(
+			recipient_group_name, {
+				"type": "cancel_invite.message",
+				"sender": self.user.username,
+			}
+		)
+		logging.info(f"Invite to {recipient} canceled by {self.user.username}.")
+
+	# Adicionando handler para a mensagem de cancelamento do convite
+	async def cancel_invite_message(self, event):
+		sender = event["sender"]
+		await self.send(text_data=json.dumps({
+			"invite_cancelled": True,
+			"sender": sender,
+			"message": f"Invite from {sender} has been cancelled."
+		}))
+		
 	# receive handlers
 	async def handle_invite(self, data):
 		recipient = data.get("recipient", None)
@@ -83,12 +118,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": "You already have an invite pending."}
 			)
-			logging.error("Invite: User already has an invite pending.")
+			logging.error("Invite: an invite pending.")
 			return
-		# setting invite flags
+		
+  		# setting invite flags
 		self.invited[recipient] = True
 		self.invited[self.user.username] = True
-		# sending invite
+		
+  		# sending invite
 		recipient_group_name = "user_%s" % recipient
 		await self.channel_layer.group_send(
 			recipient_group_name, {
@@ -100,11 +137,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		)
 		logging.info(f"Invite sent to {recipient}.")
 
+
 	async def handle_invite_response(self, data):
 		game = data.get("game", None)
 		inviter = data.get("inviter", None)
 		accepted = data.get("accepted", False)
-		# answering invite
+		
+  		# answering invite
 		inviter_group_name = "user_%s" % inviter
 		await self.channel_layer.group_send(
 			inviter_group_name, {
@@ -115,7 +154,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			}
 		)
 		logging.info(f"Invite response sent to {inviter}.")
-		# setting invite flags
+		
+  		# setting invite flags
 		self.invited[self.user.username] = False
 		self.invited[inviter] = False
 

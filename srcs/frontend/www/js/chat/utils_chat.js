@@ -101,7 +101,16 @@ function createInviteResponseButton(text, accepted, sender, roomCode) {
 		// button.nextElementSibling.disabled = true;
 		document.querySelector('.accept-button').disabled = true;
 		document.querySelector('.reject-button').disabled = true;
-		joinRoom(roomCode);
+		
+		// Criação de um div para apresentar o jogo
+		const gameDiv = document.createElement('div');
+		gameDiv.classList.add('invite-pending');
+		gameDiv.id = 'invitePending';
+
+		document.getElementById('root').appendChild(gameDiv);
+
+		if (accepted == true)
+			joinRoom(roomCode);
 	};
 	return button;
 
@@ -121,9 +130,11 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has accepted your invite!`;
 		inviteResponseElement.style.color = "lightgreen";
 		// Handle game start
+		joinRoom(roomCode);
 	} else {
 		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.style.color = "pink";
+		document.getElementById('invitePending').remove();
 	}
 
 	inviteResponseElement.innerHTML = responseMessage;
@@ -204,12 +215,10 @@ function createDropdownMenu(username, user, chatSocket) {
 
 	// Caso contrário, cria o menu dropdown com as ações normais
 	const action0 = createDropdownItem("Block User", "#", async (e) => {
-		e.preventDefault();
 		await blockUser(user, displaySlidingMessage);
 	});
 
 	const action1 = createDropdownItem("Add Friend", "#", async (e) => {
-		e.preventDefault();
 		await addFriend(user, displaySlidingMessage);
 	});
 
@@ -251,29 +260,58 @@ function createDropdownItem(text, href, onClick) {
 	return item;
 }
 
-// Envia o convite para jogar
+function handleCancelInvite(recipient, roomCode) {
+    const cancelMessage = {
+        "type": "cancel_invite",
+        "recipient": recipient,
+        "roomCode": roomCode
+    };
+
+    console.log('Cancel invite sent to', recipient);
+    chatSocketInstance.send(cancelMessage);
+
+    // Atualize a interface do usuário após o cancelamento
+    // document.getElementById('root').innerHTML = '';
+    displaySlidingMessage(`Invite to ${recipient} has been canceled.`);
+}
+
 async function sendGameInvite(user, game) {
-	console.log('user: ', user);
+    console.log('Send Game Invite to User: ', user);
 
-	roomCode = await createRoom(user);
+    roomCode = await createRoom(user);
+    console.log('Invite: roomCode: ', roomCode);
 
-	console.log('Invite: roomCode: ', roomCode);
+    const inviteMessage = {
+        "type": "invite",
+        "recipient": user,
+        "game": game,
+        "roomCode": roomCode
+    };
 
-	const inviteMessage = {
-		"type": "invite",
-		"recipient": user,
-		"game": game,
-		"roomCode": roomCode
-	};
+    console.log('Invite sent to', user);
+    console.log('InviteMessage: ', inviteMessage);
 
-	console.log('Invite sent to', user);
-	console.log('InviteMessage: ', inviteMessage);
+    chatSocketInstance.send(inviteMessage);
 
-	chatSocketInstance.send(inviteMessage);
+    // Exibe o botão de cancelamento após o envio do convite
+    // document.getElementById('root').innerHTML = '';
+    const invitePendingDiv = document.createElement('div');
+    invitePendingDiv.classList.add('invite-pending');
+	invitePendingDiv.id = 'invitePending';
 
-	joinRoom(roomCode);
+    const cancelButton = document.createElement('button');
+    cancelButton.id = 'cancelButton';
+    cancelButton.classList.add('btn', 'btn-danger');
+    cancelButton.textContent = 'Cancel';
 
-	// navigateTo(`/user/${username}/pong-game-local`);
+    cancelButton.addEventListener('click', () => {
+        handleCancelInvite(user, roomCode);
+		invitePendingDiv.remove();
+	});
+
+    invitePendingDiv.appendChild(cancelButton);
+    document.getElementById('root').appendChild(invitePendingDiv);
+
 }
 
 export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList }

@@ -2,12 +2,14 @@
 async function addFriend(friendUsername, displaySlidingMessage) {
 	const accessToken = localStorage.getItem('access_token');
 
-	if (isUserBlocked(friendUsername)) {
-		console.log('User is blocked');
-		await unblockUser(friendUsername, displaySlidingMessage);
-	} else {
-		console.log('User is not blocked');
+	console.log('Adding friend:', friendUsername);
+
+
+	if (!isUserInFriendsList(friendUsername)) {
+		console.log('User is already in friends list');
+		return;
 	}
+
 	try {
 		const response = await fetch('/api/profile/add_friend/', {
 			method: 'POST',
@@ -33,8 +35,8 @@ async function addFriend(friendUsername, displaySlidingMessage) {
 }
 
 async function removeFriend(friendUsername, displaySlidingMessage) {
-
 	const accessToken = localStorage.getItem('access_token');
+
 	try {
 		const response = await fetch('/api/profile/remove_friend/', {
 			method: 'POST',
@@ -62,12 +64,12 @@ async function removeFriend(friendUsername, displaySlidingMessage) {
 async function blockUser(blockedUsername, displaySlidingMessage) {
 	const accessToken = localStorage.getItem('access_token');
 
-	if (isUserInFriendsList(blockedUsername)) {
-		console.log('User is in friends list');
-		await removeFriend(blockedUsername, displaySlidingMessage);
-	} else {
-		console.log('User is not in friends list');
+
+	if (!isUserBlocked(blockedUsername)) {
+		console.log('User is already blocked');
+		return;
 	}
+
 	try {
 		const response = await fetch('/api/profile/block_user/', {
 			method: 'POST',
@@ -148,6 +150,7 @@ async function fetchBlockedList() {
 }
 
 async function isUserBlocked(username) {
+	console.log('Checking if user: ', username,' is blocked:');
 	const accessToken = localStorage.getItem('access_token');
 
 	if (!accessToken) {
@@ -203,8 +206,15 @@ async function isUserInFriendsList(username) {
 		const data = await response.json();
 		const friends = data.friends;
 
+		console.log('Friend List:', friends);
 		// Verifica se o username está na lista de amigos
-		return friends.some(friend => friend.username === username);
+
+		if (friends.some(friend => friend.username === username)) {
+			console.log('User is in friends list');
+			return true;
+		}
+
+		// return friends.some(friend => friend.username === username);
 
 	} catch (error) {
 		console.error('Error fetching friend list:', error);

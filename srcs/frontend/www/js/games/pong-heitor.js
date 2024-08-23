@@ -56,7 +56,7 @@ function joinRoom(roomCode) {
 	const pong_accessToken = localStorage.getItem('access_token');
 
 	try {
-		document.getElementById('mainContent').innerHTML = `
+		document.getElementById('invitePending').innerHTML = `
 		<div class="pong-content">
 			<div class="pong-box"><canvas width="980" height="420"></canvas></div>
 		</div>
@@ -80,7 +80,19 @@ function joinRoom(roomCode) {
 		} else if (data.action === 'start_game') {
 			startGame();
 		} else if (data.action === 'game_over' && !stopFlag) {
-			alert('Game Over!');
+
+			// MSG de fim de jogo
+			try {
+				document.getElementById('invitePending').innerHTML = `
+					<button id='cancelButton' class="btn btn-danger">Game Over</button>
+				`;
+				document.getElementById('cancelButton').addEventListener('click', () => {
+					document.getElementById('invitePending').remove();
+				});
+			} catch (error) {
+				console.error('Erro ao carregar o conteúdo:', error);
+			}
+
 			stopFlag = true;
 			const winner = data.winner;
 			const loser = data.loser;
