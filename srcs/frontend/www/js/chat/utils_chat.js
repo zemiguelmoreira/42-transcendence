@@ -70,8 +70,8 @@ function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
 	buttonContainer.classList.add('button-container');
 
 
-	const acceptButton = createInviteResponseButton("Accept", true, sender, chatSocket, roomCode);
-	const rejectButton = createInviteResponseButton("Reject", false, sender, chatSocket, roomCode);
+	const acceptButton = createInviteResponseButton("Accept", true, sender, roomCode);
+	const rejectButton = createInviteResponseButton("Reject", false, sender, roomCode);
 
 	buttonContainer.appendChild(acceptButton);
 	buttonContainer.appendChild(rejectButton);
@@ -83,7 +83,7 @@ function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
 }
 
 // Cria os buttons de acordo com os argumentos
-function createInviteResponseButton(text, accepted, sender, chatSocket, roomCode) {
+function createInviteResponseButton(text, accepted, sender, roomCode) {
 
 	// console.log('chatSocket_1: ', chatSocketInstance.socketRef);
 
@@ -96,7 +96,7 @@ function createInviteResponseButton(text, accepted, sender, chatSocket, roomCode
 			"inviter": sender,
 			"type": "invite_response",
 		};
-		chatSocket.send(response);
+		chatSocketInstance.send(response);
 		// button.disabled = true;
 		// button.nextElementSibling.disabled = true;
 		document.querySelector('.accept-button').disabled = true;
@@ -220,8 +220,8 @@ function createDropdownMenu(username, user, chatSocket) {
 	const action3 = document.createElement("hr");
 	action3.classList.add("dropdown-divider");
 
-	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(username, user, "Pong", chatSocket));
-	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(username, user, "Snake", chatSocket));
+	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong"));
+	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(user, "Snake"));
 
 	// Adiciona as ações ao menu dropdown
 	dropdownMenu.appendChild(action1);
@@ -251,7 +251,7 @@ function createDropdownItem(text, href, onClick) {
 }
 
 // Envia o convite para jogar
-async function sendGameInvite(username, user, game, chatSocket) {
+async function sendGameInvite(user, game) {
 	console.log('user: ', user);
 
 	roomCode = await createRoom(user);
@@ -268,7 +268,7 @@ async function sendGameInvite(username, user, game, chatSocket) {
 	console.log('Invite sent to', user);
 	console.log('InviteMessage: ', inviteMessage);
 
-	chatSocket.send(JSON.stringify(inviteMessage));
+	chatSocketInstance.send(inviteMessage);
 
 	joinRoom(roomCode);
 

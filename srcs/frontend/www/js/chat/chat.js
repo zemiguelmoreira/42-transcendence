@@ -11,34 +11,34 @@ function initializeChat(username) {
 	const chatMessageSubmit = document.getElementById("chat-message-submit");
 	// const onlineUsersList = document.getElementById("online-users-list");
 
-	const token = localStorage.getItem('access_token');
-	const chatSocket = new WebSocket(`wss://${window.location.host}/chat/ws/?token=${token}`);
+	// const token = localStorage.getItem('access_token');
+	// const chatSocket = new WebSocket(`wss://${window.location.host}/chat/ws/?token=${token}`);
 
-	chatSocket.onopen = function () {
-		// console.log('Chat page loaded. WebSocket connection established');
-	};
+	// chatSocket.onopen = function () {
+	// 	// console.log('Chat page loaded. WebSocket connection established');
+	// };
 
-	chatSocket.onmessage = function (e) {
+	// chatSocket.onmessage = function (e) {
 
-		let data;
+	// 	let data;
 
-		try {
-			data = JSON.parse(e.data);
-			console.log('Para consulta data do chat: ', data);
-		} catch (error) {
-			console.error('Error parsing WebSocket message:', error);
-			return;
-		}
+	// 	try {
+	// 		data = JSON.parse(e.data);
+	// 		console.log('Para consulta data do chat: ', data);
+	// 	} catch (error) {
+	// 		console.error('Error parsing WebSocket message:', error);
+	// 		return;
+	// 	}
 
-	try {
-		data = JSON.parse(e.data);
-		console.log('onmessage data: ', data);
+	// try {
+	// 	data = JSON.parse(e.data);
+	// 	console.log('onmessage data: ', data);
 
-		// console.log('Para consulta data do chat: ', data);
-	} catch (error) {
-		console.error('Error parsing WebSocket message:', error);
-		return;
-	}
+	// 	// console.log('Para consulta data do chat: ', data);
+	// } catch (error) {
+	// 	console.error('Error parsing WebSocket message:', error);
+	// 	return;
+	// }
 
 	//     // trata a message data
 	//     if (data.message) {
@@ -60,17 +60,17 @@ function initializeChat(username) {
 	//         updateOnlineUsersList(username, data.online_users, chatSocket);
 	//     }
 
-	}
+	// }
 
-	chatSocket.onclose = function (e) {
-		console.log('WebSocket connection closed:', e);
-		// let data = {
-		// 	"message": "Disconnected from chat.",
-		// 	"system": True,
-		// 	"sender": "Transcendence"
-		// };
-		// displayChatMessage(data, chatLog);
-	};
+	// chatSocket.onclose = function (e) {
+	// 	console.log('WebSocket connection closed:', e);
+	// 	// let data = {
+	// 	// 	"message": "Disconnected from chat.",
+	// 	// 	"system": True,
+	// 	// 	"sender": "Transcendence"
+	// 	// };
+	// 	// displayChatMessage(data, chatLog);
+	// };
 	// }
 
 	// chatSocket.onclose = function (e) {
