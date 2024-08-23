@@ -29,7 +29,7 @@ function initializeChat(username) {
 		try {
 			data = JSON.parse(e.data);
 			console.log('onmessage data: ', data);
-			
+
 			// console.log('Para consulta data do chat: ', data);
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
@@ -64,7 +64,7 @@ function initializeChat(username) {
 		console.log('WebSocket connection closed:', e);
 		let data = {
 			"message": "Disconnected from chat.",
-			"system": True,
+			"system": "True",
 			"sender": "Transcendence"
 		};
 		displayChatMessage(data, chatLog);

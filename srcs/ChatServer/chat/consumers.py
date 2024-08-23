@@ -12,6 +12,8 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 import logging
 import httpx
+from .models import Message
+
 logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
@@ -137,6 +139,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.user_group_name, {"type": "send.dm", "message": message, "dest": recipient}
 		)
 		logging.info(f"Private message sent to {recipient} by {self.user.username}.")
+		# saving message to database
+		msg = Message(sender=self.user.username, recipient=recipient, content=message)
+		logging.info("Saving private message to database.")
+		await database_sync_to_async(msg.save)()
 
 
 	async def handle_public_message(self, data):
@@ -145,6 +151,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.room_group_name, {"type": "chat.message", "message": message, "sender": self.user.username}
 			)
 		logging.info(f"Public message sent by {self.user.username}.")
+		# saving message to database
+		msg = Message(sender=self.user.username, recipient="all", content=message)
+		logging.info("Saving message to database.")
+		await database_sync_to_async(msg.save)()
 
 
 	# event handlers
@@ -242,6 +252,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			logging.error("Invalid token.")
 			return None
 
+
+	@database_sync_to_async
+	def get_last_30_messages(self):
+		logging.info("Getting last 30 messages.")
+		return Message.objects.order_by('-timestamp').all()[:30]
+
+
 	async def initialize_connection(self):
 		# all chat group and single user chat group
 		self.room_group_name = "all"
@@ -262,6 +279,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.'
 			}
 		)
+		# send last 30 messages
+		last_30_messages = await self.get_last_30_messages()
+		logging.info("Sending last 30 messages.")
+		for message in last_30_messages:
+			await self.send(text_data=json.dumps({
+				"message": message.content,
+				"sender": message.sender
+			}))
+		logging.info("Initialization complete.")
 
 	async def cleanup_connection(self):
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
