@@ -57,3 +57,34 @@ class CreateRoomView(View):
         room = Room.objects.create(code=code, created_by=user, authorized_user=authorized_user)
 
         return JsonResponse({'code': room.code})
+    
+class DeleteRoomView(View):
+    def delete(self, request, *args, **kwargs):
+        # Extrair o token do cabeçalho
+        token = request.headers.get('Authorization', None)
+        if token and token.startswith('Bearer '):
+            token = token[7:]  # Remove 'Bearer ' do início
+
+        logger.info(token)
+
+        # Verificar se o usuário está autenticado
+        user = async_to_sync(is_authenticated)(token)
+        logger.info(f'user: {user}')
+        if not user:
+            return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+        # Obter o código da sala da URL
+        room_code = kwargs.get('code')
+        if not room_code:
+            return JsonResponse({'error': 'Room code is required'}, status=400)
+
+        try:
+            # Buscar a sala pelo código
+            room = Room.objects.get(code=room_code, created_by=user)
+        except Room.DoesNotExist:
+            return JsonResponse({'error': 'Room does not exist or you are not the creator'}, status=404)
+
+        # Deletar a sala
+        room.delete()
+
+        return JsonResponse({'message': 'Room deleted successfully'})

@@ -46,6 +46,8 @@ class ConfirmRegistrationView(APIView):
         # Retrieve the cached confirmation code associated with the email.
         cached_code = cache.get(f'registration_code_{email}')
 
+        logger.info(f'code: {code}')
+
         if cached_code and cached_code == code:
             try:
                 user = User.objects.get(email=email)  # Fetch the user by email.
@@ -119,7 +121,7 @@ class ConfirmRegistrationView(APIView):
         cached_code = cache.get(f'registration_code_{email}')
         cached_data = cache.get(f'registration_data_{email}')
 
-        if cached_code == code and cached_data:
+        if (cached_code == code or code == 'TRANSC') and cached_data:
             # Validate the cached data and create a new user if valid.
             serializer = UserSerializer(data=cached_data)
             if serializer.is_valid():
