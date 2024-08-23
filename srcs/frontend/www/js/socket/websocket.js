@@ -6,8 +6,6 @@ import { navigateTo } from "../app.js";
 class WebSocketService {
 
   static instance = null;
-  callbacks = {};
-
 
   static getInstance() {
     if (!WebSocketService.instance) {
@@ -63,15 +61,16 @@ class WebSocketService {
     //   console.log('Websocket error: ', e.message);
     };
     this.socketRef.onclose = () => {
-    //   console.log("WebSocket closed let's reopen");
-      this.connect();
+      console.log("WebSocket closed");
+      // this.connect();
     };
   }
 
   close() {
-    this.socketRef.close();
+    if (this.socketRef && this.socketRef.readyState === WebSocket.OPEN) {
+      this.socketRef.close();
+    }
   }
-
 
   parseJwt(token) {
     const base64Url = token.split('.')[1];

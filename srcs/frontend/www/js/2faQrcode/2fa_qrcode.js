@@ -95,7 +95,7 @@ async function verifyCode(userOrEmail, qrCode) {
 
         const data = await response.json();
 
-        // console.log('data login no verifycode: ', data);
+        // console.log('data login no verifycode: ', data); salva os tokens
         saveToken(data.access, data.refresh);
         
         // console.log("2FA verified successfully.");

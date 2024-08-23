@@ -1,6 +1,4 @@
-console.log("Snake game script loaded!");
-
-function initializeSnakeGame() {
+function initializeSnakeGameLocal() {
 	// Verifica se o canvas foi carregado corretamente
 	const canvas = document.getElementById('gameCanvasSnakeLocal');
 	if (!canvas) {
@@ -243,7 +241,7 @@ function initializeSnakeGame() {
 
 // Certifique-se de que o código de inicialização seja executado quando o script for carregado
 if (document.readyState === 'complete') {
-	initializeSnakeGame();
+	initializeSnakeGameLocal();
 } else {
-	window.addEventListener('load', initializeSnakeGame);
+	window.addEventListener('load', initializeSnakeGameLocal());
 }

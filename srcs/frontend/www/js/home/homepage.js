@@ -51,7 +51,7 @@ function makeHomePage(data) {
 	<div class="home-box" id="mainContent">
 		<!-- Conteúdo será carregado aqui -->
 		<div class="card" style="width: 18rem;">
-			<img src="../files/minipong.png" class="card-img-top" alt="Enter to play">
+			<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
 			<div class="card-body">
 				<h5 class="card-title">PONG</h5>
 				<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score points.</p>
@@ -60,7 +60,7 @@ function makeHomePage(data) {
 		</div>
 
 		<div class="card" style="width: 18rem;">
-			<img src="../files/mini2snake.png" class="card-img-top" alt="Enter to play">
+			<img src="/files/mini2snake.png" class="card-img-top" alt="Enter to play">
 			<div class="card-body">
 				<h5 class="card-title">SNAKE</h5>
 				<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and itself.</p>
@@ -69,7 +69,7 @@ function makeHomePage(data) {
 		</div>
 
 		<div class="card" style="width: 18rem;">
-			<img src="../files/minichat.png" class="card-img-top" alt="Enter to chat">
+			<img src="/files/minichat.png" class="card-img-top" alt="Enter to chat">
 			<div class="card-body">
 				<h5 class="card-title">CHAT</h5>
 				<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.</p>

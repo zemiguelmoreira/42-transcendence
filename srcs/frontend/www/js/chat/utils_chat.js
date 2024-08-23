@@ -1,8 +1,9 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
-import { addFriend , removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
+import { addFriend, removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
 import { navigateTo } from "../app.js";
-// import { createRoom , joinRoom } from "../games/pong.js";
+import { createRoom, joinRoom } from "../games/pong-heitor.js";
+import chatSocketInstance from "./chat_socket.js";
 
 let selectedUser = null;
 let roomCode = null;
@@ -12,17 +13,17 @@ function displayChatMessage(data, chatLog) {
 
 	const messageElement = document.createElement("div");
 
-    if (data.private) {
-        messageElement.classList.add('message-private');
-    } else if (data.system) {
-        messageElement.classList.add('message-system');
-    } else if (data.selfdm) {
-        messageElement.classList.add('message-selfdm');
-    } else if (data.error) {
-        messageElement.classList.add('message-error');
-    } else {
-        messageElement.classList.add('message-default');
-    }
+	if (data.private) {
+		messageElement.classList.add('message-private');
+	} else if (data.system) {
+		messageElement.classList.add('message-system');
+	} else if (data.selfdm) {
+		messageElement.classList.add('message-selfdm');
+	} else if (data.error) {
+		messageElement.classList.add('message-error');
+	} else {
+		messageElement.classList.add('message-default');
+	}
 
 	const senderElement = document.createElement("span");
 	senderElement.classList.add('message-sender');
@@ -68,7 +69,7 @@ function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
 	const buttonContainer = document.createElement("div");
 	buttonContainer.classList.add('button-container');
 
-	console.log('chatSocket: ', chatSocket);
+
 	const acceptButton = createInviteResponseButton("Accept", true, sender, chatSocket, roomCode);
 	const rejectButton = createInviteResponseButton("Reject", false, sender, chatSocket, roomCode);
 
@@ -84,7 +85,7 @@ function createInviteElement(inviteMessage, sender, chatSocket, roomCode) {
 // Cria os buttons de acordo com os argumentos
 function createInviteResponseButton(text, accepted, sender, chatSocket, roomCode) {
 
-	console.log('chatSocket_1: ', chatSocket);
+	// console.log('chatSocket_1: ', chatSocketInstance.socketRef);
 
 	const button = document.createElement("button");
 	button.textContent = text;
@@ -95,9 +96,11 @@ function createInviteResponseButton(text, accepted, sender, chatSocket, roomCode
 			"inviter": sender,
 			"type": "invite_response",
 		};
-		chatSocket.send(JSON.stringify(response));
-		button.disabled = true;
-		button.nextElementSibling.disabled = true;
+		chatSocket.send(response);
+		// button.disabled = true;
+		// button.nextElementSibling.disabled = true;
+		document.querySelector('.accept-button').disabled = true;
+		document.querySelector('.reject-button').disabled = true;
 		joinRoom(roomCode);
 	};
 	return button;
@@ -109,28 +112,28 @@ function handleInviteResponse(username, data, chatLog) {
 	console.log('data: ', data);
 	console.log('username: ', username);
 
-    const invitee = data.invitee;
-    const accepted = data.accepted;
-    let responseMessage;
+	const invitee = data.invitee;
+	const accepted = data.accepted;
+	let responseMessage;
 	const inviteResponseElement = document.createElement("div");
 
-    if (accepted) {
+	if (accepted) {
 		responseMessage = `${invitee} has accepted your invite!`;
 		inviteResponseElement.style.color = "lightgreen";
-        // Handle game start
-    } else {
-        responseMessage = `${invitee} has declined your invite!`;
+		// Handle game start
+	} else {
+		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.style.color = "pink";
-    }
+	}
 
-    inviteResponseElement.innerHTML = responseMessage;
-    chatLog.appendChild(inviteResponseElement);
+	inviteResponseElement.innerHTML = responseMessage;
+	chatLog.appendChild(inviteResponseElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
 	displaySlidingMessage(responseMessage);
 }
 
 function updateOnlineUsersList(username, onlineUsers, chatSocket) {
-    const onlineUsersList = document.getElementById("online-users-list");
+	const onlineUsersList = document.getElementById("online-users-list");
 	onlineUsersList.innerHTML = '';
 	onlineUsers.forEach(user => {
 		const btnGroup = createUserButtonGroup(username, user, chatSocket);
@@ -186,50 +189,49 @@ function createDropdownToggle() {
 // Cria o menu dropdown
 function createDropdownMenu(username, user, chatSocket) {
 
-    const dropdownMenu = document.createElement("div");
-    dropdownMenu.classList.add("dropdown-menu");
+	const dropdownMenu = document.createElement("div");
+	dropdownMenu.classList.add("dropdown-menu");
 
-    // Verifica se o username é igual ao user
-    if (username === user) {
-        // Retorna um menu desativado ou vazio
-        const disabledItem = document.createElement("span");
-        disabledItem.classList.add("dropdown-item", "disabled");
-        disabledItem.textContent = "Hi " + username + "!";
-        dropdownMenu.appendChild(disabledItem);
-        return dropdownMenu;
-    }
+	// Verifica se o username é igual ao user
+	if (username === user) {
+		// Retorna um menu desativado ou vazio
+		const disabledItem = document.createElement("span");
+		disabledItem.classList.add("dropdown-item", "disabled");
+		disabledItem.textContent = "Hi " + username + "!";
+		dropdownMenu.appendChild(disabledItem);
+		return dropdownMenu;
+	}
 
-    // Caso contrário, cria o menu dropdown com as ações normais
-    const action0 = createDropdownItem("Block User", "#", async (e) => {
-        e.preventDefault();
-        await blockUser(user, displaySlidingMessage);
-    });
+	// Caso contrário, cria o menu dropdown com as ações normais
+	const action0 = createDropdownItem("Block User", "#", async (e) => {
+		e.preventDefault();
+		await blockUser(user, displaySlidingMessage);
+	});
 
-    const action1 = createDropdownItem("Add Friend", "#", async (e) => {
-        e.preventDefault();
-        await addFriend(user, displaySlidingMessage);
-    });
+	const action1 = createDropdownItem("Add Friend", "#", async (e) => {
+		e.preventDefault();
+		await addFriend(user, displaySlidingMessage);
+	});
 
-	const action2 = createDropdownItem("View Profile", "#", async (e) => {
-        e.preventDefault();
-        await viewUserProfile(username, user);
-    });
+	const action2 = createDropdownItem("View Profile", "#", async function () {
+		await viewUserProfile(username, user);
+	});
 
 	const action3 = document.createElement("hr");
-    action3.classList.add("dropdown-divider");
+	action3.classList.add("dropdown-divider");
 
-    const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(username, user, "Pong", chatSocket));
-    const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(username, user, "Snake", chatSocket));
+	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(username, user, "Pong", chatSocket));
+	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(username, user, "Snake", chatSocket));
 
-    // Adiciona as ações ao menu dropdown
-    dropdownMenu.appendChild(action1);
-    dropdownMenu.appendChild(action0);
-    dropdownMenu.appendChild(action2);
-    dropdownMenu.appendChild(action3);
-    dropdownMenu.appendChild(action4);
-    dropdownMenu.appendChild(action5);
+	// Adiciona as ações ao menu dropdown
+	dropdownMenu.appendChild(action1);
+	dropdownMenu.appendChild(action0);
+	dropdownMenu.appendChild(action2);
+	dropdownMenu.appendChild(action3);
+	dropdownMenu.appendChild(action4);
+	dropdownMenu.appendChild(action5);
 
-    return dropdownMenu;
+	return dropdownMenu;
 }
 
 // Cria o item do dropdown menu
@@ -238,7 +240,13 @@ function createDropdownItem(text, href, onClick) {
 	item.classList.add("dropdown-item");
 	item.href = href;
 	item.textContent = text;
-	if (onClick) item.addEventListener('click', onClick);
+	// if (onClick) item.addEventListener('click', onClick);
+	if (onClick) {
+		item.addEventListener('click', function (e) {
+			e.preventDefault();
+			onClick(); // Chama onClick sem passar o objeto event
+		});
+	}
 	return item;
 }
 

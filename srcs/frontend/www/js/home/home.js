@@ -8,6 +8,9 @@ import { handleSignUp } from "../register/register.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeHomePage } from "./homepage.js";
+import { goTo } from "../app.js";
+import chatSocketInstance from "../chat/chat_socket.js";
+import WebSocketInstance from "../socket/websocket.js";
 
 function home() {
 	console.log('Loading home page content');
@@ -27,13 +30,13 @@ function home() {
 async function homeLogin(username) {
 	// Use await para resolver a Promise retornada por getUserProfileByUsername
 	let dataUser = await getUserProfileByUsername(username);
-	// console.log('dataUser no homeLogin: ', dataUser);	
+	console.log('dataUser no homeLogin: ', dataUser);	
 
 	// Limpa o conteúdo do root antes de carregar a nova página
 	document.getElementById('root').innerHTML = '';
 
 	// Use await para garantir que o conteúdo da página seja gerado antes de inseri-lo
-	const home_page = await makeHomePage(dataUser);
+	const home_page = makeHomePage(dataUser);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
 
 	// Adicione todos os event listeners necessários
@@ -81,6 +84,8 @@ async function homeLogin(username) {
 	document.getElementById('logOut').addEventListener('click', (e) => {
 		e.preventDefault();
 		removeToken(username);
+        chatSocketInstance.close();
+        WebSocketInstance.close();
 		setTimeout(function () {
 			navigateTo('/');
 		}, 2000);
