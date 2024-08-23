@@ -182,6 +182,7 @@ h2 {
 	overflow-y: auto;
 	background-color: rgba(0, 0, 0, 0.5);
 	height: 530px;
+	z-index: -1;
 }
 
 .organize {
@@ -319,7 +320,7 @@ h2 {
 	left: 50%;
 	transform: translateX(-50%);
 	overflow: hidden;
-	z-index: 2;
+	z-index: 1;
 }
 
 .chatContainer {
@@ -328,37 +329,27 @@ h2 {
 }
 
 .slidingChatContainer {
-	height: 300px;
+	height: 538px;
 	padding: 10px;
 }
 
 .sliding-window {
 	width: 1000px;
-	height: 300px;
-	border: 1px solid #ccc;
-	background-color: #f1f1f1;
+	height: 540px;
+	background-color: #000000c9;
 	position: absolute;
-	top: 400px; /* Inicialmente escondida acima da janela principal */
-	left: calc(50% - 550px); /* Centraliza a janela verticalmente em relação à janela principal */
-	transition: top 0.5s ease;
-	z-index: 0;
+	top: 000px;
+	/* left: calc(50% - 500px); */
+	transition: top 1.0s ease;
+	z-index: 2;
 }
 
 .sliding-window.open {
-	top: 370px; /* Mostra a janela abaixo da janela principal */
+	top: -75px;
 }
 
 .sliding-window.closed {
-	top: 600px; /* Move a janela para fora da tela acima */
-}
-
-#toggle-window-btn {
-	position: absolute;
-	bottom: 10px;
-	right: 10px;
-	width: 35px;
-	height: 35px;
-	border-radius: 50%;
+	top: -615px;
 }
 
 .message-bar {
@@ -380,7 +371,7 @@ h2 {
 	font-size: 14px;
 	color: #78BF40;
 	width: 100%;
-	animation: slide-in 30s linear infinite;
+	animation: slide-in 60s linear infinite;
 }
 
 @keyframes slide-in {
@@ -405,11 +396,16 @@ h2 {
 	height: 50px;
 	margin-top: 0;
 	width: 100%;
+	z-index: 3;
+}
+
+.navbar-dir {
+	border-radius: 0px;
 }
 
 .neon-border {
 	border: 1px solid #ff00ff;
-	border-radius: 20px;
+	border-radius: 25px;
 	box-shadow: 0 0 5px #ff00ff, 0 0 5px #ff00ff, 0 0 15px #ff00ff, 0 0 15px #ff00ff, 0 0 15px #ff00ff;
 }
 

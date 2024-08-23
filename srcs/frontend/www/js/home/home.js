@@ -11,9 +11,11 @@ import { makeHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import WebSocketInstance from "../socket/websocket.js";
+import { doChat } from "../chat/chat_window.js";
 
 function home() {
 	console.log('Loading home page content');
+
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
 
@@ -27,7 +29,22 @@ function home() {
 	signUp.addEventListener('click', handleSignUp);
 }
 
+function closeSlidingWindow() {
+	var slidingWindow = document.querySelector('.sliding-window');
+	if (slidingWindow && slidingWindow.classList.contains('open')) {
+		slidingWindow.classList.remove('open');
+		slidingWindow.classList.add('closed');
+
+		// Atualizar o ícone do botão se necessário
+		var chatButton = document.getElementById('chatButton');
+		if (chatButton) {
+			chatButton.src = '../../files/arrow-right-square-fill.svg'; // Ícone para abrir
+		}
+	}
+}
+
 async function homeLogin(username) {
+
 	// Use await para resolver a Promise retornada por getUserProfileByUsername
 	let dataUser = await getUserProfileByUsername(username);
 	console.log('dataUser no homeLogin: ', dataUser);	
@@ -38,6 +55,23 @@ async function homeLogin(username) {
 	// Use await para garantir que o conteúdo da página seja gerado antes de inseri-lo
 	const home_page = makeHomePage(dataUser);
 	document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
+
+	// Carregue o script do chat
+	doChat(username);
+
+	// Adicione o event listener para o botão de chat
+	document.getElementById('chatButton').addEventListener('click', function () {
+		var slidingWindow = document.querySelector('.sliding-window');
+		if (slidingWindow.classList.contains('closed')) {
+			slidingWindow.classList.remove('closed');
+			slidingWindow.classList.add('open');
+			this.src = '../../files/arrow-left-square-fill.svg'; // Altere para o ícone de fechar se necessário
+		} else {
+			slidingWindow.classList.remove('open');
+			slidingWindow.classList.add('closed');
+			this.src = '../../files/arrow-right-square-fill.svg'; // Altere para o ícone de abrir se necessário
+		}
+	});
 
 	// Adicione todos os event listeners necessários
 	document.getElementById('homeButton').addEventListener('click', (e) => {
@@ -91,10 +125,10 @@ async function homeLogin(username) {
 		}, 2000);
 	});
 
-	document.getElementById('chatButton').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/chat`);
-	});
+	// document.getElementById('chatButton').addEventListener('click', (e) => {
+	// 	e.preventDefault();
+	// 	navigateTo(`/user/${username}/chat`);
+	// });
 
 	document.getElementById('chatCard').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -115,4 +149,4 @@ async function homeLogin(username) {
 }
 
 
-export { home, homeLogin }
+export { home, homeLogin , closeSlidingWindow }

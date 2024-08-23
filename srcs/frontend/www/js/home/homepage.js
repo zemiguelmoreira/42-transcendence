@@ -1,5 +1,4 @@
 function makeHomePage(data) {
-	// console.log('data no makeHomePage: ', data);
 	return `
 	<div class="navbar-div">
 		<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
@@ -16,8 +15,7 @@ function makeHomePage(data) {
 							<a class="nav-link" id="chatButton" href="#">CHAT</a>
 						</li>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-								aria-expanded="false">GAMES</a>
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">GAMES</a>
 							<ul class="dropdown-menu">
 								<li><a id="pong-navbar" class="dropdown-item" href="#">Pong</a></li>
 								<li><a id="snake-navbar" class="dropdown-item" href="#">Snake</a></li>
@@ -30,8 +28,7 @@ function makeHomePage(data) {
 					</form>
 					<ul class="navbar-nav">
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-								aria-expanded="false">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 								<img src="${data.profile.profile_image_url}" alt="User Icon" width="30" height="30">
 							</a>
 							<ul class="dropdown-menu dropdown-menu-end">
@@ -48,8 +45,26 @@ function makeHomePage(data) {
 			</div>
 		</nav>
 	</div>
+	<div class="chatContainer">
+		<div class="sliding-window closed">
+			<div class="slidingChatContainer">
+				<div class="chat-container">
+					<div class="users-list">
+						<ul id="online-users-list"></ul>
+					</div>
+					<div class="chat-window">
+						<div class="messages" id="chat-log"></div>
+						<div class="message-input">
+							<input id="chat-message-input" type="text" placeholder="Type a message...">
+							<button id="chat-message-submit">Send</button>
+							<!-- <button id="inviteButton">Invite to play</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="home-box" id="mainContent">
-		<!-- Conteúdo será carregado aqui -->
 		<div class="card" style="width: 18rem;">
 			<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
 			<div class="card-body">
@@ -58,7 +73,6 @@ function makeHomePage(data) {
 				<a href="#" id="pong-card" class="btn btn-primary card-btn pong-button">Let's Play</a>
 			</div>
 		</div>
-
 		<div class="card" style="width: 18rem;">
 			<img src="/files/mini2snake.png" class="card-img-top" alt="Enter to play">
 			<div class="card-body">
@@ -67,7 +81,6 @@ function makeHomePage(data) {
 				<a href="#" id="snake-card" class="btn btn-primary card-btn snake-button">Let's Play</a>
 			</div>
 		</div>
-
 		<div class="card" style="width: 18rem;">
 			<img src="/files/minichat.png" class="card-img-top" alt="Enter to chat">
 			<div class="card-body">

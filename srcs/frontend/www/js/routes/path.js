@@ -179,8 +179,8 @@ const pages = {
 	'/user/:username/chat': {
 		loadContent: function (params) {
 			// chatWindow(params.username);
-			console.log('Loading chat content for', params.username);
-			doChat(params.username);
+			// console.log('Loading chat content for', params.username);
+			// doChat(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

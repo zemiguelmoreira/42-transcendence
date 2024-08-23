@@ -55,12 +55,12 @@ ul {
 	border-bottom: 1px solid #ccc;
 	padding-right: 10px;
 	height: 455px;
-	width: 100px;
+	width: 100%;
 }
 
 .message-input {
 	display: flex;
-	padding: 10px;
+	padding-top: 10px;
 	padding-left: 0;
 	padding-right: 0;
 }
