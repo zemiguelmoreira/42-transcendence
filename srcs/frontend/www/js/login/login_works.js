@@ -93,59 +93,58 @@ async function sendIUser(userOrEmail, password, allURL) {
 		}
 		const data = await response.json();
 		console.log('data login: ', data);
-		saveToken(data.access, data.refresh);
+		// saveToken(data.access, data.refresh);
 		//ateração dos tokens
-		// sessionStorage.setItem('access_token', data.access);
-		// localStorage.setItem('refresh_token', data.refresh);
+		sessionStorage.setItem('access_token', data.access);
+		localStorage.setItem('refresh_token', data.refresh);
 		// console.log('localstorage', viewToken());
 		const payload = testToken(data.access);
-		console.log(payload);
+		// console.log(payload);
 		let username = await getNamebyId(payload.user_id);
 		// console.log(username);
-		// const qr_code = await fetchQrCode();
-		// if (qr_code) {
-		// 	displayQrCode(qr_code);
-		// } else {
-		// 	throw { message: 'Something went wrong - qrCode', status: 401 };
-		// }
-		// const submitCode = document.querySelector('#verifyQrCode');
-		// const qrForm = document.querySelector('#qrCodeForm');
-		// submitCode.addEventListener('click', async function (e) {
-		// 	e.preventDefault();
-		// 	const code = qrForm.elements.qrCode.value;
-		// 	// console.log('teste o code é: ', code);
-		// 	if (code) {
-		// 		try {
-		// 			const result = await verifyCode(userOrEmail, code); // após verificação colocar os campos do qrCodeForm a zero
-		// 			// console.log('result status: ', result.status); // se não validar o result será um erro
-		// 			if (result.status && result.status === 400)
-		// 				throw { message: 'Invalid or expired 2FA code', status: 400 };
-		// 			qrForm.elements.qrCode.value = "";
-		// 			document.querySelector('#qr-code').innerHTML = "";
-		// 			document.getElementById('qrCodeForm').style.display = 'none';
-		// 			document.getElementById('userSignInForm').style.display = "block";
-		document.getElementById('root').innerHTML = "";
-		const successDiv = successContainer(username);
-		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		if (viewToken()) {
-			// sessionStorage.removeItem('access_token'); //apaga o token do sessionStorage colocado no login
-			showSuccessMessageSignIn(username);
-			// Adiciona o conteúdo de home_page após o login bem-sucedido
+		const qr_code = await fetchQrCode();
+		if (qr_code) {
+			displayQrCode(qr_code);
 		} else {
-			throw { message: `User ${username} not validated - bad request`, status: 404 };
+			throw { message: 'Something went wrong - qrCode', status: 401 };
 		}
-				// } catch (e) {
-				// 	if (e.status === 400) {
-				// 		displayErrorCode(e.message);
-				// 	} else {
-				// 		navigateTo(`/error/${e.status}/${e.message}`);
-				// 	}
-				// }
-			// } 
-			// else {
-			// 	insertInputValidation1(qrForm);
-			// }
-		
+		const submitCode = document.querySelector('#verifyQrCode');
+		const qrForm = document.querySelector('#qrCodeForm');
+		submitCode.addEventListener('click', async function (e) {
+			e.preventDefault();
+			const code = qrForm.elements.qrCode.value;
+			// console.log('teste o code é: ', code);
+			if (code) {
+				try {
+					const result = await verifyCode(userOrEmail, code); // após verificação colocar os campos do qrCodeForm a zero
+					// console.log('result status: ', result.status); // se não validar o result será um erro
+					if (result.status && result.status === 400)
+						throw { message: 'Invalid or expired 2FA code', status: 400 };
+					qrForm.elements.qrCode.value = "";
+					document.querySelector('#qr-code').innerHTML = "";
+					document.getElementById('qrCodeForm').style.display = 'none';
+					document.getElementById('userSignInForm').style.display = "block";
+					document.getElementById('root').innerHTML = "";
+					const successDiv = successContainer(username);
+					document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
+					if (viewToken()) {
+						sessionStorage.removeItem('access_token'); //apaga o token do sessionStorage colocado no login
+						showSuccessMessageSignIn(username);
+						// Adiciona o conteúdo de home_page após o login bem-sucedido
+					} else {
+						throw { message: `User ${username} not validated - bad request`, status: 404 };
+					}
+				} catch (e) {
+					if (e.status === 400) {
+						displayErrorCode(e.message);
+					} else {
+						navigateTo(`/error/${e.status}/${e.message}`);
+					}
+				}
+			} else {
+				insertInputValidation1(qrForm);
+			}
+		});
 	} catch (e) {
 		if (e.status === 401) {
 			displayErrorSignIn(e.message);

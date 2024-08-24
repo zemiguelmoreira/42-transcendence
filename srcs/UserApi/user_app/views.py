@@ -6,6 +6,38 @@ from rest_framework.views import APIView
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from .models import UserProfile
+from .serializers import UserSerializer, UserProfileSerializer
+
+import os
+import logging
+import qrcode
+import qrcode.image.svg
+import pyotp
+import random
+import string
+from django.core.mail import send_mail
+from smtplib import SMTPException
+
+from django.core.cache import cache
+from io import BytesIO
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+### 2FA helpers
+from django.utils import timezone
+from datetime import timedelta
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework import generics, mixins, status
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+
 from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -21,22 +53,20 @@ from django.conf import settings
 
 import logging
 
-# import random
-# import string
-# from django.core.mail import send_mail
+import random
+import string
+from django.core.mail import send_mail
 
 import base64
 import qrcode
 import qrcode.image.svg
+import random
 import pyotp
 # import cairosvg
 from io import BytesIO
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-### 2FA helpers
-
 # def generate_random_code(length=6):
 #     return ''.join(random.choices(string.digits, k=length))
 
@@ -55,25 +85,81 @@ logger = logging.getLogger(__name__)
 
 ### Views de Criação e Atualização de Usuário
 
-class CreateUserView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class CreateUserView(generics.CreateAPIView):
+#     permission_classes = [AllowAny]
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
-    def perform_create(self, serializer):
-        user = serializer.save()
-        UserProfile.objects.create(user=user).generate_2fa_secret()
+#     def perform_create(self, serializer):
+#         user = serializer.save()
+#         UserProfile.objects.create(user=user).generate_2fa_secret()
 
-    def create(self, request, *args, **kwargs):
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=False)
+
+#         if not serializer.is_valid():
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#         self.perform_create(serializer)
+#         headers = self.get_success_headers(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class CreateUserView(generics.GenericAPIView):
+    permission_classes = [AllowAny]  # Allow any user to access this view.
+    serializer_class = UserSerializer  # Specify the serializer for user data validation.
+
+    def post(self, request, *args, **kwargs):
+        """
+        POST method for user registration.
+        
+        Receives user data, validates it, generates a confirmation code, stores data in the cache, 
+        and sends an email with the confirmation code.
+        
+        @param request: The HTTP request containing user data (email, username, password, etc.)
+        @param args: Additional positional arguments.
+        @param kwargs: Additional keyword arguments.
+        @return: A Response indicating whether the registration data was successfully received.
+        """
+        logger.info(f'Request CreateUserView {self.request}')
+        # Bind the request data to the serializer and validate it.
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=False)
+        serializer.is_valid(raise_exception=True)  # Raise an exception if validation fails.
 
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        email = serializer.validated_data['email']  # Extract the validated email.
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))  # Generate a random 6-character confirmation code.
 
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # Cache the validated user data and the confirmation code for 1 hour.
+        cache.set(f'registration_data_{email}', serializer.validated_data, timeout=3600)
+        cache.set(f'registration_code_{email}', code, timeout=3600)
+
+        # Send an email with the confirmation code to the user.
+        try:
+            send_mail(
+                'Your Confirmation Code',  # Email subject.
+                f'Your confirmation code is: {code}',  # Email body containing the confirmation code.
+                os.getenv('EMAIL_HOST_USER'),  # Sender's email address.
+                [email],  # Recipient's email address.
+                fail_silently=False,  # Raise an error if the email fails to send.
+            )
+            return Response({"detail": "Registration data received. Please check your email for the confirmation code."}, status=status.HTTP_200_OK)
+
+        except SMTPException as e:
+            # Aqui você pode logar o erro ou tomar uma ação apropriada
+            logger.info(f'Erro ao enviar email: {e}')
+            # return Response({"error": f"Erro ao enviar email: {str(e)}"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({"error": f"Erro ao enviar register code. Check email address"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        # Return a success response indicating the code was sent to the user's email.
+        
+        except Exception as e:
+        # Usando 400 para erros gerais no processamento da solicitação
+            return Response(
+                {"error": f"Erro ao processar a solicitação: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """

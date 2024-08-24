@@ -143,14 +143,14 @@ async function registerUser(user, email, password, password2) {
 	try {
 
 		const response = await fetch(`${baseURL}/user/register/`, configuracao);
-		// console.log('response: ', response);
+		console.log('response: ', response);
 
 		if (!response.ok) {
 			const errorData = await response.json(); // msn que vem do Django (serializer)
 			// console.log('errorData: ', errorData);
             const message = Object.values(errorData)[0];
 			const input = Object.keys(errorData)[0];// só para controlo na consola
-			// console.log('message: ', message);
+			console.log('message: ', message);
 			// console.log('input: ', input);
 			const errorObject = {
 				message: message,
