@@ -34,12 +34,14 @@ function closeSlidingWindow() {
 	if (slidingWindow && slidingWindow.classList.contains('open')) {
 		slidingWindow.classList.remove('open');
 		slidingWindow.classList.add('closed');
+	}
+}
 
-		// Atualizar o ícone do botão se necessário
-		var chatButton = document.getElementById('chatButton');
-		if (chatButton) {
-			chatButton.src = '../../files/arrow-right-square-fill.svg'; // Ícone para abrir
-		}
+function openSlidingWindow() {
+	let slidingWindow = document.querySelector('.sliding-window');
+	if (slidingWindow && slidingWindow.classList.contains('closed')) {
+		slidingWindow.classList.remove('closed');
+		slidingWindow.classList.add('open');
 	}
 }
 
@@ -133,7 +135,8 @@ async function homeLogin(username) {
 
 	document.getElementById('chatCard').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo(`/user/${username}/chat`);
+		openSlidingWindow()
+		// navigateTo(`/user/${username}/chat`);
 	});
 
 	document.getElementById('search-form').addEventListener('submit', (e) => {

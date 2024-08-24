@@ -49,9 +49,11 @@ async function displayFriendsList(myUsername, is_setting = false) {
 				'Content-Type': 'application/json',
 			}
 		});
+
 		if (!response.ok) {
 			throw new Error('Network response was not ok');
 		}
+
 		const data = await response.json();
 		const friends = data.friends;
 		const tableClass = is_setting ? 'friends-management-table' : 'friends-table';
@@ -120,8 +122,7 @@ async function displayFriendsList(myUsername, is_setting = false) {
 	}
 }
 
-
-async function displayBlockedList() {
+async function displayBlockedList(myUsername) {
 	const accessToken = localStorage.getItem('access_token');
 	if (!accessToken) {
 		console.error('No access token found');
@@ -139,6 +140,7 @@ async function displayBlockedList() {
 		}
 		const data = await response.json();
 		console.log('Blocked List:', data.blocked_list);
+
 		let table = `<table class="friends-management-table">`;
 		table += `
 			<thead>
@@ -149,24 +151,44 @@ async function displayBlockedList() {
 			</thead>
 			<tbody>
 		`;
+
+		console.log('Blocked List myUsername: ', myUsername);
 		data.blocked_list.forEach((user, index) => {
+			console.log('Blocked User:', user);
+			const uniqueId = `link-${user}`; // Gera um ID único baseado no nome do usuário
 			table += `
 				<tr>
-					<td>${user}</td>
-					<td><button id="unblockUser-${index}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${user}">Unblock User</button></td>
+					<td><a href="" id="${uniqueId}" class="link-primary">${user}</a></td>
+					<td><button id="unblockUser-${user}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${user}">Unblock User</button></td>
 				</tr>
 			`;
 		});
 		table += '</tbody></table>';
 		document.getElementById("blocked-list").innerHTML = table;
-		data.blocked_list.forEach((user, index) => {
-			const button = document.getElementById(`unblockUser-${index}`);
-			button.addEventListener('click', async (e) => {
-				e.preventDefault();
-				const usernameToUnblock = button.getAttribute('data-username');
-				await unblockUser(usernameToUnblock, displaySlidingMessage);
-				await displayBlockedList();
-			});
+
+		// Adiciona o event listener a cada link baseado no ID único
+		data.blocked_list.forEach((user) => {
+			const uniqueId = `link-${user}`;
+			const link = document.getElementById(uniqueId);
+			if (link) { // Verifica se o link existe
+				link.addEventListener('click', (event) => {
+					event.preventDefault();
+					viewUserProfile(myUsername, user);
+				});
+			}
+		});
+
+		// Adiciona o event listener a cada botão de desbloqueio de usuário
+		data.blocked_list.forEach((user) => {
+			const button = document.getElementById(`unblockUser-${user}`);
+			if (button) { // Verifica se o botão existe
+				button.addEventListener('click', async (e) => {
+					e.preventDefault();
+					const usernameToUnblock = button.getAttribute('data-username');
+					await unblockUser(usernameToUnblock, displaySlidingMessage);
+					await displayBlockedList(myUsername); // Recarrega a lista após o desbloqueio
+				});
+			}
 		});
 	} catch (error) {
 		console.error('Error fetching blocked list:', error);
@@ -178,8 +200,8 @@ function profileSettings(dataUser) {
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
-	displayFriendsList(dataUser.username, true);
-	displayBlockedList();
+	displayFriendsList(dataUser.user.username, true);
+	displayBlockedList(dataUser.user.username);
 }
 
 export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings }
