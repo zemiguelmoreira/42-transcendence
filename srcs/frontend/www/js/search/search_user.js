@@ -40,7 +40,7 @@ function noResults(username, query) {
 }
 
 async function getUser(username) {
-
+	console.log('getUser: ', username);
 	// let csrfToken;
 
 	// try {

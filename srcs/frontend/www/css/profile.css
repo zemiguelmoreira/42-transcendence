@@ -65,11 +65,19 @@
 }
 
 .profile-description {
-	font-size: 1.2em;
+	font-size: 16px;
 	margin-left: 10px;
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
+}
+
+.profile-label {
+	font-weight: bold;
+}
+
+.bio {
+	white-space: wrap;
 }
 
 .input-group {
@@ -171,29 +179,55 @@
 	background-color: red;
 }
 
-.game-list {
-	border-collapse: collapse;
-	width: 100%;
+.matchContainer {
+    max-height: calc(6 * 40px);
+    min-height: 300px;
+	overflow-y: auto;
+    width: 100%;
+    border: 4px solid #ddd;
+    border-radius: 10px;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
-.game-list th,
-.game-list td {
+.games-statistics,
+.matches-history 
+{
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.games-statistics th,
+.games-statistics td,
+.matches-history th,
+.matches-history td {
 	border: 4px solid #ddd;
-	border-radius: 10px;
-	padding: 8px;
+    padding: 8px;
 }
 
-.game-list td {
+.games-statistics td,
+.matches-history td {
+    text-align: center;
+}
+
+.games-statistics th,
+.matches-history th {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+    z-index: 10; 
+    border: 4px solid #ddd;
+    padding: 8px;
 	text-align: center;
+	border-radius: 14px;
 }
 
-.game-list th {
-	background-color: #f2f2f2;
-	text-align: center;
-}
-
-table {
-	height: 90%;
+.matches-history td:last-child, th:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	width: 180px;
 }
 
 #editProfile {
@@ -323,4 +357,9 @@ table {
 
 .form-group {
 	margin-bottom: 20px;
+}
+
+.link-primary {
+	text-decoration: none;
+	color: #000 !important;
 }

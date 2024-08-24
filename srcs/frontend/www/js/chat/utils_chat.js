@@ -305,7 +305,7 @@ async function sendGameInvite(user, game) {
     cancelButton.textContent = 'Cancel';
 
     cancelButton.addEventListener('click', () => {
-        handleCancelInvite(user, roomCode);
+		handleCancelInvite(user, roomCode);
 		invitePendingDiv.remove();
 	});
 

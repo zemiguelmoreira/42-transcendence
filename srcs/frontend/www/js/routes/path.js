@@ -96,7 +96,7 @@ const pages = {
 	},
 	'/user/:username/profile/search/:user': {
 		loadContent: function (params) {
-			// console.log('Loading user profile search user page content for', params.username);
+			console.log('Loading user profile search user page content for: \ndataUserSearch: ', dataUserSearch, '\nparams.username: ', params.username);
 			userSearchPage(dataUserSearch, params.username);
 
 		},

@@ -9,25 +9,28 @@ function makeProfilePage(data) {
 			<h3 id="username">${data.profile.alias_name}</h3>
 			<button id="editProfile" type="button" class="btn btn-outline-custom btn-sm">Edit Profile</button>
 			<div id="friends-list" class="friends-list">
-
 			</div>
 		</div>
 		<div class="profile-right">
 			<div class="profile-title">My Profile</div>
 			<div class="profile-info">
-				<label for="username">Name:</label>
+				<label class="profile-label" for="username">Name:</label>
 				<span class="profile-description" id="username">${data.user.username}</span>
 			</div>
 			<div class="profile-info">
-			<label for="email">Email:</label>
-			<span class="profile-description" id="email">${data.user.email}</span>
+				<label class="profile-label" for="email">Email:</label>
+				<span class="profile-description" id="email">${data.user.email}</span>
 			</div>
 			<div class="profile-info">
-				<label class="profile-label" for="name">Nickname:</label>
+				<label class="profile-label" class="profile-label" for="name">Nickname:</label>
 				<span class="profile-description" id="name">${data.profile.alias_name}</span>
 			</div>
+			<div class="profile-info">
+				<label class="profile-label" class="profile-label" for="bio">Biography:</label>
+				<span class="profile-description bio" id="bio">${data.profile.bio}</span>
+			</div>
 			<div class="profile-title">Games Statistics</div>
-			<table class="game-list">
+			<table class="games-statistics">
 				<thead>
 					<tr>
 						<th>Game</th>
@@ -52,9 +55,31 @@ function makeProfilePage(data) {
 				</tbody>
 			</table>
 			<div class="profile-title">Pong Matches History</div>
-			<div id="pongTableContainer"></div>
+			<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
+				<thead>
+					<tr>
+						<th>Winner</th>
+						<th>W.Score</th>
+						<th>Loser</th>
+						<th>L.Score</th>
+						<th>Date - Time</th>
+					</tr>
+				</thead>
+			</table>
+			<div id="pongTableContainer" class="matchContainer"></div>
 			<div class="profile-title">Snake Matches History</div>
-			<div id="snakeTableContainer"></div>
+			<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
+				<thead>
+					<tr>
+						<th>Winner</th>
+						<th>W.Score</th>
+						<th>Loser</th>
+						<th>L.Score</th>
+						<th>Date - Time</th>
+					</tr>
+				</thead>
+			</table>
+			<div id="snakeTableContainer" class="matchContainer"></div>
 		</div>
 	</div>
 	`;
@@ -63,7 +88,6 @@ function makeProfilePage(data) {
 // Página de edição de perfil
 function makeEditProfilePage(data) {
 	console.log("makeEditProfilePage: ", data);
-
 	const imageMap = {
 		"../../../files/default.jpg": "default.jpg",
 		"../../../files/user(2).png": "user2.png",
@@ -75,10 +99,8 @@ function makeEditProfilePage(data) {
 		"../../../files/user(8).png": "user8.png",
 		"../../../files/user(9).png": "user9.png",
 	};
-
 	const imageRows = [];
 	const imageUrls = Object.keys(imageMap);
-
 	for (let i = 0; i < imageUrls.length; i += 3) {
 		const row = `
             <tr>
@@ -89,7 +111,6 @@ function makeEditProfilePage(data) {
         `;
 		imageRows.push(row);
 	}
-
 	return `
         <div class="profile-container">
             <div class="profile-left">
@@ -104,7 +125,6 @@ function makeEditProfilePage(data) {
                     </table>
                 </form>
             </div>
-
             <div class="profile-right">
                 <table class="update-profile">
                     <tbody>
@@ -134,14 +154,14 @@ function makeEditProfilePage(data) {
                                 Bio:
                             </td>
                             <td>
-                                <textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200"></textarea>
+                                <textarea class="bio-textarea" aria-label="With textarea" id="bioForm" maxlength="200">${data.profile.bio}</textarea>
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="back">Back</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="backButton">Back</button>
                 </div>
             </div>
         </div>
@@ -163,7 +183,6 @@ function makeProfilePageSearchOther(data) {
 				<button id="blockUser" type="button" class="btn btn-danger btn-sm">Block User</button>
 			</div>
 		</div>
-
 		<div class="profile-right">
 			<div class="profile-title">Profile: ${data.user.username}</div>
 			<div class="profile-info">
@@ -178,10 +197,8 @@ function makeProfilePageSearchOther(data) {
 				<label for="email">Email:</label>
 				<span class="profile-description" id="email">${data.user.email}</span>
 			</div>
-
-			
 			<div class="profile-title">Games Statistics</div>
-			<table class="game-list">
+			<table class="games-statistics">
 				<thead>
 					<tr>
 						<th>Game</th>
@@ -206,7 +223,7 @@ function makeProfilePageSearchOther(data) {
 				</tbody>
 			</table>
 			<div class="profile-title">Matches History</div>
-			<table class="game-list">
+			<table class="games-statistics">
 				<thead>
 					<tr>
 						<th>Game</th>

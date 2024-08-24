@@ -30,7 +30,7 @@ function home() {
 }
 
 function closeSlidingWindow() {
-	var slidingWindow = document.querySelector('.sliding-window');
+	let slidingWindow = document.querySelector('.sliding-window');
 	if (slidingWindow && slidingWindow.classList.contains('open')) {
 		slidingWindow.classList.remove('open');
 		slidingWindow.classList.add('closed');
@@ -60,8 +60,9 @@ async function homeLogin(username) {
 	doChat(username);
 
 	// Adicione o event listener para o botão de chat
-	document.getElementById('chatButton').addEventListener('click', function () {
-		var slidingWindow = document.querySelector('.sliding-window');
+	document.getElementById('chatButton').addEventListener('click', function (e) {
+		e.preventDefault();
+		let slidingWindow = document.querySelector('.sliding-window');
 		if (slidingWindow.classList.contains('closed')) {
 			slidingWindow.classList.remove('closed');
 			slidingWindow.classList.add('open');
