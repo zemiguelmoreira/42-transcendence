@@ -336,7 +336,7 @@ function drawRect(x, y, width, height, color, ctx) {
 }
 
 function drawBall() {
-	console.log('ball: ', ballX, ' ', ballY);
+	// console.log('ball: ', ballX, ' ', ballY);
     drawRect(ballX, ballY, ballSize, ballSize, "#fff", ctx);
 }
 

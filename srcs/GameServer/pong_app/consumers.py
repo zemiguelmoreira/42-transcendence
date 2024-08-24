@@ -30,34 +30,44 @@ paddles_init_y = 310 - 62
 paddle1_init_x = 0
 paddle2_init_x = canvasWidth - PADDLE_WIDTH
 
-border_limits_top = 75
-border_limits_botton = 543
-
 ball_init_x = canvasWidth / 2 - BALL_SIZE / 2
 ball_init_y = canvasHeight / 2 - BALL_SIZE / 2
 
 
 def is_goal_paddle1(ball_x):
-    return ball_x > 1180
+    return ball_x + BALL_SIZE >= canvasWidth
 
 def is_goal_paddle2(ball_x):
-    return ball_x < 0
+    return ball_x <= 0
+
+
+#    // Colisão da bola com os paddles
+#     if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
+#         ballDirX *= -1;
+#         leftPaddleSound.play();  // Som de colisão com o paddle esquerdo
+#     }
+#     if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
+#         ballDirX *= -1;
+#         rightPaddleSound.play();  // Som de colisão com o paddle direito
+#     }
 
 def is_collision_paddle1(ball_x, ball_y, paddle_y):
-    collision_area_top = paddle_y
-    collision_area_bottom = paddle_y + PADDLE_HEIGHT
-    collision_area_left = paddle1_init_x
-    collision_area_right = paddle1_init_x + PADDLE_WIDTH
+    return (ball_x <= PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
+    # collision_area_top = paddle_y
+    # collision_area_bottom = paddle_y + PADDLE_HEIGHT
+    # collision_area_left = paddle1_init_x
+    # collision_area_right = paddle1_init_x + PADDLE_WIDTH
 
-    return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
+    # return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
 
 def is_collision_paddle2(ball_x, ball_y, paddle_y):
-    collision_area_top = paddle_y
-    collision_area_bottom = paddle_y + PADDLE_HEIGHT
-    collision_area_left = paddle2_init_x
-    collision_area_right = paddle2_init_x + PADDLE_WIDTH
+    return (ball_x + BALL_SIZE >= canvasWidth - PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
+    # collision_area_top = paddle_y
+    # collision_area_bottom = paddle_y + PADDLE_HEIGHT
+    # collision_area_left = paddle2_init_x
+    # collision_area_right = paddle2_init_x + PADDLE_WIDTH
 
-    return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
+    # return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
 
 class PongConsumer(AsyncWebsocketConsumer):
     rooms = {}
@@ -96,10 +106,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'players': [],
                 'ball_position': [ball_init_x, ball_init_y],
                 'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
-                'ball_velocity': [300, 300],
+                'ball_velocity': [600, 600],
                 'current_directions': ['idle', 'idle'],
                 'score': [0, 0],
-                'paddle_speed': 250,
+                'paddle_speed': 500,
             }
 
         room = PongConsumer.rooms[self.room.code]
@@ -167,13 +177,13 @@ class PongConsumer(AsyncWebsocketConsumer):
             last_time = current_time
             
             await self.update_game_state(room, delta_time)
-            await asyncio.sleep(0.03)  # Increase update frequency for smoother ball movement
+            await asyncio.sleep(0.02)  # Increase update frequency for smoother ball movement
 
     async def update_game_state(self, room, delta_time):
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
         room['ball_position'][1] += room['ball_velocity'][1] * delta_time
 
-        if room['ball_position'][1] <= border_limits_top + 15 or room['ball_position'][1] >= border_limits_botton - 15:
+        if room['ball_position'][1] <= 0  or room['ball_position'][1] + BALL_SIZE >= canvasHeight:
             room['ball_velocity'][1] *= -1
 
         if is_goal_paddle1(room['ball_position'][0]):
@@ -198,9 +208,9 @@ class PongConsumer(AsyncWebsocketConsumer):
         for i in range(len(room['paddle_positions'])):
             direction = room['current_directions'][i]
             if direction == 'up':
-                room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, border_limits_top)
+                room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
             elif direction == 'down':
-                room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, border_limits_botton - PADDLE_HEIGHT)
+                room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
 
         response = {
             'ball_position': room['ball_position'],
