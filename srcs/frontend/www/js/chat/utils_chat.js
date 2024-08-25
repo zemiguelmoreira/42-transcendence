@@ -136,6 +136,7 @@ function createInviteResponseButton(text, accepted, sender, roomCode) {
 		else {
 			// Remove the pending invite indicator
 			document.getElementById('invitePending').remove();
+			displaySlidingMessage(`Invite from ${sender} has been declined.`);
 		}
 	};
 
