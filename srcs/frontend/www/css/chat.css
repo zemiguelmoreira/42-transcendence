@@ -86,7 +86,6 @@ ul {
 	padding: 5px;
 	margin: 5px 0;
 	border-radius: 5px;
-	margin-bottom: 10px;
 }
 
 .message-system {
@@ -94,7 +93,6 @@ ul {
 	color: #0c5460;
 	padding: 5px;
 	margin: 5px 0;
-	margin-bottom: 9px;
 	border-radius: 5px;
 }
 
@@ -103,7 +101,6 @@ ul {
 	color: #155724;
 	padding: 5px;
 	margin: 5px 0;
-	margin-bottom: 10px;
 	border-radius: 5px;
 }
 
@@ -121,11 +118,9 @@ ul {
 	padding: 5px;
 	margin: 5px 0;
 	border-radius: 5px;
-
 	display: flex;
 	justify-content: start;
 	align-items: center;
-	margin-bottom: 10px;
 }
 
 .message-invite {
@@ -137,7 +132,6 @@ ul {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 10px;
 }
 
 .message-invite-response {
@@ -145,7 +139,6 @@ ul {
 	color: #155724;
 	padding: 5px;
 	margin: 5px 0;
-	margin-bottom: 10px;
 	border-radius: 5px;
 }
 
