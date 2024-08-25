@@ -465,3 +465,8 @@ h2 {
 	text-align: center;
 	padding-top: 340px;
 }
+
+#error-message {
+	font-family: 'CustomFont';
+	font-size: 10px;
+}

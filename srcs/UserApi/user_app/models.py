@@ -8,7 +8,7 @@ import re
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, default='default.jpg')
-    alias_name = models.CharField(blank=True, max_length=20)
+    alias_name = models.CharField(blank=True, max_length=8)
     bio = models.TextField(blank=True, max_length=200)
     friend_list = models.JSONField(default=list)
     blocked_list = models.JSONField(default=list)

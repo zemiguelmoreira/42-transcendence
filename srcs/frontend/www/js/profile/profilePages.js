@@ -222,73 +222,32 @@ function makeProfilePageSearchOther(data) {
 					</tr>
 				</tbody>
 			</table>
-			<div class="profile-title">Matches History</div>
-			<table class="games-statistics">
+			<div class="profile-title">Pong Matches History</div>
+			<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
 				<thead>
 					<tr>
-						<th>Game</th>
-						<th>Date</th>
 						<th>Winner</th>
-						<th>Looser</th>
-						<th>Winner Score</th>
-						<th>Looser Score</th>
+						<th>W.Score</th>
+						<th>Loser</th>
+						<th>L.Score</th>
+						<th>Date - Time</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
-						<td>Pong</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-					<tr>
-						<td>Snake</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-					<tr>
-						<td>Pong</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-					<tr>
-						<td>Snake</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<td>0</td>
-						<!-- <td>${data.profile.pong_date}</td>
-						<td>${data.profile.pong_winner}</td>
-						<td>${data.profile.pong_looser}</td>
-						<td>${data.profile.pong_winner_score}</td>
-						<td>${data.profile.pong_looser_score}</td> -->
-					</tr>
-				</tbody>
 			</table>
+			<div id="pongTableContainer" class="matchContainer"></div>
+			<div class="profile-title">Snake Matches History</div>
+			<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
+				<thead>
+					<tr>
+						<th>Winner</th>
+						<th>W.Score</th>
+						<th>Loser</th>
+						<th>L.Score</th>
+						<th>Date - Time</th>
+					</tr>
+				</thead>
+			</table>
+			<div id="snakeTableContainer" class="matchContainer"></div>
 		</div>
 	</div>
 	`;

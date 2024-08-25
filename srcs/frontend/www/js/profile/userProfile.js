@@ -1,4 +1,4 @@
-import { makeProfilePage, makeSettingsPage } from "./profilePages.js";
+import { makeProfilePage, makeProfilePageSearchOther, makeSettingsPage } from "./profilePages.js";
 import { navigateTo } from "../app.js";
 import { removeFriend, unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
@@ -197,6 +197,15 @@ function profileSettings(dataUser) {
 	console.log('profile Setting: ', dataUser);
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
+	displayFriendsList(dataUser.user.username, true);
+	displayBlockedList(dataUser.user.username);
+}
+
+function profileOtherUser(dataUser) {
+	console.log('profile other user: ', dataUser);
+	document.getElementById('mainContent').innerHTML = '';
+	const profileSettings = makeProfilePageSearchOther(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
 	displayFriendsList(dataUser.user.username, true);
 	displayBlockedList(dataUser.user.username);

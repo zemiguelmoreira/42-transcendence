@@ -1,7 +1,7 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { addFriend, removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
-import { createRoom, joinRoom } from "../games/pong-heitor.js";
+import { createRoom, joinRoom } from "../games/pong-remote.js";
 import chatSocketInstance from "./chat_socket.js";
 import { closeSlidingWindow } from "../home/home.js";
 
