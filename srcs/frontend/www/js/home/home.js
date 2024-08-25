@@ -1,7 +1,7 @@
 import { navigateTo } from "../app.js";
 import { register_page } from "../register/registerPage.js";
 import { viewToken } from "../utils/tokens.js";
-import { fetchUserProfile , fetchUserProfileSettings } from "../profile/myprofile.js";
+import { fetchUserProfile, fetchUserProfileSettings } from "../profile/myprofile.js";
 import { getUser } from "../search/search_user.js";
 import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
@@ -21,7 +21,6 @@ function home() {
 
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		// navigateTo('/signIn');
 		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
 	});
 
@@ -46,10 +45,9 @@ function openSlidingWindow() {
 }
 
 async function homeLogin(username) {
-
 	// Use await para resolver a Promise retornada por getUserProfileByUsername
 	let dataUser = await getUserProfileByUsername(username);
-	console.log('dataUser no homeLogin: ', dataUser);	
+	console.log('dataUser no homeLogin: ', dataUser);
 
 	// Limpa o conteúdo do root antes de carregar a nova página
 	document.getElementById('root').innerHTML = '';
@@ -121,22 +119,16 @@ async function homeLogin(username) {
 	document.getElementById('logOut').addEventListener('click', (e) => {
 		e.preventDefault();
 		removeToken(username);
-        chatSocketInstance.close();
-        WebSocketInstance.close();
+		chatSocketInstance.close();
+		WebSocketInstance.close();
 		setTimeout(function () {
 			navigateTo('/');
 		}, 2000);
 	});
 
-	// document.getElementById('chatButton').addEventListener('click', (e) => {
-	// 	e.preventDefault();
-	// 	navigateTo(`/user/${username}/chat`);
-	// });
-
 	document.getElementById('chatCard').addEventListener('click', (e) => {
 		e.preventDefault();
 		openSlidingWindow()
-		// navigateTo(`/user/${username}/chat`);
 	});
 
 	document.getElementById('search-form').addEventListener('submit', (e) => {
@@ -152,5 +144,4 @@ async function homeLogin(username) {
 	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
 }
 
-
-export { home, homeLogin , closeSlidingWindow }
+export { home, homeLogin, closeSlidingWindow }

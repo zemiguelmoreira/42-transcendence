@@ -190,6 +190,10 @@
     box-sizing: border-box;
 }
 
+.matchContainer :last-child {
+	margin-bottom: 10px;
+}
+
 .games-statistics,
 .matches-history 
 {

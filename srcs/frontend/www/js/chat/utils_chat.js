@@ -1,7 +1,6 @@
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { addFriend, removeFriend, blockUser, unblockUser } from "../utils/manageUsers.js";
-import { navigateTo } from "../app.js";
 import { createRoom, joinRoom } from "../games/pong-heitor.js";
 import chatSocketInstance from "./chat_socket.js";
 import { closeSlidingWindow } from "../home/home.js";
@@ -33,7 +32,7 @@ function displayChatMessage(data, chatLog) {
 	const senderElement = document.createElement("span");
 	senderElement.classList.add('message-sender');
 	senderElement.textContent = `${data.sender}: `;
-	
+
 	const contentElement = document.createElement("div");
 	contentElement.classList.add('message-content');
 	contentElement.innerHTML = data.message.replace(/\n/g, '<br>');
@@ -58,10 +57,10 @@ function displayGameInvite(data, chatLog, chatSocket) {
 	// Create the invite message and element
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
 	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode);
-	
+
 	// Append the invite element to the chat log
 	chatLog.appendChild(inviteElement);
-	
+
 	// Scroll chat log to show the latest invite
 	chatLog.scrollTop = chatLog.scrollHeight;
 
@@ -248,16 +247,16 @@ function toggleUserSelection(button, user) {
 function createDropdownToggle() {
 	// Create the dropdown toggle button element
 	const dropdownToggle = document.createElement("button");
-	
+
 	// Add necessary classes for styling and behavior
 	dropdownToggle.classList.add("btn", "btn-sm", "btn-secondary", "dropdown-toggle", "dropdown-toggle-split", "btn-right");
 	dropdownToggle.type = 'button';
-	
+
 	// Set attributes for Bootstrap dropdown functionality
 	dropdownToggle.setAttribute('data-bs-toggle', 'dropdown');
 	dropdownToggle.setAttribute('aria-haspopup', 'true');
 	dropdownToggle.setAttribute('aria-expanded', 'false');
-	
+
 	// Return the dropdown toggle button
 	return dropdownToggle;
 }
@@ -328,57 +327,57 @@ function createDropdownItem(text, href, onClick) {
 
 
 function handleCancelInvite(recipient, roomCode) {
-    const cancelMessage = {
-        "type": "cancel_invite",
-        "recipient": recipient,
-        "roomCode": roomCode
-    };
-    console.log('Cancel invite sent to', recipient);
-    chatSocketInstance.send(cancelMessage);
-    // Atualize a interface do usuário após o cancelamento
-    // document.getElementById('root').innerHTML = '';
-    displaySlidingMessage(`Invite to ${recipient} has been canceled.`);
+	const cancelMessage = {
+		"type": "cancel_invite",
+		"recipient": recipient,
+		"roomCode": roomCode
+	};
+	console.log('Cancel invite sent to', recipient);
+	chatSocketInstance.send(cancelMessage);
+	// Atualize a interface do usuário após o cancelamento
+	// document.getElementById('root').innerHTML = '';
+	displaySlidingMessage(`Invite to ${recipient} has been canceled.`);
 }
 
 // Function to send a game invite to a user
 async function sendGameInvite(user, game) {
-    console.log('Send Game Invite to User: ', user);
+	console.log('Send Game Invite to User: ', user);
 
-    // Create a new room and get the room code
-    roomCode = await createRoom(user);
-    console.log('Invite: roomCode: ', roomCode);
+	// Create a new room and get the room code
+	roomCode = await createRoom(user);
+	console.log('Invite: roomCode: ', roomCode);
 
-    // Construct the invite message
-    const inviteMessage = {
-        "type": "invite",
-        "recipient": user,
-        "game": game,
-        "roomCode": roomCode
-    };
-    console.log('Invite sent to', user);
-    console.log('InviteMessage: ', inviteMessage);
+	// Construct the invite message
+	const inviteMessage = {
+		"type": "invite",
+		"recipient": user,
+		"game": game,
+		"roomCode": roomCode
+	};
+	console.log('Invite sent to', user);
+	console.log('InviteMessage: ', inviteMessage);
 
-    // Send the invite message through the chat socket
-    chatSocketInstance.send(inviteMessage);
+	// Send the invite message through the chat socket
+	chatSocketInstance.send(inviteMessage);
 
-    // Create and display a pending invite indicator with a cancel button
-    const invitePendingDiv = document.createElement('div');
-    invitePendingDiv.classList.add('invite-pending');
-    invitePendingDiv.id = 'invitePending';
+	// Create and display a pending invite indicator with a cancel button
+	const invitePendingDiv = document.createElement('div');
+	invitePendingDiv.classList.add('invite-pending');
+	invitePendingDiv.id = 'invitePending';
 
-    // Create and configure the cancel button
-    const cancelButton = document.createElement('button');
-    cancelButton.id = 'cancelButton';
-    cancelButton.classList.add('btn', 'btn-danger');
-    cancelButton.textContent = 'Cancel';
-    cancelButton.addEventListener('click', () => {
-        handleCancelInvite(user, roomCode);  // Handle the cancellation of the invite
-        invitePendingDiv.remove();  // Remove the invite pending indicator
-    });
+	// Create and configure the cancel button
+	const cancelButton = document.createElement('button');
+	cancelButton.id = 'cancelButton';
+	cancelButton.classList.add('btn', 'btn-danger');
+	cancelButton.textContent = 'Cancel';
+	cancelButton.addEventListener('click', () => {
+		handleCancelInvite(user, roomCode);  // Handle the cancellation of the invite
+		invitePendingDiv.remove();  // Remove the invite pending indicator
+	});
 
-    // Append the cancel button to the invite pending indicator and add it to the DOM
-    invitePendingDiv.appendChild(cancelButton);
-    document.getElementById('root').appendChild(invitePendingDiv);
+	// Append the cancel button to the invite pending indicator and add it to the DOM
+	invitePendingDiv.appendChild(cancelButton);
+	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
 export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList }

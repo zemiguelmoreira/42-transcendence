@@ -75,8 +75,6 @@ async function displayFriendsList(myUsername, is_setting = false) {
 
 		friends.forEach((friend) => {
 			console.log('Friend:', friend);
-			console.log('Friend Username:', friend.username);
-			console.log('My Username:', myUsername);
 			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
 			table += `
 			<tr>
@@ -153,7 +151,7 @@ async function displayBlockedList(myUsername) {
 		`;
 
 		console.log('Blocked List myUsername: ', myUsername);
-		data.blocked_list.forEach((user, index) => {
+		data.blocked_list.forEach((user) => {
 			console.log('Blocked User:', user);
 			const uniqueId = `link-${user}`; // Gera um ID único baseado no nome do usuário
 			table += `
