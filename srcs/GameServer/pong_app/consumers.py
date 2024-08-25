@@ -4,22 +4,23 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GameServer.settings')
 django.setup()
 
-from channels.generic.websocket import AsyncWebsocketConsumer
-import asyncio
 import json
 import time
+import logging
 from datetime import datetime, timezone
+from urllib.parse import parse_qs
+import asyncio
+import httpx
+from channels.generic.websocket import AsyncWebsocketConsumer
+from GameServer.utils import is_authenticated, get_room, check_user_access
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
-from urllib.parse import parse_qs
-from GameServer.utils import is_authenticated, get_room, check_user_access
-import logging
-import httpx
 
-
+# Configuração de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Configurações do jogo
 canvasHeight = 560
 canvasWidth = 960
 PADDLE_WIDTH = 10
@@ -29,10 +30,8 @@ BALL_SIZE = 10
 paddles_init_y = 310 - 62
 paddle1_init_x = 0
 paddle2_init_x = canvasWidth - PADDLE_WIDTH
-
 ball_init_x = canvasWidth / 2 - BALL_SIZE / 2
 ball_init_y = canvasHeight / 2 - BALL_SIZE / 2
-
 
 def is_goal_paddle1(ball_x):
     return ball_x + BALL_SIZE >= canvasWidth
@@ -40,34 +39,11 @@ def is_goal_paddle1(ball_x):
 def is_goal_paddle2(ball_x):
     return ball_x <= 0
 
-
-#    // Colisão da bola com os paddles
-#     if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
-#         ballDirX *= -1;
-#         leftPaddleSound.play();  // Som de colisão com o paddle esquerdo
-#     }
-#     if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
-#         ballDirX *= -1;
-#         rightPaddleSound.play();  // Som de colisão com o paddle direito
-#     }
-
 def is_collision_paddle1(ball_x, ball_y, paddle_y):
     return (ball_x <= PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
-    # collision_area_top = paddle_y
-    # collision_area_bottom = paddle_y + PADDLE_HEIGHT
-    # collision_area_left = paddle1_init_x
-    # collision_area_right = paddle1_init_x + PADDLE_WIDTH
-
-    # return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
 
 def is_collision_paddle2(ball_x, ball_y, paddle_y):
     return (ball_x + BALL_SIZE >= canvasWidth - PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
-    # collision_area_top = paddle_y
-    # collision_area_bottom = paddle_y + PADDLE_HEIGHT
-    # collision_area_left = paddle2_init_x
-    # collision_area_right = paddle2_init_x + PADDLE_WIDTH
-
-    # return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
 
 class PongConsumer(AsyncWebsocketConsumer):
     rooms = {}
@@ -76,7 +52,6 @@ class PongConsumer(AsyncWebsocketConsumer):
         query_params = parse_qs(self.scope['query_string'].decode())
         room_code = self.scope['url_route']['kwargs'].get('room_code', None)
         self.token = query_params.get('token', [None])[0]
-        self.is_player = False
 
         user = await is_authenticated(self.token)
         if not user:
@@ -84,7 +59,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             return
 
         self.user = user
-
         room = await get_room(room_code)
         if not room:
             await self.close()
@@ -92,9 +66,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         self.room = room
         is_auth = await check_user_access(self.room, self.user)
-        logger.info(f'is auth: {is_auth}')
         if not is_auth:
-            logger.info(f'User {user.username} do not have access to {self.room.code}')
             await self.close()
             return
 
@@ -106,25 +78,23 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'players': [],
                 'ball_position': [ball_init_x, ball_init_y],
                 'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
-                'ball_velocity': [600, 600],
+                'ball_velocity': [400, 400],
                 'current_directions': ['idle', 'idle'],
                 'score': [0, 0],
-                'paddle_speed': 500,
+                'paddle_speed': 800,
+                'game_loop_task': None
             }
 
         room = PongConsumer.rooms[self.room.code]
+        if self in room['players']:
+            await self.close()
+            return
 
-        for player in room['players']:
-            if player.user.id == self.user.id:
-                await self.close()
-                return
-
-
-        if len(room['players']) < 2 and self not in room['players']:
+        if len(room['players']) < 2:
             self.is_player = True
             room['players'].append(self)
+            player_usernames = [player.user.username for player in room['players']]
             player_index = room['players'].index(self)
-
             await self.send(json.dumps({
                 'action': 'assign_index',
                 'player_index': player_index,
@@ -132,36 +102,29 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'paddle_positions': room['paddle_positions'],
                 'score': room['score']
             }))
-
-        if len(room['players']) == 2:
-            for player in room['players']:
-                await player.send(json.dumps({'action': 'start_game'}))
-            if 'game_loop_task' not in room:
-                room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
+            if len(room['players']) == 2:
+                for player in room['players']:
+                    await player.send(json.dumps({
+                        'action': 'start_game',
+                        'players': player_usernames
+                        }))
+                if not room['game_loop_task']:
+                    room['game_loop_task'] = asyncio.create_task(self.game_loop(room))
         else:
             await self.send(json.dumps({'action': 'wait_for_player'}))
 
     async def disconnect(self, close_code):
-        pass
-        # room = PongConsumer.rooms.get(self.room.code, None)
-
-        # if room:
-        #     # if len(room['players']) == 1:
-        #     #     winner = room['players'][0].user.username
-        #     #     loser = self.user.username
-        #     #     for player in room['players']:
-        #     #         await player.end_game(room, winner, loser)
-
-        #     if hasattr(self, 'is_player') and self.is_player and self in room['players']:
-        #         room['players'].remove(self)
-
-        #     if not room['players'] and 'game_loop_task' in room and room['game_loop_task']:
-        #         room['game_loop_task'].cancel()
-        #         room['game_loop_task'] = None
+        room = PongConsumer.rooms.get(self.room.code, None)
+        if room:
+            if hasattr(self, 'is_player') and self.is_player and self in room['players']:
+                room['players'].remove(self)
+            if not room['players']:
+                if room['game_loop_task']:
+                    room['game_loop_task'].cancel()
+                del PongConsumer.rooms[self.room.code]
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-
         if self.is_player and 'action' in data:
             if data['action'] == 'move':
                 player_index = data['player_index']
@@ -170,41 +133,56 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def game_loop(self, room):
         last_time = time.time()
-
         while room['players']:
             current_time = time.time()
             delta_time = current_time - last_time
             last_time = current_time
-            
             await self.update_game_state(room, delta_time)
-            await asyncio.sleep(0.02)  # Increase update frequency for smoother ball movement
+            await asyncio.sleep(0.02)
 
     async def update_game_state(self, room, delta_time):
-        room['ball_position'][0] += room['ball_velocity'][0] * delta_time
-        room['ball_position'][1] += room['ball_velocity'][1] * delta_time
+        # Inicialize as flags de colisão
+        collision_flags = {
+            'paddle1': False,
+            'paddle2': False,
+            'top': False,
+            'bottom': False
+        }
 
-        if room['ball_position'][1] <= 0  or room['ball_position'][1] + BALL_SIZE >= canvasHeight:
-            room['ball_velocity'][1] *= -1
+        ball_x, ball_y = room['ball_position']
+        ball_vel_x, ball_vel_y = room['ball_velocity']
 
-        if is_goal_paddle1(room['ball_position'][0]):
-            room['score'][0] += 1
-            room['ball_position'] = [ball_init_x, ball_init_y]
-            room['ball_velocity'][0] *= -1
-            logger.info("Gol do paddle 1")
-        if is_goal_paddle2(room['ball_position'][0]):
-            room['score'][1] += 1
-            room['ball_position'] = [ball_init_x, ball_init_y]
-            room['ball_velocity'][0] *= -1
-            logger.info("Gol do paddle 2")
+        # Atualize a posição da bola
+        new_ball_x = ball_x + ball_vel_x * delta_time
+        new_ball_y = ball_y + ball_vel_y * delta_time
 
-        # Colisões com os paddles
-        if room['ball_velocity'][0] < 0 and is_collision_paddle1(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][0][1]):
-            room['ball_velocity'][0] *= -1
-            logger.info("Colidiu paddle 1")
-        if room['ball_velocity'][0] > 0 and is_collision_paddle2(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][1][1]):
-            room['ball_velocity'][0] *= -1
-            logger.info("colidiu paddle 2")
+        # Cheque se a bola atingiu o topo ou fundo
+        if new_ball_y <= 0:
+            collision_flags['top'] = True
+            new_ball_y = 0
+            ball_vel_y *= -1
+            logger.info("Collision with top wall")
+        elif new_ball_y + BALL_SIZE >= canvasHeight:
+            collision_flags['bottom'] = True
+            new_ball_y = canvasHeight - BALL_SIZE
+            ball_vel_y *= -1
+            logger.info("Collision with bottom wall")
 
+        # Cheque se a bola atingiu o paddle 1
+        if ball_vel_x < 0 and is_collision_paddle1(new_ball_x, new_ball_y, room['paddle_positions'][0][1]):
+            collision_flags['paddle1'] = True
+            new_ball_x = PADDLE_WIDTH
+            ball_vel_x *= -1
+            logger.info("Collision with paddle 1")
+
+        # Cheque se a bola atingiu o paddle 2
+        if ball_vel_x > 0 and is_collision_paddle2(new_ball_x, new_ball_y, room['paddle_positions'][1][1]):
+            collision_flags['paddle2'] = True
+            new_ball_x = canvasWidth - PADDLE_WIDTH - BALL_SIZE
+            ball_vel_x *= -1
+            logger.info("Collision with paddle 2")
+
+        # Atualize a posição dos paddles
         for i in range(len(room['paddle_positions'])):
             direction = room['current_directions'][i]
             if direction == 'up':
@@ -212,6 +190,23 @@ class PongConsumer(AsyncWebsocketConsumer):
             elif direction == 'down':
                 room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
 
+        # Atualize a posição da bola
+        room['ball_position'] = [new_ball_x, new_ball_y]
+        room['ball_velocity'] = [ball_vel_x, ball_vel_y]
+
+        # Verifique se houve um gol
+        if not collision_flags['paddle1'] and is_goal_paddle1(new_ball_x):
+            room['score'][0] += 1
+            room['ball_position'] = [ball_init_x, ball_init_y]
+            room['ball_velocity'][0] *= -1
+            logger.info("Goal for paddle 1")
+        elif not collision_flags['paddle2'] and is_goal_paddle2(new_ball_x):
+            room['score'][1] += 1
+            room['ball_position'] = [ball_init_x, ball_init_y]
+            room['ball_velocity'][0] *= -1
+            logger.info("Goal for paddle 2")
+
+        # Atualize o estado do jogo para todos os jogadores
         response = {
             'ball_position': room['ball_position'],
             'paddle_positions': room['paddle_positions'],
@@ -221,9 +216,9 @@ class PongConsumer(AsyncWebsocketConsumer):
         for player in room['players']:
             asyncio.create_task(player.send(json.dumps(response)))
 
-        # Verificar se o jogo terminou
-        if room['score'][0] ==11 or room['score'][1] == 11:
-            logger.info(f"Detectou fim de partida {room['score'][0]} - {room['score'][1]}")
+        # Verifique se o jogo terminou
+        if room['score'][0] == 11 or room['score'][1] == 11:
+            logger.info(f"Game over detected {room['score'][0]} - {room['score'][1]}")
             if room['score'][0] == 11:
                 winner = room['players'][0].user.username
                 loser = room['players'][1].user.username
@@ -231,12 +226,27 @@ class PongConsumer(AsyncWebsocketConsumer):
                 loser = room['players'][0].user.username
                 winner = room['players'][1].user.username
 
-            logger.info(f"winner and loser: {winner} - {loser}")
-            for player in room['players']:
-                await player.end_game(room, winner, loser)
+            logger.info(f"Winner and loser: {winner} - {loser}")
+            await self.end_game(room, winner, loser)
+
+        for player in room['players']:
+            asyncio.create_task(player.send(json.dumps(response)))
+
+        # Verifique se o jogo terminou
+        if room['score'][0] == 11 or room['score'][1] == 11:
+            logger.info(f"Game over detected {room['score'][0]} - {room['score'][1]}")
+            if room['score'][0] == 11:
+                winner = room['players'][0].user.username
+                loser = room['players'][1].user.username
+            else:
+                loser = room['players'][0].user.username
+                winner = room['players'][1].user.username
+
+            logger.info(f"Winner and loser: {winner} - {loser}")
+            await self.end_game(room, winner, loser)
 
     async def end_game(self, room, winner, loser):
-        logger.info('function end_game called')
+        logger.info('Ending game')
         winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
         loser_score = room['score'][1] if room['players'][0].user.username == winner else room['score'][0]
         timestamp = int(time.time())
@@ -247,7 +257,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             'loser': loser,
             'winner_score': winner_score,
             'loser_score': loser_score,
-            'timestamp': formatted_time,  # Adicionando timestamp
+            'timestamp': formatted_time,
             'game_type': 'pong'
         }
 
@@ -256,20 +266,15 @@ class PongConsumer(AsyncWebsocketConsumer):
             'loser': loser,
             'winner_score': winner_score,
             'loser_score': loser_score,
-            'timestamp': formatted_time,  # Adicionando timestamp
+            'timestamp': formatted_time,
             'game_type': 'pong'
         }
 
-        # Salvar partida no banco de dados
-        # PARA CORRIGIR SO SALVA NO PLAYER QUE FICA ONLINE
+        await self.save_match_history(to_save)
 
-        await self.save_match_history(to_save) 
-
-        # Enviar resultado para todos os jogadores
         for player in room['players']:
             await player.send(json.dumps(result))
 
-        # Limpar o estado da sala
         await self.close()
         del PongConsumer.rooms[self.room.code]
 
@@ -283,7 +288,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, json=match_data, headers=headers)
-                response.raise_for_status()  # Levanta exceções para códigos de status de erro
+                response.raise_for_status()
                 logger.info(f"Match history saved successfully: {response.json()}")
         except httpx.HTTPStatusError as http_err:
             logger.error(f"HTTP error occurred: {http_err}")
