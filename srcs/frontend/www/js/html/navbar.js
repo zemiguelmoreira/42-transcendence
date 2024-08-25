@@ -84,8 +84,8 @@ function createNavbar3() {
 					</a>
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
 						<li><a id="my-profile" class="dropdown-item" href="">my profile</a></li>
-						<li><a class="dropdown-item" href="#">Another action</a></li>
-						<li><a id="logOut" class="dropdown-item" href="#">logout</a></li>
+						<li><a class="dropdown-item" href="">Another action</a></li>
+						<li><a id="logOut" class="dropdown-item" href="">logout</a></li>
 					</ul>
 				</div>
 			</ul>

@@ -11,7 +11,6 @@ import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
-import { doChat } from "../chat/chat_window.js";
 import { noResults } from "../search/search_user.js";
 
 const pages = {
@@ -38,7 +37,6 @@ const pages = {
 	},
 	'/user/:username': {
 		loadContent: function (params) {
-			// console.log('Loading user login page content for', params.username);
 			homeLogin(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
@@ -96,7 +94,7 @@ const pages = {
 	},
 	'/user/:username/profile/search/:user': {
 		loadContent: function (params) {
-			// console.log('Loading user profile search user page content for', params.username);
+			console.log('Loading user profile search user page content for: \ndataUserSearch: ', dataUserSearch, '\nparams.username: ', params.username);
 			userSearchPage(dataUserSearch, params.username);
 
 		},

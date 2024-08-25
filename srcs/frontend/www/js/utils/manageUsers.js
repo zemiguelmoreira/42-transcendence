@@ -1,3 +1,4 @@
+// function to add, remove, block and unblock users
 
 async function addFriend(friendUsername, displaySlidingMessage) {
 	const accessToken = localStorage.getItem('access_token');
@@ -150,7 +151,7 @@ async function fetchBlockedList() {
 }
 
 async function isUserBlocked(username) {
-	console.log('Checking if user: ', username,' is blocked:');
+	console.log('Checking if user: ', username, ' is blocked:');
 	const accessToken = localStorage.getItem('access_token');
 
 	if (!accessToken) {
