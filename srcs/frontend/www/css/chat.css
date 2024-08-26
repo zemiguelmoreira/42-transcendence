@@ -50,6 +50,18 @@ ul {
 	padding-top: 7px;
 }
 
+.end-game-result {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.end-game-button {
+	width: 100%;
+	margin: 5px;
+}
+
 .messages {
 	overflow-y: auto;
 	border-bottom: 1px solid #ccc;

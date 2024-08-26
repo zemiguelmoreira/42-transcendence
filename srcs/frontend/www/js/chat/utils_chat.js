@@ -159,7 +159,7 @@ function handleInviteResponse(username, data, chatLog) {
 	// Determine the message and style based on whether the invite was accepted or declined
 	if (accepted) {
 		responseMessage = `${invitee} has accepted your invite!`;
-		inviteResponseElement.style.color = "lightgreen";
+		inviteResponseElement.classList.add('message-selfdm');
 		// Start the game by joining the room
 		joinRoom(roomCode);
 	} else {
