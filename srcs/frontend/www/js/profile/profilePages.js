@@ -8,8 +8,7 @@ function makeProfilePage(data) {
 			<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
 			<h3 id="username">${data.profile.alias_name}</h3>
 			<button id="editProfile" type="button" class="btn btn-outline-custom btn-sm">Edit Profile</button>
-			<div id="friends-list" class="friends-list">
-			</div>
+			<div id="friends-card-list" class="friends-list"></div>
 		</div>
 		<div class="profile-right">
 			<div class="profile-title">My Profile</div>
@@ -271,7 +270,7 @@ function makeSettingsPage(data) {
 			<div class="profile-left">
 				<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
 				<h3 id="username">${data.profile.alias_name}</h3>
-				<div class="profile-title profile-settings-table-title">Settings</div>
+				<!-- <div class="profile-title profile-settings-table-title">Settings</div> -->
 			</div>
 			<div class="profile-right">
 				<div class="profile-title">Friends Management</div>

@@ -2,8 +2,8 @@ import { makeProfilePage, makeProfilePageSearchOther, makeSettingsPage } from ".
 import { navigateTo } from "../app.js";
 import { removeFriend, unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
-
 import { viewUserProfile } from "../search/search_user.js";
+import { getUserProfileByUsername } from "../profile/myprofile.js";
 
 
 function userProfilePage(userData) {
@@ -12,8 +12,8 @@ function userProfilePage(userData) {
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
-	console.log('displayFriendsList userData:', userData);
-	displayFriendsList(userData.user.username);
+	// console.log('displayFriendsList userData:', userData);
+	displayProfileFriendsList(userData.user.username);
 	document.getElementById('editProfile').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${userData.user.username}/profile/edit`);
@@ -37,6 +37,68 @@ function displayMatchHistory(data, TableContainer) {
 	});
 	table += '</tbody></table>';
 	document.getElementById(TableContainer).innerHTML = table;
+}
+async function displayProfileFriendsList(myUsername) {
+	const accessToken = localStorage.getItem('access_token');
+	try {
+		const response = await fetch('/api/profile/friend_list/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		const data = await response.json();
+		const friends = data.friends;
+		let table = `
+		<div class="small-card-title">Friends</div>
+		<table class="small-card-table">
+		<tbody>
+		`;
+
+		// Usando for...of para lidar corretamente com async/await
+		for (const friend of friends) {
+			let dataUser = await getUserProfileByUsername(friend.username);
+			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
+			table += `
+			<tr>
+				<td class="">
+					<div class="small-card">
+						<div class="small-card-image"><img src="${dataUser.profile.profile_image_url}"></div>
+						<div class="small-card-name"><a href="" id="${uniqueId}" class="link-primary card-subtitle mb-2 text-body-secondary">${friend.username}</a></div>
+						<div class="status-icon small ${friend.is_logged_in ? 'green' : 'red'}"></div>
+					</div>
+				</td>
+			</tr>
+			`;
+		}
+
+		table += `
+			</tbody>
+		</table>
+		`;
+		document.getElementById("friends-card-list").innerHTML = table;
+
+		// Adiciona o event listener a cada link baseado no ID único
+		friends.forEach((friend) => {
+			const uniqueId = `link-${friend.username}`;
+			const link = document.getElementById(uniqueId);
+			if (link) { // Verifica se o link existe
+				link.addEventListener('click', (event) => {
+					event.preventDefault();
+					viewUserProfile(myUsername, friend.username);
+				});
+			}
+		});
+
+	} catch (error) {
+		console.error('Error fetching friend list:', error);
+	}
 }
 
 async function displayFriendsList(myUsername, is_setting = false) {
@@ -202,13 +264,5 @@ function profileSettings(dataUser) {
 	displayBlockedList(dataUser.user.username);
 }
 
-function profileOtherUser(dataUser) {
-	console.log('profile other user: ', dataUser);
-	document.getElementById('mainContent').innerHTML = '';
-	const profileSettings = makeProfilePageSearchOther(dataUser);
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
-	displayFriendsList(dataUser.user.username, true);
-	displayBlockedList(dataUser.user.username);
-}
 
 export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings }

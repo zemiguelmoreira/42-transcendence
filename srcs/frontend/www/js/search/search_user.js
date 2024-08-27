@@ -11,7 +11,7 @@ let dataUserFromSearch;
 
 async function userSearchPage(dataUserSearch, username) {
 
-	console.log('userSearchPage: ', dataUserSearch);
+	console.log('datUserSearch: ', dataUserSearch);
 	console.log('user', username);
 
 	document.getElementById('mainContent').innerHTML = '';

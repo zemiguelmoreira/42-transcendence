@@ -73,52 +73,103 @@
 
 			<div class="home-box" id="mainContent">
 
-				<!-- Chat Container -->
-				<div class="chatContainer">
-					<div class="sliding-window closed">
-						<div class="slidingChatContainer">
-							<div class="chat-container">
-								<div class="users-list">
-									<ul id="online-users-list"></ul>
-								</div>
-								<div class="chat-window">
-									<div class="messages" id="chat-log"></div>
-									<div class="message-input">
-										<input id="chat-message-input" type="text" placeholder="Type a message...">
-										<button id="chat-message-submit">Send</button>
-										<!-- <button id="inviteButton">Invite to play</button> -->
-									</div>
-								</div>
-							</div>
+				<div class="profile-container">
+					<div class="profile-left">
+						<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
+						<h3 id="username">${data.profile.alias_name}</h3>
+						<button id="editProfile" type="button" class="btn btn-outline-custom btn-sm">Edit Profile</button>
+						<div id="friends-card-list" class="friends-list">
+							<div class="small-card-title">Friends</div>
+							<table class="small-card-table">
+								<thead>
+									<tr>
+										<th>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>
+											<div class="small-card">
+												<div class="small-card-image"><img src="${dataUser.profile.profile_image_url}"></div>
+												<div class="small-card-name"><a href="" id="${uniqueId}" class="link-primary card-title">${friend.username}</a></div>
+												<div class="status-icon small ${friend.is_logged_in ? 'green' : 'red'}"></div>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
-				</div>
-
-				<!-- Conteúdo será carregado aqui -->
-				<div class="card" style="width: 18rem;">
-					<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
-					<div class="card-body">
-						<h5 class="card-title">PONG</h5>
-						<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score points.</p>
-						<a href="#" id="pong-card" class="btn btn-primary card-btn pong-button">Let's Play</a>
-					</div>
-				</div>
-
-				<div class="card" style="width: 18rem;">
-					<img src="/files/mini2snake.png" class="card-img-top" alt="Enter to play">
-					<div class="card-body">
-						<h5 class="card-title">SNAKE</h5>
-						<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and itself.</p>
-						<a href="#" id="snake-card" class="btn btn-primary card-btn snake-button">Let's Play</a>
-					</div>
-				</div>
-
-				<div class="card" style="width: 18rem;">
-					<img src="/files/minichat.png" class="card-img-top" alt="Enter to chat">
-					<div class="card-body">
-						<h5 class="card-title">CHAT</h5>
-						<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.</p>
-						<a href="#" class="btn btn-primary card-btn" id="chatCard">Let's Talk</a>
+					<div class="profile-right">
+						<div class="profile-title">My Profile</div>
+						<div class="profile-info">
+							<label class="profile-label" for="username">Name:</label>
+							<span class="profile-description" id="username">${data.user.username}</span>
+						</div>
+						<div class="profile-info">
+							<label class="profile-label" for="email">Email:</label>
+							<span class="profile-description" id="email">${data.user.email}</span>
+						</div>
+						<div class="profile-info">
+							<label class="profile-label" class="profile-label" for="name">Nickname:</label>
+							<span class="profile-description" id="name">${data.profile.alias_name}</span>
+						</div>
+						<div class="profile-info">
+							<label class="profile-label" class="profile-label" for="bio">Biography:</label>
+							<span class="profile-description bio" id="bio">${data.profile.bio}</span>
+						</div>
+						<div class="profile-title">Games Statistics</div>
+						<table class="games-statistics">
+							<thead>
+								<tr>
+									<th>Game</th>
+									<th>Score</th>
+									<th>Wins</th>
+									<th>Loses</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Pong</td>
+									<td>${data.profile.pong_rank}</td>
+									<td>${data.profile.pong_wins}</td>
+									<td>${data.profile.pong_losses}</td>
+								</tr>
+								<tr>
+									<td>Snake</td>
+									<td>${data.profile.snake_rank}</td>
+									<td>${data.profile.snake_wins}</td>
+									<td>${data.profile.snake_losses}</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="profile-title">Pong Matches History</div>
+						<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
+							<thead>
+								<tr>
+									<th>Winner</th>
+									<th>W.Score</th>
+									<th>Loser</th>
+									<th>L.Score</th>
+									<th>Date - Time</th>
+								</tr>
+							</thead>
+						</table>
+						<div id="pongTableContainer" class="matchContainer"></div>
+						<div class="profile-title">Snake Matches History</div>
+						<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
+							<thead>
+								<tr>
+									<th>Winner</th>
+									<th>W.Score</th>
+									<th>Loser</th>
+									<th>L.Score</th>
+									<th>Date - Time</th>
+								</tr>
+							</thead>
+						</table>
+						<div id="snakeTableContainer" class="matchContainer"></div>
 					</div>
 				</div>
 
@@ -132,7 +183,7 @@
 
 		</div>
 
-		<script >
+		<script>
 			document.getElementById('toggle-window-btn').addEventListener('click', function () {
 				var slidingWindow = document.querySelector('.sliding-window');
 				if (slidingWindow.classList.contains('closed')) {

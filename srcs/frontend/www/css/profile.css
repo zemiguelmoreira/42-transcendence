@@ -169,6 +169,7 @@
 	display: inline-block;
 	height: 20px;
 	width: 20px;
+	box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.5);
 }
 
 .status-icon.green {
@@ -238,7 +239,7 @@
 	--bs-btn-padding-x: 30px;
 	--bs-btn-padding-y: 10px;
 	--bs-btn-line-height: 0;
-	border-radius: 12px;
+	border-radius: 8px;
 	min-height: 30px;
 }
 
@@ -366,4 +367,71 @@
 .link-primary {
 	text-decoration: none;
 	color: #000 !important;
+}
+
+.small-card-table {
+	width: 100%;
+}
+
+.small-card {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	border: 0px solid #000;
+	background-color: #ffffffde;
+	border-radius: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 10px;
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+	/* box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.5); */
+}
+
+.small-card-title {
+	color: #fff;
+	background: linear-gradient(to right, #d6338491, #d6338491);
+	font-family: 'CustomFont';
+	font-size: 16px;
+	padding: 6px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align: center;
+	border-radius: 10px;
+	width: 95%;
+	align-self: center;
+	height: 40px;
+}
+
+.small-card-name {
+	margin-left: 15px;
+	text-align: left;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	flex-grow: 1;
+}
+
+.small-card-image {
+	flex-shrink: 0;
+}
+
+.small-card-image img {
+	border-radius: 50%;
+	height: 45px;
+	width: 45px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	object-fit: cover;
+	border: 1px solid #ddd;
+	margin-left: 10px;
+}
+
+.status-icon.small {
+	height: 20px;
+	width: 20px;
+	box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.5);
+	margin-left: 10px;
+	flex-shrink: 0;
 }
