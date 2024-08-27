@@ -15,6 +15,7 @@ function pongGameLocal(username) {
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
+
 	if (!pongScriptLoaded) {
 		const scriptElement = document.createElement('script');
 		scriptElement.type = 'module';  // Define o script como módulo ES6
@@ -44,6 +45,7 @@ function pongGameRemote(username) {
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
+
 	if (!pongScriptLoaded) {
 		const scriptElement = document.createElement('script');
 		scriptElement.type = 'module';  // Define o script como módulo ES6
@@ -59,13 +61,13 @@ function pongGameRemote(username) {
 }
 
 function pongGameTournament(username) {
+	// <canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
+	// <canvas id="pongCanvas" width="960" height="560"></canvas>
 	try {
 		document.getElementById('root').innerHTML = `
 			<div class="home-box">
 				<div class="pong-content">
 					<div class="pong-box">
-						<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
-						<canvas id="pongCanvas" width="960" height="560"></canvas>
 					</div>
 				</div>
 			</div>
@@ -73,6 +75,7 @@ function pongGameTournament(username) {
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
+
 	if (!pongScriptLoaded) {
 		const scriptElement = document.createElement('script');
 		scriptElement.type = 'module';  // Define o script como módulo ES6

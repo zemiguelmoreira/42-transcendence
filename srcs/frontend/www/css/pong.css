@@ -46,3 +46,68 @@
 #pongCanvas {
 	z-index: 1;
 }
+
+.tournament-gradient-box {
+	background: linear-gradient(to bottom, #003cff50, #00000050);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    width: 998px;
+	height: 538px;
+	margin: 0 auto;
+}
+
+.tournament-logo {
+	flex-grow: 1;
+	height: 100%;
+}
+
+.tournament-setup {
+    width: 300px;
+	height: 100%;
+	padding: 2px;
+    display: flex;
+	flex-direction: column;
+    justify-content: space-between;
+	align-items: center;
+}
+
+.tournament-setup input {
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.24);
+    padding: 10px;
+	font-size: small;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+	width: 250px;
+}
+
+.box {
+	background-color: #c300ff95;
+	box-shadow: inset 1px 1px 5px #ff00ff;
+	border-radius: 15px;
+	display: flex;
+	width: 300px;
+	justify-content: center;
+	align-items: center;
+	padding: 20px;
+	height: 90px;
+}
+
+.button-box {
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+	height: 90px;
+	width: 300px;
+	border-radius: 15px;
+	padding: 10px;
+}
+
+#create-tournament {
+	width: 300px;
+	height: 50px;
+	font-size: 12px;
+	--bs-btn-border-radius: 10px;
+}

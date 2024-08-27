@@ -21,7 +21,7 @@ function userProfilePage(userData) {
 }
 
 function displayMatchHistory(data, TableContainer) {
-	console.log('TableContainer:', TableContainer);
+	// console.log('TableContainer:', TableContainer);
 	let table = '<table class="matches-history" border="1" cellspacing="0" cellpadding="5">';
 	table += `<tbody>`;
 	data.forEach(match => {
@@ -38,6 +38,7 @@ function displayMatchHistory(data, TableContainer) {
 	table += '</tbody></table>';
 	document.getElementById(TableContainer).innerHTML = table;
 }
+
 async function displayProfileFriendsList(myUsername) {
 	const accessToken = localStorage.getItem('access_token');
 	try {
@@ -70,7 +71,7 @@ async function displayProfileFriendsList(myUsername) {
 				<td class="">
 					<div class="small-card">
 						<div class="small-card-image"><img src="${dataUser.profile.profile_image_url}"></div>
-						<div class="small-card-name"><a href="" id="${uniqueId}" class="link-primary card-subtitle mb-2 text-body-secondary">${friend.username}</a></div>
+						<div class="small-card-name"><a href="" id="${uniqueId}" class="link-primary card-title">${friend.username}</a></div>
 						<div class="status-icon small ${friend.is_logged_in ? 'green' : 'red'}"></div>
 					</div>
 				</td>
@@ -136,7 +137,7 @@ async function displayFriendsList(myUsername, is_setting = false) {
 		`;
 
 		friends.forEach((friend) => {
-			console.log('Friend:', friend);
+			// console.log('Friend:', friend);
 			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
 			table += `
 			<tr>
@@ -195,53 +196,56 @@ async function displayBlockedList(myUsername) {
 				'Authorization': `Bearer ${accessToken}`,
 			}
 		});
+
 		if (!response.ok) {
 			throw new Error('Network response was not ok: ' + response.statusText);
 		}
-		const data = await response.json();
-		console.log('Blocked List:', data.blocked_list);
 
-		let table = `<table class="friends-management-table">`;
-		table += `
-			<thead>
-				<tr>
-					<th>Users</th>
-					<th>Unblock</th>
-				</tr>
-			</thead>
-			<tbody>
+		const data = await response.json();
+		console.log('Blocked data List:', data);
+
+		let table = `
+			<table class="friends-management-table">
+				<thead>
+					<tr>
+						<th>Users</th>
+						<th>Status</th>
+						<th>Unblock User</th>
+					</tr>
+				</thead>
+				<tbody>
 		`;
 
-		console.log('Blocked List myUsername: ', myUsername);
-		data.blocked_list.forEach((user) => {
-			console.log('Blocked User:', user);
+		// Usando `for...of` para garantir que o loop espere as promessas
+		for (const user of data.blocked_list) {
+			let userData = await getUserProfileByUsername(user);
+			console.log('userData:', userData);
 			const uniqueId = `link-${user}`; // Gera um ID único baseado no nome do usuário
 			table += `
 				<tr>
 					<td><a href="" id="${uniqueId}" class="link-primary">${user}</a></td>
+					<td><span class="status-icon ${userData.profile.is_logged_in ? 'green' : 'red'}"></span></td>
 					<td><button id="unblockUser-${user}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${user}">Unblock User</button></td>
 				</tr>
 			`;
-		});
+		}
+
 		table += '</tbody></table>';
 		document.getElementById("blocked-list").innerHTML = table;
 
-		// Adiciona o event listener a cada link baseado no ID único
+		// Adiciona o event listener a cada link e botão após a tabela ser renderizada
 		data.blocked_list.forEach((user) => {
 			const uniqueId = `link-${user}`;
 			const link = document.getElementById(uniqueId);
-			if (link) { // Verifica se o link existe
+			if (link) {
 				link.addEventListener('click', (event) => {
 					event.preventDefault();
 					viewUserProfile(myUsername, user);
 				});
 			}
-		});
 
-		// Adiciona o event listener a cada botão de desbloqueio de usuário
-		data.blocked_list.forEach((user) => {
 			const button = document.getElementById(`unblockUser-${user}`);
-			if (button) { // Verifica se o botão existe
+			if (button) {
 				button.addEventListener('click', async (e) => {
 					e.preventDefault();
 					const usernameToUnblock = button.getAttribute('data-username');
@@ -255,6 +259,7 @@ async function displayBlockedList(myUsername) {
 	}
 }
 
+
 function profileSettings(dataUser) {
 	console.log('profile Setting: ', dataUser);
 	document.getElementById('mainContent').innerHTML = '';
@@ -264,5 +269,13 @@ function profileSettings(dataUser) {
 	displayBlockedList(dataUser.user.username);
 }
 
+function profileOtherUser(dataUser) {
+	console.log('profile other user: ', dataUser);
+	document.getElementById('mainContent').innerHTML = '';
+	const profileSettings = makeProfilePageSearchOther(dataUser);
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
+	displayFriendsList(dataUser.user.username, true);
+	displayBlockedList(dataUser.user.username);
+}
 
 export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings }

@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="./css/profile.css" />
 	<link rel="stylesheet" href="./css/chat.css" />
 	<title>Transcendence Project</title>
+
 </head>
 
 <body>
@@ -72,131 +73,35 @@
 			</div>
 
 			<div class="home-box" id="mainContent">
+				<div class="tournament-gradient-box">
+					<div class="tournament-setup">
+						<div class="box">
+							<input type="text" id="player1" placeholder="Choose Player 1 Name" />
+						</div>
+						<div class="box">
+							<input type="text" id="player2" placeholder="Choose Player 2 Name" />
+						</div>
+						<div class="box">
+							<input type="text" id="player3" placeholder="Choose Player 3 Name" />
+						</div>
+						<div class="box">
+							<input type="text" id="player4" placeholder="Choose Player 4 Name" />
+						</div>
+							<button id="create-tournament" class="btn btn-primary btn-lg">Create Tournament</button>
+					</div>
+					<div class="tournament-logo">
+					</div>
 
-				<div class="profile-container">
-					<div class="profile-left">
-						<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
-						<h3 id="username">${data.profile.alias_name}</h3>
-						<button id="editProfile" type="button" class="btn btn-outline-custom btn-sm">Edit Profile</button>
-						<div id="friends-card-list" class="friends-list">
-							<div class="small-card-title">Friends</div>
-							<table class="small-card-table">
-								<thead>
-									<tr>
-										<th>
-										</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>
-											<div class="small-card">
-												<div class="small-card-image"><img src="${dataUser.profile.profile_image_url}"></div>
-												<div class="small-card-name"><a href="" id="${uniqueId}" class="link-primary card-title">${friend.username}</a></div>
-												<div class="status-icon small ${friend.is_logged_in ? 'green' : 'red'}"></div>
-											</div>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-					<div class="profile-right">
-						<div class="profile-title">My Profile</div>
-						<div class="profile-info">
-							<label class="profile-label" for="username">Name:</label>
-							<span class="profile-description" id="username">${data.user.username}</span>
-						</div>
-						<div class="profile-info">
-							<label class="profile-label" for="email">Email:</label>
-							<span class="profile-description" id="email">${data.user.email}</span>
-						</div>
-						<div class="profile-info">
-							<label class="profile-label" class="profile-label" for="name">Nickname:</label>
-							<span class="profile-description" id="name">${data.profile.alias_name}</span>
-						</div>
-						<div class="profile-info">
-							<label class="profile-label" class="profile-label" for="bio">Biography:</label>
-							<span class="profile-description bio" id="bio">${data.profile.bio}</span>
-						</div>
-						<div class="profile-title">Games Statistics</div>
-						<table class="games-statistics">
-							<thead>
-								<tr>
-									<th>Game</th>
-									<th>Score</th>
-									<th>Wins</th>
-									<th>Loses</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Pong</td>
-									<td>${data.profile.pong_rank}</td>
-									<td>${data.profile.pong_wins}</td>
-									<td>${data.profile.pong_losses}</td>
-								</tr>
-								<tr>
-									<td>Snake</td>
-									<td>${data.profile.snake_rank}</td>
-									<td>${data.profile.snake_wins}</td>
-									<td>${data.profile.snake_losses}</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="profile-title">Pong Matches History</div>
-						<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
-							<thead>
-								<tr>
-									<th>Winner</th>
-									<th>W.Score</th>
-									<th>Loser</th>
-									<th>L.Score</th>
-									<th>Date - Time</th>
-								</tr>
-							</thead>
-						</table>
-						<div id="pongTableContainer" class="matchContainer"></div>
-						<div class="profile-title">Snake Matches History</div>
-						<table class="matches-history" border="1" cellspacing="0" cellpadding="5">
-							<thead>
-								<tr>
-									<th>Winner</th>
-									<th>W.Score</th>
-									<th>Loser</th>
-									<th>L.Score</th>
-									<th>Date - Time</th>
-								</tr>
-							</thead>
-						</table>
-						<div id="snakeTableContainer" class="matchContainer"></div>
-					</div>
 				</div>
-
 			</div>
+
 			<div class="message-bar">
 				<div id="slidingMessage" class="sliding-message"></div>
 			</div>
 
 
-
-
 		</div>
 
-		<script>
-			document.getElementById('toggle-window-btn').addEventListener('click', function () {
-				var slidingWindow = document.querySelector('.sliding-window');
-				if (slidingWindow.classList.contains('closed')) {
-					slidingWindow.classList.remove('closed');
-					slidingWindow.classList.add('open');
-					this.src = '../../files/arrow-left-square-fill.svg'; // Altere para o ícone de fechar se necessário
-				} else {
-					slidingWindow.classList.remove('open');
-					slidingWindow.classList.add('closed');
-					this.src = '../../files/arrow-right-square-fill.svg'; // Altere para o ícone de abrir se necessário
-				}
-			});
-		</script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
