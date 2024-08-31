@@ -404,7 +404,7 @@ h2 {
 }
 
 .neon-border {
-	border: 1px solid #ff00ff;
+	border: 1px solid rgb(255, 0, 255);
 	border-radius: 25px;
 	box-shadow: 0 0 5px #ff00ff, 0 0 5px #ff00ff, 0 0 15px #ff00ff, 0 0 15px #ff00ff, 0 0 15px #ff00ff;
 }

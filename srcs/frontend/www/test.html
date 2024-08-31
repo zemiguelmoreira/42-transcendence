@@ -1,118 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabela com Scroll</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-
-        .table-container {
-            max-height: 150px; /* Define a altura máxima da secção */
-            overflow-y: auto;  /* Ativa o scroll vertical */
-            border: 1px solid #ccc; /* Adiciona uma borda para melhor visualização */
-            padding: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
+    <title>Tournament Bracket</title>
+	<link rel="stylesheet" href="./css/pong.css" />
 </head>
 <body>
+	<div id="tournament-bracket"></div>	
 
-    <h1>Tabela com Scroll</h1>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Coluna 1</th>
-                    <th>Coluna 2</th>
-                    <th>Coluna 3</th>
-                    <th>Coluna 4</th>
-                    <th>Coluna 5</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Dado 1</td>
-                    <td>Dado 2</td>
-                    <td>Dado 3</td>
-                    <td>Dado 4</td>
-                    <td>Dado 5</td>
-                </tr>
-                <!-- <tr>
-                    <td>Dado 6</td>
-                    <td>Dado 7</td>
-                    <td>Dado 8</td>
-                    <td>Dado 9</td>
-                    <td>Dado 10</td>
-                </tr>
-                <tr>
-                    <td>Dado 11</td>
-                    <td>Dado 12</td>
-                    <td>Dado 13</td>
-                    <td>Dado 14</td>
-                    <td>Dado 15</td>
-                </tr>
-                <tr>
-                    <td>Dado 16</td>
-                    <td>Dado 17</td>
-                    <td>Dado 18</td>
-                    <td>Dado 19</td>
-                    <td>Dado 20</td>
-                </tr>
-                <tr>
-                    <td>Dado 1</td>
-                    <td>Dado 2</td>
-                    <td>Dado 3</td>
-                    <td>Dado 4</td>
-                    <td>Dado 5</td>
-                </tr>
-                <tr>
-                    <td>Dado 6</td>
-                    <td>Dado 7</td>
-                    <td>Dado 8</td>
-                    <td>Dado 9</td>
-                    <td>Dado 10</td>
-                </tr>
-                <tr>
-                    <td>Dado 11</td>
-                    <td>Dado 12</td>
-                    <td>Dado 13</td>
-                    <td>Dado 14</td>
-                    <td>Dado 15</td>
-                </tr>
-                <tr>
-                    <td>Dado 16</td>
-                    <td>Dado 17</td>
-                    <td>Dado 18</td>
-                    <td>Dado 19</td>
-                    <td>Dado 20</td>
-                </tr> -->
-                <!-- Adicione mais linhas conforme necessário -->
-            </tbody>
-        </table>
-    </div>
 
+<script src="./js/games/tournament.js"></script>
 </body>
 </html>

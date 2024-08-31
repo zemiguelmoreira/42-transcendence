@@ -48,66 +48,332 @@
 }
 
 .tournament-gradient-box {
-	background: linear-gradient(to bottom, #003cff50, #00000050);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 15px;
-    border-radius: 10px;
-    width: 998px;
+	background: #3a4466;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 998px;
 	height: 538px;
 	margin: 0 auto;
 }
 
-.tournament-logo {
-	flex-grow: 1;
-	height: 100%;
-}
-
 .tournament-setup {
-    width: 300px;
+	width: 280px;
 	height: 100%;
 	padding: 2px;
-    display: flex;
+	display: flex;
 	flex-direction: column;
-    justify-content: space-between;
 	align-items: center;
 }
 
 .tournament-setup input {
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.24);
-    padding: 10px;
-	font-size: small;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-	width: 250px;
+	padding: 6px;
+	font-size: medium;
+	border-radius: 10px;
+	width: 125px;
+	margin-inline: 3px;
 }
 
 .box {
-	background-color: #c300ff95;
-	box-shadow: inset 1px 1px 5px #ff00ff;
-	border-radius: 15px;
 	display: flex;
-	width: 300px;
+	width: 100%;
 	justify-content: center;
 	align-items: center;
-	padding: 20px;
-	height: 90px;
+	margin-top: 15px;
+	margin-bottom: 0px;
 }
 
 .button-box {
 	display: flex;
 	justify-content: space-evenly;
 	align-items: center;
-	height: 90px;
-	width: 300px;
-	border-radius: 15px;
-	padding: 10px;
+	margin-top: 15px;
+	width: 250px;
 }
 
 #create-tournament {
-	width: 300px;
+	width: 250px;
 	height: 50px;
+	margin-bottom: 10px;
 	font-size: 12px;
 	--bs-btn-border-radius: 10px;
+}
+
+.text-title-box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-family: "CustomFont";
+	font-size: 20px;
+	color: #dfe4fc;
+	margin-top: 20px;
+}
+
+.text-box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	white-space: wrap;
+	text-overflow: ellipsis;
+	padding-inline: 30px;
+	color: #fff;
+}
+
+.tournament-logo {
+	background-image: url('../files/trophy_01.gif');
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	flex-grow: 1;
+	height: 100%;
+	width: 718px;
+}
+
+.logo-box1 {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-family: "PongFont";
+	height: 30%;
+	font-size: 50px;
+	color: #fff;
+}
+
+.tournament-title {
+	font-size: 60px;
+	background: linear-gradient(#ffffff 50%, #ff9900 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	line-height: 1;
+}
+
+.logo-box2 {
+	height: 40%;
+}
+
+.logo-box3 {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 30%;
+	font-family: "PongFont";
+	font-size: 70px;
+	color: #fff;
+}
+
+.player-inputs {
+    display: flex;
+    justify-content: center;
+	margin: 5px;
+	width: 260px;
+}
+
+.input-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.player-selection {
+	display: flex;
+	justify-content: center;
+	width: 260px;
+}
+
+.player-selection .btn {
+	margin-inline: 3px;
+	font-size: 10px;
+	width: 100%;
+	height: 30px;
+}
+
+.player-selection .btn.active {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: #fff;
+}
+
+.player-selection .btn.secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.input-error {
+    border: 2px solid red;
+}
+
+.sm-start-menu {
+    width: 258px;
+    height: 100%;
+    background: #3a4466;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+	justify-content: center;
+}
+
+.sm-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+	margin-top: -456px;
+	font-family: "CustomFont";
+	font-size: 20px;
+	color: #dfe4fc;
+	margin-top: 5px;
+}
+
+.sm-subtitle {
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+	margin-top: 20px;
+	font-family: "CustomFont";
+	font-size: 14px;
+}
+
+.sm-match {
+    width: 100%;
+    background: #2a3550;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+	box-shadow: inset 3px 3px 10px rgba(0, 0, 0, 0.308);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	flex-grow: 1;
+}
+
+.sm-player {
+    display: block;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.sm-vs {
+    display: block;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.sm-logo {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.sm-logo img {
+	width: 152px;
+	height: 143px;
+}
+
+.sm-start-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff5e5e;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+	margin-bottom: 12px;
+}
+
+.sm-start-button:hover {
+    background-color: #ff3333;
+}
+
+
+.match-label {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-family: "CustomFont";
+	font-size: 10px;
+	color: #fff;
+	width: 80%;
+	margin-inline: 10%;
+	text-align: center;
+	background-color: #6c757d;
+	border-radius: 10px 10px 0px 0px;
+}
+
+.tournament-bracket {
+    display: flex;
+	background: #3a4466;
+    width: 740px;
+    height: 538px;
+    overflow-y: auto;
+    position: relative;
+	padding-right: 10px;
+	justify-content: start;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+	justify-content: center;
+}
+
+.division {
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.match {
+    text-align: center;
+	border-radius: 10px;
+	width: 100%;
+}
+
+.player {
+	align-content: center;
+	margin-block: 2px;
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.54);
+	width: 150px;
+}
+
+.btn-first {
+	--bs-btn-color: #fff;
+	--bs-btn-bg: #8b35dc;
+	--bs-btn-border-color: #8b35dc;
+	--bs-btn-hover-color: #fff;
+	--bs-btn-hover-bg: #8b35dc;
+	--bs-btn-hover-border-color: #fff;
+}
+
+.btn-second {
+	--bs-btn-color: #fff;
+	--bs-btn-bg: #e224d2;
+	--bs-btn-border-color: #e224d2;
+	--bs-btn-hover-color: #fff;
+	--bs-btn-hover-bg: #e224d2;
+	--bs-btn-hover-border-color: #fff;
+}
+
+
+
+#canvas-confetti {
+	overflow-y: hidden;
+	overflow-x: hidden;
+	width: 998px;
+	height: 538px;
+	margin: 0;
+	z-index: 1;
+	position: absolute;
 }

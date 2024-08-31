@@ -11,7 +11,14 @@
 	<link rel="stylesheet" href="./css/profile.css" />
 	<link rel="stylesheet" href="./css/chat.css" />
 	<title>Transcendence Project</title>
-
+	<style>
+		#canvas-confetti {
+			overflow-y: hidden;
+			overflow-x: hidden;
+			width: 100%;
+			margin: 0;
+		}
+	</style>
 </head>
 
 <body>
@@ -73,37 +80,45 @@
 			</div>
 
 			<div class="home-box" id="mainContent">
-				<div class="tournament-gradient-box">
-					<div class="tournament-setup">
-						<div class="box">
-							<input type="text" id="player1" placeholder="Choose Player 1 Name" />
-						</div>
-						<div class="box">
-							<input type="text" id="player2" placeholder="Choose Player 2 Name" />
-						</div>
-						<div class="box">
-							<input type="text" id="player3" placeholder="Choose Player 3 Name" />
-						</div>
-						<div class="box">
-							<input type="text" id="player4" placeholder="Choose Player 4 Name" />
-						</div>
-							<button id="create-tournament" class="btn btn-primary btn-lg">Create Tournament</button>
-					</div>
-					<div class="tournament-logo">
+
+
+				<div class="sm-start-menu">
+					<span class="sm-title">TOURNAMENT</span>
+					<span class="sm-logo"><img src="./files/trophy.png"></span>
+					<span class="sm-subtitle">Next Match</span>
+
+					<div class="sm-match">
+						<span class="sm-player">Player 1</span>
+						<span class="sm-vs">VS</span>
+						<span class="sm-player">Player 2</span>
 					</div>
 
+					<button class="sm-start-button">START MATCH</button>
+					<button class="sm-start-button">BACK TO PONG</button>
 				</div>
-			</div>
+				<div id="tournament-bracket" class="tournament-bracket">
+				</div>
 
+				<script>
+				</script>
+				<canvas id="canvas-confetti"></canvas>
+
+
+
+
+			</div>
 			<div class="message-bar">
 				<div id="slidingMessage" class="sliding-message"></div>
 			</div>
 
+			<script>
 
-		</div>
 
-		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+			</script>
+
+			<script src="./js/games/pong-tournament-bracket.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO" crossorigin="anonymous"></script>
+			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 
 </html>
