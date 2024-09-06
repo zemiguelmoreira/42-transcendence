@@ -15,10 +15,10 @@ function makeRegisterPage() {
 					<input type="email" class="form-control button-size" id="form1Example2" name="email" placeholder="Email">
 					<!-- Password input -->
 					<label class="font-custom" for="form1Example3">PASSWORD</label>
-					<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="Password">
+					<input type="password" class="form-control button-size" id="form1Example3" maxlength="8" name="password" placeholder="Password">
 					<!-- Confirm Password input -->
 					<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
-					<input type="password" class="form-control button-size" id="form1Example4" name="password2" placeholder="Confirm password">
+					<input type="password" class="form-control button-size" id="form1Example4" maxlength="8" name="password2" placeholder="Confirm password">
 					<!-- Submit button -->
 					<button type="submit" id="signUp" class="btn btn-outline-custom button-size">SIGN UP</button>
 					<label class="font-custom" >OR</label>

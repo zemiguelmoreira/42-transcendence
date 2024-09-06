@@ -50,6 +50,18 @@ ul {
 	padding-top: 7px;
 }
 
+.end-game-result {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.end-game-button {
+	width: 100%;
+	margin: 5px;
+}
+
 .messages {
 	overflow-y: auto;
 	border-bottom: 1px solid #ccc;
@@ -86,7 +98,6 @@ ul {
 	padding: 5px;
 	margin: 5px 0;
 	border-radius: 5px;
-	margin-bottom: 10px;
 }
 
 .message-system {
@@ -94,7 +105,6 @@ ul {
 	color: #0c5460;
 	padding: 5px;
 	margin: 5px 0;
-	margin-bottom: 9px;
 	border-radius: 5px;
 }
 
@@ -103,7 +113,6 @@ ul {
 	color: #155724;
 	padding: 5px;
 	margin: 5px 0;
-	margin-bottom: 10px;
 	border-radius: 5px;
 }
 
@@ -121,11 +130,9 @@ ul {
 	padding: 5px;
 	margin: 5px 0;
 	border-radius: 5px;
-
 	display: flex;
 	justify-content: start;
 	align-items: center;
-	margin-bottom: 10px;
 }
 
 .message-invite {
@@ -137,7 +144,6 @@ ul {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 10px;
 }
 
 .message-invite-response {
@@ -145,7 +151,6 @@ ul {
 	color: #155724;
 	padding: 5px;
 	margin: 5px 0;
-	margin-bottom: 10px;
 	border-radius: 5px;
 }
 
@@ -284,7 +289,7 @@ ul {
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.8); /* pode usar uma cor semitransparente */
 	color: white;
-	z-index: 10; /* z-index maior para sobrepor os outros */
+	z-index: 5; /* z-index maior para sobrepor os outros */
 	display: flex;
 	align-items: center;
 	justify-content: center;

@@ -65,26 +65,19 @@
 }
 
 .profile-description {
-	font-size: 1.2em;
+	font-size: 16px;
 	margin-left: 10px;
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
 
-.input-group {
-	display: flex;
-	align-items: center;
-	width: 100%;
+.profile-label {
+	font-weight: bold;
 }
 
-.input-group label {
-	margin-right: 10px;
-	width: 100px;
-}
-
-.input-group input {
-	flex-grow: 1;
+.bio {
+	white-space: wrap;
 }
 
 .friends-list {
@@ -161,6 +154,7 @@
 	display: inline-block;
 	height: 20px;
 	width: 20px;
+	box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.5);
 }
 
 .status-icon.green {
@@ -171,36 +165,66 @@
 	background-color: red;
 }
 
-.game-list {
-	border-collapse: collapse;
-	width: 100%;
+.matchContainer {
+    min-height: 100px;
+    max-height: 300px;
+	overflow-y: auto;
+    width: 100%;
+    border: 4px solid #ddd;
+    border-radius: 10px;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
-.game-list th,
-.game-list td {
+.matchContainer :last-child {
+	margin-bottom: 10px;
+}
+
+.games-statistics,
+.matches-history 
+{
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.games-statistics th,
+.games-statistics td,
+.matches-history th,
+.matches-history td {
 	border: 4px solid #ddd;
-	border-radius: 10px;
-	padding: 8px;
+    padding: 8px;
 }
 
-.game-list td {
+.games-statistics td,
+.matches-history td {
+    text-align: center;
+}
+
+.games-statistics th,
+.matches-history th {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+    z-index: 10; 
+    border: 4px solid #ddd;
+    padding: 8px;
 	text-align: center;
+	border-radius: 14px;
 }
 
-.game-list th {
-	background-color: #f2f2f2;
-	text-align: center;
-}
-
-table {
-	height: 90%;
+.matches-history td:last-child, th:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	width: 180px;
 }
 
 #editProfile {
 	--bs-btn-padding-x: 30px;
 	--bs-btn-padding-y: 10px;
 	--bs-btn-line-height: 0;
-	border-radius: 12px;
+	border-radius: 8px;
 	min-height: 30px;
 }
 
@@ -219,11 +243,6 @@ table {
 	width: 90%;
 }
 
-.warning-label {
-	font-size: 12px;
-	color: red;
-}
-
 .update-profile {
 	border: 0px solid #0056b3;
 	width: 100%;
@@ -237,7 +256,7 @@ table {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
-
+    width: 100%;
 }
 
 .update-profile tr {
@@ -257,19 +276,19 @@ table {
 	height: 100%;
 }
 
-.update-profile .input-group {
+.update-profile {
 	display: flex;
 	align-items: flex-start;
 }
 
-.update-profile .input-group label {
+.update-profile label {
 	margin-right: 10px;
 	width: 50px;
 	line-height: 1;
 }
 
-.update-profile .input-group input,
-.update-profile .input-group textarea {
+.update-profile input,
+.update-profile textarea {
 	flex-grow: 1;
 	margin: 0;
 }
@@ -323,4 +342,101 @@ table {
 
 .form-group {
 	margin-bottom: 20px;
+}
+
+.link-primary {
+	text-decoration: none;
+	color: #000 !important;
+}
+
+.small-card-table {
+	width: 100%;
+}
+
+.small-card {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	border: 0px solid #000;
+	background-color: #ffffffde;
+	border-radius: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 10px;
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.small-card-title {
+	color: #fff;
+	background: linear-gradient(to right, #d6338491, #d6338491);
+	font-family: 'CustomFont';
+	font-size: 16px;
+	padding: 6px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align: center;
+	border-radius: 10px;
+	width: 95%;
+	align-self: center;
+	height: 40px;
+}
+
+.small-card-name {
+	margin-left: 15px;
+	text-align: left;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	flex-grow: 1;
+}
+
+.small-card-image {
+	flex-shrink: 0;
+}
+
+.small-card-image img {
+	border-radius: 50%;
+	height: 45px;
+	width: 45px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	object-fit: cover;
+	border: 1px solid #ddd;
+	margin-left: 10px;
+}
+
+.status-icon.small {
+	height: 20px;
+	width: 20px;
+	box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.5);
+	margin-left: 10px;
+	flex-shrink: 0;
+}
+
+.custom-table-container {
+	max-height: 300px; /* Define a altura máxima da secção */
+	overflow-y: auto;  /* Ativa o scroll vertical */
+	border: 1px solid #ccc; /* Adiciona uma borda para melhor visualização */
+	padding: 10px;
+}
+
+.custom-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.custom-table th, .custom-table td {
+	padding: 10px;
+	text-align: left;
+	border-bottom: 1px solid #ddd;
+}
+
+.custom-table th {
+	background-color: #f4f4f4;
+}
+
+.custom-table tr:hover {
+	background-color: #f1f1f1;
 }

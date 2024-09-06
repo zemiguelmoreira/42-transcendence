@@ -1,3 +1,12 @@
+import { navigateTo } from "../app.js";
+
+let username;
+
+document.addEventListener('pongGameLoaded', (event) => {
+	username = event.detail.username;
+	console.log('Pong Local Username:', username);
+});
+
 // Get the two canvases and their contexts
 const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
 const backgroundCtx = backgroundCanvas.getContext("2d");
@@ -14,9 +23,9 @@ const ballSize = 10;
 
 const winningScore = 10;
 
-let paddleSpeed = 20;
-let ballSpeedX = 8;
-let ballSpeedY = 8;
+let paddleSpeed = 15;
+let ballSpeedX = 6;
+let ballSpeedY = 6;
 
 // Paddle positions
 let leftPaddleY = canvasHeight / 2 - paddleHeight / 2;
@@ -51,6 +60,8 @@ let player2Name = "hmaciel-"; // Nome do Jogador 2
 let gameOver = false;
 
 function showEndScreen(winnerName) {
+	console.log('Game over! The winner is:', winnerName);
+
     // Configurações do retângulo
     const rectWidth = 400;
     const rectHeight = 200;
@@ -65,25 +76,14 @@ function showEndScreen(winnerName) {
     ctx.fillStyle = "#fff";
     ctx.font = "30px Arial";
     ctx.textAlign = "center";
-    ctx.fillText(`Vencedor: ${winnerName}`, canvasWidth / 2, rectY + 60);
+    ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2);
 
-    // Desenha o botão
-    const buttonWidth = 200;
-    const buttonHeight = 50;
-    const buttonX = (canvasWidth - buttonWidth) / 2;
-    const buttonY = rectY + 100;
-
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-
-    // Texto do botão
-    ctx.fillStyle = "#000";
-    ctx.font = "20px Arial";
-    ctx.fillText("Voltar ao menu PONG", canvasWidth / 2, buttonY + 30);
-
-    // Adiciona o evento de clique no botão
-    canvas.addEventListener("click", handleButtonClick);
+    // Espera alguns segundos e depois fecha o jogo
+    setTimeout(() => {
+        navigateTo(`/user/${username}/pong`);
+    }, 3000);  // 3 segundos de delay
 }
+
 
 function drawPONG(letterSpacing = -5) {
     // Definir a fonte e o tamanho do texto
@@ -140,76 +140,16 @@ function drawDigit(ctx, n, x, y) {
 
     // Define os números de 0 a 9 usando uma matriz 5x3
     const digits = [
-        [
-            [1, 1, 1],
-            [1, 0, 1],
-            [1, 0, 1],
-            [1, 0, 1],
-            [1, 1, 1]
-        ], // 0
-        [
-            [0, 1, 0],
-            [0, 1, 0],
-            [0, 1, 0],
-            [0, 1, 0],
-            [0, 1, 0]
-        ], // 1
-        [
-            [1, 1, 1],
-            [0, 0, 1],
-            [1, 1, 1],
-            [1, 0, 0],
-            [1, 1, 1]
-        ], // 2
-        [
-            [1, 1, 1],
-            [0, 0, 1],
-            [1, 1, 1],
-            [0, 0, 1],
-            [1, 1, 1]
-        ], // 3
-        [
-            [1, 0, 1],
-            [1, 0, 1],
-            [1, 1, 1],
-            [0, 0, 1],
-            [0, 0, 1]
-        ], // 4
-        [
-            [1, 1, 1],
-            [1, 0, 0],
-            [1, 1, 1],
-            [0, 0, 1],
-            [1, 1, 1]
-        ], // 5
-        [
-            [1, 1, 1],
-            [1, 0, 0],
-            [1, 1, 1],
-            [1, 0, 1],
-            [1, 1, 1]
-        ], // 6
-        [
-            [1, 1, 1],
-            [0, 0, 1],
-            [0, 0, 1],
-            [0, 0, 1],
-            [0, 0, 1]
-        ], // 7
-        [
-            [1, 1, 1],
-            [1, 0, 1],
-            [1, 1, 1],
-            [1, 0, 1],
-            [1, 1, 1]
-        ], // 8
-        [
-            [1, 1, 1],
-            [1, 0, 1],
-            [1, 1, 1],
-            [0, 0, 1],
-            [0, 0, 1]
-        ]  // 9
+        [[1, 1, 1],[1, 0, 1],[1, 0, 1],[1, 0, 1],[1, 1, 1]], // 0
+        [[0, 1, 0],[0, 1, 0],[0, 1, 0],[0, 1, 0],[0, 1, 0]], // 1
+        [[1, 1, 1],[0, 0, 1],[1, 1, 1],[1, 0, 0],[1, 1, 1]], // 2
+        [[1, 1, 1],[0, 0, 1],[1, 1, 1],[0, 0, 1],[1, 1, 1]], // 3
+        [[1, 0, 1],[1, 0, 1],[1, 1, 1],[0, 0, 1],[0, 0, 1]], // 4
+        [[1, 1, 1],[1, 0, 0],[1, 1, 1],[0, 0, 1],[1, 1, 1]], // 5
+        [[1, 1, 1],[1, 0, 0],[1, 1, 1],[1, 0, 1],[1, 1, 1]], // 6
+        [[1, 1, 1],[0, 0, 1],[0, 0, 1],[0, 0, 1],[0, 0, 1]], // 7
+        [[1, 1, 1],[1, 0, 1],[1, 1, 1],[1, 0, 1],[1, 1, 1]], // 8
+        [[1, 1, 1],[1, 0, 1],[1, 1, 1],[0, 0, 1],[0, 0, 1]]  // 9
     ];
 
     // Define a cor do segmento
@@ -338,7 +278,6 @@ function moveBall() {
     }
 }
 
-
 function resetBall() {
     ballX = canvasWidth / 2 - ballSize / 2;
     ballY = canvasHeight / 2 - ballSize / 2;
@@ -367,7 +306,7 @@ function endGame() {
         loserScore = player1Score;
     }
 
-	gameType = 'pong',
+	let gameType = 'pong',
 	timestamp = new Date().toISOString()
 	
     // Gera o JSON com os resultados do jogo
@@ -451,24 +390,6 @@ document.addEventListener("keyup", function (e) {
         downPressed = false;
     }
 });
-
-function handleButtonClick(event) {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-
-    // Configurações do botão
-    const buttonWidth = 200;
-    const buttonHeight = 50;
-    const buttonX = (canvasWidth - buttonWidth) / 2;
-    const buttonY = (canvasHeight - 200) / 2 + 100;
-
-    // Verifica se o clique foi dentro do botão
-    if (mouseX >= buttonX && mouseY >= buttonY && mouseX <= buttonX + buttonWidth && mouseY <= buttonY + buttonHeight) {
-        // Recarrega a página para voltar ao menu PONG
-        // window.location.reload();  
-    }
-}
 
 // Start the game
 updateGame();

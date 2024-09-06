@@ -1,18 +1,19 @@
-import { makeProfilePage , makeSettingsPage } from "./profilePages.js";
+import { makeProfilePage, makeProfilePageSearchOther, makeSettingsPage } from "./profilePages.js";
 import { navigateTo } from "../app.js";
-import { removeFriend , unblockUser } from "../utils/manageUsers.js";
+import { removeFriend, unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
+import { viewUserProfile } from "../search/search_user.js";
+import { getUserProfileByUsername } from "../profile/myprofile.js";
+
 
 function userProfilePage(userData) {
-
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePageData = makeProfilePage(userData);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
-
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
-	displayFriendsList();
-
+	// console.log('displayFriendsList userData:', userData);
+	displayProfileFriendsList(userData.user.username);
 	document.getElementById('editProfile').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${userData.user.username}/profile/edit`);
@@ -20,25 +21,11 @@ function userProfilePage(userData) {
 }
 
 function displayMatchHistory(data, TableContainer) {
-    // Cria a tabela e o cabeçalho
-	console.log('TableContainer:', TableContainer);
-    let table = '<table class="game-list" border="1" cellspacing="0" cellpadding="5">';
-    table += `
-        <thead>
-            <tr>
-                <th>Winner</th>
-                <th>Winner Score</th>
-                <th>Loser</th>
-                <th>Loser Score</th>
-                <th>Timestamp</th>
-            </tr>
-        </thead>
-        <tbody>
-    `;
-
-    // Itera sobre o array e cria uma linha para cada objeto
-    data.forEach(match => {
-        table += `
+	// console.log('TableContainer:', TableContainer);
+	let table = '<table class="matches-history" border="1" cellspacing="0" cellpadding="5">';
+	table += `<tbody>`;
+	data.forEach(match => {
+		table += `
             <tr>
                 <td>${match.winner}</td>
                 <td>${match.winner_score}</td>
@@ -47,18 +34,13 @@ function displayMatchHistory(data, TableContainer) {
                 <td>${new Date(match.timestamp).toLocaleString()}</td>
             </tr>
         `;
-    });
-
-    table += '</tbody></table>';
-	
-	// Insere a tabela no contêiner
+	});
+	table += '</tbody></table>';
 	document.getElementById(TableContainer).innerHTML = table;
 }
 
-async function displayFriendsList(is_setting = false) {
-
+async function displayProfileFriendsList(myUsername) {
 	const accessToken = localStorage.getItem('access_token');
-
 	try {
 		const response = await fetch('/api/profile/friend_list/', {
 			method: 'GET',
@@ -74,11 +56,70 @@ async function displayFriendsList(is_setting = false) {
 
 		const data = await response.json();
 		const friends = data.friends;
+		let table = `
+		<div class="small-card-title">Friends</div>
+		<table class="small-card-table">
+		<tbody>
+		`;
 
-		// Define a classe da tabela de forma condicional
+		// Usando for...of para lidar corretamente com async/await
+		for (const friend of friends) {
+			let dataUser = await getUserProfileByUsername(friend.username);
+			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
+			table += `
+			<tr>
+				<td class="">
+					<div class="small-card">
+						<div class="small-card-image"><img src="${dataUser.profile.profile_image_url}"></div>
+						<div class="small-card-name"><a href="" id="${uniqueId}" class="link-primary card-title">${friend.username}</a></div>
+						<div class="status-icon small ${friend.is_logged_in ? 'green' : 'red'}"></div>
+					</div>
+				</td>
+			</tr>
+			`;
+		}
+
+		table += `
+			</tbody>
+		</table>
+		`;
+		document.getElementById("friends-card-list").innerHTML = table;
+
+		// Adiciona o event listener a cada link baseado no ID único
+		friends.forEach((friend) => {
+			const uniqueId = `link-${friend.username}`;
+			const link = document.getElementById(uniqueId);
+			if (link) { // Verifica se o link existe
+				link.addEventListener('click', (event) => {
+					event.preventDefault();
+					viewUserProfile(myUsername, friend.username);
+				});
+			}
+		});
+
+	} catch (error) {
+		console.error('Error fetching friend list:', error);
+	}
+}
+
+async function displayFriendsList(myUsername, is_setting = false) {
+	const accessToken = localStorage.getItem('access_token');
+	try {
+		const response = await fetch('/api/profile/friend_list/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		const data = await response.json();
+		const friends = data.friends;
 		const tableClass = is_setting ? 'friends-management-table' : 'friends-table';
-
-		// Cria a tabela e cabeçalhos
 		let table = `<table class="${tableClass}">`;
 		table += `
 			<thead>
@@ -95,50 +136,59 @@ async function displayFriendsList(is_setting = false) {
 			<tbody>
 		`;
 
-		// Loop através da lista de amigos
-		friends.forEach((friend, index) => {
+		friends.forEach((friend) => {
+			// console.log('Friend:', friend);
+			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
 			table += `
-				<tr>
-					<td>${friend.username}</td>
-					<td><span class="status-icon ${friend.is_logged_in ? 'green' : 'red'}"></span></td>`;
+			<tr>
+				<td><a href="" id="${uniqueId}" class="link-primary">${friend.username}</a></td>
+				<td><span class="status-icon ${friend.is_logged_in ? 'green' : 'red'}"></span></td>`;
+			
 			if (is_setting) {
-				table += `<td><button id="removeFriend-${index}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${friend.username}">Remove Friend</button></td>`;
+				table += `<td><button id="removeFriend-${friend.username}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${friend.username}">Remove Friend</button></td>`;
 			}
 			table += `</tr>`;
 		});
-
 		table += '</tbody></table>';
-
-		// Insere a tabela no contêiner
 		document.getElementById("friends-list").innerHTML = table;
-
-		// Adiciona event listeners aos botões de remoção, se aplicável
-		if (is_setting) {
-			friends.forEach((friend, index) => {
-				const button = document.getElementById(`removeFriend-${index}`);
-				button.addEventListener('click', async (e) => {
-					e.preventDefault();
-					const friendUsername = button.getAttribute('data-username');
-					await removeFriend(friendUsername, displaySlidingMessage);
-					navigateTo(`/user/${username}/settings`);
+		
+		// Adiciona o event listener a cada link baseado no ID único
+		friends.forEach((friend) => {
+			const uniqueId = `link-${friend.username}`;
+			const link = document.getElementById(uniqueId);
+			if (link) { // Verifica se o link existe
+				link.addEventListener('click', (event) => {
+					event.preventDefault();
+					viewUserProfile(myUsername, friend.username);
 				});
+			}
+		});
+
+		// Adiciona o event listener a cada botão de remoção de amigo
+		if (is_setting) {
+			friends.forEach((friend) => {
+				const button = document.getElementById(`removeFriend-${friend.username}`);
+				if (button) { // Verifica se o botão existe
+					button.addEventListener('click', async (e) => {
+						e.preventDefault();
+						const friendUsername = button.getAttribute('data-username');
+						await removeFriend(friendUsername, displaySlidingMessage);
+						navigateTo(`/user/${myUsername}/settings`);
+					});
+				}
 			});
 		}
-
 	} catch (error) {
 		console.error('Error fetching friend list:', error);
 	}
 }
 
-async function displayBlockedList() {
-
+async function displayBlockedList(myUsername) {
 	const accessToken = localStorage.getItem('access_token');
-
 	if (!accessToken) {
 		console.error('No access token found');
 		return;
 	}
-
 	try {
 		const response = await fetch('/api/profile/blocked_list/', {
 			method: 'GET',
@@ -152,61 +202,80 @@ async function displayBlockedList() {
 		}
 
 		const data = await response.json();
-		console.log('Blocked List:', data.blocked_list);
+		console.log('Blocked data List:', data);
 
-		// Cria a tabela e cabeçalhos
-		let table = `<table class="friends-management-table">`;
-		table += `
-			<thead>
-				<tr>
-					<th>Users</th>
-					<th>Unblock</th>
-				</tr>
-			</thead>
-			<tbody>
+		let table = `
+			<table class="friends-management-table">
+				<thead>
+					<tr>
+						<th>Users</th>
+						<th>Status</th>
+						<th>Unblock User</th>
+					</tr>
+				</thead>
+				<tbody>
 		`;
 
-		// Loop através da lista de usuários bloqueados
-		data.blocked_list.forEach((user, index) => {
+		// Usando `for...of` para garantir que o loop espere as promessas
+		for (const user of data.blocked_list) {
+			let userData = await getUserProfileByUsername(user);
+			console.log('userData:', userData);
+			const uniqueId = `link-${user}`; // Gera um ID único baseado no nome do usuário
 			table += `
 				<tr>
-					<td>${user}</td>
-					<td><button id="unblockUser-${index}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${user}">Unblock User</button></td>
+					<td><a href="" id="${uniqueId}" class="link-primary">${user}</a></td>
+					<td><span class="status-icon ${userData.profile.is_logged_in ? 'green' : 'red'}"></span></td>
+					<td><button id="unblockUser-${user}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${user}">Unblock User</button></td>
 				</tr>
 			`;
-		});
+		}
 
 		table += '</tbody></table>';
-		
-		// Insere a tabela no contêiner
 		document.getElementById("blocked-list").innerHTML = table;
 
-		// Adiciona event listeners aos botões de desbloqueio
-		data.blocked_list.forEach((user, index) => {
-			const button = document.getElementById(`unblockUser-${index}`);
-			button.addEventListener('click', async (e) => {
-				e.preventDefault();
-				const usernameToUnblock = button.getAttribute('data-username');
-				await unblockUser(usernameToUnblock, displaySlidingMessage);
-				// Recarrega a lista de bloqueados após a ação
-				await displayBlockedList();
-			});
-		});
+		// Adiciona o event listener a cada link e botão após a tabela ser renderizada
+		data.blocked_list.forEach((user) => {
+			const uniqueId = `link-${user}`;
+			const link = document.getElementById(uniqueId);
+			if (link) {
+				link.addEventListener('click', (event) => {
+					event.preventDefault();
+					viewUserProfile(myUsername, user);
+				});
+			}
 
+			const button = document.getElementById(`unblockUser-${user}`);
+			if (button) {
+				button.addEventListener('click', async (e) => {
+					e.preventDefault();
+					const usernameToUnblock = button.getAttribute('data-username');
+					await unblockUser(usernameToUnblock, displaySlidingMessage);
+					await displayBlockedList(myUsername); // Recarrega a lista após o desbloqueio
+				});
+			}
+		});
 	} catch (error) {
 		console.error('Error fetching blocked list:', error);
 	}
 }
 
-function profileSettings(dataUser) {
-	// console.log('dataUser no settings: ', dataUser);
 
+function profileSettings(dataUser) {
+	console.log('profile Setting: ', dataUser);
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
-
-	displayFriendsList(true);
-	displayBlockedList();
+	displayFriendsList(dataUser.user.username, true);
+	displayBlockedList(dataUser.user.username);
 }
 
-export { userProfilePage , displayFriendsList , displayBlockedList , profileSettings }
+function profileOtherUser(dataUser) {
+	console.log('profile other user: ', dataUser);
+	document.getElementById('mainContent').innerHTML = '';
+	const profileSettings = makeProfilePageSearchOther(dataUser);
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
+	displayFriendsList(dataUser.user.username, true);
+	displayBlockedList(dataUser.user.username);
+}
+
+export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings }

@@ -45,7 +45,10 @@ class UserSerializer(serializers.ModelSerializer):
         # Verifica se as senhas correspondem
         if data['password'] != data['confirm_password']:
             raise serializers.ValidationError({"password": "Passwords do not match"})
-        
+
+        if len(data['username']) > 8:
+            raise serializers.ValidationError({"user": "Username must be 8 characters or fewer. Please choose a shorter name."})
+			
         # Retorna os dados validados, usado para dizer ao Rest que os dados passaram a validação e podem ser utilizados
         return data
     
@@ -56,9 +59,6 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         print(f"User created: {user}")
         return user
-
-
-
 
 class UserProfileSerializer(serializers.ModelSerializer):
     friend_list = serializers.ListField(child=serializers.CharField(), required=False)

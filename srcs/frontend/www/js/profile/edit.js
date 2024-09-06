@@ -50,6 +50,11 @@ function edit(data, username) {
 		updateUserProfile(data, username, selectedProfileImage);
 	});
 
+	// Função que retrocede para a página anterior
+	document.getElementById("backButton").addEventListener("click", function() {
+		window.history.back();
+	});
+	
     console.log('image url: ', selectedProfileImage);
 }
 
