@@ -26,15 +26,26 @@ function pongGameLocal(username) {
 			pongScriptElement = null;
 		}
 
+		// Create a div to show that the game invite is pending
+		// const gameDiv = document.createElement('div');
+		// gameDiv.classList.add('pongDiv');
+		// gameDiv.id = 'pongDiv';
+		// document.getElementById('root').appendChild(gameDiv);
+
+		// Create a script element to load the pong-local.js script
 		pongScriptElement = document.createElement('script');
 		pongScriptElement.type = 'module';
-		pongScriptElement.src = '../../js/games/pong-remote.js';
+		pongScriptElement.src = '../../js/games/pong-local.js';
 		pongScriptElement.onload = () => {
+
+			// Dispara um evento personalizado com o username
 			console.log('Script pong-local.js carregado com sucesso');
+			const event = new CustomEvent('pongGameLoaded', { detail: { username } });
+			document.dispatchEvent(event);
 		};
 
 		pongScriptElement.onerror = () => {
-			console.error('Erro ao carregar o script pong-remote.js');
+			console.error('Erro ao carregar o script pong-local.js');
 			pongScriptElement = null;
 		};
 
