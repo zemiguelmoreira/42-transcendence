@@ -4,14 +4,18 @@ import { signIn_page } from "./loginPage.js";
 import { getCsrfToken } from "../utils/tokenCsrf.js";
 import { displayErrorSignIn, successContainer } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
-import { saveToken, viewToken, testToken } from "../utils/tokens.js";
+import { viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
+import { handleInput, handleInputBlur } from "../utils/utils1.js";
+import { userSignIn42, getParams } from "./login42.js";
 import WebSocketInstance from "../socket/websocket.js";
 
 
-function insertInputValidation1(userSigInForm) {
-	for (let element of userSigInForm.elements) {
+////****************LOGIN DO USER*****************************/////
+
+function insertInputValidation1(qrForm) {
+	for (let element of qrForm.elements) {
 		// console.log('elemento no validation: ', element);
 		// Verifica se o elemento é do tipo input e tem a classe 'form-control'
 		if (element.classList.contains('form-control') && !element.value) {
@@ -62,8 +66,21 @@ function signIn() {
 	document.getElementById('root').innerHTML = "";
 	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
 
+	document.getElementById('form1Example1').focus(); // colocar focus no campo de colocação do código
+
+	const inputField = document.querySelector('#form1Example1');
+	const limitChar = document.querySelector('#limitChar2');
+
+	handleInput(inputField, limitChar);
+
+	handleInputBlur(inputField, limitChar);
+
 	const signInUser = document.querySelector('#signInUser');
 	signInUser.addEventListener('click', userSignIn);
+
+	// const signInUser42 = document.querySelector('#signInUser42');
+	// signInUser42.addEventListener('click', userSignIn42);
+	
 	document.getElementById('backButton').addEventListener('click', function (e) {
 		e.preventDefault();
 		navigateTo('/');
@@ -71,12 +88,12 @@ function signIn() {
 
 }
 
-async function sendIUser(userOrEmail, password, allURL) {
-	const dados = { username: userOrEmail, password: password };
+async function sendIUser(userOrEmail, password) {
+	const info = { username: userOrEmail, password: password };
 	const conf = {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(dados),
+		body: JSON.stringify(info),
 	};
 	try {
 		const response = await fetch(`${baseURL}/token/`, conf);
@@ -132,6 +149,7 @@ async function sendIUser(userOrEmail, password, allURL) {
 						showSuccessMessageSignIn(username);
 						// Adiciona o conteúdo de home_page após o login bem-sucedido
 					} else {
+						sessionStorage.removeItem('access_token'); //apaga o token do sessionStorage colocado no login
 						throw { message: `User ${username} not validated - bad request`, status: 404 };
 					}
 				} catch (e) {

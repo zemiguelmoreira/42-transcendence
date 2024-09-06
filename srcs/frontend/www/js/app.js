@@ -4,6 +4,7 @@ import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
 import WebSocketInstance from "./socket/websocket.js";
 import Language from "./translations/languages.js";
+import { getParams } from "./login/login42.js";
 
 
 // const baseURL = "https://localhost/user";
@@ -18,6 +19,7 @@ async function goTo() {
 			const accessToken = localStorage.getItem('access_token');
 			const payload = testToken(accessToken);
 			// console.log(payload);
+			console.log('teste1');
 			// se o token estiver expirado
 			if (!payload) {
 				navigateTo('/');
@@ -25,7 +27,7 @@ async function goTo() {
 			}
 			// console.log(payload.user_id);
 			let username = await getNamebyId(payload.user_id);
-			// console.log(username);
+			console.log('teste2:', username);
 			if (username) {
 				navigateTo(`/user/${username}`);
 				await WebSocketInstance.connect(); //testar sem await 
@@ -195,7 +197,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	console.log('href-app.js: ', window.location.href); // Output: exemplo "https://localhost/signIn"
 	// console.log(window.location.hash); // Output: "" se tivermos o hash nos endereços
 
+	console.log('href-app.js: ', window.location.search);
+	if (window.location.search) {
+		// localStorage.clear();
+		// window.history.replaceState({page:'/'}, '', '/'); // não funciona
+		getParams();
 
+	}
 
 	if (!viewTokenRefresh()) {// mudar colocar not para funcionar corretamente
 		console.log('pathname-app.js1: ', window.location.pathname); // Output: exemplo "/signIn"

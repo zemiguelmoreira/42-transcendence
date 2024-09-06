@@ -2,6 +2,8 @@
 import { baseURL } from "../app.js";
 import { fetchWithAuth } from "../utils/fetchWithToken.js";
 import { saveToken } from "../utils/tokens.js";
+import { handleInput, handleInputBlur } from "../utils/utils1.js";
+
 
 // Faz o fetch para obter o qr code
 async function fetchQrCode() {
@@ -38,6 +40,12 @@ function displayQrCode(qr_code) {
 	qrCodeDiv.innerHTML = qr_code;
 	document.getElementById('qrCodeForm').style.display = 'block';
     document.getElementById('code').focus(); // colocar focus no campo de colocação do código
+
+    const inputField = document.querySelector('#code');
+	const limitChar = document.querySelector('#limitChar3');
+	handleInput(inputField, limitChar);
+	handleInputBlur(inputField, limitChar);
+
 }
 
 
@@ -46,9 +54,11 @@ function displayErrorCode(errorMessage) {
 	errorDiv.innerHTML = "";
 	errorDiv.textContent = `${errorMessage}Try again`;
 	errorDiv.style.display = 'block'; // Mostra a div de erro
-	const registerForm = document.querySelector('#userSignInForm');
-	// console.log(registerForm);
-	for (let element of registerForm.elements) {
+    const qrForm = document.querySelector('#qrCodeForm');
+    qrForm.elements.code.value = "";
+    document.getElementById('code').focus();
+	// console.log(qrForm);
+	for (let element of qrForm.elements) {
 		if (element.classList.contains('form-control')) {
 			element.addEventListener('input', function () {
 				if (element.value) {

@@ -1,8 +1,7 @@
-import { limparDivAll, displayError } from "../utils/utils1.js";
-import { register_page } from "./registerPage.js";
+import { displayError } from "../utils/utils1.js";
 import { getCsrfToken } from "../utils/tokenCsrf.js";
-import { baseURL, goTo, navigateTo } from "../app.js";
-import { successContainerRegister } from "../utils/utils1.js";
+import { baseURL, navigateTo } from "../app.js";
+import { displayEmailCode, submitEmailCode } from "./emailCode.js";
 
 
 ////****************ReGISTO DO USER*****************************/
@@ -49,7 +48,7 @@ function handleSignUp(e) {
     e.preventDefault();
     const registerForm = document.querySelector('#userRegisterForm');
     const user = registerForm.elements.username.value;
-	// console.log(user);
+	console.log(user);
     const email = registerForm.elements.email.value;
     const password = registerForm.elements.password.value;
     const password2 = registerForm.elements.password2.value;
@@ -81,23 +80,6 @@ function handleSignUp(e) {
 
 // };
 
-
-//alteração para não entrar no sigIn se tiver token
-function showSuccessMessageRegister() {
-	var messageDiv = document.getElementById('successMessage');
-	messageDiv.style.display = 'block'; // Exibe a mensagem
-	setTimeout(function() {
-		messageDiv.style.display = 'none';
-		// console.log('função ternária');
-		// localStorage.getItem('access_token') ? goTo() : navigateTo(`/signIn`);
-		if (!localStorage.getItem('access_token')) {
-			navigateTo(`/signIn`);
-		} else {
-			goTo();
-			console.log('Current URL:', window.location.href);
-		}
-	}, 2000); // 1000 milissegundos = 1 segundos
-}
 
 
 // FUNÇÃO ASÍNCRONA DE REGITO DE USER
@@ -143,14 +125,14 @@ async function registerUser(user, email, password, password2) {
 	try {
 
 		const response = await fetch(`${baseURL}/user/register/`, configuracao);
-		// console.log('response: ', response);
+		console.log('response: ', response);
 
 		if (!response.ok) {
 			const errorData = await response.json(); // msn que vem do Django (serializer)
-			// console.log('errorData: ', errorData);
+			console.log('errorData: ', errorData);
             const message = Object.values(errorData)[0];
 			const input = Object.keys(errorData)[0];// só para controlo na consola
-			// console.log('message: ', message);
+			console.log('message: ', message);
 			// console.log('input: ', input);
 			const errorObject = {
 				message: message,
@@ -162,20 +144,32 @@ async function registerUser(user, email, password, password2) {
 		}
 
 		const data = await response.json();
-		// console.log('data register: ', data);
-		limparDivAll('root');
-		const successDiv = successContainerRegister(data.username);
-		document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-		showSuccessMessageRegister();
+		console.log('data register: ', data);
+		// { detail: "Registration data received. Please check your email for the confirmation code." }
+		if (data) {
+			displayEmailCode(data.detail);
+		} else {
+			throw { message: 'Something went wrong - emailCode', status: 401 };
+		}
+		const buttonEmailCode = document.querySelector('#verifyEmailCode');
+		// const emailCodeForm = document.querySelector('#emailCodeForm');
+		buttonEmailCode.addEventListener('click', (e) => {
+			e.preventDefault();
+			submitEmailCode(email);
+		});
+		// limparDivAll('root');
+		// const successDiv = successContainerRegister(data.username);
+		// document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
+		// showSuccessMessageRegister();
 
 	} catch (e) {
 
 		// console.log(e.message, e.status, e.status_msn);
 
-		if (e.status === 400) {
+		if (e.status === 400 || e.status === 422) {
 			const err_key = Object.keys(e.message)[0];
 			const err_message = e.message[err_key];
-			// console.log(err_message);
+			console.log(err_message);
 			displayError(err_message);
 		}
 		else {
@@ -185,4 +179,4 @@ async function registerUser(user, email, password, password2) {
 };
 
 
-export { handleSignUp }
+export { handleSignUp, insertInputValidation }

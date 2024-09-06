@@ -8,13 +8,14 @@ function makeSignInPage() {
 				<form id="userSignInForm">
 					<!-- Username input -->
 						<label class="font-custom --bs-green" for="form1Example1">USERNAME</label>
-						<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" autofocus>
+						<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" maxlength="20">
+						<small id="limitChar2" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 20 characters.</small>
 					<!-- Password input -->
 						<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
 						<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="password">
 					<!-- Submit button -->
 						<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
-						<button type="submit" id="signInUser42" class="btn btn-outline-custom button-size">SIGN IN WITH 42</button>
+					<!--<button type="submit" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</button>-->
 						<p id="error-message" style="display: none; color: red;"></p>
 						<button class="btn btn-outline-secondary button-size" id="backButton">GO BACK</button>
 				</form>
@@ -23,7 +24,8 @@ function makeSignInPage() {
 						<p class="qr-code-box" id="qr-code" style="background-color: white;"></p>
 					<div id="codeDiv">
 						<label class="font-custom" for="code">Two-Factor Authentication</label>
-						<input  class="form-control button-size" type="text" name="qrCode" id="code" placeholder="Enter 2FA code here">
+						<input  class="form-control button-size" type="text" name="qrCode" id="code" placeholder="Enter 2FA code here" maxlength="6">
+						<small id="limitChar3" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 6 characters.</small>
 					</div>
 						<button type="submit" id="verifyQrCode" class="btn btn-outline-success button-size">verify code</button>
 						<p id="error-message-code" style="display: none; color: red;"></p>

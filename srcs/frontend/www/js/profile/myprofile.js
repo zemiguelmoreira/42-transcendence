@@ -60,7 +60,7 @@ async function getUserProfileByUsername(username) {
 
 		const data = await response.json();
 		// console.log("id: ");
-		// console.log(data);
+		console.log("data no getUserProfeileByUsername: ", data);
 		return data;
 	} catch (e) {
 		// console.log('Error:', e.message);

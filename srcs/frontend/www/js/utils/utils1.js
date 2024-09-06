@@ -58,7 +58,7 @@ function displayError(errorMessage) {
 function displayErrorSignIn(errorMessage) {
 	const errorDiv = document.getElementById('error-message');
 	errorDiv.innerHTML = "";
-	errorDiv.textContent = `${errorMessage}. Try again`;
+	errorDiv.textContent = `${errorMessage} Try again`;
 	errorDiv.style.display = 'block'; // Mostra a div de erro
 	const registerForm = document.querySelector('#userSignInForm');
 	// console.log(registerForm);
@@ -138,4 +138,38 @@ function deactivateLinks(links) {
 	}
 }
 
-export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken }
+
+function handleInput(inputField, limitChar, marginOnEmpty = '10px', marginOnInput = '0') {
+    inputField.addEventListener('input', function() {
+        if (inputField.value.length > 0) {
+            limitChar.style.display = 'block';
+            inputField.style.marginBottom = marginOnInput;
+        } else {
+            limitChar.style.display = 'none';
+            inputField.style.marginBottom = marginOnEmpty;
+        }
+    });
+}
+
+
+function handleInputBlur(inputField, limitChar, marginOnEmpty = '10px') {
+    inputField.addEventListener('blur', () => {
+		limitChar.style.display = 'none';
+		inputField.style.marginBottom = marginOnEmpty;
+	});
+}
+
+
+// Função não utilizada
+function clearCookies() {
+    const cookies = document.cookie.split(";");
+
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+}
+
+export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur }

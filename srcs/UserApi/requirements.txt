@@ -10,3 +10,4 @@ channels
 daphne
 python-dotenv
 Pillow
+requests #acrescentado para fazer o request

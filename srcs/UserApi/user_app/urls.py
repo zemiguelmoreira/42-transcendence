@@ -9,6 +9,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('user/register/', views.CreateUserView.as_view(), name='register'),
+    path('user/confirm_register/', views.ConfirmRegistrationView.as_view(), name='confirm_register'),
+    path('user/signIn42/', views.FortyTwoConnectView.as_view(), name='42connect'),
     path('token/', views.CustomTokenObtainPairView.as_view(), name="get_token"),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('token/verify-2fa/', views.Verify2FACodeView.as_view(), name='verify_2fa_code'),

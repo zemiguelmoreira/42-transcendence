@@ -17,6 +17,7 @@ import { noResults } from "../search/search_user.js";
 const pages = {
 	'/': {
 		loadContent: function () {
+			// console.log('Loading home page content');
 			home();
 			Language.applyTranslations('home');
 		},

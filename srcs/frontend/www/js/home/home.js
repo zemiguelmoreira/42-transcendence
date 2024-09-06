@@ -12,9 +12,12 @@ import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import WebSocketInstance from "../socket/websocket.js";
 import { doChat } from "../chat/chat_window.js";
+import { handleInput, handleInputBlur } from "../utils/utils1.js";
+import { userSignIn42 } from "../login/login42.js";
 
 function home() {
 	console.log('Loading home page content');
+
 
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
@@ -25,12 +28,22 @@ function home() {
 		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
 	});
 
+	const inputField = document.querySelector('#form1Example1');
+	const limitChar = document.querySelector('#limitChar');
+
+	handleInput(inputField, limitChar);
+
+	handleInputBlur(inputField, limitChar);
+
+	const signInUser42 = document.querySelector('#signInUser42');
+	signInUser42.addEventListener('click', userSignIn42);
+
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
 }
 
 function closeSlidingWindow() {
-	var slidingWindow = document.querySelector('.sliding-window');
+	let slidingWindow = document.querySelector('.sliding-window');
 	if (slidingWindow && slidingWindow.classList.contains('open')) {
 		slidingWindow.classList.remove('open');
 		slidingWindow.classList.add('closed');
@@ -60,8 +73,9 @@ async function homeLogin(username) {
 	doChat(username);
 
 	// Adicione o event listener para o botão de chat
-	document.getElementById('chatButton').addEventListener('click', function () {
-		var slidingWindow = document.querySelector('.sliding-window');
+	document.getElementById('chatButton').addEventListener('click', function (e) {
+		e.preventDefault();
+		let slidingWindow = document.querySelector('.sliding-window');
 		if (slidingWindow.classList.contains('closed')) {
 			slidingWindow.classList.remove('closed');
 			slidingWindow.classList.add('open');
