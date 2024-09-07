@@ -1,3 +1,6 @@
+import { runPongMatch } from './pong-tournament.js';
+import { pongCanvasPage } from './pong-pages.js';
+
 function confetti() {
 
 	let W = window.innerWidth;
@@ -110,7 +113,7 @@ function isPowerOfTwo(num) {
 	return (num > 0) && (num & (num - 1)) === 0;
 }
 
-function initializeTournament(playersObj) {
+function initializeTournament(playersObj, username) {
 	// Verifica se players é um objeto válido
 	if (typeof playersObj !== 'object' || Object.keys(playersObj).length === 0) {
 		console.error("Erro: A variável 'players' deve ser um objeto válido com jogadores.");
@@ -304,10 +307,9 @@ function initializeTournament(playersObj) {
 	}
 
 	// Função para processar o resultado do match
-	function processMatchResult(winner) {
+	async function processMatchResult(winner) {
 		winners.push(winner);
 		currentMatchIndex++;
-		displayNextMatch();
 	}
 
 	// Função para gerar o próximo round a partir dos vencedores
@@ -326,22 +328,40 @@ function initializeTournament(playersObj) {
 	}
 
 	// Função para lidar com o botão de início de match
-	document.querySelector("#startMatchBtn").addEventListener("click", () => {
+	document.querySelector("#startMatchBtn").addEventListener("click", async () => {
 		let currentMatch = rounds[currentRoundIndex][currentMatchIndex];
-		let winner = currentMatch[0]; // Lógica para escolher o vencedor
-		processMatchResult(winner);
+		let player1 = currentMatch[0];
+		let player2 = currentMatch[1];
+		
+		// Exibe a tela do jogo
+		const runPong = document.createElement('div');
+		runPong.classList.add('invite-pending');
+		runPong.id = 'runPong';
+		runPong.innerHTML = pongCanvasPage();
+		document.getElementById('root').appendChild(runPong);
+	
+		// Aguarde o resultado do jogo
+		let winner = await runPongMatch(player1, player2, username);
+		runPong.remove();
 
+		// Processa o resultado
+		await processMatchResult(winner);
+	
+		// Verifica se é necessário exibir o próximo match
 		if (currentMatchIndex >= rounds[currentRoundIndex].length) {
 			if (winners.length > 1) {
 				generateNextRound();
 			} else {
+				// Se houver apenas um vencedor, o torneio termina
 				document.getElementById("sm-match-box").innerText = "Vencedor final:\n" + winners[0];
 				document.querySelector("#final-winner").innerText = winners[0];
 				document.querySelector("#startMatchBtn").style.display = "none";
-				// document.querySelector("#goBack").style.display = "block";
 				document.getElementById("canvas-confetti").style.display = "block";
 				confetti();
 			}
+		} else {
+			// Apenas exiba o próximo match se ainda houver mais jogos na rodada atual
+			displayNextMatch();
 		}
 	});
 

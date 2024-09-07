@@ -281,7 +281,8 @@ ul {
 	top: 1px;
 }
 
-.invite-pending {
+.invite-pending,
+.local-pending {
 	position: absolute;  /* ou fixed, se precisar de uma posição fixa na tela */
 	top: 0;
 	left: 0;

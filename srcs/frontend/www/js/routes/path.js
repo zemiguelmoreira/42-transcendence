@@ -9,8 +9,8 @@ import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { snakeGameLocal, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
-import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { pongOptions } from "../games/pong-options.js";
+import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
 
 const pages = {
@@ -149,7 +149,7 @@ const pages = {
 	},
 	'/user/:username/pong': {
 		loadContent: function (params) {
-			pongOptions(params.username);
+			pongOptions(params.username, params.guest);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

@@ -79,42 +79,31 @@
 				</nav>
 			</div>
 
-			<div class="home-box" id="mainContent">
 
 
-				<div class="sm-start-menu">
-					<span class="sm-title">TOURNAMENT</span>
-					<span class="sm-logo"><img src="./files/trophy.png"></span>
-					<span class="sm-subtitle">Next Match</span>
 
-					<div class="sm-match">
-						<span class="sm-player">Player 1</span>
-						<span class="sm-vs">VS</span>
-						<span class="sm-player">Player 2</span>
-					</div>
 
-					<button class="sm-start-button">START MATCH</button>
-					<button class="sm-start-button">BACK TO PONG</button>
+
+
+			<div class="local-pending" id="localPending">
+				<div class="local-box">
+					<div class="logo-box1">PONG</div>
+					<div class="font-custom">Guest Name</div>
+					<input id="guestInput" class="local-input" type="text" placeholder="Enter guest name" maxlength="10" autofocus>
+					<button id="playButton" class="btn btn-success local-btn">Play</button>
+					<button id="cancelButton" class="btn btn-danger local-btn">Cancel</button>
 				</div>
-				<div id="tournament-bracket" class="tournament-bracket">
-				</div>
-
-				<script>
-				</script>
-				<canvas id="canvas-confetti"></canvas>
-
-
-
-
 			</div>
+
+
+
+
+
+
+
 			<div class="message-bar">
 				<div id="slidingMessage" class="sliding-message"></div>
 			</div>
-
-			<script>
-
-
-			</script>
 
 			<script src="./js/games/pong-tournament-bracket.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-wEgFhORhqDZqIkUhNJKT1sOGcpkPaICEbzEbvnsLJgbQ5aIxoo5vLLgjOAeLwZApO" crossorigin="anonymous"></script>

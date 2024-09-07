@@ -1,59 +1,63 @@
 import { initializeTournament } from './pong-tournament-bracket.js';
+import { local_page } from "./pong-local-start-page.js";
 
 let pongScriptLoaded = false; // Variável global para rastrear se o script foi carregado
 
-function pongGameLocal(username) {
-	try {
-		document.getElementById('root').innerHTML = `
-			<div class="home-box">
-				<div class="pong-content">
-					<div class="pong-box">
-						<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
-						<canvas id="pongCanvas" width="960" height="560"></canvas>
-					</div>
-				</div>
+function pongCanvasPage() {
+	return `
+		<div class="pong-content">
+			<div class="pong-box">
+				<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
+				<canvas id="pongCanvas" width="960" height="560"></canvas>
 			</div>
-		`;
-	} catch (error) {
-		console.error('Erro ao carregar o conteúdo:', error);
-	}
+		</div>
+	`;
+}
 
-	let pongScriptElement = null;
+function pongGameLocal(username) {
+    document.getElementById('root').insertAdjacentHTML('afterbegin', local_page);
+	document.getElementById('guestInput').focus();
+    const localPendingDiv = document.getElementById('localPending');
 
-	function loadPongScript() {
-		if (pongScriptElement) {
-			document.body.removeChild(pongScriptElement);
-			pongScriptElement = null;
-		}
+    const cancelButton = document.getElementById('cancelButton');
+    cancelButton.addEventListener('click', () => {
+        console.log('Cancel button clicked');
+        localPendingDiv.remove();
+    });
 
-		// Create a div to show that the game invite is pending
-		// const gameDiv = document.createElement('div');
-		// gameDiv.classList.add('pongDiv');
-		// gameDiv.id = 'pongDiv';
-		// document.getElementById('root').appendChild(gameDiv);
+    const playButton = document.getElementById('playButton');
+    playButton.addEventListener('click', () => {
 
-		// Create a script element to load the pong-local.js script
-		pongScriptElement = document.createElement('script');
-		pongScriptElement.type = 'module';
-		pongScriptElement.src = '../../js/games/pong-local.js';
-		pongScriptElement.onload = () => {
+		console.log('Play button clicked');
 
-			// Dispara um evento personalizado com o username
-			console.log('Script pong-local.js carregado com sucesso');
-			const event = new CustomEvent('pongGameLoaded', { detail: { username } });
-			document.dispatchEvent(event);
-		};
+		const guest = document.querySelector('#guestInput').value;
+        console.log('Guest:', guest);
 
-		pongScriptElement.onerror = () => {
-			console.error('Erro ao carregar o script pong-local.js');
-			pongScriptElement = null;
-		};
+		const runPongLocal = document.createElement('div');
+		runPongLocal.classList.add('invite-pending');
+		runPongLocal.id = 'runPong';
+		runPongLocal.innerHTML = pongCanvasPage();
+		document.getElementById('root').appendChild(runPongLocal);
 
-		document.body.appendChild(pongScriptElement);
-	}
+        const scriptElement = document.createElement('script');
+        scriptElement.src = '../../js/games/pong-local.js';
+		scriptElement.type = 'module';
+        scriptElement.onload = () => {
+            console.log('Pong script loaded. Initializing game...');
+            if (typeof initializePongGameLocal === 'function') {
+				localPendingDiv.remove();
+                initializePongGameLocal(username, guest);
+            } else {
+                console.error('initializePongGameLocal function not found.');
+            }
+        };
 
-	loadPongScript();
+        scriptElement.onerror = () => {
+            console.error('Error loading script pong-local.js');
+        };
 
+        document.body.appendChild(scriptElement);
+    });
 }
 
 function pongGameRemote(username) {
@@ -187,7 +191,7 @@ function pongGameTournament(username) {
 				displayTournamentBracket();
                 // document.querySelector("#goBack").style.display = "none";
 				document.getElementById('canvas-confetti').style.display = "none";
-				initializeTournament(players);
+				initializeTournament(players, username);
             }
         });
 
@@ -220,4 +224,4 @@ function displayTournamentBracket() {
 	`;
 }
 
-export { pongGameLocal, pongGameRemote, pongGameTournament }
+export { pongGameLocal, pongGameRemote, pongGameTournament , pongCanvasPage }
