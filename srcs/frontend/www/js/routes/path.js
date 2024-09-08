@@ -8,7 +8,7 @@ import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { snakeGameLocal, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
+import { snakeGuestWindow, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
@@ -128,7 +128,7 @@ const pages = {
 	},
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
-			snakeGameLocal(params.username);
+			snakeGuestWindow(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

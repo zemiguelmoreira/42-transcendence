@@ -284,7 +284,7 @@ window.initializePongGameLocal = function(username, guest) {
 		ballDirY = (Math.random() < 0.5 ? -1 : 1) * ballSpeedY;
 	}
 
-	function endGame() {
+	async function endGame() {
 		// Para o jogo
 		gameOver = true;
 
@@ -303,34 +303,42 @@ window.initializePongGameLocal = function(username, guest) {
 			loserScore = player1Score;
 		}
 
-		let gameType = 'pong',
-		timestamp = new Date().toISOString()
+		const gameType = 'pong';  // Example: 'pong' or 'snake'
+		const timestamp = new Date().toISOString();  // Capture current timestamp or get it from another source
 		
-		// Gera o JSON com os resultados do jogo
-		const gameData = {
-			winner: winner,
-			loser: loser,
-			game_type: gameType,
-			winner_score: winnerScore,
-			loser_score: loserScore,
-			timestamp: timestamp
-		};
-		const jsonData = JSON.stringify(gameData, null, 4);
-		downloadJSON(jsonData, "game_results.json");
+		try {
+			const pong_accessToken = localStorage.getItem('access_token');
+
+			const response = await fetch('/api/profile/update_match_history/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${pong_accessToken}`,
+				},
+				body: JSON.stringify({
+					game_type: gameType,
+					winner: winner,
+					loser: loser,
+					winner_score: winnerScore,
+					loser_score: loserScore,
+					timestamp: timestamp,
+				}),
+			});
+			
+			const data = await response.json();
+			console.log("RESPONSE: ", data);
+			if (response.ok) {
+				alert('Match history updated successfully!');
+			} else {
+				console.log('Error:', data.error || 'Failed to update match history');
+			}
+		} catch (error) {
+			console.error('Error during match history update:', error.message);
+			alert('Failed to update match history. Please try again.');
+		}
 
 		// Mostra a tela final com o vencedor e o botão de retorno
 		showEndScreen(winner);
-	}
-
-
-	function downloadJSON(data, filename) {
-		const blob = new Blob([data], { type: "application/json" });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
 	}
 
 	function updateGame() {
@@ -341,9 +349,10 @@ window.initializePongGameLocal = function(username, guest) {
 		// Verifica se o usuário ainda está na página do jogo
 		if (window.location.pathname !== `/user/${username}/pong-game-local`) {
 			console.log('Usuário saiu da página do jogo, interrompendo o loop.');
+			document.getElementById('runPong').remove();
 			return;  // Interrompe o loop
 		}
-		
+
 		// Clear the canvas for the ball and paddles
 		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -396,4 +405,5 @@ window.initializePongGameLocal = function(username, guest) {
 
 	// Start the game
 	updateGame();
+	
 }

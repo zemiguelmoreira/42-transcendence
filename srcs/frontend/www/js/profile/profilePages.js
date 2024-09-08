@@ -33,7 +33,7 @@ function makeProfilePage(data) {
 				<thead>
 					<tr>
 						<th>Game</th>
-						<th>Score</th>
+						<th>XP</th>
 						<th>Wins</th>
 						<th>Loses</th>
 					</tr>

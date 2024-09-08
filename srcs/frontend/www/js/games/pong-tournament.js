@@ -88,7 +88,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 			});
 		}
 		
-
 		function drawPONG(letterSpacing = -5) {
 			// Definir a fonte e o tamanho do texto
 			ctx.font = "100px PongFont";

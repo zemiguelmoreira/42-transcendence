@@ -52,3 +52,17 @@ canvas {
 	font-weight: bold;
 	color: #393d02;
 }
+
+.snake-ply1 {
+	background-color: #0000FF;
+	padding: 5px;
+	border-radius: 10px;
+	min-width: 100px;
+}
+
+.snake-ply2 {
+	background-color: #00FF00;
+	padding: 5px;
+	border-radius: 10px;
+	min-width: 100px;
+}
