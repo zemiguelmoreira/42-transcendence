@@ -105,26 +105,26 @@ async function registerUser(user, email, password, password2) {
     // }
 
 	// console.log(csrfToken);
-	const dados = {
+	const userInfo = {
 		username: user,
 		email: email,
 		password: password,
 		confirm_password: password2,
 	};
-	const configuracao = {
+	const sendUserInfo = {
 		method: 'POST',
 		headers: {
 			// 'Content-Type': 'application/x-www-form-urlencoded',
 			'Content-Type': 'application/json',
 			// 'X-CSRFToken': csrfToken,
 		},
-		body: JSON.stringify(dados),
+		body: JSON.stringify(userInfo),
 		// credentials: 'include',
 	};
 
 	try {
 
-		const response = await fetch(`${baseURL}/user/register/`, configuracao);
+		const response = await fetch(`${baseURL}/user/register/`, sendUserInfo);
 		console.log('response: ', response);
 
 		if (!response.ok) {
