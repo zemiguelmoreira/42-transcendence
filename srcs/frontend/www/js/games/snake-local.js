@@ -1,4 +1,9 @@
+import { navigateTo } from '../app.js';
+
 function initializeSnakeGameLocal(username, guest) {
+
+	console.log('Initializing Snake Game Local...');
+
 	// Verifica se o canvas foi carregado corretamente
 	const canvas = document.getElementById('gameCanvasSnakeLocal');
 	if (!canvas) {
@@ -200,15 +205,18 @@ function initializeSnakeGameLocal(username, guest) {
 
 				// Colisão cabeça com cabeça
 				if (head.x === otherHead.x && head.y === otherHead.y) {
-					// Verifica se a colisão é de frente ou lateral
-					// Colisão de frente: a maior cobra vence
 					if (snake.segments.length > otherSnake.segments.length) {
 						otherSnake.alive = false; // Cobra menor morre
 					} else if (snake.segments.length < otherSnake.segments.length) {
 						snake.alive = false; // Cobra maior morre
 					} else {
-						snake.alive = false; // Ambas morrem
-						otherSnake.alive = false;
+						// Ambas cobras têm o mesmo tamanho, decide aleatoriamente quem morre
+						const randomDeath = Math.random() < 0.5; // Gera um valor aleatório entre 0 e 1
+						if (randomDeath) {
+							snake.alive = false; // Cobra atual morre
+						} else {
+							otherSnake.alive = false; // Outra cobra morre
+						}
 					}
 					return;
 				}
@@ -271,62 +279,52 @@ function initializeSnakeGameLocal(username, guest) {
 			clearInterval(gameInterval);
 			endGame(aliveSnakes[0].name);
 		}
-		else if (aliveSnakes.length === 0) {
-			clearInterval(gameInterval);
-			endGame("No winner");
-		}
 
 		// Desenha a comida
 		drawFood();
 	}
 
 	async function endGame(snake_winner) {
-
 		try {
 			// Determina o vencedor e o perdedor
 			let winner, loser, winnerScore, loserScore;
 			winner = snake_winner;
-			
-			// if (winner === "No winner")
-			// 	loser = "------"
-			
+
 			// Define o vencedor e o perdedor com base no nome da cobrinha
-			if (winner !== "No winner") {
-				if (winner === username) {
-					loser = guest;
-					winnerScore = snakeScore1; 	// Score do username
-					loserScore = snakeScore2; 	// Score do guest
-				} else {
-					loser = username;
-					winnerScore = snakeScore2; 	// Score do guest
-					loserScore = snakeScore1; 	// Score do username
-				}
+			if (winner === username) {
+				loser = guest;
+				winnerScore = snakeScore1; 	// Score do username
+				loserScore = snakeScore2; 	// Score do guest
+			} else {
+				loser = username;
+				winnerScore = snakeScore2; 	// Score do guest
+				loserScore = snakeScore1; 	// Score do username
+			}
 
-				const gameType = 'snake';  // Example: 'pong' or 'snake'
-				const timestamp = new Date().toISOString();  // Capture current timestamp or get it from another source
+			const gameType = 'snake';  // Example: 'pong' or 'snake'
+			const timestamp = new Date().toISOString();  // Capture current timestamp or get it from another source
 
-				const pong_accessToken = localStorage.getItem('access_token');
-				const response = await fetch('/api/profile/update_match_history/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${pong_accessToken}`,
-					},
-					body: JSON.stringify({
-						game_type: gameType,
-						winner: winner,
-						loser: loser,
-						winner_score: winnerScore,
-						loser_score: loserScore,
-						timestamp: timestamp,
-					}),
-				});
+			const pong_accessToken = localStorage.getItem('access_token');
+			const response = await fetch('/api/profile/update_match_history/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${pong_accessToken}`,
+				},
+				body: JSON.stringify({
+					game_type: gameType,
+					winner: winner,
+					loser: loser,
+					winner_score: winnerScore,
+					loser_score: loserScore,
+					timestamp: timestamp,
+				}),
+			});
 
-				const data = await response.json();
-				console.log("RESPONSE: ", data);
-				if (!response.ok) {
-					console.log('Error:', data.error || 'Failed to update match history');
-				}
+			const data = await response.json();
+			console.log("RESPONSE: ", data);
+			if (!response.ok) {
+				console.log('Error:', data.error || 'Failed to update match history');
 			}
 
 		} catch (error) {
@@ -366,6 +364,7 @@ function initializeSnakeGameLocal(username, guest) {
 			const closeGame = document.getElementById('runSnake');
 			if (closeGame) {
 				closeGame.remove();
+				navigateTo(`/user/${username}/snake`);
 			}
 		}, 3000);
 	}
@@ -373,3 +372,5 @@ function initializeSnakeGameLocal(username, guest) {
 	// Inicializa o loop do jogo com base na velocidade definida
 	const gameInterval = setInterval(update, gameSpeed);
 }
+
+export { initializeSnakeGameLocal };

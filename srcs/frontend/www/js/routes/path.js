@@ -4,13 +4,12 @@ import { dataUserSearch, dataUserFromSearch, userSearchPage } from "../search/se
 import { navigateTo } from "../app.js";
 import { displayPageError } from "../html/error_page.js";
 import { signIn } from "../login/login.js";
-import Language from "../translations/languages.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { snakeGuestWindow, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
+import { loadSnakeScript, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
 import { pongOptions } from "../games/pong-options.js";
-import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
+import { loadPongScript, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
 
 const pages = {
@@ -128,7 +127,7 @@ const pages = {
 	},
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
-			snakeGuestWindow(params.username);
+			loadSnakeScript(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -156,7 +155,7 @@ const pages = {
 	},
 	'/user/:username/pong-game-local': {
 		loadContent: function (params) {
-			pongGameLocal(params.username);
+			loadPongScript(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

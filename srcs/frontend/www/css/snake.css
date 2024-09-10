@@ -56,13 +56,27 @@ canvas {
 .snake-ply1 {
 	background-color: #0000FF;
 	padding: 5px;
-	border-radius: 10px;
-	min-width: 100px;
+	border-radius: 25px;
+	min-width: 150px;
 }
 
 .snake-ply2 {
 	background-color: #00FF00;
 	padding: 5px;
-	border-radius: 10px;
-	min-width: 100px;
+	border-radius: 25px;
+	min-width: 150px;
+}
+
+.snake-ply3 {
+	background-color: #fff700;
+	padding: 5px;
+	border-radius: 25px;
+	min-width: 150px;
+}
+
+.snake-ply4 {
+	background-color: #ff0000;
+	padding: 5px;
+	border-radius: 25px;
+	min-width: 150px;
 }

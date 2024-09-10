@@ -1,4 +1,6 @@
-window.initializePongGameLocal = function(username, guest) {
+import { navigateTo } from '../app.js';
+
+function initializePongGameLocal(username, guest) {
 
 	console.log('Start Local Pong - Username:', username);
 	console.log('Start Local Pong - Guest:', guest);
@@ -327,14 +329,11 @@ window.initializePongGameLocal = function(username, guest) {
 			
 			const data = await response.json();
 			console.log("RESPONSE: ", data);
-			if (response.ok) {
-				alert('Match history updated successfully!');
-			} else {
+			if (!response.ok) {
 				console.log('Error:', data.error || 'Failed to update match history');
 			}
 		} catch (error) {
 			console.error('Error during match history update:', error.message);
-			alert('Failed to update match history. Please try again.');
 		}
 
 		// Mostra a tela final com o vencedor e o botão de retorno
@@ -407,3 +406,5 @@ window.initializePongGameLocal = function(username, guest) {
 	updateGame();
 	
 }
+
+export { initializePongGameLocal }

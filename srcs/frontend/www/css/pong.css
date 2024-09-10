@@ -377,21 +377,25 @@
 }
 
 .local-box {
-	background-color: #0056b380;
+	background-color: #0057b3bd;
 	border-radius: 15px;
 	padding: 15px;
-	width: 250px;
+	width: 300px;
+	min-height: 475px;
+	box-shadow: 0 0 5px #1739de, 0 0 5px #1739de, 0 0 15px #1739de, 0 0 15px #1739de, 0 0 15px #1739de;
 }
 
 .logo-box1 {
+	height: 100px;
 	margin-bottom: 20px;
+
 }
 
 .local-input {
 	border: 1px solid #ccc;
 	border-radius: 10px;
 	height: 45px;
-	margin: 10px 0 20px 0;
+	margin: 10px 0 5px 0;
 	padding: 10px;
 	width: 100%;
 }
@@ -401,4 +405,40 @@
 	height: 40px;
 	margin: 2px;
 	border-radius: 10px;
+}
+
+.myFont-title {
+	font-family: "CustomFont";
+	font-size: 12px;
+}
+
+.myFont {
+	font-family: 'CustomFont';
+	font-size: 10px;
+}
+
+.local-instructions-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.local-instructions-column {
+	text-align: center;
+}
+
+.local-instructions {
+	margin: 5px 0;
+}
+
+.local-instructions-title {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid #ccc;
+	border-radius: 12px;
+	height: 45px;
+	margin: 25px 0 0 0;
+	text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
 }

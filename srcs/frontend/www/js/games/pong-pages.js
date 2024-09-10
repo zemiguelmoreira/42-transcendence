@@ -1,18 +1,46 @@
 import { initializeTournament } from './pong-tournament-bracket.js';
+import { initializePongGameLocal } from './pong-local.js';
+import { navigateTo } from '../app.js';
 
 let pongScriptLoaded = false; // Variável global para rastrear se o script foi carregado
+let guest;
 
-function startLocalPongPage() {
+function startLocalPongPopup() {
 	return `
-	<div class="local-pending" id="localPending">
-		<div class="local-box">
-			<div class="logo-box1">PONG</div>
-			<div class="font-custom">Guest Name</div>
-			<input id="guestInput" class="local-input" type="text" placeholder="Enter guest name" maxlength="10" autofocus value="Guest">
-			<button id="playButton" class="btn btn-success local-btn">Play</button>
-			<button id="cancelButton" class="btn btn-danger local-btn">Cancel</button>
+		<div class="local-pending" id="localPending">
+			<div class="local-box">
+				<div class="logo-box1">PONG</div>
+				<div class="font-custom">Guest Name</div>
+				<input id="guestInput" class="local-input" type="text" placeholder="Enter guest name" maxlength="10" autofocus value="Guest">
+				<button id="playButton" class="btn btn-success local-btn">Play</button>
+				<button id="cancelButton" class="btn btn-danger local-btn">Cancel</button>
+		
+				<div class="local-instructions-title myFont-title">Game Instructions</div>
+		
+				<div class="local-instructions-container">
+					<!-- Coluna do Player 1 -->
+					<div class="local-instructions-column">
+						<div class="local-instructions myFont-title">PLAYER 1</div>
+						<div class="local-instructions myFont">w</div>
+						<div class="local-instructions myFont">s</div>
+					</div>
+		
+					<!-- Coluna do meio com controles -->
+					<div class="local-instructions-column controls">
+						<div class="local-instructions myFont"> - </div> <!-- Espaço em branco para alinhar -->
+						<div class="local-instructions myFont">UP</div>
+						<div class="local-instructions myFont">DOWN</div>
+					</div>
+		
+					<!-- Coluna do Player 2 -->
+					<div class="local-instructions-column">
+						<div class="local-instructions myFont-title">PLAYER 2</div>
+						<div class="local-instructions myFont">&#8593;</div>
+						<div class="local-instructions myFont">&#8595;</div>
+					</div>
+				</div>
+			</div>
 		</div>
-	</div>
 	`;
 }
 
@@ -27,47 +55,58 @@ function pongCanvasPage() {
 	`;
 }
 
+function loadPongLocalScript(username, guest) {
+	console.log('DOMContentLoaded event listener');
+	const path = window.location.pathname;
+	console.log('Path:', path);
+	if (path === '/user/' + username + '/pong-game-local') {
+		console.log('Correct path:', path);
+		const localPendingDiv = document.getElementById('localPending');
+		if (localPendingDiv && typeof initializePongGameLocal === 'function') {
+			localPendingDiv.remove();
+			initializePongGameLocal(username, guest);
+		}
+	} else {
+		console.log('Wrong path:', path);
+		navigateTo(`/user/${username}/pong`);
+	}
+}
+
+function loadPongScript(username) {
+	console.log('Loading snake guest window');
+	if (document.readyState === 'loading') {
+		// O DOM ainda não está carregado, então adicione o listener
+		console.log('O DOM ainda não está carregado, então adicione o listener');
+		document.addEventListener('DOMContentLoaded', () => {
+			loadPongLocalScript(username, guest);
+		});
+	} else {
+		console.log('O DOM já está carregado, então execute imediatamente');
+		// O DOM já está carregado, então execute imediatamente
+		loadPongLocalScript(username, guest);
+	}
+}
+
 function pongGameLocal(username) {
-
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalPongPage());
+	document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalPongPopup());
 	document.getElementById('guestInput').focus();
-	const localPendingDiv = document.getElementById('localPending');
-
+	
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		console.log('Cancel button clicked');
+		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
 	});
 
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
-		console.log('Play button clicked');
-
-		const guest = document.querySelector('#guestInput').value;
-		console.log('Guest:', guest);
-
+		guest = document.querySelector('#guestInput').value;
 		const runPongLocal = document.createElement('div');
 		runPongLocal.classList.add('invite-pending');
 		runPongLocal.id = 'runPong';
 		runPongLocal.innerHTML = pongCanvasPage();
 		document.getElementById('root').appendChild(runPongLocal);
-
-		const scriptElement = document.createElement('script');
-		scriptElement.src = '../../js/games/pong-local.js';
-		scriptElement.type = 'module';
-		scriptElement.onload = () => {
-			console.log('Pong script loaded. Initializing game...');
-			if (typeof initializePongGameLocal === 'function') {
-				localPendingDiv.remove();
-				initializePongGameLocal(username, guest);
-			} else {
-				console.error('initializePongGameLocal function not found.');
-			}
-		};
-		scriptElement.onerror = () => {
-			console.error('Error loading script pong-local.js');
-		};
-		document.body.appendChild(scriptElement);
+		navigateTo(`/user/${username}/pong-game-local`);
 	});
 }
 
@@ -235,4 +274,4 @@ function displayTournamentBracket() {
 	`;
 }
 
-export { pongGameLocal, pongGameRemote, pongGameTournament , pongCanvasPage }
+export { pongGameLocal, pongGameRemote, pongGameTournament , pongCanvasPage , loadPongScript }
