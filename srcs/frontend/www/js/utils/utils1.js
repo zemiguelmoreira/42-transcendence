@@ -42,6 +42,7 @@ function displayError(errorMessage) {
 	const errorDiv = document.getElementById('error-message');
 	errorDiv.textContent = `${errorMessage} Try again`;
 	errorDiv.style.display = 'block'; // Mostra a div de erro
+	document.getElementById('form1Example1').focus();
 	const registerForm = document.querySelector('#userRegisterForm');
 	for (let element of registerForm.elements) {
 		if (element.classList.contains('form-control')) {
@@ -60,6 +61,7 @@ function displayErrorSignIn(errorMessage) {
 	errorDiv.innerHTML = "";
 	errorDiv.textContent = `${errorMessage} Try again`;
 	errorDiv.style.display = 'block'; // Mostra a div de erro
+	document.getElementById('form1Example1').focus();
 	const registerForm = document.querySelector('#userSignInForm');
 	// console.log(registerForm);
 	for (let element of registerForm.elements) {

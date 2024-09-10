@@ -95,7 +95,7 @@ class FortyTwoConnectView(APIView):
             'client_id': clientId,
             'client_secret': client_secret,
             'code': code,
-            'redirect_uri': 'https://localhost/',
+            'redirect_uri': 'https://localhost/callback',
         })
 
         data = response.json()
@@ -125,16 +125,30 @@ class FortyTwoConnectView(APIView):
             if User.objects.filter(username=data['username']).exists():
                 user_test = User.objects.get(username=data['username'])
                 logger.info(f"user-data: {user_test}")
+                try:
+                  user_profile = UserProfile.objects.get(user=user_test)
+                  logger.info(f'Usuário data: {user_profile.__dict__}')
+                except UserProfile.DoesNotExist:
+                  return Response({"detail": "UserProfile not found for this user."}, status=status.HTTP_400_BAD_REQUEST)
                 # Verificar o valor de user_42 no UserProfile
-                if hasattr(user_test, 'userprofile') and not user_test.userprofile.userApi42:
+                if hasattr(user_profile, 'userApi42') and not user_profile.userApi42:
                     return Response({"detail": "This username is already in use."}, status=status.HTTP_400_BAD_REQUEST)
+                    
         
             # Verifica se o email já existe (caso o email seja obrigatório ou esteja presente)
             if data['email'] and User.objects.filter(email=data['email']).exists():
-                user_test = User.objects.get(username=data['username'])
+                user_test = User.objects.get(email=data['email'])
+                logger.info(f"user-data: {user_test}")
+                try:
+                  user_profile = UserProfile.objects.get(user=user_test)
+                  logger.info(f'Usuário data: {user_profile.__dict__}')
+                except UserProfile.DoesNotExist:
+                  return Response({"detail": "UserProfile not found for this user."}, status=status.HTTP_400_BAD_REQUEST)
                 # Verificar o valor de user_42 no UserProfile
-                if hasattr(user_test, 'userprofile') and not user_test.userprofile.userApi42:
+                if hasattr(user_profile, 'userApi42') and not user_profile.userApi42:
                     return Response({"detail": "This email is already in use."}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
             user, created = User.objects.get_or_create(
             username=data['username'],
@@ -265,6 +279,9 @@ class ConfirmRegistrationView(generics.CreateAPIView):
 
                     # Cria o perfil do usuário e gera o segredo para 2FA
                     UserProfile.objects.create(user=user).generate_2fa_secret()
+
+                    user_data = UserProfile.objects.get(user=user)
+                    logger.info(f'Usuário data: {user_data.__dict__}')
 
                     # Limpa os dados e o código armazenados em cache
                     cache.delete_many([f'registration_code_{user.email}', f'registration_data_{user.email}'])

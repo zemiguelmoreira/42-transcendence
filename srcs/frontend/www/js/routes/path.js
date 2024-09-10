@@ -36,6 +36,22 @@ const pages = {
 		},
 		access: true //rota publica
 	},
+	'/callback': {
+		loadContent: function () {
+			// console.log('Loading register page content');
+			// register();
+			console.log('teste2');
+			const auth42Element = `<div style="height: 100%; display: flex; color: green; justify-content: center; align-items: center;">
+										<p style="font-size: 30px;">Authenticating with 42...</p>
+								   </div>`;
+			document.getElementById('root').innerHTML = '';
+			document.getElementById('root').innerHTML = auth42Element;
+			// const defaultState = { page: '/' }
+			// history.replaceState(defaultState, '', "/");
+			
+		},
+		access: true //rota publica
+	},
 	'/user/:username': {
 		loadContent: function (params) {
 			homeLogin(params.username);

@@ -7,6 +7,7 @@ import Language from "./translations/languages.js";
 import { getParams } from "./login/login42.js";
 
 
+
 // const baseURL = "https://localhost/user";
 const baseURL = "https://localhost/api";
 
@@ -110,6 +111,7 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 	}
 }
 
+
 function matchRoute(route) {
 	for (let path in pages) {
 		const paramNames = [];
@@ -132,6 +134,7 @@ function matchRoute(route) {
 	return null;
 }
 
+// Função de entrada - Start from here
 document.addEventListener('DOMContentLoaded', function (e) {
 
 	// console.log("EVENT LISTENER")
@@ -197,14 +200,62 @@ document.addEventListener('DOMContentLoaded', function (e) {
 	console.log('href-app.js: ', window.location.href); // Output: exemplo "https://localhost/signIn"
 	// console.log(window.location.hash); // Output: "" se tivermos o hash nos endereços
 
-	console.log('href-app.js: ', window.location.search);
-	if (window.location.search) {
-		// localStorage.clear();
-		// window.history.replaceState({page:'/'}, '', '/'); // não funciona
-		getParams();
 
+	// evento para ler a mensagem que vem da janela de auth da api da 42
+	window.addEventListener('message', (e) => {
+		
+		// console.log('event origin: ', e.origin);
+		// console.log('Info OAuth recebido:', e.data);
+		const info = e.data;
+
+		
+		console.log('Código OAuth recebido:', info.code);
+		// console.log('State OAuth recebido:', info.state); // não está a ser entregue à função só teste
+
+		getParams(info.code);
+
+	});
+
+
+	// quando abre a janela de auth da api 42 o redirect vem para o callback
+	if (window.location.pathname && window.location.pathname === "/callback") {
+		
+		// console.log(window.location.search);
+		let code;
+		let state;
+
+		if (window.location.search) {
+			
+			console.log(window.location.search);
+	
+			const params = new URLSearchParams(window.location.search);
+	
+			// Obtém o valor de um parâmetro específico
+			code = params.get('code');
+			state = params.get('state');
+	
+		}
+
+		// navigateTo("/callback"); // não é necessário porque entra no if(!viewToken)
+
+		if (code) {
+
+			console.log('Código de acesso: ', code);
+			console.log('State: ', state);
+
+			const params = {
+				code: code,
+				state: state
+			}
+
+			window.opener.postMessage(params, 'https://localhost/');
+		}
+
+		window.close();
 	}
 
+
+    // Trata do botão de refresh do browser (atenção aos tokens)
 	if (!viewTokenRefresh()) {// mudar colocar not para funcionar corretamente
 		console.log('pathname-app.js1: ', window.location.pathname); // Output: exemplo "/signIn"
 		console.log('href-app.js1: ', window.location.href); // Output: exemplo "https://localhost/signIn"
@@ -230,4 +281,4 @@ document.addEventListener('DOMContentLoaded', function (e) {
 export { baseURL, navigateTo, goTo, matchRoute }
 
 // Na página de user ligado, temos de verificar os tokens em todos os links, função a utilizar
-// função asincrona fetchWithAuth - profile.js
+// função assíncrona fetchWithAuth - profile.js

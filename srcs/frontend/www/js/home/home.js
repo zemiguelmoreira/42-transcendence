@@ -5,7 +5,7 @@ import { fetchUserProfile, fetchUserProfileSettings } from "../profile/myprofile
 import { getUser } from "../search/search_user.js";
 import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
-import { displaySlidingMessage } from "../utils/utils1.js";
+import { displaySlidingMessage, displayError } from "../utils/utils1.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
@@ -21,6 +21,7 @@ function home() {
 
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
+	document.getElementById('form1Example1').focus();
 
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -34,12 +35,21 @@ function home() {
 
 	handleInputBlur(inputField, limitChar);
 
+	
 	const signInUser42 = document.querySelector('#signInUser42');
-	signInUser42.addEventListener('click', userSignIn42);
+	signInUser42.addEventListener('click', function (e) {
+		e.preventDefault();
+		if (!viewToken())
+			userSignIn42();	
+		else 
+			displayError("To login with another user, you have to logout.");
+	});
+
 
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
 }
+
 
 function closeSlidingWindow() {
 	let slidingWindow = document.querySelector('.sliding-window');
