@@ -1,4 +1,6 @@
-function initializeSnakeGameFreeForAll() {
+import { navigateTo } from '../app.js';
+
+function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
     // Verifica se o canvas foi carregado corretamente
     const canvas = document.getElementById('gameCanvasSnakeFreeForAll');
     if (!canvas) {
@@ -15,15 +17,20 @@ function initializeSnakeGameFreeForAll() {
 
     // Configuração inicial das cobrinhas
     const snakes = [
-        { color: '#0000FF', segments: [{ x: 5, y: 10 }, { x: 4, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true },
-        { color: '#00FF00', segments: [{ x: 10, y: 5 }, { x: 10, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true },
-        { color: '#FFFF00', segments: [{ x: 15, y: 10 }, { x: 14, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true },
-        { color: '#FF0000', segments: [{ x: 20, y: 5 }, { x: 20, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true }
+        { color: '#0000FF', segments: [{ x: 5, y: 10 }, { x: 4, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: username },
+        { color: '#00FF00', segments: [{ x: 10, y: 5 }, { x: 10, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest1 },
+        { color: '#FFFF00', segments: [{ x: 15, y: 10 }, { x: 14, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest2 },
+        { color: '#FF0000', segments: [{ x: 20, y: 5 }, { x: 20, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest3 }
     ];
 
     // Continue com a configuração do jogo aqui...
     // Controla a velocidade do jogo (menor valor = mais rápido)
     let gameSpeed = 150; // Em milissegundos
+
+	let snakeScore1 = 0;
+	let snakeScore2 = 0;
+	let snakeScore3 = 0;
+	let snakeScore4 = 0;
 
 	// Função para desenhar a grelha
 	function drawGrid() {
@@ -190,51 +197,189 @@ function initializeSnakeGameFreeForAll() {
         }
     
         // Verifica colisão com outras cobrinhas
-        for (const otherSnake of snakes) {
-            if (otherSnake !== snake && otherSnake.alive) {
-                for (const segment of otherSnake.segments) {
-                    if (head.x === segment.x && head.y === segment.y) {
-                        snake.alive = false;
-                        return;
-                    }
-                }
-            }
-        }
+		// Verifica colisão com outras cobrinhas
+		for (const otherSnake of snakes) {
+			if (otherSnake !== snake && otherSnake.alive) {
+				const otherHead = otherSnake.segments[0];
+
+				// Colisão cabeça com cabeça
+				if (head.x === otherHead.x && head.y === otherHead.y) {
+					if (snake.segments.length > otherSnake.segments.length) {
+						otherSnake.alive = false; // Cobra menor morre
+					} else if (snake.segments.length < otherSnake.segments.length) {
+						snake.alive = false; // Cobra maior morre
+					} else {
+						// Ambas cobras têm o mesmo tamanho, decide aleatoriamente quem morre
+						const randomDeath = Math.random() < 0.5; // Gera um valor aleatório entre 0 e 1
+						if (randomDeath) {
+							snake.alive = false; // Cobra atual morre
+						} else {
+							otherSnake.alive = false; // Outra cobra morre
+						}
+					}
+					return;
+				}
+
+				// Verifica colisão da cabeça de uma cobra com o corpo da outra
+				for (const segment of otherSnake.segments) {
+					if (head.x === segment.x && head.y === segment.y) {
+						snake.alive = false;
+					}
+				}
+			}
+		}
     
-        // Verifica se a cabeça da cobrinha colidiu com a comida
-        if (head.x === food.x && head.y === food.y) {
-            snake.segments.unshift(head); // Adiciona o novo segmento na frente
-            food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; // Gera nova comida
-            foodColor = randomColor(); // Atualiza a cor da comida
-        } else {
-            // Move a cobrinha: adiciona o novo segmento na frente e remove o último
-            snake.segments.unshift(head);
-            snake.segments.pop();
-        }
+		// Verifica se a cabeça da cobrinha colidiu com a comida
+		if (head.x === food.x && head.y === food.y) {
+			snake.segments.unshift(head); // Adiciona o novo segmento na frente
+			food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; // Gera nova comida
+			foodColor = randomColor(); // Atualiza a cor da comida
+			if (snake.name === username) {
+				snakeScore1 = snake.segments.length - 2;
+				document.getElementById('snakeScore1').innerText = snakeScore1;
+			} else if (snake.name === guest1) {
+				snakeScore2 = snake.segments.length - 2;
+				document.getElementById('snakeScore2').innerText = snakeScore2;
+			} else if (snake.name === guest2) {
+				snakeScore3 = snake.segments.length - 2;
+				document.getElementById('snakeScore3').innerText = snakeScore3;
+			} else if (snake.name === guest3) {
+				snakeScore4 = snake.segments.length - 2;
+				document.getElementById('snakeScore4').innerText = snakeScore4;
+			}
+		} else {
+			// Move a cobrinha: adiciona o novo segmento na frente e remove o último
+			snake.segments.unshift(head);
+			snake.segments.pop();
+		}
     }
     
     function update() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// Limpa o canvas antes de desenhar o próximo frame
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		drawGrid(); // Desenha a grelha antes de desenhar outros elementos
-	
-        snakes.forEach(snake => {
-            moveSnake(snake);
-            if (snake.alive) {
-                drawSnake(snake);
-            }
-        });
-    
-        drawFood(); // Desenha a comida
-    
-        // Verifica se há apenas uma cobrinha viva
-        const aliveSnakes = snakes.filter(snake => snake.alive);
-        if (aliveSnakes.length === 1) {
-            clearInterval(gameInterval);
-            alert(`Game Over! The winner is the ${aliveSnakes[0].color} snake.`);
-        }
+		// Verifica se o usuário ainda está na página do jogo
+		if (window.location.pathname !== `/user/${username}/snake-game-free-for-all`) {
+			console.log('Usuário saiu da página do jogo, interrompendo o loop.');
+			document.getElementById('runSnake').remove();
+			clearInterval(gameInterval); // Stop the game loop
+			return;
+		}
+
+		// Desenha a grelha
+		drawGrid();
+
+		// Atualiza e desenha cada cobrinha
+		snakes.forEach(snake => {
+			if (snake.alive)
+				moveSnake(snake);
+			if (snake.alive)
+				drawSnake(snake);
+		});
+
+		// Verifica se restou apenas uma cobrinha viva ou nenhuma
+		const aliveSnakes = snakes.filter(snake => snake.alive);
+		if (aliveSnakes.length === 1) {
+			clearInterval(gameInterval);
+			endGame(aliveSnakes[0].name);
+		}
+
+		// Desenha a comida
+		drawFood();
     }
+
+
+
+	async function endGame(snake_winner) {
+		try {
+			// Determina o vencedor e o perdedor
+			let winner, loser, winnerScore, loserScore;
+			winner = snake_winner;
+
+			// Define o vencedor e o perdedor com base no nome da cobrinha
+			if (winner === username) {
+				loser = guest;
+				winnerScore = snakeScore1; 	// Score do username
+				loserScore = snakeScore2; 	// Score do guest
+			} else {
+				loser = username;
+				winnerScore = snakeScore2; 	// Score do guest
+				loserScore = snakeScore1; 	// Score do username
+			}
+
+			const gameType = 'snake';  // Example: 'pong' or 'snake'
+			const timestamp = new Date().toISOString();  // Capture current timestamp or get it from another source
+
+			const pong_accessToken = localStorage.getItem('access_token');
+			const response = await fetch('/api/profile/update_match_history/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${pong_accessToken}`,
+				},
+				body: JSON.stringify({
+					game_type: gameType,
+					winner: winner,
+					loser: loser,
+					winner_score: winnerScore,
+					loser_score: loserScore,
+					timestamp: timestamp,
+				}),
+			});
+
+			const data = await response.json();
+			console.log("RESPONSE: ", data);
+			if (!response.ok) {
+				console.log('Error:', data.error || 'Failed to update match history');
+			}
+
+		} catch (error) {
+			console.error('Error during match history update:', error.message);
+		}
+
+		setTimeout(() => {
+			showEndScreen(snake_winner);
+		}, 1000)
+	}
+
+	function showEndScreen(winnerName) {
+		// Limpa o canvas antes de desenhar a mensagem de fim de jogo
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Desenha o fundo para a mensagem de fim de jogo
+		ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		// Define o estilo do texto
+		ctx.fillStyle = "#fff";
+		ctx.font = "50px CustomFont";
+		ctx.textAlign = "center";
+
+		// Se o nome do vencedor for "No winner", significa que houve empate
+		if (winnerName === "No winner") {
+			console.log('Game over! No winner.');
+			ctx.fillText("DRAW!", canvas.width / 2, canvas.height / 2 + 20);
+		} else {
+			console.log('Game over! The winner is:', winnerName);
+			ctx.fillText(`WINNER: ${winnerName}`, canvas.width / 2, canvas.height / 2 + 20);
+		}
+
+		// Após um atraso de 3 segundos, remove o jogo da tela
+		setTimeout(() => {
+			console.log('Closing the game...');
+			const closeGame = document.getElementById('runSnake');
+			if (closeGame) {
+				closeGame.remove();
+				navigateTo(`/user/${username}/snake`);
+			}
+		}, 3000);
+	}
     
     // Inicializa o loop do jogo com base na velocidade definida
     const gameInterval = setInterval(update, gameSpeed);
+
+
+
 }
+
+export { initializeSnakeGameFreeForAll }

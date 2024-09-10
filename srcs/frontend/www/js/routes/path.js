@@ -7,7 +7,7 @@ import { signIn } from "../login/login.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-import { loadSnakeScript, snakeGameRemote, snakeGameFreeForAll } from "../games/snake-pages.js";
+import { snakeGameRemote , loadSnakeLocalScript , loadSnakeMultiplayerScript } from "../games/snake-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { loadPongScript, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
@@ -143,7 +143,7 @@ const pages = {
 	},
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
-			loadSnakeScript(params.username);
+			loadSnakeLocalScript(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -157,7 +157,7 @@ const pages = {
 	},
 	'/user/:username/snake-game-free-for-all': {
 		loadContent: function (params) {
-			snakeGameFreeForAll(params.username);
+			loadSnakeMultiplayerScript(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

@@ -1,5 +1,5 @@
 import { navigateTo } from "../app.js";
-import { snakeGameLocal } from "./snake-pages.js";
+import { snakeGameLocal , snakeGameMultiplayer } from "./snake-pages.js";
 
 function snakeOptions(username) {
 
@@ -28,7 +28,7 @@ function snakeOptions(username) {
 				<div class="card-body">
 					<h5 class="card-title">SNAKE FREE FOR ALL</h5>
 					<p class="card-text"> Survive this epic 4 multiplayer "free for all" snake adventure. <b>Remote unranked game.</b></p>
-					<a href="" class="btn btn-primary card-btn" id="snakeGameFreeForAll">Let's Play</a>
+					<a href="" class="btn btn-primary card-btn" id="snakeGameMultiplayer">Let's Play</a>
 				</div>
 			</div>
 		`;
@@ -46,9 +46,9 @@ function snakeOptions(username) {
 		navigateTo(`/user/${username}/snake-game-remote`);
 	});
 
-	document.getElementById('snakeGameFreeForAll').addEventListener('click', (e) => {
+	document.getElementById('snakeGameMultiplayer').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo(`/user/${username}/snake-game-free-for-all`);
+		snakeGameMultiplayer(username);
 	});
 
 }
