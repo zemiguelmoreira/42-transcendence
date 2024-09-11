@@ -5,14 +5,12 @@ import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
 
-
 function userProfilePage(userData) {
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePageData = makeProfilePage(userData);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
-	// console.log('displayFriendsList userData:', userData);
 	displayProfileFriendsList(userData.user.username);
 	document.getElementById('editProfile').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -21,7 +19,6 @@ function userProfilePage(userData) {
 }
 
 function displayMatchHistory(data, TableContainer) {
-	// console.log('TableContainer:', TableContainer);
 	let table = '<table class="matches-history" border="1" cellspacing="0" cellpadding="5">';
 	table += `<tbody>`;
 	data.forEach(match => {
@@ -49,11 +46,9 @@ async function displayProfileFriendsList(myUsername) {
 				'Content-Type': 'application/json',
 			}
 		});
-
 		if (!response.ok) {
 			throw new Error('Network response was not ok');
 		}
-
 		const data = await response.json();
 		const friends = data.friends;
 		let table = `
@@ -61,8 +56,6 @@ async function displayProfileFriendsList(myUsername) {
 		<table class="small-card-table">
 		<tbody>
 		`;
-
-		// Usando for...of para lidar corretamente com async/await
 		for (const friend of friends) {
 			let dataUser = await getUserProfileByUsername(friend.username);
 			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
@@ -78,25 +71,21 @@ async function displayProfileFriendsList(myUsername) {
 			</tr>
 			`;
 		}
-
 		table += `
 			</tbody>
 		</table>
 		`;
 		document.getElementById("friends-card-list").innerHTML = table;
-
-		// Adiciona o event listener a cada link baseado no ID único
 		friends.forEach((friend) => {
 			const uniqueId = `link-${friend.username}`;
 			const link = document.getElementById(uniqueId);
-			if (link) { // Verifica se o link existe
+			if (link) {
 				link.addEventListener('click', (event) => {
 					event.preventDefault();
 					viewUserProfile(myUsername, friend.username);
 				});
 			}
 		});
-
 	} catch (error) {
 		console.error('Error fetching friend list:', error);
 	}
@@ -112,11 +101,9 @@ async function displayFriendsList(myUsername, is_setting = false) {
 				'Content-Type': 'application/json',
 			}
 		});
-
 		if (!response.ok) {
 			throw new Error('Network response was not ok');
 		}
-
 		const data = await response.json();
 		const friends = data.friends;
 		const tableClass = is_setting ? 'friends-management-table' : 'friends-table';
@@ -135,15 +122,12 @@ async function displayFriendsList(myUsername, is_setting = false) {
 			</thead>
 			<tbody>
 		`;
-
 		friends.forEach((friend) => {
-			// console.log('Friend:', friend);
-			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
+			const uniqueId = `link-${friend.username}`;
 			table += `
 			<tr>
 				<td><a href="" id="${uniqueId}" class="link-primary">${friend.username}</a></td>
 				<td><span class="status-icon ${friend.is_logged_in ? 'green' : 'red'}"></span></td>`;
-			
 			if (is_setting) {
 				table += `<td><button id="removeFriend-${friend.username}" class="btn btn-outline-danger btn-sm friends-management-table-btn" data-username="${friend.username}">Remove Friend</button></td>`;
 			}
@@ -151,24 +135,20 @@ async function displayFriendsList(myUsername, is_setting = false) {
 		});
 		table += '</tbody></table>';
 		document.getElementById("friends-list").innerHTML = table;
-		
-		// Adiciona o event listener a cada link baseado no ID único
 		friends.forEach((friend) => {
 			const uniqueId = `link-${friend.username}`;
 			const link = document.getElementById(uniqueId);
-			if (link) { // Verifica se o link existe
+			if (link) {
 				link.addEventListener('click', (event) => {
 					event.preventDefault();
 					viewUserProfile(myUsername, friend.username);
 				});
 			}
 		});
-
-		// Adiciona o event listener a cada botão de remoção de amigo
 		if (is_setting) {
 			friends.forEach((friend) => {
 				const button = document.getElementById(`removeFriend-${friend.username}`);
-				if (button) { // Verifica se o botão existe
+				if (button) {
 					button.addEventListener('click', async (e) => {
 						e.preventDefault();
 						const friendUsername = button.getAttribute('data-username');
@@ -196,14 +176,10 @@ async function displayBlockedList(myUsername) {
 				'Authorization': `Bearer ${accessToken}`,
 			}
 		});
-
 		if (!response.ok) {
 			throw new Error('Network response was not ok: ' + response.statusText);
 		}
-
 		const data = await response.json();
-		console.log('Blocked data List:', data);
-
 		let table = `
 			<table class="friends-management-table">
 				<thead>
@@ -213,14 +189,11 @@ async function displayBlockedList(myUsername) {
 						<th>Unblock User</th>
 					</tr>
 				</thead>
-				<tbody>
+			<tbody>
 		`;
-
-		// Usando `for...of` para garantir que o loop espere as promessas
 		for (const user of data.blocked_list) {
 			let userData = await getUserProfileByUsername(user);
-			console.log('userData:', userData);
-			const uniqueId = `link-${user}`; // Gera um ID único baseado no nome do usuário
+			const uniqueId = `link-${user}`;
 			table += `
 				<tr>
 					<td><a href="" id="${uniqueId}" class="link-primary">${user}</a></td>
@@ -229,11 +202,8 @@ async function displayBlockedList(myUsername) {
 				</tr>
 			`;
 		}
-
 		table += '</tbody></table>';
 		document.getElementById("blocked-list").innerHTML = table;
-
-		// Adiciona o event listener a cada link e botão após a tabela ser renderizada
 		data.blocked_list.forEach((user) => {
 			const uniqueId = `link-${user}`;
 			const link = document.getElementById(uniqueId);
@@ -243,14 +213,13 @@ async function displayBlockedList(myUsername) {
 					viewUserProfile(myUsername, user);
 				});
 			}
-
 			const button = document.getElementById(`unblockUser-${user}`);
 			if (button) {
 				button.addEventListener('click', async (e) => {
 					e.preventDefault();
 					const usernameToUnblock = button.getAttribute('data-username');
 					await unblockUser(usernameToUnblock, displaySlidingMessage);
-					await displayBlockedList(myUsername); // Recarrega a lista após o desbloqueio
+					await displayBlockedList(myUsername);
 				});
 			}
 		});
@@ -259,9 +228,7 @@ async function displayBlockedList(myUsername) {
 	}
 }
 
-
 function profileSettings(dataUser) {
-	console.log('profile Setting: ', dataUser);
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
@@ -270,7 +237,6 @@ function profileSettings(dataUser) {
 }
 
 function profileOtherUser(dataUser) {
-	console.log('profile other user: ', dataUser);
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeProfilePageSearchOther(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);

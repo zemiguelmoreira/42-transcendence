@@ -44,7 +44,6 @@ function initializePongGameLocal(username, guest) {
 		ctx.textAlign = "center";
 		ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
 		setTimeout(() => {
-			console.log('Closing the game...');
 			const closeGame = document.getElementById('runPong');
 			closeGame.remove();
 		}, 3000);
@@ -246,7 +245,6 @@ function initializePongGameLocal(username, guest) {
 			return;
 		}
 		if (window.location.pathname !== `/user/${username}/pong-game-local`) {
-			console.log('Usuário saiu da página do jogo, interrompendo o loop.');
 			document.getElementById('runPong').remove();
 			return;
 		}

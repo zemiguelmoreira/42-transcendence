@@ -46,7 +46,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 			ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
 			return new Promise((resolve) => {
 				setTimeout(() => {
-					console.log('Closing the game...');
 					const closeGame = document.getElementById('runPong');
 					if (closeGame) {
 						closeGame.remove();
@@ -228,7 +227,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 				return;
 			}
 			if (window.location.pathname !== `/user/${username}/pong-game-tournament`) {
-				console.log('Usuário saiu da página do jogo, interrompendo o loop.');
 				resolve(null);
 				return;
 			}

@@ -1,7 +1,4 @@
-
-// Página de perfil
 function makeProfilePage(data) {
-	console.log("makeProfilePage: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
@@ -84,9 +81,7 @@ function makeProfilePage(data) {
 	`;
 }
 
-// Página de edição de perfil
 function makeEditProfilePage(data) {
-	console.log("makeEditProfilePage: ", data);
 	const imageMap = {
 		"../../../files/default.jpg": "default.jpg",
 		"../../../files/user(2).png": "user2.png",
@@ -167,9 +162,7 @@ function makeEditProfilePage(data) {
     `;
 }
 
-// Resultado da busca de outro usuário
 function makeProfilePageSearchOther(data) {
-	console.log("makeProfilePageSearchOther: ", data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
@@ -252,7 +245,6 @@ function makeProfilePageSearchOther(data) {
 	`;
 }
 
-// Página de erro de busca
 function noResultsPage(searchValue) {
 	return `
 		<div class="mainContent">
@@ -264,7 +256,6 @@ function noResultsPage(searchValue) {
 }
 
 function makeSettingsPage(data) {
-	// console.log("makeSettingsPage: ", data);
 	return `
 		<div class="profile-container">
 			<div class="profile-left">

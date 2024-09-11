@@ -18,23 +18,19 @@ class WebSocketService {
 	}
 	async connect(username) {
 		if (this.socketRef) {
-			console.log('WebSocket already connected or closing.');
 			this.socketRef.close();
 			this.socketRef = null;
 		}
 		let token = localStorage.getItem('access_token');
 		const refreshToken = localStorage.getItem('refresh_token');
 		if (!refreshToken || !this.testToken(refreshToken)) {
-			console.log('No refresh token found or token invalid, cannot connect WebSocket');
 			return;
 		}
 		if (!token || !this.testToken(token)) {
-			console.log('No access token found or access token invalid, websocket');
 			const refreshed = await refreshAccessToken();
 			if (refreshed) {
 				token = localStorage.getItem('access_token');
 			} else {
-				console.log('Error with refresh token in socket');
 				navigateTo('/');
 				return;
 			}
@@ -42,20 +38,17 @@ class WebSocketService {
 		const path = `wss://${window.location.host}/chat/ws/?token=${token}`;
 		this.socketRef = new WebSocket(path);
 		this.chatLog = document.getElementById("chat-log");
-		console.log('chatlog: ', this.chatLog);
 		this.setupSocketHandlers(username);
 	}
 	setupSocketHandlers(username) {
 		this.socketRef.onopen = () => {
-			console.log('WebSocket connection established');
+			// console.log('WebSocket connection established');
 		};
 		this.socketRef.onmessage = e => {
 			let data;
 			try {
 				data = JSON.parse(e.data);
-				console.log('Para consulta data do chat: ', data);
 			} catch (error) {
-				console.error('Error parsing WebSocket message:', error);
 				return;
 			}
 			if (data.message) {
@@ -72,7 +65,7 @@ class WebSocketService {
 			console.error('WebSocket error:', error);
 		};
 		this.socketRef.onclose = e => {
-			console.log('WebSocket connection closed:', e);
+			// console.log('WebSocket connection closed:', e);
 		};
 	}
 	close() {

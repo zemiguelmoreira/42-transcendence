@@ -11,7 +11,6 @@ async function getUserProfileByUsername(username) {
 	}
 	try {
 		response = await fetchWithAuth(`/api/profile/get_user_profile/?username=${username}`, conf);
-
 		if (!response.ok) {
 			const data = await response.json();
 			throw {
@@ -80,7 +79,6 @@ async function fetchUserProfileSettings(username) {
 	}
 	try {
 		const response = await fetchWithAuth(`${baseURL}/profile/`, conf);
-
 		if (!response.ok) {
 			throw {
 				message: 'Failed to fetch user profile - protected',

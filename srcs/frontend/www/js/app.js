@@ -14,13 +14,11 @@ async function goTo() {
 			await refreshAccessToken();
 			const accessToken = localStorage.getItem('access_token');
 			const payload = testToken(accessToken);
-			console.log('teste1');
 			if (!payload) {
 				navigateTo('/');
 				return;
 			}
 			let username = await getNamebyId(payload.user_id);
-			console.log('teste2:', username);
 			if (username) {
 				navigateTo(`/user/${username}`);
 				await WebSocketInstance.connect();
@@ -85,10 +83,8 @@ function matchRoute(route) {
 
 document.addEventListener('DOMContentLoaded', function (e) {
 	window.addEventListener('popstate', (e) => {
-		console.log('state: ', e.state);
 		if (e.state) {
 			const matchedRoute = matchRoute(e.state.page);
-			console.log('matchedRoute history: ', matchedRoute);
 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 			if (accessAllowed && e.state.page === "/signIn") {
 				if (!localStorage.getItem('access_token')) {
@@ -139,13 +135,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
 		window.close();
 	}
 	if (!viewTokenRefresh()) {
-		console.log('pathname-app.js1: ', window.location.pathname);
-		console.log('href-app.js1: ', window.location.href);
 		navigateTo(window.location.pathname);
 	}
 	else {
-		console.log('pathname-app.js2: ', window.location.pathname);
-		console.log('href-app.js2: ', window.location.href);
 		if (window.location.pathname && window.location.pathname === "/signIn") {
 			localStorage.removeItem('access_token');
 			sessionStorage.removeItem('access_token');

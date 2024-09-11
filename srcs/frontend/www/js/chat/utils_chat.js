@@ -19,10 +19,8 @@ function displayChatMessage(data, chatLog) {
 	} else if (data.error) {
 		messageElement.classList.add('message-error');
 	} else if (data.invite_response) {
-		console.log('message-invite-response: ', data);
 		messageElement.classList.add('message-invite-response');
 	} else {
-		console.log('message-default: ', data);
 		messageElement.classList.add('message-default');
 	}
 	const senderElement = document.createElement("span");
@@ -210,22 +208,18 @@ function handleCancelInvite(recipient, roomCode) {
 		"recipient": recipient,
 		"roomCode": roomCode
 	};
-	console.log('Cancel invite sent to', recipient);
 	chatSocketInstance.send(cancelMessage);
 	displaySlidingMessage(`Invite to ${recipient} has been canceled.`);
 }
 
 async function sendGameInvite(user, game) {
 	roomCode = await createRoom(user);
-	console.log('Invite: roomCode: ', roomCode);
 	const inviteMessage = {
 		"type": "invite",
 		"recipient": user,
 		"game": game,
 		"roomCode": roomCode
 	};
-	console.log('Invite sent to', user);
-	console.log('InviteMessage: ', inviteMessage);
 	chatSocketInstance.send(inviteMessage);
 	const invitePendingDiv = document.createElement('div');
 	invitePendingDiv.classList.add('invite-pending');

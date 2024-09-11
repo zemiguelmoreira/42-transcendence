@@ -11,13 +11,8 @@ import { handleInput, handleInputBlur } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
 import WebSocketInstance from "../socket/websocket.js";
 
-
-////****************LOGIN DO USER*****************************/////
-
 function insertInputValidation1(qrForm) {
 	for (let element of qrForm.elements) {
-		// console.log('elemento no validation: ', element);
-		// Verifica se o elemento é do tipo input e tem a classe 'form-control'
 		if (element.classList.contains('form-control') && !element.value) {
 			element.classList.add('input-error');
 		} else if (element.value) {
@@ -25,7 +20,6 @@ function insertInputValidation1(qrForm) {
 				element.classList.remove('input-error');
 			}
 		}
-		// Adiciona um listener para o evento de entrada (input)
 		if (element.classList.contains('form-control')) {
 			element.addEventListener('input', function () {
 				if (element.value) {
@@ -41,7 +35,6 @@ function userSignIn(e) {
 	const userSignInForm = document.querySelector('#userSignInForm');
 	const userOrEmail1 = userSignInForm.elements.username.value;
 	const password1 = userSignInForm.elements.password.value;
-	// console.log(userOrEmail1, password1);
 	if (userOrEmail1 && password1) {
 		sendIUser(userOrEmail1, password1);
 		userSignInForm.elements.username.value = "";
@@ -53,39 +46,28 @@ function userSignIn(e) {
 
 function showSuccessMessageSignIn(username) {
 	var messageDiv = document.getElementById('successMessage');
-	messageDiv.style.display = 'block'; // Exibe a mensagem
+	messageDiv.style.display = 'block';
 	setTimeout(function () {
 		messageDiv.style.display = 'none';
 		WebSocketInstance.connect();
 		navigateTo(`/user/${username}`);
-	}, 1000); // 1000 milissegundos = 1 segundos
+	}, 1000);
 }
 
 function signIn() {
-
 	document.getElementById('root').innerHTML = "";
 	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
-
-	document.getElementById('form1Example1').focus(); // colocar focus no campo de colocação do código
-
+	document.getElementById('form1Example1').focus();
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar2');
-
 	handleInput(inputField, limitChar);
-
 	handleInputBlur(inputField, limitChar);
-
 	const signInUser = document.querySelector('#signInUser');
 	signInUser.addEventListener('click', userSignIn);
-
-	// const signInUser42 = document.querySelector('#signInUser42');
-	// signInUser42.addEventListener('click', userSignIn42);
-	
 	document.getElementById('backButton').addEventListener('click', function (e) {
 		e.preventDefault();
 		navigateTo('/');
 	});
-
 }
 
 async function sendIUser(userOrEmail, password) {
@@ -97,28 +79,19 @@ async function sendIUser(userOrEmail, password) {
 	};
 	try {
 		const response = await fetch(`${baseURL}/token/`, conf);
-		// console.log('response login: ', response);
 		if (!response.ok) {
 			const errorData = await response.json();
-			// console.log('errorData login: ', errorData.detail);
 			const errorObject = {
 				message: errorData.detail,
 				status: response.status,
 			};
-			// console.log(errorObject.message, errorObject.status);
 			throw errorObject;
 		}
 		const data = await response.json();
-		console.log('data login: ', data);
-		// saveToken(data.access, data.refresh);
-		//ateração dos tokens
 		sessionStorage.setItem('access_token', data.access);
 		localStorage.setItem('refresh_token', data.refresh);
-		// console.log('localstorage', viewToken());
 		const payload = testToken(data.access);
-		// console.log(payload);
 		let username = await getNamebyId(payload.user_id);
-		// console.log(username);
 		const qr_code = await fetchQrCode();
 		if (qr_code) {
 			displayQrCode(qr_code);
@@ -130,11 +103,9 @@ async function sendIUser(userOrEmail, password) {
 		submitCode.addEventListener('click', async function (e) {
 			e.preventDefault();
 			const code = qrForm.elements.qrCode.value;
-			// console.log('teste o code é: ', code);
 			if (code) {
 				try {
-					const result = await verifyCode(userOrEmail, code); // após verificação colocar os campos do qrCodeForm a zero
-					// console.log('result status: ', result.status); // se não validar o result será um erro
+					const result = await verifyCode(userOrEmail, code);
 					if (result.status && result.status === 400)
 						throw { message: 'Invalid or expired 2FA code', status: 400 };
 					qrForm.elements.qrCode.value = "";
@@ -145,11 +116,10 @@ async function sendIUser(userOrEmail, password) {
 					const successDiv = successContainer(username);
 					document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 					if (viewToken()) {
-						sessionStorage.removeItem('access_token'); //apaga o token do sessionStorage colocado no login
+						sessionStorage.removeItem('access_token');
 						showSuccessMessageSignIn(username);
-						// Adiciona o conteúdo de home_page após o login bem-sucedido
 					} else {
-						sessionStorage.removeItem('access_token'); //apaga o token do sessionStorage colocado no login
+						sessionStorage.removeItem('access_token');
 						throw { message: `User ${username} not validated - bad request`, status: 404 };
 					}
 				} catch (e) {

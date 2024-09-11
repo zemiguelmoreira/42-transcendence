@@ -49,31 +49,24 @@ function pongCanvasPage() {
 }
 
 function loadPongLocalScript(username, guest) {
-	console.log('DOMContentLoaded event listener');
 	const path = window.location.pathname;
-	console.log('Path:', path);
 	if (path === '/user/' + username + '/pong-game-local') {
-		console.log('Correct path:', path);
 		const localPendingDiv = document.getElementById('localPending');
 		if (localPendingDiv && typeof initializePongGameLocal === 'function') {
 			localPendingDiv.remove();
 			initializePongGameLocal(username, guest);
 		}
 	} else {
-		console.log('Wrong path:', path);
 		navigateTo(`/user/${username}/pong`);
 	}
 }
 
 function loadPongScript(username) {
-	console.log('Loading snake guest window');
 	if (document.readyState === 'loading') {
-		console.log('O DOM ainda não está carregado, então adicione o listener');
 		document.addEventListener('DOMContentLoaded', () => {
 			loadPongLocalScript(username, guest);
 		});
 	} else {
-		console.log('O DOM já está carregado, então execute imediatamente');
 		loadPongLocalScript(username, guest);
 	}
 }
@@ -83,7 +76,6 @@ function pongGameLocal(username) {
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
-		console.log('Cancel button clicked');
 		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
 	});

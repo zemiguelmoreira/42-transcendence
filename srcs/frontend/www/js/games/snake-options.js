@@ -2,7 +2,6 @@ import { navigateTo } from "../app.js";
 import { snakeGameLocal , snakeGameMultiplayer } from "./snake-pages.js";
 
 function snakeOptions(username) {
-
 	try {
 		document.getElementById('mainContent').innerHTML = `
 			<div class="card" style="width: 18rem;">
@@ -13,7 +12,6 @@ function snakeOptions(username) {
 					<a href="" class="btn btn-primary card-btn" id="snakeGameLocal">Let's Play</a>
 				</div>
 			</div>
-	
 			<div class="card" style="width: 18rem;">
 				<img src="../../files/1vs1SnakeRemote.png" class="card-img-top" alt="alt="Enter to play"">
 				<div class="card-body">
@@ -22,7 +20,6 @@ function snakeOptions(username) {
 					<a href="" class="btn btn-primary card-btn" id="snakeGameRemote">Let's Play</a>
 				</div>
 			</div>
-	
 			<div class="card" style="width: 18rem;">
 				<img src="../../files/4SnakeFreeForAll.png" class="card-img-top" alt="alt="Enter to chat"">
 				<div class="card-body">
@@ -35,22 +32,18 @@ function snakeOptions(username) {
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
-
 	document.getElementById('snakeGameLocal').addEventListener('click', (e) => {
 		e.preventDefault();
 		snakeGameLocal(username);
 	});
-
 	document.getElementById('snakeGameRemote').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}/snake-game-remote`);
 	});
-
 	document.getElementById('snakeGameMultiplayer').addEventListener('click', (e) => {
 		e.preventDefault();
 		snakeGameMultiplayer(username);
 	});
-
 }
 
 export { snakeOptions }

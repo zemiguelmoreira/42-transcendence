@@ -1,25 +1,19 @@
 function makeSignInPage() {
 	return `
 	<div class="login-box">
-		<!-- <div class="login-title">Sign In 2Play</div> -->
 		<div class="login-middle-box">
 			<div class="login-title">Login Account</div>
 			<div class="login-form" id="signInForm">
 				<form id="userSignInForm">
-					<!-- Username input -->
 						<label class="font-custom --bs-green" for="form1Example1">USERNAME</label>
 						<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" maxlength="20">
 						<small id="limitChar2" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 20 characters.</small>
-					<!-- Password input -->
 						<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
 						<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="password">
-					<!-- Submit button -->
 						<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
-					<!--<button type="submit" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</button>-->
 						<p id="error-message" style="display: none; color: red;"></p>
 						<button class="btn btn-outline-secondary button-size" id="backButton">GO BACK</button>
 				</form>
-
 				<form id="qrCodeForm" style="display: none;">
 						<p class="qr-code-box" id="qr-code" style="background-color: white;"></p>
 					<div id="codeDiv">
@@ -33,7 +27,6 @@ function makeSignInPage() {
 			</div>
 		</div>
 	</div>
-	<!-- <p id="user-list"></p> -->
 	`;
 }
 

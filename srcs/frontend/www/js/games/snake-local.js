@@ -2,8 +2,6 @@ import { navigateTo } from '../app.js';
 
 function initializeSnakeGameLocal(username, guest) {
 
-	console.log('Initializing Snake Game Local...');
-
 	// Verifica se o canvas foi carregado corretamente
 	const canvas = document.getElementById('gameCanvasSnakeLocal');
 	if (!canvas) {
@@ -22,21 +20,19 @@ function initializeSnakeGameLocal(username, guest) {
 	const snakes = [
 		{ color: '#0000FF', segments: [{ x: 5, y: 10 }, { x: 4, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: username },
 		{ color: '#00FF00', segments: [{ x: 10, y: 5 }, { x: 10, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest },
-		// { color: '#FFFF00', segments: [{ x: 15, y: 10 }, { x: 14, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true },
-		// { color: '#FF0000', segments: [{ x: 20, y: 5 }, { x: 20, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true }
 	];
 
 	// Continue com a configuração do jogo aqui...
 	// Controla a velocidade do jogo (menor valor = mais rápido)
-	let gameSpeed = 150; // Em milissegundos
+	let gameSpeed = 150;
 
 	let snakeScore1 = 0;
 	let snakeScore2 = 0;
 
 	// Função para desenhar a grelha
 	function drawGrid() {
-		ctx.strokeStyle = 'black'; // Cor das linhas da grelha
-		ctx.lineWidth = 0.5; // Espessura das linhas
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 0.5;
 
 		// Desenha as linhas verticais
 		for (let x = 0; x <= canvas.width; x += gridSize) {
@@ -75,16 +71,16 @@ function initializeSnakeGameLocal(username, guest) {
 	const randomColor = () => {
 		let red, green, blue;
 		do {
-			red = Math.floor(Math.random() * 256); // Gera um valor entre 0 e 255
-			green = Math.floor(Math.random() * 256); // Gera um valor entre 0 e 255
-			blue = Math.floor(Math.random() * 256); // Gera um valor entre 0 e 255
+			red = Math.floor(Math.random() * 256);
+			green = Math.floor(Math.random() * 256);
+			blue = Math.floor(Math.random() * 256);
 		} while (red < 100 && green < 100 && blue < 100);
 		return `rgb(${red}, ${green}, ${blue})`;
 	};
 
 	// Variáveis para a comida
 	let food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) };
-	let foodColor = randomColor(); // Gera a cor inicial da comida
+	let foodColor = randomColor();
 
 	// Função para lidar com eventos de tecla pressionada
 	document.addEventListener('keydown', (event) => {
@@ -96,7 +92,7 @@ function initializeSnakeGameLocal(username, guest) {
 					if (key === controlKey) {
 						const newDirection = keyMap[key];
 						if (newDirection && isValidDirection(snake, newDirection)) {
-							snake.newDirection = newDirection; // Atualiza a nova direção
+							snake.newDirection = newDirection;
 						}
 						break;
 					}
@@ -126,10 +122,10 @@ function initializeSnakeGameLocal(username, guest) {
 
 		for (let i = 0; i < segmentCount; i++) {
 			const segment = snake.segments[i];
-			const alpha = 1 - (i / (segmentCount - 1)) * 0.5; // Calcula o valor alfa baseado na posição do segmento
+			const alpha = 1 - (i / (segmentCount - 1)) * 0.5;
 			const color = snake.color;
 
-			ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; // Ajusta a cor com opacidade
+			ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 			ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 		}
 	}
@@ -206,16 +202,16 @@ function initializeSnakeGameLocal(username, guest) {
 				// Colisão cabeça com cabeça
 				if (head.x === otherHead.x && head.y === otherHead.y) {
 					if (snake.segments.length > otherSnake.segments.length) {
-						otherSnake.alive = false; // Cobra menor morre
+						otherSnake.alive = false;
 					} else if (snake.segments.length < otherSnake.segments.length) {
-						snake.alive = false; // Cobra maior morre
+						snake.alive = false;
 					} else {
 						// Ambas cobras têm o mesmo tamanho, decide aleatoriamente quem morre
 						const randomDeath = Math.random() < 0.5; // Gera um valor aleatório entre 0 e 1
 						if (randomDeath) {
-							snake.alive = false; // Cobra atual morre
+							snake.alive = false;
 						} else {
-							otherSnake.alive = false; // Outra cobra morre
+							otherSnake.alive = false;
 						}
 					}
 					return;
@@ -232,9 +228,9 @@ function initializeSnakeGameLocal(username, guest) {
 
 		// Verifica se a cabeça da cobrinha colidiu com a comida
 		if (head.x === food.x && head.y === food.y) {
-			snake.segments.unshift(head); // Adiciona o novo segmento na frente
+			snake.segments.unshift(head);
 			food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; // Gera nova comida
-			foodColor = randomColor(); // Atualiza a cor da comida
+			foodColor = randomColor();
 			if (snake.name === username) {
 				snakeScore1 = snake.segments.length - 2;
 				document.getElementById('snakeScore1').innerText = snakeScore1;
@@ -256,9 +252,8 @@ function initializeSnakeGameLocal(username, guest) {
 
 		// Verifica se o usuário ainda está na página do jogo
 		if (window.location.pathname !== `/user/${username}/snake-game-local`) {
-			console.log('Usuário saiu da página do jogo, interrompendo o loop.');
 			document.getElementById('runSnake').remove();
-			clearInterval(gameInterval); // Stop the game loop
+			clearInterval(gameInterval);
 			return;
 		}
 
@@ -293,16 +288,16 @@ function initializeSnakeGameLocal(username, guest) {
 			// Define o vencedor e o perdedor com base no nome da cobrinha
 			if (winner === username) {
 				loser = guest;
-				winnerScore = snakeScore1; 	// Score do username
-				loserScore = snakeScore2; 	// Score do guest
+				winnerScore = snakeScore1;
+				loserScore = snakeScore2;
 			} else {
 				loser = username;
-				winnerScore = snakeScore2; 	// Score do guest
-				loserScore = snakeScore1; 	// Score do username
+				winnerScore = snakeScore2;
+				loserScore = snakeScore1;
 			}
 
-			const gameType = 'snake';  // Example: 'pong' or 'snake'
-			const timestamp = new Date().toISOString();  // Capture current timestamp or get it from another source
+			const gameType = 'snake';
+			const timestamp = new Date().toISOString();
 
 			const pong_accessToken = localStorage.getItem('access_token');
 			const response = await fetch('/api/profile/update_match_history/', {
@@ -322,7 +317,6 @@ function initializeSnakeGameLocal(username, guest) {
 			});
 
 			const data = await response.json();
-			console.log("RESPONSE: ", data);
 			if (!response.ok) {
 				console.log('Error:', data.error || 'Failed to update match history');
 			}
@@ -351,16 +345,13 @@ function initializeSnakeGameLocal(username, guest) {
 
 		// Se o nome do vencedor for "No winner", significa que houve empate
 		if (winnerName === "No winner") {
-			console.log('Game over! No winner.');
 			ctx.fillText("DRAW!", canvas.width / 2, canvas.height / 2 + 20);
 		} else {
-			console.log('Game over! The winner is:', winnerName);
 			ctx.fillText(`WINNER: ${winnerName}`, canvas.width / 2, canvas.height / 2 + 20);
 		}
 
 		// Após um atraso de 3 segundos, remove o jogo da tela
 		setTimeout(() => {
-			console.log('Closing the game...');
 			const closeGame = document.getElementById('runSnake');
 			if (closeGame) {
 				closeGame.remove();

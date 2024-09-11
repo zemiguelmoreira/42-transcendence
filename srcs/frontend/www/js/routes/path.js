@@ -15,7 +15,6 @@ import { noResults } from "../search/search_user.js";
 const pages = {
 	'/': {
 		loadContent: function () {
-			// console.log('Loading home page content');
 			home();
 			Language.applyTranslations('home');
 		},
@@ -23,33 +22,24 @@ const pages = {
 	},
 	'/signIn': {
 		loadContent: function () {
-			// console.log('Loading signIn page content');
 			signIn();
 		},
-		access: true // rota publica
+		access: true
 	},
 	'/register': {
 		loadContent: function () {
-			// console.log('Loading register page content');
-			// register();
 		},
-		access: true //rota publica
+		access: true
 	},
 	'/callback': {
 		loadContent: function () {
-			// console.log('Loading register page content');
-			// register();
-			console.log('teste2');
 			const auth42Element = `<div style="height: 100%; display: flex; color: green; justify-content: center; align-items: center;">
-										<p style="font-size: 30px;">Authenticating with 42...</p>
-								   </div>`;
+				<p style="font-size: 30px;">Authenticating with 42...</p>
+				</div>`;
 			document.getElementById('root').innerHTML = '';
 			document.getElementById('root').innerHTML = auth42Element;
-			// const defaultState = { page: '/' }
-			// history.replaceState(defaultState, '', "/");
-			
 		},
-		access: true //rota publica
+		access: true
 	},
 	'/user/:username': {
 		loadContent: function (params) {
@@ -60,7 +50,6 @@ const pages = {
 	},
 	'/error/:status/:message': {
 		loadContent: function (params) {
-			// console.log('Loading user error page content for', params.status, params.message);
 			const makeError = displayPageError(params.status, params.message);
 			document.getElementById('root').innerHTML = '';
 			document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
@@ -69,7 +58,6 @@ const pages = {
 				e.preventDefault();
 				navigateTo('/');
 			});
-			// Adiciona um timer de 3 segundos para navegação automática
 			setTimeout(() => {
 				navigateTo('/');
 			}, 3000);
@@ -78,11 +66,6 @@ const pages = {
 	},
 	'/user/:username/profile': {
 		loadContent: function (params) {
-			console.log('Loading user profile page content for', params.username);
-			console.log('dataUser no path: ', dataUser);
-			console.log('dataUserFromSearch no path: ', dataUserFromSearch);
-			// console.log('params.username: ', params.username);
-			// console.log('params: ', params);
 			if (dataUser)
 				userProfilePage(dataUser, params.username);
 			else if (dataUserFromSearch)
@@ -96,7 +79,6 @@ const pages = {
 	},
 	'/user/:username/profile/edit': {
 		loadContent: function (params) {
-			// console.log('Loading user profile edit page content for', params.username);
 			if (dataUser) {
 				edit(dataUser, params.username);
 			} else if (dataUserFromSearch) {
@@ -110,16 +92,13 @@ const pages = {
 	},
 	'/user/:username/profile/search/:user': {
 		loadContent: function (params) {
-			console.log('Loading user profile search user page content for: \ndataUserSearch: ', dataUserSearch, '\nparams.username: ', params.username);
 			userSearchPage(dataUserSearch, params.username);
-
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/profile/search/noresults/:query': {
 		loadContent: function (params) {
-			// console.log('Loading user profile search user page-no results content for', params.username);
 			noResults(params.username, params.query);
 		},
 		access: () => !!localStorage.getItem('access_token'),
@@ -192,14 +171,10 @@ const pages = {
 	},
 	'/user/:username/chat': {
 		loadContent: function (params) {
-			// chatWindow(params.username);
-			// console.log('Loading chat content for', params.username);
-			// doChat(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
-	// Outras páginas...
 };
 
 export { pages }

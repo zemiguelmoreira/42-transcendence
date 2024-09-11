@@ -26,7 +26,6 @@ function makeRegisterPage() {
 					<a href="" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</a>
 					<p id="error-message" style="display: none; color: red;"></p>
 				</form>
-
 				<form id="emailCodeForm" style="display: none;">
 					<p class="" id="email-code"></p>
 					<div class="form-group">
@@ -37,7 +36,6 @@ function makeRegisterPage() {
 					<button type="submit" id="verifyEmailCode" class="btn btn-outline-success button-size">verify code</button>
 					<p id="error-message-emailCode" style="display: none; color: red;"></p>
 				</form>
-
 			</div>
 		</div>
 		<p id="user-list"></p>

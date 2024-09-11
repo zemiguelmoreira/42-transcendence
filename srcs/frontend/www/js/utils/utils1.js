@@ -1,35 +1,24 @@
-// Objetivo: Funções auxiliares para o frontend
-function displaySlidingMessage(message, invite=false) {
-
-    // Garantir que a mensagem tenha pelo menos 60 caracteres
-    const minLength = 10;
-    if (message.length < minLength) {
-        // Adiciona espaços em branco para alcançar o comprimento mínimo
-        message = message.padEnd(minLength, ' ');
-    }
-
-    const slidingMessageDiv = document.getElementById('slidingMessage');
-    slidingMessageDiv.textContent = message;
-
-    // Reiniciar a animação
-    slidingMessageDiv.style.animation = 'none';
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            slidingMessageDiv.style.animation = 'slide-in 20s linear infinite';
-        });
-    });
-
-	// console.log(message);
+function displaySlidingMessage(message, invite = false) {
+	const minLength = 10;
+	if (message.length < minLength) {
+		message = message.padEnd(minLength, ' ');
+	}
+	const slidingMessageDiv = document.getElementById('slidingMessage');
+	slidingMessageDiv.textContent = message;
+	slidingMessageDiv.style.animation = 'none';
+	requestAnimationFrame(() => {
+		requestAnimationFrame(() => {
+			slidingMessageDiv.style.animation = 'slide-in 20s linear infinite';
+		});
+	});
 }
 
-// limpa um elemento div - usado com o div do index - root
 function limparDivAll(divId) {
 	var div = document.getElementById(divId);
 	if (div) {
 		var children = div.childNodes;
 		for (var i = children.length - 1; i >= 0; i--) {
 			var child = children[i];
-			// console.log(child.id);
 			div.removeChild(child);
 		}
 	} else {
@@ -37,11 +26,10 @@ function limparDivAll(divId) {
 	}
 }
 
-// Mostra a  mensagem de erro após fetch no register
 function displayError(errorMessage) {
 	const errorDiv = document.getElementById('error-message');
 	errorDiv.textContent = `${errorMessage} Try again`;
-	errorDiv.style.display = 'block'; // Mostra a div de erro
+	errorDiv.style.display = 'block';
 	document.getElementById('form1Example1').focus();
 	const registerForm = document.querySelector('#userRegisterForm');
 	for (let element of registerForm.elements) {
@@ -55,15 +43,13 @@ function displayError(errorMessage) {
 	}
 }
 
-// Mostra a  mensagem de erro após fetch no login
 function displayErrorSignIn(errorMessage) {
 	const errorDiv = document.getElementById('error-message');
 	errorDiv.innerHTML = "";
 	errorDiv.textContent = `${errorMessage} Try again`;
-	errorDiv.style.display = 'block'; // Mostra a div de erro
+	errorDiv.style.display = 'block';
 	document.getElementById('form1Example1').focus();
 	const registerForm = document.querySelector('#userSignInForm');
-	// console.log(registerForm);
 	for (let element of registerForm.elements) {
 		if (element.classList.contains('form-control')) {
 			element.addEventListener('input', function () {
@@ -75,7 +61,6 @@ function displayErrorSignIn(errorMessage) {
 	}
 }
 
-// Após logout mensagem de sucesso
 function logoutContainer(username) {
 	document.getElementById('root').innerHTML = `
 	<div class="login-box" id="body_error">
@@ -88,7 +73,6 @@ function logoutContainer(username) {
 	`;
 }
 
-// Após login mensagem de sucesso
 function successContainer(success_message) {
 	return `
 	<div class="login-box" id="body_error">
@@ -101,7 +85,6 @@ function successContainer(success_message) {
 	`;
 }
 
-// Após registo - mensagem de sucesso
 function successContainerRegister(success_message) {
 	return `
 	<div class="login-box" id="body_error">
@@ -114,7 +97,6 @@ function successContainerRegister(success_message) {
 	`;
 }
 
-// Após falha no token refresh - mensagem de sucesso
 function messageContainerToken() {
 	return `
 	<div class="login-box" id="body_error">
@@ -127,9 +109,7 @@ function messageContainerToken() {
 	`;
 }
 
-// De reserva desactiva os links, pode ser util na home page
 function deactivateLinks(links) {
-	// console.log('desativar links', viewToken());
 	if (!viewToken()) {
 		for (let link of links) {
 			if (link.dataset.value) {
@@ -140,38 +120,34 @@ function deactivateLinks(links) {
 	}
 }
 
-
 function handleInput(inputField, limitChar, marginOnEmpty = '10px', marginOnInput = '0') {
-    inputField.addEventListener('input', function() {
-        if (inputField.value.length > 0) {
-            limitChar.style.display = 'block';
-            inputField.style.marginBottom = marginOnInput;
-        } else {
-            limitChar.style.display = 'none';
-            inputField.style.marginBottom = marginOnEmpty;
-        }
-    });
+	inputField.addEventListener('input', function () {
+		if (inputField.value.length > 0) {
+			limitChar.style.display = 'block';
+			inputField.style.marginBottom = marginOnInput;
+		} else {
+			limitChar.style.display = 'none';
+			inputField.style.marginBottom = marginOnEmpty;
+		}
+	});
 }
 
 
 function handleInputBlur(inputField, limitChar, marginOnEmpty = '10px') {
-    inputField.addEventListener('blur', () => {
+	inputField.addEventListener('blur', () => {
 		limitChar.style.display = 'none';
 		inputField.style.marginBottom = marginOnEmpty;
 	});
 }
 
-
-// Função não utilizada
 function clearCookies() {
-    const cookies = document.cookie.split(";");
-
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-    }
+	const cookies = document.cookie.split(";");
+	for (let i = 0; i < cookies.length; i++) {
+		const cookie = cookies[i];
+		const eqPos = cookie.indexOf("=");
+		const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+		document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+	}
 }
 
 export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur }

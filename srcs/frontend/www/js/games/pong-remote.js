@@ -3,10 +3,6 @@ let paddlePositions = "";
 let ballPosition = "";
 let playerIndex = null;
 let stopFlag = false;
-const paddleWidth = 10;
-const paddleHeight = 90;
-const ballSize = 10;
-
 let canvas, ctx, backgroundCanvas, backgroundCtx, canvasWidth, canvasHeight;
 let player1Score = 0;
 let player2Score = 0;
@@ -16,8 +12,11 @@ let leftPaddleY = 0;
 let rightPaddleY = 0;
 let player1Name = "dani";
 let player2Name = "ivo";
-
 let myUsername = "";
+
+const paddleWidth = 10;
+const paddleHeight = 90;
+const ballSize = 10;
 
 function setupPong() {
 	backgroundCanvas = document.getElementById("pongBackgroundCanvas");
@@ -26,20 +25,12 @@ function setupPong() {
 	ctx = canvas.getContext('2d');
 	canvasWidth = document.getElementById("pongCanvas").width;
 	canvasHeight = document.getElementById("pongCanvas").height;
-	// let upPressed = false;
-	// let downPressed = false;
-	// let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
-	// let rightPaddleSound = new Audio('./files/pong-assets/pong.wav');
-	// let wallSound = new Audio('./files/pong-assets/wall.wav');
-	// let goalSound = new Audio('./files/pong-assets/goal.wav');
 }
 
 async function createRoom(authorizedUser) {
-	console.log('authorizedUser: ', authorizedUser);
 	myUsername = authorizedUser;
 	const pong_accessToken = localStorage.getItem('access_token');
 	let data;
-
 	try {
 		const response = await fetch('/game/create-room/', {
 			method: 'POST',
@@ -52,20 +43,17 @@ async function createRoom(authorizedUser) {
 			}),
 		});
 		data = await response.json();
-		console.log("CreateRoom: ", data);
 		if (!response.ok) {
 			console.error('error:', data);
 		}
 	} catch (error) {
 		console.error('Error creating room:', error);
 	}
-
 	return data.code;
 }
 
 function joinRoom(roomCode) {
 	const pong_accessToken = localStorage.getItem('access_token');
-
 	try {
 		document.getElementById('invitePending').innerHTML = `
 			<div class="pong-content">
@@ -78,15 +66,11 @@ function joinRoom(roomCode) {
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}
-
 	setupPong();
-
 	pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
-
 	pong_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
 		if (data.action === 'unauthorized') {
-			// Tratamento para usuários não autorizados
 		} else if (data.action === 'assign_index') {
 			playerIndex = data.player_index;
 			ballPosition = data.ball_position;
@@ -94,12 +78,7 @@ function joinRoom(roomCode) {
 		} else if (data.action === 'start_game') {
 			startGame();
 		} else if (data.action === 'game_over' && !stopFlag) {
-
-			// MSG de fim de jogo
 			try {
-				console.log('player1: ', player1Name);
-				console.log('player2: ', player2Name);
-				console.log('myUsername: ', myUsername);
 				if (data.winner == myUsername) {
 					document.getElementById('invitePending').innerHTML = `
 						<div class="end-game-result">
@@ -115,14 +94,12 @@ function joinRoom(roomCode) {
 					</div>
 					`;
 				}
-
 				document.getElementById('cancelButton').addEventListener('click', () => {
 					document.getElementById('invitePending').remove();
 				});
 			} catch (error) {
 				console.error('Erro ao carregar o conteúdo:', error);
 			}
-
 			stopFlag = true;
 			const winner = data.winner;
 			const loser = data.loser;
@@ -130,7 +107,6 @@ function joinRoom(roomCode) {
 			const loserScore = data.loser_score;
 			const gameType = 'pong';
 			const timestamp = new Date().toISOString();
-
 			const score = JSON.stringify({
 				winner: winner,
 				loser: loser,
@@ -139,11 +115,7 @@ function joinRoom(roomCode) {
 				loser_score: loserScore,
 				timestamp: timestamp
 			});
-
 		} else {
-			// console.log('data: ', data);
-			// console.log('stop flag: ', stopFlag);
-
 			player1Score = data.score[0];
 			player2Score = data.score[1];
 			ballX = data.ball_position[0];
@@ -152,13 +124,10 @@ function joinRoom(roomCode) {
 			rightPaddleY = data.paddle_positions[1][1];
 		}
 	};
-
 	pong_socket.onopen = function (event) {
 		pong_socket.send(JSON.stringify({ action: 'join' }));
 	};
-
 	pong_socket.onclose = function (event) {
-		// console.log('WebSocket connection closed:', event);
 	};
 }
 

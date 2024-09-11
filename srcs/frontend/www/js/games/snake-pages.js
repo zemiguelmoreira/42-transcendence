@@ -151,7 +151,6 @@ function snakeGameMultiplayerPage() {
 }
 
 function loadSnakeLocalScript(username) {
-	console.log('Loading snake guest window');
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
 			const localPendingDiv = document.getElementById('localPending');
@@ -174,7 +173,6 @@ function loadSnakeLocalScript(username) {
 }
 
 function loadSnakeMultiplayerScript(username) {
-	console.log('Loading snake guest window');
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
 			const localPendingDiv = document.getElementById('localPending');
@@ -205,7 +203,6 @@ function snakeGameLocal(username) {
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
-		console.log('Cancel button clicked');
 		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
 	});
@@ -266,7 +263,6 @@ function snakeGameMultiplayer(username) {
 	document.getElementById('guestInput1').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
-		console.log('Cancel button clicked');
 		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
 	});
