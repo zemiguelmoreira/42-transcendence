@@ -381,13 +381,13 @@
 	border-radius: 15px;
 	padding: 15px;
 	width: 300px;
-	min-height: 475px;
+	/* min-height: 475px; */
 	box-shadow: 0 0 5px #1739de, 0 0 5px #1739de, 0 0 15px #1739de, 0 0 15px #1739de, 0 0 15px #1739de;
 }
 
 .logo-box1 {
-	height: 100px;
-	margin-bottom: 20px;
+	/* height: 100px; */
+	/* margin-bottom: 0px; */
 }
 
 .local-input {
@@ -402,7 +402,7 @@
 .local-btn {
 	width: 100%;
 	height: 40px;
-	margin: 2px;
+	margin-block: 5px;
 	border-radius: 10px;
 }
 
@@ -423,10 +423,14 @@
 
 .local-instructions-column {
 	text-align: center;
+	width: 33%;
 }
 
 .local-instructions {
 	margin: 5px 0;
+	overflow: hidden;
+	white-space: wrap;
+	text-overflow: ellipsis;
 }
 
 .local-instructions-title {
@@ -436,7 +440,7 @@
 	border: 1px solid #ccc;
 	border-radius: 12px;
 	height: 45px;
-	margin: 25px 0 0 0;
+	margin-block: 5px;
 	text-align: center;
     font-weight: bold;
     margin-bottom: 10px;
@@ -456,7 +460,7 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-    /* width: 80%; */
+    width: 33%;
 	padding: 15px;
 	background-color: #0057b3bd;
 	border-radius: 15px;
@@ -478,15 +482,22 @@
 }
 
 .local-instructions-box-custom {
-	/* padding: 15px; */
+	width: 100%;
 }
 
 .local-instructions-container-custom {
     display: flex;
+	display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .local-instructions-column-custom {
-    margin-right: 20px;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 25%;
 }
 
 .local-instructions-column-controls {
@@ -501,13 +512,13 @@
 	border: 1px solid #ccc;
 	border-radius: 12px;
 	height: 35px;
-	margin: 5px 0 5px 0;
+	margin-block: 5px;
 	text-align: center;
     font-weight: bold;
 }
 
 .local-instructions-custom {
-    font-size: 1.2em;
+    font-size: 12px;
     margin: 5px 0;
 }
 

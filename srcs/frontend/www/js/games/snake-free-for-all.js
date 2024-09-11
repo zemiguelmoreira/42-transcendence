@@ -1,21 +1,15 @@
 import { navigateTo } from '../app.js';
 
 function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
-    // Verifica se o canvas foi carregado corretamente
     const canvas = document.getElementById('gameCanvasSnakeFreeForAll');
     if (!canvas) {
         console.error("Canvas not found!");
         return;
     }
-
     const ctx = canvas.getContext('2d');
-
-    // Continuação do código do jogo...
     const gridSize = 20;
     const cols = canvas.width / gridSize;
     const rows = canvas.height / gridSize;
-
-    // Configuração inicial das cobrinhas
     const snakes = [
         { color: '#0000FF', segments: [{ x: 5, y: 10 }, { x: 4, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: username },
         { color: '#00FF00', segments: [{ x: 10, y: 5 }, { x: 10, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest1 },
@@ -23,29 +17,21 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
         { color: '#FF0000', segments: [{ x: 20, y: 5 }, { x: 20, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest3 }
     ];
 
-    // Continue com a configuração do jogo aqui...
-    // Controla a velocidade do jogo (menor valor = mais rápido)
-    let gameSpeed = 150; // Em milissegundos
-
+    let gameSpeed = 150;
 	let snakeScore1 = 0;
 	let snakeScore2 = 0;
 	let snakeScore3 = 0;
 	let snakeScore4 = 0;
 
-	// Função para desenhar a grelha
 	function drawGrid() {
 		ctx.strokeStyle = 'black'; // Cor das linhas da grelha
 		ctx.lineWidth = 0.5; // Espessura das linhas
-
-		// Desenha as linhas verticais
 		for (let x = 0; x <= canvas.width; x += gridSize) {
 			ctx.beginPath();
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, canvas.height);
 			ctx.stroke();
 		}
-		
-		// Desenha as linhas horizontais
 		for (let y = 0; y <= canvas.height; y += gridSize) {
 			ctx.beginPath();
 			ctx.moveTo(0, y);
@@ -54,7 +40,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
 		}
 	}
 
-    // Mapeia teclas para controle das cobrinhas
     const controls = {
         '#0000FF': { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD' },
         '#00FF00': { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' },
@@ -288,55 +273,8 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
 		drawFood();
     }
 
-
-
 	async function endGame(snake_winner) {
-		try {
-			// Determina o vencedor e o perdedor
-			let winner, loser, winnerScore, loserScore;
-			winner = snake_winner;
-
-			// Define o vencedor e o perdedor com base no nome da cobrinha
-			if (winner === username) {
-				loser = guest;
-				winnerScore = snakeScore1; 	// Score do username
-				loserScore = snakeScore2; 	// Score do guest
-			} else {
-				loser = username;
-				winnerScore = snakeScore2; 	// Score do guest
-				loserScore = snakeScore1; 	// Score do username
-			}
-
-			const gameType = 'snake';  // Example: 'pong' or 'snake'
-			const timestamp = new Date().toISOString();  // Capture current timestamp or get it from another source
-
-			const pong_accessToken = localStorage.getItem('access_token');
-			const response = await fetch('/api/profile/update_match_history/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${pong_accessToken}`,
-				},
-				body: JSON.stringify({
-					game_type: gameType,
-					winner: winner,
-					loser: loser,
-					winner_score: winnerScore,
-					loser_score: loserScore,
-					timestamp: timestamp,
-				}),
-			});
-
-			const data = await response.json();
-			console.log("RESPONSE: ", data);
-			if (!response.ok) {
-				console.log('Error:', data.error || 'Failed to update match history');
-			}
-
-		} catch (error) {
-			console.error('Error during match history update:', error.message);
-		}
-
+		// Aguarda um segundo antes de exibir a tela de fim de
 		setTimeout(() => {
 			showEndScreen(snake_winner);
 		}, 1000)
@@ -377,8 +315,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
     
     // Inicializa o loop do jogo com base na velocidade definida
     const gameInterval = setInterval(update, gameSpeed);
-
-
 
 }
 

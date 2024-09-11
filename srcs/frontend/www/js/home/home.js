@@ -7,35 +7,29 @@ import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
 import { displaySlidingMessage, displayError } from "../utils/utils1.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
-import { makeHomePage } from "./homepage.js";
+import { makeHomePage , makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import WebSocketInstance from "../socket/websocket.js";
-import { doChat } from "../chat/chat_window.js";
 import { handleInput, handleInputBlur } from "../utils/utils1.js";
 import { userSignIn42 } from "../login/login42.js";
+import { makeChatWindow } from "../chat/chat_html.js";
+import { initializeChat } from '../chat/chat.js';
+
+let chatLoaded = false;
 
 function home() {
-	console.log('Loading home page content');
-
-
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
 	document.getElementById('form1Example1').focus();
-
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
 		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
 	});
-
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
-
 	handleInput(inputField, limitChar);
-
 	handleInputBlur(inputField, limitChar);
-
-	
 	const signInUser42 = document.querySelector('#signInUser42');
 	signInUser42.addEventListener('click', function (e) {
 		e.preventDefault();
@@ -44,12 +38,9 @@ function home() {
 		else 
 			displayError("To login with another user, you have to logout.");
 	});
-
-
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
 }
-
 
 function closeSlidingWindow() {
 	let slidingWindow = document.querySelector('.sliding-window');
@@ -68,36 +59,32 @@ function openSlidingWindow() {
 }
 
 async function homeLogin(username) {
-	// Use await para resolver a Promise retornada por getUserProfileByUsername
 	let dataUser = await getUserProfileByUsername(username);
-	console.log('dataUser no homeLogin: ', dataUser);
-
-	// Limpa o conteúdo do root antes de carregar a nova página
-	document.getElementById('root').innerHTML = '';
-
-	// Use await para garantir que o conteúdo da página seja gerado antes de inseri-lo
 	const home_page = makeHomePage(dataUser);
-	document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
+	const home_page_simple = makeSimpleHomePage(dataUser);
+	const chat_window = makeChatWindow(username);
+	if (!chatLoaded) {
+		chatLoaded = true;
+		document.getElementById('root').innerHTML = '';
+		document.getElementById('root').insertAdjacentHTML('afterbegin', home_page);
+		document.getElementById('root').insertAdjacentHTML('afterbegin', chat_window);
+		initializeChat(username);
+		document.getElementById('chatButton').addEventListener('click', function (e) {
+			e.preventDefault();
+			let slidingWindow = document.querySelector('.sliding-window');
+			if (slidingWindow.classList.contains('closed')) {
+				slidingWindow.classList.remove('closed');
+				slidingWindow.classList.add('open');
+			} else {
+				slidingWindow.classList.remove('open');
+				slidingWindow.classList.add('closed');
+			}
+		});
+	} else {
+		document.getElementById('mainContent').innerHTML = '';
+		document.getElementById('mainContent').insertAdjacentHTML('afterbegin', home_page_simple);
+	}
 
-	// Carregue o script do chat
-	doChat(username);
-
-	// Adicione o event listener para o botão de chat
-	document.getElementById('chatButton').addEventListener('click', function (e) {
-		e.preventDefault();
-		let slidingWindow = document.querySelector('.sliding-window');
-		if (slidingWindow.classList.contains('closed')) {
-			slidingWindow.classList.remove('closed');
-			slidingWindow.classList.add('open');
-			this.src = '../../files/arrow-left-square-fill.svg'; // Altere para o ícone de fechar se necessário
-		} else {
-			slidingWindow.classList.remove('open');
-			slidingWindow.classList.add('closed');
-			this.src = '../../files/arrow-right-square-fill.svg'; // Altere para o ícone de abrir se necessário
-		}
-	});
-
-	// Adicione todos os event listeners necessários
 	document.getElementById('homeButton').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${username}`);

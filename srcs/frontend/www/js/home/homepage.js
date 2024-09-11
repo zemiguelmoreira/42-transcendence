@@ -45,25 +45,6 @@ function makeHomePage(data) {
 			</div>
 		</nav>
 	</div>
-	<div class="chatContainer">
-		<div class="sliding-window closed">
-			<div class="slidingChatContainer">
-				<div class="chat-container">
-					<div class="users-list">
-						<ul id="online-users-list"></ul>
-					</div>
-					<div class="chat-window">
-						<div class="messages" id="chat-log"></div>
-						<div class="message-input">
-							<input id="chat-message-input" type="text" placeholder="Type a message...">
-							<button id="chat-message-submit">Send</button>
-							<!-- <button id="inviteButton">Invite to play</button> -->
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 	<div class="home-box" id="mainContent">
 		<div class="card" style="width: 18rem;">
 			<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
@@ -96,4 +77,35 @@ function makeHomePage(data) {
 	`;
 }
 
-export { makeHomePage }
+function makeSimpleHomePage(data) {
+	return `
+	<div class="home-box" id="mainContent">
+		<div class="card" style="width: 18rem;">
+			<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
+			<div class="card-body">
+				<h5 class="card-title">PONG</h5>
+				<p class="card-text">Classic table tennis game with paddles and a ball. The goal is to score points.</p>
+				<a href="" id="pong-card" class="btn btn-primary card-btn pong-button">Let's Play</a>
+			</div>
+		</div>
+		<div class="card" style="width: 18rem;">
+			<img src="/files/mini2snake.png" class="card-img-top" alt="Enter to play">
+			<div class="card-body">
+				<h5 class="card-title">SNAKE</h5>
+				<p class="card-text">Game where a "snake" eats food to grow and must avoid walls, enemy and itself.</p>
+				<a href="" id="snake-card" class="btn btn-primary card-btn snake-button">Let's Play</a>
+			</div>
+		</div>
+		<div class="card" style="width: 18rem;">
+			<img src="/files/minichat.png" class="card-img-top" alt="Enter to chat">
+			<div class="card-body">
+				<h5 class="card-title">CHAT</h5>
+				<p class="card-text">Chat with others and invite friends for matchmaking and tournaments.</p>
+				<a href="" class="btn btn-primary card-btn" id="chatCard">Let's Talk</a>
+			</div>
+		</div>
+	</div>
+	`;
+}
+
+export { makeHomePage , makeSimpleHomePage }

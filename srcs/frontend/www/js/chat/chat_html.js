@@ -1,4 +1,3 @@
-
 function makeChatWindow() {
 	return `
 	<div class="chatContainer">
@@ -13,7 +12,6 @@ function makeChatWindow() {
 						<div class="message-input">
 							<input id="chat-message-input" type="text" placeholder="Type a message...">
 							<button id="chat-message-submit">Send</button>
-							<!-- <button id="inviteButton">Invite to play</button> -->
 						</div>
 					</div>
 				</div>
@@ -23,6 +21,4 @@ function makeChatWindow() {
 	`;
 }
 
-const chatWindowHtml = makeChatWindow();
-
-export { chatWindowHtml }
+export { makeChatWindow }

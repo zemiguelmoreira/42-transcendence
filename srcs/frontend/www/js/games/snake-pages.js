@@ -4,41 +4,37 @@ import { initializeSnakeGameFreeForAll } from '../../js/games/snake-free-for-all
 
 let guest, guest1, guest2, guest3;
 
-function startLocalSnakePopup() {
+function startLocalSnakePopup(username) {
 	return `
 		<div class="local-pending" id="localPending">
 			<div class="local-box">
 				<div class="logo-box1">SNAKE</div>
-				<div class="font-custom">GUEST NAME</div>
-				<input id="guestInput" class="local-input" type="text" placeholder="Enter guest name" maxlength="10" autofocus value="GUEST">
-				<button id="playButton" class="btn btn-success local-btn">Play</button>
-				<button id="cancelButton" class="btn btn-danger local-btn">Cancel</button>
-		
-				<div class="local-instructions-title myFont-title">GAME INSTRUCTIONS</div>
-		
+				<div class="local-instructions-title-custom myFont-title">LOCAL MATCH</div>
+				<input id="guestInput" class="local-input-custom" type="text" placeholder="Enter guest name" maxlength="10" autofocus value="Player 2">
+				<button id="playButton" class="btn btn-success local-btn-custom">PLAY</button>
+				<button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
+				<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 				<div class="local-instructions-container">
 					<div class="local-instructions-column">
-						<div class="local-instructions myFont-title">PLAYER 1</div>
-						<div class="local-instructions myFont">w</div>
-						<div class="local-instructions myFont">s</div>
-						<div class="local-instructions myFont">a</div>
-						<div class="local-instructions myFont">d</div>
+						<div class="local-instructions-custom myFont-title">${username}</div>
+						<div class="local-instructions-custom myFont">W</div>
+						<div class="local-instructions-custom myFont">S</div>
+						<div class="local-instructions-custom myFont">A</div>
+						<div class="local-instructions-custom myFont">D</div>
 					</div>
-		
 					<div class="local-instructions-column controls">
-						<div class="local-instructions myFont"> - </div> <!-- Espaço em branco para alinhar -->
-						<div class="local-instructions myFont">UP</div>
-						<div class="local-instructions myFont">DOWN</div>
-						<div class="local-instructions myFont">LEFT</div>
-						<div class="local-instructions myFont">RIGHT</div>
+						<div class="local-instructions-custom myFont"> - </div>
+						<div class="local-instructions-custom myFont">UP</div>
+						<div class="local-instructions-custom myFont">DOWN</div>
+						<div class="local-instructions-custom myFont">LEFT</div>
+						<div class="local-instructions-custom myFont">RIGHT</div>
 					</div>
-		
 					<div class="local-instructions-column">
-						<div class="local-instructions myFont-title">PLAYER 2</div>
-						<div class="local-instructions myFont">&#8593;</div>
-						<div class="local-instructions myFont">&#8595;</div>
-						<div class="local-instructions myFont">&#8592;</div>
-						<div class="local-instructions myFont">&#8594;</div>
+						<div class="local-instructions-custom myFont-title">P2</div>
+						<div class="local-instructions-custom myFont">&#8593;</div>
+						<div class="local-instructions-custom myFont">&#8595;</div>
+						<div class="local-instructions-custom myFont">&#8592;</div>
+						<div class="local-instructions-custom myFont">&#8594;</div>
 					</div>
 				</div>
 			</div>
@@ -46,65 +42,56 @@ function startLocalSnakePopup() {
 	`;
 }
 
-function startMultiplayerSnakePopup() {
+function startMultiplayerSnakePopup(username) {
 	return `
 		<div class="local-pending" id="localPending">
 			<div class="local-box-container-custom">
 				<div class="local-box-custom">
 					<div class="logo-box-custom1">SNAKE</div>
-					<div class="font-custom">GUEST NAMES</div>
-					<input id="guestInput1" class="local-input-custom" type="text" placeholder="Enter guest 1 name" maxlength="10" autofocus value="Guest1">
-					<input id="guestInput2" class="local-input-custom" type="text" placeholder="Enter guest 2 name" maxlength="10" autofocus value="Guest2">
-					<input id="guestInput3" class="local-input-custom" type="text" placeholder="Enter guest 3 name" maxlength="10" autofocus value="Guest3">
-					<button id="playButton" class="btn btn-success local-btn-custom">Play</button>
-					<button id="cancelButton" class="btn btn-danger local-btn-custom">Cancel</button>
+					<div class="local-instructions-title-custom myFont-title">MULTIPLAYER MATCH</div>
+					<input id="guestInput1" class="local-input-custom" type="text" placeholder="Enter guest 1 name" maxlength="10" autofocus value="Player 1">
+					<input id="guestInput2" class="local-input-custom" type="text" placeholder="Enter guest 2 name" maxlength="10" autofocus value="Player 2">
+					<input id="guestInput3" class="local-input-custom" type="text" placeholder="Enter guest 3 name" maxlength="10" autofocus value="Player 3">
+					<button id="playButton" class="btn btn-success local-btn-custom">PLAY</button>
+					<button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
 				</div>
-		
-				<!-- Centralize this box at the bottom -->
 				<div class="local-instructions-box-custom">
 					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 					<div class="local-instructions-container-custom myFont">
-						<!-- Players 1 and 2 on the left -->
 						<div class="local-instructions-column-custom">
-							<div class="local-instructions myFont-title">PLAYER 1</div>
-							<div class="local-instructions-custom">w</div>
-							<div class="local-instructions-custom">s</div>
-							<div class="local-instructions-custom">a</div>
-							<div class="local-instructions-custom">d</div>
+							<div class="local-instructions myFont-title">${username}</div>
+							<div class="local-instructions-custom">W</div>
+							<div class="local-instructions-custom">S</div>
+							<div class="local-instructions-custom">A</div>
+							<div class="local-instructions-custom">D</div>
 						</div>
-		
 						<div class="local-instructions-column-custom">
-							<div class="local-instructions myFont-title">PLAYER 2</div>
-							<div class="local-instructions-custom">8</div>
-							<div class="local-instructions-custom">5</div>
-							<div class="local-instructions-custom">4</div>
-							<div class="local-instructions-custom">6</div>
+						<div class="local-instructions myFont-title">P1</div>
+							<div class="local-instructions-custom">&#8593;</div>
+							<div class="local-instructions-custom">&#8595;</div>
+							<div class="local-instructions-custom">&#8592;</div>
+							<div class="local-instructions-custom">&#8594;</div>
 						</div>
-		
-						<!-- Central controls -->
-						<div class="local-instructions-column-controls">
+							<div class="local-instructions-column-custom">
 							<div class="local-instructions-custom"> - </div>
 							<div class="local-instructions-custom">UP</div>
 							<div class="local-instructions-custom">DOWN</div>
 							<div class="local-instructions-custom">LEFT</div>
 							<div class="local-instructions-custom">RIGHT</div>
 						</div>
-		
-						<!-- Players 3 and 4 on the right -->
-						<div class="local-instructions-column-custom">
-							<div class="local-instructions myFont-title">PLAYER 3</div>
-							<div class="local-instructions-custom">&#8593;</div>
-							<div class="local-instructions-custom">&#8595;</div>
-							<div class="local-instructions-custom">&#8592;</div>
-							<div class="local-instructions-custom">&#8594;</div>
+							<div class="local-instructions-column-custom">
+							<div class="local-instructions myFont-title">P2</div>
+							<div class="local-instructions-custom">I</div>
+							<div class="local-instructions-custom">K</div>
+							<div class="local-instructions-custom">J</div>
+							<div class="local-instructions-custom">L</div>
 						</div>
-		
-						<div class="local-instructions-column-custom">
-							<div class="local-instructions myFont-title">PLAYER 4</div>
-							<div class="local-instructions-custom">i</div>
-							<div class="local-instructions-custom">k</div>
-							<div class="local-instructions-custom">j</div>
-							<div class="local-instructions-custom">l</div>
+							<div class="local-instructions-column-custom">
+							<div class="local-instructions myFont-title">P3</div>
+							<div class="local-instructions-custom">8</div>
+							<div class="local-instructions-custom">5</div>
+							<div class="local-instructions-custom">4</div>
+							<div class="local-instructions-custom">6</div>
 						</div>
 					</div>
 				</div>
@@ -166,7 +153,6 @@ function snakeGameMultiplayerPage() {
 function loadSnakeLocalScript(username) {
 	console.log('Loading snake guest window');
 	if (document.readyState === 'loading') {
-		// O DOM ainda não está carregado, então adicione o listener
 		document.addEventListener('DOMContentLoaded', () => {
 			const localPendingDiv = document.getElementById('localPending');
 			if (localPendingDiv && typeof initializeSnakeGameLocal === 'function') {
@@ -177,7 +163,6 @@ function loadSnakeLocalScript(username) {
 			}
 		});
 	} else {
-		// O DOM já está carregado, então execute imediatamente
 		const localPendingDiv = document.getElementById('localPending');
 		if (localPendingDiv && typeof initializeSnakeGameLocal === 'function') {
 			localPendingDiv.remove();
@@ -191,7 +176,6 @@ function loadSnakeLocalScript(username) {
 function loadSnakeMultiplayerScript(username) {
 	console.log('Loading snake guest window');
 	if (document.readyState === 'loading') {
-		// O DOM ainda não está carregado, então adicione o listener
 		document.addEventListener('DOMContentLoaded', () => {
 			const localPendingDiv = document.getElementById('localPending');
 			if (localPendingDiv && typeof initializeSnakeGameFreeForAll === 'function') {
@@ -204,7 +188,6 @@ function loadSnakeMultiplayerScript(username) {
 			}
 		});
 	} else {
-		// O DOM já está carregado, então execute imediatamente
 		const localPendingDiv = document.getElementById('localPending');
 		if (localPendingDiv && typeof initializeSnakeGameFreeForAll === 'function') {
 			localPendingDiv.remove();
@@ -218,16 +201,14 @@ function loadSnakeMultiplayerScript(username) {
 }
 
 function snakeGameLocal(username) {
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalSnakePopup());
+	document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
 	document.getElementById('guestInput').focus();
-	
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		console.log('Cancel button clicked');
 		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
 	});
-
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
 		guest = document.querySelector('#guestInput').value;
@@ -281,16 +262,14 @@ function snakeGameRemote(username) {
 }
 
 function snakeGameMultiplayer(username) {
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup());
+	document.getElementById('root').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
 	document.getElementById('guestInput1').focus();
-	
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		console.log('Cancel button clicked');
 		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
 	});
-
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
 		guest1 = document.querySelector('#guestInput1').value;

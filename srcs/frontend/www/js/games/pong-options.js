@@ -2,7 +2,6 @@ import { navigateTo } from "../app.js";
 import { pongGameLocal } from "./pong-pages.js";
 
 async function pongOptions(username) {
-
     try {
         document.getElementById('mainContent').innerHTML = `
             <div class="card" style="width: 18rem;">
@@ -33,17 +32,14 @@ async function pongOptions(username) {
     } catch (error) {
         console.error('Erro ao carregar o conteúdo:', error);
     }
-
     document.getElementById('pongGameLocal').addEventListener('click', (e) => {
         e.preventDefault();
 		pongGameLocal(username);
     });
-
     document.getElementById('pongGameRemote').addEventListener('click', (e) => {
         e.preventDefault();
         navigateTo(`/user/${username}/pong-game-remote`);
     });
-
     document.getElementById('pongGameTournament').addEventListener('click', (e) => {
         e.preventDefault();
         navigateTo(`/user/${username}/pong-game-tournament`);
