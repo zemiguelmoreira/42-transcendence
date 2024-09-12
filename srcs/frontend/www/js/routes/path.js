@@ -16,7 +16,6 @@ const pages = {
 	'/': {
 		loadContent: function () {
 			home();
-			Language.applyTranslations('home');
 		},
 		access: true
 	},

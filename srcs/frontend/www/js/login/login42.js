@@ -25,7 +25,7 @@ async function getParams(code) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(info),
         };
-        try {
+        try {zz
             const response = await fetch(`${baseURL}/user/signIn42/`, conf);
             if (!response.ok) {
                 const errorData = await response.json();

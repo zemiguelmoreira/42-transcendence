@@ -10,7 +10,7 @@ function getCode() {
 function getParams() {
 	const params = new URLSearchParams(window.location.search);
 	const code = params.get('code');
-	if (code) {
+	if (code) {z
 	}
 }
 
