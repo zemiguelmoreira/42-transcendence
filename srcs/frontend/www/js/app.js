@@ -23,7 +23,7 @@ async function goTo() {
 				navigateTo(`/user/${username}`);
 				await WebSocketInstance.connect();
 			}
-			elsez
+			else
 				navigateTo('/');
 		} else {
 			navigateTo('/');
