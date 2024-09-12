@@ -247,11 +247,8 @@ function makeProfilePageSearchOther(data) {
 
 function noResultsPage(searchValue) {
 	return `
-		<div class="mainContent">
-			<div class="noResultFound">
-				<div class="noResultMsg">No results found</div>
-			</div>
-		</div>
+	<div class="noResultMsg">No results found</div>
+	<div class="noResultFound"><img src="../../../../../files/noUserFound.gif"></div>
 	`;
 }
 
