@@ -26,7 +26,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			await self.close()
 			return
 
-		self.user = await get_user_from_token(self.token)
+		self.user = await self.get_user_from_token(self.token)
 		if not self.user:
 			await self.close()
 			logging.error("Matchmaking: Failed to get user from token.")
@@ -55,11 +55,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	async def join_matchmaking(self, data):
 		self.game = await self.get_game_from_data(data)
 		self.rank = await self.get_user_rank()
-		if not self.rank:
-			logging.error("Matchmaking: Failed to get user rank.")
-			return
+		# if not self.rank:
+		# 	logging.error("Matchmaking: Failed to get user rank.")
+		# 	return
 		# add to queue & find match
-		match = matchmaking_manager.add_player(self.user.username, self.game, self.rank)
+		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
 		await self.channel_layer.group_send(
 			self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
 		)
@@ -69,6 +69,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				self.user_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game}."}
 			)
 			logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
+			logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
 			# send match data
 			await self.send(text_data=json.dumps({"match": True, "opponent": match[1], "game": self.game}))
 			# send match data to opponent
@@ -104,9 +105,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		if not game:
 			logging.error("Matchmaking: No game provided.")
 			return None
-		elif game is "pong":
+		elif game == "pong":
 			return "pong"
-		elif game is "snake":
+		elif game == "snake":
 			return "snake"
 		else:
 			logging.error("Matchmaking: Invalid game.")
@@ -117,16 +118,30 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
-		async with httpx.AsyncClient() as client:
-			response = await client.get(url, headers=headers)
-			if response.status_code == 200:
-				rank = response.json().get(f'{self.game}_rank', [])
-				return rank
-			else:
-				return None
+		try:
+			async with httpx.AsyncClient() as client:
+				response = await client.get(url, headers=headers)
+				if response.status_code == 200:
+					rank = response.json().get(f'{self.game}_rank', [])
+					return rank
+				else:
+					logging.error(f"Failed to get rank: {response.status_code} {response.text}")
+					return None
+		except httpx.RequestError as e:
+			logging.error(f"An error occurred while requesting user rank: {e}")
+			return None
 
 
 	# connection methods
+	@database_sync_to_async
+	def get_user_from_token(self, access_token):
+		try:
+			user_id = access_token['user_id']
+			user = User.objects.get(id=user_id)
+			return user
+		except (User.DoesNotExist):
+			return None
+
 	async def validate_token(self):
 		# getting token from query string
 		token = self.scope['query_string'].decode().split('=')[1]
@@ -167,7 +182,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.close()
 			return
 
-		self.user = await get_user_from_token(self.token)
+		self.user = await self.get_user_from_token(self.token)
 		if not self.user:
 			await self.close()
 			logging.error("Failed to get user from token.")
@@ -411,6 +426,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		logging.info("Status updated.")
 
 	# connection methods
+	@database_sync_to_async
+	def get_user_from_token(self, access_token):
+		try:
+			user_id = access_token['user_id']
+			user = User.objects.get(id=user_id)
+			return user
+		except (User.DoesNotExist):
+			return None
+
 	async def validate_token(self):
 		# getting token from query string
 		token = self.scope['query_string'].decode().split('=')[1]
@@ -486,14 +510,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				return blocked_users
 			else:
 				return None
-
-
-# outside of the class
-@database_sync_to_async
-def get_user_from_token(self, access_token):
-	try:
-		user_id = access_token['user_id']
-		user = User.objects.get(id=user_id)
-		return user
-	except (User.DoesNotExist):
-		return None

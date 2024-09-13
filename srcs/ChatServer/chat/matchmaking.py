@@ -1,8 +1,9 @@
 import asyncio
 
 class MatchmakingManager:
-	pong_queue = {}
-	snake_queue = {}
+	def __init__(self):
+		self.pong_queue = {}
+		self.snake_queue = {}
 
 	async def add_player(self, username, game, rank):
 		queue = self._get_queue(game)
