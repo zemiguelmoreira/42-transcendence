@@ -55,49 +55,40 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	async def join_matchmaking(self, data):
 		self.game = await self.get_game_from_data(data)
 		self.rank = await self.get_user_rank()
-		# if not self.rank:
-		# 	logging.error("Matchmaking: Failed to get user rank.")
-		# 	return
 		# add to queue & find match
-		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-		await self.channel_layer.group_send(
-			self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
-		)
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
+		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
+		# await self.channel_layer.group_send(
+		# 	self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
+		# )
 		if match:
-			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game}."}
-			)
 			logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
 			logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
+			await self.channel_layer.group_send(
+				self.user_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
+			)
 			# send match data
 			await self.send(text_data=json.dumps({"match": True, "opponent": match[1], "game": self.game}))
 			# send match data to opponent
 			recipient_group_name = "user_%s" % match[1]
 			await self.channel_layer.group_send(
-				recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game}."}
-			)
-			await self.channel_layer.group_send(
 				recipient_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
 			)
+			await self.channel_layer.group_send(
+				recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {user.username}."}
+			)
 		else:
+			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "system_message", "message": f"Couldn't find a fair game of {self.game}."}
 			)
-			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 
 	async def cancel_matchmaking(self, data):
-		matchmaking_manager.remove_player(self.user.username, self.game)
-		await self.channel_layer.group_send(
-			self.user_group_name, {"type": "system_message", "message": f"Left {self.game} matchmaking."}
-		)
 		logging.info(f"Matchmaking: User {self.user.username} left {self.game} matchmaking.")
-
-	# event handlers
-	async def match_found(self, event):
-		opponent = event["opponent"]
-		game = event["game"]
-		await self.send(text_data=json.dumps({"match": True, "opponent": opponent, "game": game}))
+		await matchmaking_manager.remove_player(self.user.username, self.game)
+		# await self.channel_layer.group_send(
+		# 	self.user_group_name, {"type": "system_message", "message": f"Left {self.game} matchmaking."}
+		# )
 
 	# utility methods
 	async def get_game_from_data(self, data):
@@ -122,8 +113,18 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			async with httpx.AsyncClient() as client:
 				response = await client.get(url, headers=headers)
 				if response.status_code == 200:
-					rank = response.json().get(f'{self.game}_rank', [])
-					return rank
+					data = response.json()
+
+					# Access the correct list of rankings
+					rankings = data.get(f'{self.game}_rankings', [])
+
+					if isinstance(rankings, list):
+						for user in rankings:
+							if user['username'] == self.user.username:
+								return user.get(f'{self.game}_rank', None)
+
+					logging.error("Failed to get rank: User not found in response.")
+					return None
 				else:
 					logging.error(f"Failed to get rank: {response.status_code} {response.text}")
 					return None
@@ -162,9 +163,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 		logging.info(f"Matchmaking: User {self.user.username} connected.")
 		self.authenticated = True
+		self.game = None
 
 	async def cleanup_connection(self):
-		await matchmaking_manager.remove_player(self.user.username, self.game)
+		if self.game:
+			await matchmaking_manager.remove_player(self.user.username, self.game)
 		# await self.channel_layer.group_send(
 		# 	self.user_group_name, {"type": "system_message", "message": "Disconnected from matchmaking."}
 		# )
@@ -345,6 +348,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	# event handlers
+	async def match_found(self, event):
+		opponent = event["opponent"]
+		game = event["game"]
+		await self.send(text_data=json.dumps({"match": True, "opponent": opponent, "game": game}))
+
 	async def chat_message(self, event):
 		message = event["message"]
 		sender = event["sender"]

@@ -6,7 +6,7 @@ class MatchmakingManager:
 		self.snake_queue = {}
 
 	async def add_player(self, username, game, rank):
-		queue = self._get_queue(game)
+		queue = await self._get_queue(game)
 		queue[username] = rank
 
 		match = await self.find_match(username, game, rank)
@@ -16,7 +16,7 @@ class MatchmakingManager:
 		return await self.wait_for_match(username, game, rank)
 
 	async def find_match(self, username, game, rank, tolerance=1):
-		queue = self._get_queue(game)
+		queue = await self._get_queue(game)
 
 		# if theres a match within rank tolerance
 		for other_player, other_rank in queue.items():
@@ -35,12 +35,12 @@ class MatchmakingManager:
 				return match
 		return None
 
-	def remove_player(self, username, game):
-		queue = self._get_queue(game)
+	async def remove_player(self, username, game):
+		queue = await self._get_queue(game)
 		if username in queue:
 			queue.pop(username)
 
-	def _get_queue(self, game):
+	async def _get_queue(self, game):
 		if game == "pong":
 			return self.pong_queue
 		elif game == "snake":
