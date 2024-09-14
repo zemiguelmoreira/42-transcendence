@@ -1,5 +1,4 @@
-import { navigateTo } from "../app.js";
-import { snakeGameLocal , snakeGameMultiplayer } from "./snake-pages.js";
+import { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer } from "./snake-pages.js";
 
 function snakeOptions(username) {
 	try {
@@ -38,7 +37,7 @@ function snakeOptions(username) {
 	});
 	document.getElementById('snakeGameRemote').addEventListener('click', (e) => {
 		e.preventDefault();
-		navigateTo(`/user/${username}/snake-game-remote`);
+		snakeGameRemote(username);
 	});
 	document.getElementById('snakeGameMultiplayer').addEventListener('click', (e) => {
 		e.preventDefault();

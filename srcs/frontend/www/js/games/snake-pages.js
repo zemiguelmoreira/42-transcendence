@@ -42,6 +42,30 @@ function startLocalSnakePopup(username) {
 	`;
 }
 
+function startRemoteSnakePopup(username) {
+	return `
+<div class="local-pending" id="localPending">
+    <div class="local-box">
+        <img src="your-image-path.jpg" alt="Game Image" width="160" height="160"> <!-- Adicione o caminho da imagem -->
+        <div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div> <!-- Alterado para REMOTE MATCH -->
+        <!-- Removido o input do nome e o botão PLAY -->
+        <button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
+        <div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
+        <div class="local-instructions-container">
+            <div class="local-instructions-column">
+                <div class="local-instructions-custom myFont-title">${username}</div> <!-- Substituído P2 por ${username} -->
+                <div class="local-instructions-custom myFont">&#8593;</div>
+                <div class="local-instructions-custom myFont">&#8595;</div>
+                <div class="local-instructions-custom myFont">&#8592;</div>
+                <div class="local-instructions-custom myFont">&#8594;</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	`;
+}
+
 function startMultiplayerSnakePopup(username) {
 	return `
 		<div class="local-pending" id="localPending">
@@ -121,6 +145,27 @@ function snakeGameLocalPage() {
 	`;
 }
 
+function snakeGameRemotePage() {
+	return `
+		<div class="snake-content">
+			<div class="snake-container">
+				<div class="snake-box snake-score1">
+					<span class="snake-ply1" id="snakeName1">Snake 1</span>
+					<span class="snake-score1--value" id="snakeScore1">0</span>
+				</div>
+				<div class="snake-logo">
+					<img src="../../files/macro2snake.png" alt="Snake Logo">
+				</div>
+				<div class="snake-box snake-score2">
+					<span class="snake-ply2" id="snakeName2">Snake 2</span>
+					<span class="snake-score2--value" id="snakeScore2">0</span>
+				</div>
+			</div>
+			<div class="snake-box"><canvas id="gameCanvasSnakeLocal" width="980" height="500"></canvas></div>
+		</div>
+	`;
+}
+
 function snakeGameMultiplayerPage() {
 	return `
 	<div class="snake-content">
@@ -172,6 +217,28 @@ function loadSnakeLocalScript(username) {
 	}
 }
 
+function loadSnakeRemoteScript(username) {
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', () => {
+			const localPendingDiv = document.getElementById('localPending');
+			if (localPendingDiv && typeof initializeSnakeGameRemote === 'function') {
+				localPendingDiv.remove();
+				document.getElementById('snakeName1').textContent = username;
+				document.getElementById('snakeName2').textContent = guest;
+				initializeSnakeGameRemote(username, guest);
+			}
+		});
+	} else {
+		const localPendingDiv = document.getElementById('localPending');
+		if (localPendingDiv && typeof initializeSnakeGameRemote === 'function') {
+			localPendingDiv.remove();
+			document.getElementById('snakeName1').textContent = username;
+			document.getElementById('snakeName2').textContent = guest;
+			initializeSnakeGameRemote(username, guest);
+		}
+	}
+}
+
 function loadSnakeMultiplayerScript(username) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
@@ -219,43 +286,23 @@ function snakeGameLocal(username) {
 }
 
 function snakeGameRemote(username) {
-	try {
-		document.getElementById('mainContent').innerHTML = `
-		<div class="snake-content">
-			<div class="snake-container">
-				<div class="snake-box snake-score1">
-					<span class="snake-ply1">Snake 1</span>
-					<span class="snake-score1--value">00</span>
-				</div>
-				<div class="snake-logo">
-					<img src="../../files/macro2snake.png" alt="Snake Logo">
-				</div>
-				<div class="snake-box snake-score2">
-					<span class="snake-ply2">Snake 2</span>
-					<span class="snake-score2--value">00</span>
-				</div>
-			</div>
-			<div class="snake-box"><canvas id="gameCanvasSnakeRemote" width="980" height="420"></canvas></div>
-		</div>
-		`;
-	} catch (error) {
-		console.error('Error loading:', error);
-	}
-	if (!snakeRemoteScriptLoaded) {
-		const scriptElement = document.createElement('script');
-		scriptElement.src = '../../js/games/snake-remote.js';
-		scriptElement.onload = () => {
-			snakeRemoteScriptLoaded = true;
-		};
-		scriptElement.onerror = () => {
-			console.error('Error loading script snake-remote.js');
-		};
-		document.body.appendChild(scriptElement);
-	} else {
-		if (typeof initializeSnakeGame === 'function') {
-			initializeSnakeGameRemote();
-		}
-	}
+	document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
+	document.getElementById('guestInput').focus();
+	const cancelButton = document.getElementById('cancelButton');
+	cancelButton.addEventListener('click', () => {
+		const localPendingDiv = document.getElementById('localPending');
+		localPendingDiv.remove();
+	});
+	const playButton = document.getElementById('playButton');
+	playButton.addEventListener('click', () => {
+		guest = document.querySelector('#guestInput').value;
+		const runSnakeRemote = document.createElement('div');
+		runSnakeRemote.classList.add('invite-pending');
+		runSnakeRemote.id = 'runSnake';
+		runSnakeRemote.innerHTML = snakeGameRemotePage();
+		document.getElementById('root').appendChild(runSnakeLocal);
+		navigateTo(`/user/${username}/snake-game-remote`);
+	});
 }
 
 function snakeGameMultiplayer(username) {
@@ -280,4 +327,4 @@ function snakeGameMultiplayer(username) {
 	});
 }
 
-export { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer , loadSnakeLocalScript , loadSnakeMultiplayerScript };
+export { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer , loadSnakeLocalScript , loadSnakeRemoteScript , loadSnakeMultiplayerScript };

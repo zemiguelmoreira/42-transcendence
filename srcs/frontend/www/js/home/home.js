@@ -58,11 +58,131 @@ function openSlidingWindow() {
 	}
 }
 
+function initButtonListeners(username) {
+	
+    const homeButton = document.getElementById('homeButton');
+    if (homeButton && !homeButton.hasListener) {
+        homeButton.hasListener = true;
+        homeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(`/user/${username}`);
+        });
+    }
+
+    const snakeNavbar = document.getElementById('snake-navbar');
+    if (snakeNavbar && !snakeNavbar.hasListener) {
+        snakeNavbar.hasListener = true;
+        snakeNavbar.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(`/user/${username}/snake`);
+        });
+    }
+
+    const pongCard = document.getElementById('pong-card');
+    if (pongCard && !pongCard.hasListener) {
+        pongCard.hasListener = true;
+        pongCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(`/user/${username}/pong`);
+        });
+    }
+
+    const pongNavbar = document.getElementById('pong-navbar');
+    if (pongNavbar && !pongNavbar.hasListener) {
+        pongNavbar.hasListener = true;
+        pongNavbar.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(`/user/${username}/pong`);
+        });
+    }
+
+    const snakeCard = document.getElementById('snake-card');
+    if (snakeCard && !snakeCard.hasListener) {
+        snakeCard.hasListener = true;
+        snakeCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(`/user/${username}/snake`);
+        });
+    }
+
+    const viewProfileButton = document.getElementById('viewProfile');
+    if (viewProfileButton && !viewProfileButton.hasListener) {
+        viewProfileButton.hasListener = true;
+        viewProfileButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (viewToken()) {
+                fetchUserProfile(username);
+            } else {
+                navigateTo('/signIn');
+            }
+        });
+    }
+
+    const viewSettingsButton = document.getElementById('viewSettings');
+    if (viewSettingsButton && !viewSettingsButton.hasListener) {
+        viewSettingsButton.hasListener = true;
+        viewSettingsButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (viewToken()) {
+                fetchUserProfileSettings(username);
+            } else {
+                navigateTo('/signIn');
+            }
+        });
+    }
+
+    const logOutButton = document.getElementById('logOut');
+    if (logOutButton && !logOutButton.hasListener) {
+        logOutButton.hasListener = true;
+        logOutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            removeToken(username);
+            chatSocketInstance.close();
+            WebSocketInstance.close();
+            setTimeout(function () {
+                navigateTo('/');
+            }, 2000);
+        });
+    }
+
+    const chatCard = document.getElementById('chatCard');
+    if (chatCard && !chatCard.hasListener) {
+        chatCard.hasListener = true;
+        chatCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            openSlidingWindow();
+        });
+    }
+
+    const searchForm = document.getElementById('search-form');
+    if (searchForm && !searchForm.hasListener) {
+        searchForm.hasListener = true;
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            getUser(username);
+        });
+    }
+
+    const searchBtn = document.getElementById('search-btn');
+    if (searchBtn && !searchBtn.hasListener) {
+        searchBtn.hasListener = true;
+        searchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            getUser(username);
+        });
+    }
+
+    displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+}
+
+
+
 async function homeLogin(username) {
 	let dataUser = await getUserProfileByUsername(username);
 	const home_page = makeHomePage(dataUser);
 	const home_page_simple = makeSimpleHomePage(dataUser);
 	const chat_window = makeChatWindow(username);
+	
 	if (!chatLoaded) {
 		chatLoaded = true;
 		document.getElementById('root').innerHTML = '';
@@ -84,74 +204,8 @@ async function homeLogin(username) {
 		document.getElementById('mainContent').innerHTML = '';
 		document.getElementById('mainContent').insertAdjacentHTML('afterbegin', home_page_simple);
 	}
-
-	document.getElementById('homeButton').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}`);
-	});
-
-	document.getElementById('snake-navbar').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/snake`);
-	});
-
-	document.getElementById('pong-card').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/pong`);
-	});
-
-	document.getElementById('pong-navbar').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/pong`);
-	});
-
-	document.getElementById('snake-card').addEventListener('click', (e) => {
-		e.preventDefault();
-		navigateTo(`/user/${username}/snake`);
-	});
-
-	document.getElementById('viewProfile').addEventListener('click', (e) => {
-		e.preventDefault();
-		if (viewToken())
-			fetchUserProfile(username);
-		else
-			navigateTo('/signIn');
-	});
-
-	document.getElementById('viewSettings').addEventListener('click', (e) => {
-		e.preventDefault();
-		if (viewToken())
-			fetchUserProfileSettings(username);
-		else
-			navigateTo('/signIn');
-	});
-
-	document.getElementById('logOut').addEventListener('click', (e) => {
-		e.preventDefault();
-		removeToken(username);
-		chatSocketInstance.close();
-		WebSocketInstance.close();
-		setTimeout(function () {
-			navigateTo('/');
-		}, 2000);
-	});
-
-	document.getElementById('chatCard').addEventListener('click', (e) => {
-		e.preventDefault();
-		openSlidingWindow()
-	});
-
-	document.getElementById('search-form').addEventListener('submit', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
-
-	document.getElementById('search-btn').addEventListener('click', (e) => {
-		e.preventDefault();
-		getUser(username);
-	});
-
-	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+	
+	initButtonListeners(username);
 }
 
 export { home, homeLogin, closeSlidingWindow }
