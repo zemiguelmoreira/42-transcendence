@@ -69,14 +69,19 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			)
 			# send match data
 			await self.send(text_data=json.dumps({"match": True, "opponent": match[1], "game": self.game}))
-			# send match data to opponent
-			recipient_group_name = "user_%s" % match[1]
-			await self.channel_layer.group_send(
-				recipient_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
-			)
-			await self.channel_layer.group_send(
-				recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {user.username}."}
-			)
+			# # send match data to opponent
+			# # chat group
+			# recipient_group_name = "user_%s" % match[1]
+			# # mm group
+			# recipient_mm_group_name = "user_mm_%s" % match[1]
+			# # mm info
+			# await self.channel_layer.group_send(
+			# 	recipient_mm_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
+			# )
+			# # chat warning
+			# await self.channel_layer.group_send(
+			# 	recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
+			# )
 		else:
 			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
@@ -89,6 +94,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# await self.channel_layer.group_send(
 		# 	self.user_group_name, {"type": "system_message", "message": f"Left {self.game} matchmaking."}
 		# )
+
+	# # event handlers
+	# async def match_found(self, event):
+	# 	opponent = event["opponent"]
+	# 	game = event["game"]
+	# 	await self.send(text_data=json.dumps({"match": True, "opponent": opponent, "game": game}))
 
 	# utility methods
 	async def get_game_from_data(self, data):
@@ -158,9 +169,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def initialize_connection(self):
+		# chat group
 		self.user_group_name = "user_%s" % self.user.username
+		# # matchmaking group
+		# self.user_mm_group_name = "user_mm_%s" % self.user.username
 		# accepting the websocket connection
 		await self.accept()
+		# await self.channel_layer.group_add(self.user_mm_group_name, self.channel_name)
 		logging.info(f"Matchmaking: User {self.user.username} connected.")
 		self.authenticated = True
 		self.game = None
@@ -346,12 +361,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			)
 		logging.info(f"Public message sent by {self.user.username}.")
 
-
-	# event handlers
-	async def match_found(self, event):
-		opponent = event["opponent"]
-		game = event["game"]
-		await self.send(text_data=json.dumps({"match": True, "opponent": opponent, "game": game}))
 
 	async def chat_message(self, event):
 		message = event["message"]
