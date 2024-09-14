@@ -478,13 +478,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_add(self.user_group_name, self.channel_name)
 		await self.add_online_user()
 		# send welcome system msg
-		await self.channel_layer.group_send(
-			self.user_group_name,
-			{
-				'type': 'system.message',
-				'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.'
-			}
-		)
+		# await self.channel_layer.group_send(
+		# 	self.user_group_name,
+		# 	{
+		# 		'type': 'system.message',
+		# 		'message': 'Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.'
+		# 	}
+		# )
 
 	async def cleanup_connection(self):
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
