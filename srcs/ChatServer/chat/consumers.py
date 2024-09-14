@@ -17,10 +17,10 @@ logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
 class MatchmakingConsumer(AsyncWebsocketConsumer):
-	pong_queue = {}
-	snake_queue = {}
+	queued = False
 
 	async def connect(self):
+		self.authenticated = False
 		self.token = await self.validate_token()
 		if not self.token:
 			await self.close()
@@ -53,10 +53,14 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			await message_type_map[msgtype](data)
 
 	async def join_matchmaking(self, data):
+		if self.queued:
+			logging.error("Matchmaking: User already in matchmaking.")
+			return
 		self.game = await self.get_game_from_data(data)
 		self.rank = await self.get_user_rank()
 		# add to queue & find match
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
+		self.queued = True
 		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
 		# await self.channel_layer.group_send(
 		# 	self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
@@ -82,13 +86,19 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			# await self.channel_layer.group_send(
 			# 	recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
 			# )
+			self.queued = False
 		else:
 			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "system_message", "message": f"Couldn't find a fair game of {self.game}."}
 			)
+			self.queued = False
 
 	async def cancel_matchmaking(self, data):
+		if not self.queued:
+			logging.error("Matchmaking: User not in matchmaking.")
+			return
+		self.queued = False
 		logging.info(f"Matchmaking: User {self.user.username} left {self.game} matchmaking.")
 		await matchmaking_manager.remove_player(self.user.username, self.game)
 		# await self.channel_layer.group_send(
@@ -195,6 +205,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	invited = {}
 
 	async def connect(self):
+		self.authenticated = False
 		self.token = await self.validate_token()
 		if not self.token:
 			await self.close()
