@@ -399,6 +399,9 @@ h2 {
 	z-index: 3;
 }
 
+.mb-2 {
+	margin-bottom: 0 !important;
+}
 .navbar-dir {
 	border-radius: 0px;
 }

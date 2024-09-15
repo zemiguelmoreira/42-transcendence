@@ -1,12 +1,11 @@
 function makeHomePage(data) {
 	return `
 	<div class="navbar-div">
-		<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+		<nav class="navbar navbar-expand bg-body-tertiary" data-bs-theme="dark">
 			<div class="container-fluid">
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<!-- Remover o botão navbar-toggler -->
+				<!-- Remover a classe 'collapse' -->
+				<div class="navbar-collapse" id="navbarSupportedContent">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 						<li class="nav-item">
 							<a class="nav-link active" aria-current="page" href="" id="homeButton">HOME</a>
@@ -34,9 +33,7 @@ function makeHomePage(data) {
 							<ul class="dropdown-menu dropdown-menu-end">
 								<li><a class="dropdown-item" id="viewProfile" href="">Profile</a></li>
 								<li><a class="dropdown-item" id="viewSettings" href="">Settings</a></li>
-								<li>
-									<hr class="dropdown-divider">
-								</li>
+								<li><hr class="dropdown-divider"></li>
 								<li><a class="dropdown-item" id="logOut" href="">Logout</a></li>
 							</ul>
 						</li>
@@ -45,6 +42,7 @@ function makeHomePage(data) {
 			</div>
 		</nav>
 	</div>
+
 	<div class="home-box" id="mainContent">
 		<div class="card" style="width: 18rem;">
 			<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
