@@ -46,23 +46,28 @@ function startRemoteSnakePopup(username) {
 	return `
 <div class="local-pending" id="localPending">
     <div class="local-box">
-        <img src="your-image-path.jpg" alt="Game Image" width="160" height="160"> <!-- Adicione o caminho da imagem -->
+        <img src="../../files/snakeMatch.png" alt="Game Image" width="160" height="160"> <!-- Adicione o caminho da imagem -->
         <div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div> <!-- Alterado para REMOTE MATCH -->
-        <!-- Removido o input do nome e o botão PLAY -->
         <button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
         <div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
         <div class="local-instructions-container">
-            <div class="local-instructions-column">
-                <div class="local-instructions-custom myFont-title">${username}</div> <!-- Substituído P2 por ${username} -->
-                <div class="local-instructions-custom myFont">&#8593;</div>
-                <div class="local-instructions-custom myFont">&#8595;</div>
-                <div class="local-instructions-custom myFont">&#8592;</div>
-                <div class="local-instructions-custom myFont">&#8594;</div>
+            <div class="local-instructions-row">
+                <div class="local-instructions-column">
+                    <div class="local-instructions-custom myFont">UP</div>
+                    <div class="local-instructions-custom myFont">DOWN</div>
+                    <div class="local-instructions-custom myFont">LEFT</div>
+                    <div class="local-instructions-custom myFont">RIGHT</div>
+                </div>
+                <div class="local-instructions-column">
+                    <div class="local-instructions-custom myFont">&#8593;</div> <!-- Seta para cima -->
+                    <div class="local-instructions-custom myFont">&#8595;</div> <!-- Seta para baixo -->
+                    <div class="local-instructions-custom myFont">&#8592;</div> <!-- Seta para esquerda -->
+                    <div class="local-instructions-custom myFont">&#8594;</div> <!-- Seta para direita -->
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 	`;
 }
 

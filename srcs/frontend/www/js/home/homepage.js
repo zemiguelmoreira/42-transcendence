@@ -3,8 +3,6 @@ function makeHomePage(data) {
 	<div class="navbar-div">
 		<nav class="navbar navbar-expand bg-body-tertiary" data-bs-theme="dark">
 			<div class="container-fluid">
-				<!-- Remover o botão navbar-toggler -->
-				<!-- Remover a classe 'collapse' -->
 				<div class="navbar-collapse" id="navbarSupportedContent">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 						<li class="nav-item">
