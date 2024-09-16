@@ -1,10 +1,15 @@
 possibilidade de fazer o chat, em vez de ter event handler de TO e FROM, fazer um array de rooms, e criar um event handler para criar room de chat privado. possivelmente uma melhor opcao se usar abas/janelas para chat privado.
 
-proibir nome Transcendence
+mensagens system inicial no frontend para nao se repetir, ao abrir uma abra nova, na aba antiga
 
-ordenar lista online
+historico se nao houver solucao frontend
 
-mudar nome botao reject - decline
+matchmaking redis
 
-    <h2>Chat</h2>
-    <a href="chat.html" class="btn btn-primary">Chat</a>
+rodape so para system/convites
+
+chatroom for lobby/match
+
+system msg for tournment?
+
+
