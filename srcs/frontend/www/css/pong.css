@@ -426,6 +426,11 @@
 	width: 33%;
 }
 
+.local-instructions-column2 {
+	text-align: center;
+	width: 50%;
+}
+
 .local-instructions {
 	margin: 5px 0;
 	overflow: hidden;
@@ -435,13 +440,16 @@
 
 .local-instructions-title {
 	display: flex;
-	justify-content: center;
-	align-items: center;
-	border: 1px solid #ccc;
-	border-radius: 12px;
-	height: 45px;
-	margin-block: 5px;
-	text-align: center;
+    justify-content: center;
+    align-items: center;
+    background-color: #3a4466;
+    border: 2px solid #000000;
+    box-shadow: inset -8px -8px 20px rgba(0, 0, 0, 0.5), inset 10px 6px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    height: 100px;
+    margin-block: 5px;
+    font-size: 10px;
+    text-align: center;
     font-weight: bold;
     margin-bottom: 10px;
 }

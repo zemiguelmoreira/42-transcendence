@@ -40,7 +40,6 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.cleanup_connection()
 		return
 
-
 	async def receive(self, text_data):
 		data = json.loads(text_data)
 		msgtype = data.get("type", None)

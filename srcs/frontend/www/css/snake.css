@@ -80,3 +80,8 @@ canvas {
 	border-radius: 25px;
 	min-width: 150px;
 }
+
+.local-instructions-row {
+	display: flex;
+	width: 75%;
+}

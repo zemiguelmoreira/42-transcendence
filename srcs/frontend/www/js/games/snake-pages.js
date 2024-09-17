@@ -1,6 +1,7 @@
 import { navigateTo } from "../app.js";
 import { initializeSnakeGameLocal } from '../../js/games/snake-local.js';
 import { initializeSnakeGameFreeForAll } from '../../js/games/snake-free-for-all.js';
+import { createRoom } from "./game.js";
 
 let guest, guest1, guest2, guest3;
 
@@ -44,30 +45,36 @@ function startLocalSnakePopup(username) {
 
 function startRemoteSnakePopup(username) {
 	return `
-<div class="local-pending" id="localPending">
-    <div class="local-box">
-        <img src="../../files/snakeMatch.png" alt="Game Image" width="160" height="160"> <!-- Adicione o caminho da imagem -->
-        <div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div> <!-- Alterado para REMOTE MATCH -->
-        <button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
-        <div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
-        <div class="local-instructions-container">
-            <div class="local-instructions-row">
-                <div class="local-instructions-column">
-                    <div class="local-instructions-custom myFont">UP</div>
-                    <div class="local-instructions-custom myFont">DOWN</div>
-                    <div class="local-instructions-custom myFont">LEFT</div>
-                    <div class="local-instructions-custom myFont">RIGHT</div>
-                </div>
-                <div class="local-instructions-column">
-                    <div class="local-instructions-custom myFont">&#8593;</div> <!-- Seta para cima -->
-                    <div class="local-instructions-custom myFont">&#8595;</div> <!-- Seta para baixo -->
-                    <div class="local-instructions-custom myFont">&#8592;</div> <!-- Seta para esquerda -->
-                    <div class="local-instructions-custom myFont">&#8594;</div> <!-- Seta para direita -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+	<div class="local-pending" id="localPending">
+		<div class="local-box">
+			<img src="../../files/snakeMatch.png" alt="Game Image" width="150" height="50">
+			<div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div>
+			<button id="joinMatchmaking" class="btn btn-success local-btn-custom">FIND OPPONENT</button>
+			<button id="cancelMatchmaking" class="btn btn-danger local-btn-custom">CANCEL</button>
+			<div id="status" class="local-instructions-title myFont-title">WAITING FOR A MATCH...</div>
+			<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
+			<div class="local-instructions-container">
+				<div class="local-instructions-row">
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">UP</div>
+						<div class="local-instructions-custom myFont">DOWN</div>
+					</div>
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">&#8593;</div>
+						<div class="local-instructions-custom myFont">&#8595;</div>
+					</div>
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">LEFT</div>
+						<div class="local-instructions-custom myFont">RIGHT</div>
+					</div>
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">&#8592;</div>
+						<div class="local-instructions-custom myFont">&#8594;</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	`;
 }
 
@@ -292,21 +299,65 @@ function snakeGameLocal(username) {
 
 function snakeGameRemote(username) {
 	document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
-	document.getElementById('guestInput').focus();
-	const cancelButton = document.getElementById('cancelButton');
-	cancelButton.addEventListener('click', () => {
-		const localPendingDiv = document.getElementById('localPending');
-		localPendingDiv.remove();
+	// const cancelButton = document.getElementById('cancelMatchmaking');
+	// cancelButton.addEventListener('click', () => {
+	// 	const localPendingDiv = document.getElementById('localPending');
+	// 	localPendingDiv.remove();
+	// });
+	// const playButton = document.getElementById('joinMatchmaking');
+	// playButton.addEventListener('click', () => {
+
+	// 	const runSnakeRemote = document.createElement('div');
+	// 	runSnakeRemote.classList.add('invite-pending');
+	// 	runSnakeRemote.id = 'runSnake';
+	// 	runSnakeRemote.innerHTML = snakeGameRemotePage();
+	// 	document.getElementById('root').appendChild(runSnakeLocal);
+	// 	navigateTo(`/user/${username}/snake-game-remote`);
+	// });
+	let token = localStorage.getItem('access_token');
+	const matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+
+	matchmakingSocket.onopen = () => {
+		console.log("WebSocket connection opened.");
+	};
+
+	matchmakingSocket.onmessage = (event) => {
+		const data = JSON.parse(event.data);
+
+		if (data.match) {
+			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
+
+		} else if (data.system) {
+			document.getElementById('status').innerText = data.message;
+
+		} else if (data.error) {
+			document.getElementById('status').innerText = `Error: ${data.message}`;
+
+		} else {
+			document.getElementById('status').innerText = "Waiting for a match...";
+		}
+	};
+
+	matchmakingSocket.onclose = () => {
+		console.log("WebSocket connection closed.");
+	};
+
+	document.getElementById('joinMatchmaking').addEventListener('click', () => { // FIND OPPONENT
+		let roomCode = createRoom(username);
+		const data = JSON.stringify({
+			type: "join",
+			game: "pong"
+		});
+		matchmakingSocket.send(data);
+		document.getElementById('status').innerText = "JOINING MATCHMAKING...";
 	});
-	const playButton = document.getElementById('playButton');
-	playButton.addEventListener('click', () => {
-		guest = document.querySelector('#guestInput').value;
-		const runSnakeRemote = document.createElement('div');
-		runSnakeRemote.classList.add('invite-pending');
-		runSnakeRemote.id = 'runSnake';
-		runSnakeRemote.innerHTML = snakeGameRemotePage();
-		document.getElementById('root').appendChild(runSnakeLocal);
-		navigateTo(`/user/${username}/snake-game-remote`);
+
+	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
+		const data = JSON.stringify({
+			type: "cancel"
+		});
+		matchmakingSocket.send(data);
+		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 	});
 }
 

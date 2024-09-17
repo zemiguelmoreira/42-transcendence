@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Matchmaking</title>
+</head>
+
+<body>
+	<h1>Game Matchmaking</h1>
+	<button id="joinMatchmaking">Join Matchmaking</button>
+	<button id="cancelMatchmaking">Cancel Matchmaking</button>
+	<p id="status">Status: Not in matchmaking</p>
+
+	<script>
+		let token = localStorage.getItem('access_token');
+		const matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/?token=${token}`);
+
+
+		matchmakingSocket.onopen = () => {
+			console.log("WebSocket connection opened.");
+		};
+
+		matchmakingSocket.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+
+			if (data.match) {
+				document.getElementById('status').innerText = `Match found! Opponent: ${data.opponent}`;
+			} else if (data.system) {
+				document.getElementById('status').innerText = data.message;
+			} else if (data.error) {
+				document.getElementById('status').innerText = `Error: ${data.message}`;
+			} else {
+				document.getElementById('status').innerText = "Waiting for a match...";
+			}
+		};
+
+		matchmakingSocket.onclose = () => {
+			console.log("WebSocket connection closed.");
+		};
+
+		document.getElementById('joinMatchmaking').addEventListener('click', () => {
+			const data = JSON.stringify({
+				type: "join",
+				game: "pong" // Example: sending game type
+			});
+			matchmakingSocket.send(data);
+			document.getElementById('status').innerText = "Joining matchmaking...";
+		});
+
+		document.getElementById('cancelMatchmaking').addEventListener('click', () => {
+			const data = JSON.stringify({
+				type: "cancel"
+			});
+			matchmakingSocket.send(data);
+			document.getElementById('status').innerText = "Cancelling matchmaking...";
+		});
+	</script>
+</body>
+
+</html>
