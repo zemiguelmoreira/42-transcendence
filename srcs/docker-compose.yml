@@ -74,8 +74,8 @@ services:
 
   game_server:
     build: ./GameServer
-    container_name: game_server
-    image: game_server:42
+    container_name: gameserver
+    image: gameserver:42
     volumes:
       - game-app:/usr/src/app
     init: true

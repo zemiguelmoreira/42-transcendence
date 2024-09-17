@@ -11,8 +11,10 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 import logging
+logger = logging.getLogger(__name__)
 import httpx
 from .matchmaking import matchmaking_manager
+
 logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
@@ -43,7 +45,6 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		data = json.loads(text_data)
 		msgtype = data.get("type", None)
-
 		message_type_map = {
 			"join": self.join_matchmaking,
 			"cancel": self.cancel_matchmaking,
@@ -57,41 +58,109 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return
 		self.game = await self.get_game_from_data(data)
 		self.rank = await self.get_user_rank()
-		# add to queue & find match
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
 		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-		# await self.channel_layer.group_send(
-		# 	self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
-		# )
+
 		if match:
 			logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
 			logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
+
+			# Criar a sala de jogo (somente uma vez para os dois jogadores)
+			roomCode = await create_room(self.token, match[1])
+
+			# Enviar roomCode para o jogador atual
 			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
+				self.user_group_name, {
+					"type": "system_message", 
+					"message": f"Match found! Starting a game of {self.game} against {match[1]} in room {roomCode}."
+				}
 			)
-			# send match data
-			await self.send(text_data=json.dumps({"match": True, "opponent": match[1], "game": self.game}))
-			# # send match data to opponent
-			# # chat group
-			# recipient_group_name = "user_%s" % match[1]
-			# # mm group
-			# recipient_mm_group_name = "user_mm_%s" % match[1]
-			# # mm info
-			# await self.channel_layer.group_send(
-			# 	recipient_mm_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
-			# )
-			# # chat warning
-			# await self.channel_layer.group_send(
-			# 	recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
-			# )
+			await self.send(text_data=json.dumps({
+				"match": "match_created",
+				"opponent": match[1],
+				"game": self.game,
+				"roomCode": roomCode,  # Enviar roomCode para o jogador
+			}))
+
+			# Enviar roomCode para o jogador oponente
+			recipient_group_name = "user_%s" % match[1]
+			await self.channel_layer.group_send(
+				recipient_group_name, {
+					"type": "system_message",
+					"message": f"Match found! Starting a game of {self.game} against {self.user.username} in room {roomCode}."
+				}
+			)
+			# Enviar match data para oponente
+			await self.channel_layer.group_send(
+				recipient_group_name, {
+					"match": "match_found", 
+					# "type": "system_message",
+					# "message": f"Match found! IVO ***********************************.",
+     				# "opponent": self.user.username, 
+					"game": self.game,
+					"roomCode": roomCode  # Enviar roomCode também para o oponente
+				}
+			)
+			
 			self.queued = False
 		else:
 			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "system_message", "message": f"Couldn't find a fair game of {self.game}."}
+				self.user_group_name, {
+					"type": "system_message",
+					"message": f"Couldn't find a fair game of {self.game}."
+				}
 			)
 			self.queued = False
+
+	# async def join_matchmaking(self, data):
+	# 	if self.queued:
+	# 		logging.error("Matchmaking: User already in matchmaking.")
+	# 		return
+	# 	self.game = await self.get_game_from_data(data)
+	# 	self.rank = await self.get_user_rank()
+	# 	# add to queue & find match
+	# 	logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
+	# 	self.queued = True
+	# 	match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
+	# 	# await self.channel_layer.group_send(
+	# 	# 	self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
+	# 	# )
+	# 	if match:
+	# 		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
+	# 		logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
+	# 		await self.channel_layer.group_send(
+	# 			self.user_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
+	# 		)
+	# 		# send match data
+	# 		roomCode = await create_room(self.token, match[1])
+	# 		await self.send(text_data=json.dumps({
+    #    			"match": True,
+    #       		"opponent": match[1],
+    #         	"game": self.game,
+	# 			"roomCode": roomCode,
+    #          }))
+	# 		# # send match data to opponent
+	# 		# # chat group
+	# 		# recipient_group_name = "user_%s" % match[1]
+	# 		# # mm group
+	# 		# recipient_mm_group_name = "user_mm_%s" % match[1]
+	# 		# # mm info
+	# 		# await self.channel_layer.group_send(
+	# 		# 	recipient_mm_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
+	# 		# )
+	# 		# # chat warning
+	# 		# await self.channel_layer.group_send(
+	# 		# 	recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
+	# 		# )
+	# 		self.queued = False
+	# 	else:
+	# 		logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
+	# 		await self.channel_layer.group_send(
+	# 			self.user_group_name, {"type": "system_message", "message": f"Couldn't find a fair game of {self.game}."}
+	# 		)
+	# 		self.queued = False
 
 	async def cancel_matchmaking(self, data):
 		if not self.queued:
@@ -197,7 +266,34 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# )
 		logging.info(f"Matchmaking: User {self.user.username} disconnected.")
 
+async def create_room(game_accessToken, authorized_user):
+	data = None
 
+	logger.info(f"Creating room for {authorized_user}")
+	logger.info(f"Game Access Token: {game_accessToken}")
+
+	try:
+		async with httpx.AsyncClient() as client:
+			response = await client.post(
+				'http://gameserver:8001/create-room/',
+				headers={
+					'Content-Type': 'application/json',
+					'Authorization': f'Bearer {game_accessToken}',
+				},
+				json={
+					'authorized_user': authorized_user
+				},
+			)
+			data = response.json()
+			logger.info(f"CreateRoom: {data}")
+
+			if response.status_code != 200:
+				logger.error(f"Error: {data}")
+
+	except Exception as e:
+		logger.info(f'Error creating room: {e}')
+
+	return data.get('code') if data else None
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	online_users = {}

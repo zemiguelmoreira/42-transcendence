@@ -1,7 +1,8 @@
 import { navigateTo } from "../app.js";
 import { initializeSnakeGameLocal } from '../../js/games/snake-local.js';
 import { initializeSnakeGameFreeForAll } from '../../js/games/snake-free-for-all.js';
-import { createRoom } from "./game.js";
+import { joinPongRoom } from "../games/pong-remote.js";
+import { joinSnakeRoom } from "../games/snake-remote.js";
 
 let guest, guest1, guest2, guest3;
 
@@ -173,7 +174,7 @@ function snakeGameRemotePage() {
 					<span class="snake-score2--value" id="snakeScore2">0</span>
 				</div>
 			</div>
-			<div class="snake-box"><canvas id="gameCanvasSnakeLocal" width="980" height="500"></canvas></div>
+			<div class="snake-box"><canvas id="gameCanvasSnakeRemote" width="980" height="500"></canvas></div>
 		</div>
 	`;
 }
@@ -299,21 +300,7 @@ function snakeGameLocal(username) {
 
 function snakeGameRemote(username) {
 	document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
-	// const cancelButton = document.getElementById('cancelMatchmaking');
-	// cancelButton.addEventListener('click', () => {
-	// 	const localPendingDiv = document.getElementById('localPending');
-	// 	localPendingDiv.remove();
-	// });
-	// const playButton = document.getElementById('joinMatchmaking');
-	// playButton.addEventListener('click', () => {
 
-	// 	const runSnakeRemote = document.createElement('div');
-	// 	runSnakeRemote.classList.add('invite-pending');
-	// 	runSnakeRemote.id = 'runSnake';
-	// 	runSnakeRemote.innerHTML = snakeGameRemotePage();
-	// 	document.getElementById('root').appendChild(runSnakeLocal);
-	// 	navigateTo(`/user/${username}/snake-game-remote`);
-	// });
 	let token = localStorage.getItem('access_token');
 	const matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
 
@@ -324,8 +311,45 @@ function snakeGameRemote(username) {
 	matchmakingSocket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
-		if (data.match) {
+		if (data.match == "match_created") {
+			console.log("Match created!", data.roomCode);
 			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
+			
+			const popupWindow = document.getElementById('localPending');
+			popupWindow.remove();
+
+			const runSnakeRemote = document.createElement('div');
+			runSnakeRemote.classList.add('invite-pending');
+			runSnakeRemote.id = 'invitePending';
+			runSnakeRemote.innerHTML = snakeGameRemotePage();
+			document.getElementById('root').appendChild(runSnakeRemote);
+
+			console.log("Joining room...", data.roomCode);
+			
+
+			if (data.game != 'pong') {
+				joinSnakeRoom(data.roomCode);
+			}
+
+		} else if (data.match == "match_found") {
+			console.log("Match found!", data.roomCode);
+			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
+			
+			const popupWindow = document.getElementById('localPending');
+			popupWindow.remove();
+
+			const runSnakeRemote = document.createElement('div');
+			runSnakeRemote.classList.add('invite-pending');
+			runSnakeRemote.id = 'invitePending';
+			runSnakeRemote.innerHTML = snakeGameRemotePage();
+			document.getElementById('root').appendChild(runSnakeRemote);
+
+			console.log("Joining room...", data.roomCode);
+			
+
+			if (data.game != 'pong') {
+				joinSnakeRoom(data.roomCode);
+			}
 
 		} else if (data.system) {
 			document.getElementById('status').innerText = data.message;
@@ -343,10 +367,9 @@ function snakeGameRemote(username) {
 	};
 
 	document.getElementById('joinMatchmaking').addEventListener('click', () => { // FIND OPPONENT
-		let roomCode = createRoom(username);
 		const data = JSON.stringify({
 			type: "join",
-			game: "pong"
+			game: "snake"
 		});
 		matchmakingSocket.send(data);
 		document.getElementById('status').innerText = "JOINING MATCHMAKING...";

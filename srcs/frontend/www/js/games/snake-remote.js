@@ -20,10 +20,14 @@ let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
 
 function setupSnake() {
-	canvas = document.querySelector("canvas");
+	const canvas = document.getElementById('gameCanvasSnakeRemote');
+	
+	// canvas = document.querySelector("canvas");
+	
 	ctx = canvas.getContext('2d');
 	canvasWidth = document.getElementById("gameCanvasSnakeRemote").width;
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
+	
 	// let upPressed = false;
 	// let downPressed = false;
 	// let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
@@ -35,29 +39,6 @@ function setupSnake() {
 
 function joinSnakeRoom(roomCode) {
 	const snake_accessToken = localStorage.getItem('access_token');
-
-	try {
-		document.getElementById('invitePending').innerHTML = `
-			<div class="snake-content">
-			<div class="snake-container">
-				<div class="snake-box snake-score1">
-					<span class="snake-ply1">Snake 1</span>
-					<span class="snake-score1--value">00</span>
-				</div>
-				<div class="snake-logo">
-					<img src="../../files/macro2snake.png" alt="Snake Logo">
-				</div>
-				<div class="snake-box snake-score2">
-					<span class="snake-ply2">Snake 2</span>
-					<span class="snake-score2--value">00</span>
-				</div>
-			</div>
-			<div class="snake-box"><canvas id="gameCanvasSnakeRemote" width="980" height="420"></canvas></div>
-		</div>
-		`;
-	} catch (error) {
-		console.error('Erro ao carregar o conteúdo:', error);
-	}
 
 	setupSnake();
 
@@ -100,7 +81,8 @@ function joinSnakeRoom(roomCode) {
 				game_type: gameType,
 				winner_score: winnerScore,
 				loser_score: loserScore,
-				timestamp: timestamp
+				timestamp: timestamp,
+                ranked: true
 			});
 
 		} else {

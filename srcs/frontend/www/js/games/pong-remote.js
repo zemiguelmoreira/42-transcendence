@@ -116,7 +116,8 @@ function joinPongRoom(roomCode) {
 				game_type: gameType,
 				winner_score: winnerScore,
 				loser_score: loserScore,
-				timestamp: timestamp
+				timestamp: timestamp,
+                ranked: true
 			});
 
 		} else {
