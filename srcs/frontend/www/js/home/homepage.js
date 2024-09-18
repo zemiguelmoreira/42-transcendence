@@ -75,7 +75,7 @@ function makeHomePage(data) {
 	`;
 }
 
-function makeSimpleHomePage(data) {
+function makeSimpleHomePage() {
 	return `
 	<div class="home-box" id="mainContent">
 		<div class="card" style="width: 18rem;">

@@ -38,10 +38,14 @@ class WebSocketService {
 		}
 		const path = `wss://${window.location.host}/api/ws/user_status/?token=${token}`;
 		this.socketRef = new WebSocket(path);
-		this.socketRef.onopen = () => { };
+		this.socketRef.onopen = () => { 
+			console.log('teste socket open');
+		};
 		this.socketRef.onmessage = (e) => { };
 		this.socketRef.onerror = (e) => { };
-		this.socketRef.onclose = () => { };
+		this.socketRef.onclose = () => { 
+			console.log('teste socket close');
+		};
 	}
 	close() {
 		if (this.socketRef && this.socketRef.readyState === WebSocket.OPEN) {

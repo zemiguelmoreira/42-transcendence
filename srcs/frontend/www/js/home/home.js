@@ -18,6 +18,11 @@ import { initializeChat } from '../chat/chat.js';
 
 let chatLoaded = false;
 
+function changeChatLoaded () {
+    if (chatLoaded)
+        chatLoaded = false;
+}
+
 function home() {
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
@@ -137,6 +142,7 @@ function initButtonListeners(username) {
         logOutButton.addEventListener('click', (e) => {
             e.preventDefault();
             removeToken(username);
+            chatLoaded = false; // introduzido para carregar de novo toda a página home
             chatSocketInstance.close();
             WebSocketInstance.close();
             setTimeout(function () {
@@ -180,7 +186,7 @@ function initButtonListeners(username) {
 async function homeLogin(username) {
 	let dataUser = await getUserProfileByUsername(username);
 	const home_page = makeHomePage(dataUser);
-	const home_page_simple = makeSimpleHomePage(dataUser);
+	const home_page_simple = makeSimpleHomePage();
 	const chat_window = makeChatWindow(username);
 	
 	if (!chatLoaded) {
@@ -208,4 +214,4 @@ async function homeLogin(username) {
 	initButtonListeners(username);
 }
 
-export { home, homeLogin, closeSlidingWindow }
+export { home, homeLogin, closeSlidingWindow, changeChatLoaded }

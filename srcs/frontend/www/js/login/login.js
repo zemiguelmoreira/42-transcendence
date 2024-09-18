@@ -9,6 +9,8 @@ import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import { handleInput, handleInputBlur } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
+import { initializeChat } from "../chat/chat.js";
+import { makeChatWindow } from "../chat/chat_html.js";
 import WebSocketInstance from "../socket/websocket.js";
 
 function insertInputValidation1(qrForm) {
@@ -45,7 +47,7 @@ function userSignIn(e) {
 }
 
 function showSuccessMessageSignIn(username) {
-	var messageDiv = document.getElementById('successMessage');
+	let messageDiv = document.getElementById('successMessage');
 	messageDiv.style.display = 'block';
 	setTimeout(function () {
 		messageDiv.style.display = 'none';
