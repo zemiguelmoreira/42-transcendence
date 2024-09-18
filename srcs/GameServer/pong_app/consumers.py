@@ -257,7 +257,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             'winner_score': winner_score,
             'loser_score': loser_score,
             'timestamp': formatted_time,  # Adicionando timestamp
-            'game_type': 'pong'
+            'game_type': 'pong',
+            'ranked': True
         }
 
         # Salvar partida no banco de dados

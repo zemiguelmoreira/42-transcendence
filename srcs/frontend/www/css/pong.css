@@ -448,10 +448,11 @@
     border-radius: 12px;
     height: 100px;
     margin-block: 5px;
-    font-size: 10px;
+    font-size: 11px;
     text-align: center;
     font-weight: bold;
     margin-bottom: 10px;
+	color: #58b94a;
 }
 
 /* //////////////////////////////////////// */

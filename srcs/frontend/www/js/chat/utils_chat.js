@@ -6,6 +6,7 @@ import { joinSnakeRoom } from "../games/snake-remote.js";
 import { createRoom } from "../games/game.js";
 import chatSocketInstance from "./chat_socket.js";
 import { closeSlidingWindow } from "../home/home.js";
+import { snakeGameRemotePage } from "../games/snake-pages.js";
 
 let selectedUser = null;
 let roomCode = null;
@@ -87,6 +88,9 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game) {
 			if (game == 'Pong'){
 				joinPongRoom(roomCode);
 			} else {
+				const runSnakeRemote = document.getElementById('invitePending'); 
+				runSnakeRemote.innerHTML = snakeGameRemotePage();
+				document.getElementById('root').appendChild(runSnakeRemote);
 				joinSnakeRoom(roomCode);
 			}
 		} else {
@@ -108,6 +112,9 @@ function handleInviteResponse(username, data, chatLog) {
 		if (data.game == 'Pong') {
 			joinPongRoom(roomCode);
 		} else {
+			const runSnakeRemote = document.getElementById('invitePending'); 
+			runSnakeRemote.innerHTML = snakeGameRemotePage();
+			document.getElementById('root').appendChild(runSnakeRemote);
 			joinSnakeRoom(roomCode);
 		}
 	} else {

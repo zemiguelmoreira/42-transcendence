@@ -159,6 +159,7 @@ function snakeGameLocalPage() {
 }
 
 function snakeGameRemotePage() {
+	console.log("snakeGameRemotePage Loaded!");
 	return `
 		<div class="snake-content">
 			<div class="snake-container">
@@ -406,4 +407,4 @@ function snakeGameMultiplayer(username) {
 	});
 }
 
-export { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer , loadSnakeLocalScript , loadSnakeRemoteScript , loadSnakeMultiplayerScript };
+export { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer , loadSnakeLocalScript , loadSnakeRemoteScript , loadSnakeMultiplayerScript , snakeGameRemotePage };

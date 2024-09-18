@@ -664,6 +664,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             user2 = data.get('loser')
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
+            ranked = data.get('ranked')
             
             winner_profile = UserProfile.objects.get(user__username=user1)
             loser_profile = UserProfile.objects.get(user__username=user2)
@@ -682,9 +683,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 'loser_score': user2_score,
             }
 
+
             if game_type == "pong":
                 current_profile.pong_match_history.append(match_data)
-
 
                 if current_user.username == user1:
                     current_profile.pong_wins += 1
@@ -692,7 +693,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 else:
                     current_profile.pong_losses += 1
                     current_profile.losses += 1
-                if game_ranked:
+                if ranked:
                     if differece > 0:
                         points_earned = 100 + differece / 10
                     elif differece == 0:
@@ -709,13 +710,13 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 else:
                     current_profile.snake_losses += 1
                     current_profile.losses += 1
-                if game_ranked:
+                if ranked:
                     if differece > 0:
                         points_earned = 100 + differece / 10
                     elif differece == 0:
                         points_earned = 100
                     else:    
-                        points_earned = 100 - differece / 5
+                        points_earned = 100 - differece / 20
                 current_profile.snake_rank += points_earned
 
             current_profile.save()

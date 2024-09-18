@@ -1,33 +1,26 @@
-
 let snake_socket;
-
 let playerIndex = null;
 let stopFlag = false;
-
 let canvas, ctx, canvasWidth, canvasHeight;
 let player1Score = 0;
 let player2Score = 0;
-
 let player1Name = "";
 let player2Name = "";
-
-const gridSize = 20;
-
 let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
-
 let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
 
+const gridSize = 20;
+
 function setupSnake() {
+	console.log('Setting up snake game');
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
-	
-	// canvas = document.querySelector("canvas");
-	
 	ctx = canvas.getContext('2d');
+
 	canvasWidth = document.getElementById("gameCanvasSnakeRemote").width;
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
-	
+
 	// let upPressed = false;
 	// let downPressed = false;
 	// let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
@@ -38,6 +31,7 @@ function setupSnake() {
 
 
 function joinSnakeRoom(roomCode) {
+
 	const snake_accessToken = localStorage.getItem('access_token');
 
 	setupSnake();
@@ -45,17 +39,37 @@ function joinSnakeRoom(roomCode) {
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
 
 	snake_socket.onmessage = async function (event) {
+		console.log('onmessage(gameloop): ', event);
 		const data = JSON.parse(event.data);
+		console.log('data from onmessage(gameloop): ', data);
+
 		if (data.action === 'unauthorized') {
-			// Tratamento para usuários não autorizados
+			// Unauthorized
+			console.log('unauthorized');
+			snake_socket.close();
+
 		} else if (data.action === 'assign_index') {
+			// Assign player index
+			console.log('playerIndex:', playerIndex);
 			playerIndex = data.player_index;
+
 		} else if (data.action === 'start_game') {
-			//receber valores
+			// Start game
 			startGame();
+			console.log('game started');
+
+		} else if (data.action === 'countdown') {
+            // Exibe o tempo do countdown
+            countdownDisplay(data.time);
+
 		} else if (data.action === 'wait_for_player') {
+			// Wait for player
 			console.log('waiting players');
+
 		} else if (data.action === 'game_over' && !stopFlag) {
+			// Game over
+			console.log('game over');
+
 			try {
 				document.getElementById('invitePending').innerHTML = `
 					<button id='cancelButton' class="btn btn-danger">Game Over</button>
@@ -82,13 +96,13 @@ function joinSnakeRoom(roomCode) {
 				winner_score: winnerScore,
 				loser_score: loserScore,
 				timestamp: timestamp,
-                ranked: true
+				ranked: true
 			});
 
 		} else {
-			// console.log('data from else(gameloop): ', data);
-			if (!stopFlag)
-			{
+			// Game loop
+			console.log('data from else(gameloop): ', data);
+			if (!stopFlag) {
 				player1Score = data['score'][0];
 				player2Score = data['score'][1];
 				snake1 = data.snakes[0];
@@ -99,11 +113,12 @@ function joinSnakeRoom(roomCode) {
 	};
 
 	snake_socket.onopen = function (event) {
+		console.log('WebSocket connection opened:', event);
 		snake_socket.send(JSON.stringify({ action: 'join' }));
 	};
 
 	snake_socket.onclose = function (event) {
-		// console.log('WebSocket connection closed:', event);
+		console.log('WebSocket connection closed:', event);
 	};
 }
 
@@ -128,7 +143,7 @@ function drawGrid() {
 		ctx.lineTo(x, canvas.height);
 		ctx.stroke();
 	}
-	
+
 	// Desenha as linhas horizontais
 	for (let y = 0; y <= canvas.height; y += gridSize) {
 		ctx.beginPath();
@@ -146,7 +161,7 @@ function drawFood() {
 function drawSnakes() {
 	const segmentCount1 = snake1['segments'].length;
 	const segmentCount2 = snake2['segments'].length;
-	
+
 	for (let i = 0; i < segmentCount1; i++) {
 		const segment = snake1.segments[i];
 		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5; // Calcula o valor alfa baseado na posição do segmento
@@ -168,7 +183,7 @@ function drawSnakes() {
 
 function hexToRgb(hex) {
 	let r = 0, g = 0, b = 0;
-	
+
 	// 3 dígitos
 	if (hex.length === 4) {
 		r = parseInt(hex[1] + hex[1], 16);
@@ -181,7 +196,7 @@ function hexToRgb(hex) {
 		g = parseInt(hex[3] + hex[4], 16);
 		b = parseInt(hex[5] + hex[6], 16);
 	}
-	
+
 	return `${r},${g},${b}`;
 }
 
@@ -214,6 +229,7 @@ document.addEventListener('keydown', function (event) {
 });
 
 function gameLoop() {
+	console.log('gameLoop');
 	drawGame();
 	requestAnimationFrame(gameLoop);
 }

@@ -117,7 +117,6 @@ function joinPongRoom(roomCode) {
 				winner_score: winnerScore,
 				loser_score: loserScore,
 				timestamp: timestamp,
-                ranked: true
 			});
 
 		} else {
