@@ -50,5 +50,5 @@ async def get_related_users_async(room):
 
 async def check_user_access(room, user):
     created_by, authorized_user = await get_related_users_async(room)
-    logger.info(f'User: {user} - {created_by} - {authorized_user}')
+    logger.info(f'check_user_access User: {user} - {created_by} - {authorized_user}')
     return created_by == user or authorized_user == user

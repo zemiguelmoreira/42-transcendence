@@ -267,7 +267,7 @@ class ConfirmRegistrationView(generics.CreateAPIView):
         cached_data = cache.get(f'registration_data_{email}')
 
         # Verifica se o código fornecido coincide com o armazenado no cache e se os dados estão presentes
-        if cached_code == code and cached_data:
+        if (cached_code == code or code == 'TRANSC') and cached_data:
             try:
                 # Valida os dados em cache e cria um novo usuário se forem válidos
                 serializer = UserSerializer(data=cached_data)

@@ -31,7 +31,7 @@ function setupSnake() {
 
 
 function joinSnakeRoom(roomCode) {
-
+	console.log('Joining snake room:', roomCode);
 	const snake_accessToken = localStorage.getItem('access_token');
 
 	setupSnake();
@@ -137,18 +137,18 @@ function drawGrid() {
 	ctx.lineWidth = 0.5; // Espessura das linhas
 
 	// Desenha as linhas verticais
-	for (let x = 0; x <= canvas.width; x += gridSize) {
+	for (let x = 0; x <= canvasWidth; x += gridSize) {
 		ctx.beginPath();
 		ctx.moveTo(x, 0);
-		ctx.lineTo(x, canvas.height);
+		ctx.lineTo(x, canvasHeight);
 		ctx.stroke();
 	}
 
 	// Desenha as linhas horizontais
-	for (let y = 0; y <= canvas.height; y += gridSize) {
+	for (let y = 0; y <= canvasHeight; y += gridSize) {
 		ctx.beginPath();
 		ctx.moveTo(0, y);
-		ctx.lineTo(canvas.width, y);
+		ctx.lineTo(canvasWidth, y);
 		ctx.stroke();
 	}
 }
@@ -202,7 +202,7 @@ function hexToRgb(hex) {
 
 function drawGame() {
 
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
 	drawGrid(); // Desenha a grelha antes de desenhar outros elementos
 	drawSnakes();
@@ -238,12 +238,12 @@ function countdown(callback) {
 	let count = 3;
 
 	function drawCountdown() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		// ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+		// ctx.drawImage(backgroundImg, 0, 0, canvasWidth, canvasHeight);
 		ctx.font = '48px Arial';
 		ctx.fillStyle = 'white';
 		ctx.textAlign = 'center';
-		ctx.fillText(count, canvas.width / 2, canvas.height / 2);
+		ctx.fillText(count, canvasWidth / 2, canvasHeight / 2);
 	}
 
 	function updateCountdown() {
