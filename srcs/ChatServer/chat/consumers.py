@@ -61,54 +61,51 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
 		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-
 		if match:
-			logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
-			logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
-
-			# Criar a sala de jogo (somente uma vez para os dois jogadores)
-			roomCode = await create_room(self.token, match[1])
-
-			# Enviar roomCode para o jogador atual
-			await self.channel_layer.group_send(
-				self.user_group_name, {
-					"type": "system_message", 
-					"message": f"Match found! Starting a game of {self.game} against {match[1]} in room {roomCode}."
-				}
-			)
-			await self.send(text_data=json.dumps({
-				"match": "match_created",
-				"opponent": match[1],
-				"game": self.game,
-				"roomCode": roomCode,  # Enviar roomCode para o jogador
-			}))
-
-			# Enviar roomCode para o jogador oponente
-			recipient_group_name = "user_%s" % match[1]
-			await self.channel_layer.group_send(
-				recipient_group_name, {
-					"type": "system_message",
-					"message": f"Match found! Starting a game of {self.game} against {self.user.username} in room {roomCode}."
-				}
-			)
-			# Enviar match data para oponente
-			await self.channel_layer.group_send(
-				recipient_group_name, {
-					"match": "match_found", 
-					# "type": "system_message",
-					# "message": f"Match found! IVO ***********************************.",
-     				# "opponent": self.user.username, 
+			# player 1 makes room
+			if match[0] == self.user.username:
+				self.queued = False
+				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[1]}.")
+				roomCode = await create_room(self.token, self.user.username)
+				recipient_mm_group_name = "user_mm_%s" % match[1]
+				recipient_group_name = "user_%s" % match[1]
+				# send match data to opponent
+				await self.channel_layer.group_send(
+					recipient_mm_group_name, {
+						"type": "match.found",
+						"game": self.game,
+						"roomCode": roomCode,
+						"opponent": self.user.username
+					}
+				)
+				# chat warning for self
+				await self.channel_layer.group_send(
+					self.user_group_name, {
+						"type": "system.message",
+						"message": f"Match found! Starting a game of {self.game} against {match[1]} in room {roomCode}."
+					}
+				)
+				# send match data to client
+				await self.send(text_data=json.dumps({
+					"match": "match_created",
+					"opponent": match[1],
 					"game": self.game,
-					"roomCode": roomCode  # Enviar roomCode também para o oponente
-				}
-			)
-			
-			self.queued = False
+					"roomCode": roomCode,
+				}))
+			else:
+				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[0]}.")
+				# player 2 waits for room creation
+				await self.channel_layer.group_send(
+					self.user_group_name, {
+						"type": "system.message",
+						"message": f"Match found! Waiting for room creation by {match[0]}."
+					}
+				)
 		else:
 			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
 				self.user_group_name, {
-					"type": "system_message",
+					"type": "system.message",
 					"message": f"Couldn't find a fair game of {self.game}."
 				}
 			)
@@ -125,13 +122,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	# 	self.queued = True
 	# 	match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
 	# 	# await self.channel_layer.group_send(
-	# 	# 	self.user_group_name, {"type": "system_message", "message": f"Waiting for a fair opponent in {self.game}."}
+	# 	# 	self.user_group_name, {"type": "system.message", "message": f"Waiting for a fair opponent in {self.game}."}
 	# 	# )
 	# 	if match:
 	# 		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
 	# 		logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
 	# 		await self.channel_layer.group_send(
-	# 			self.user_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
+	# 			self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
 	# 		)
 	# 		# send match data
 	# 		roomCode = await create_room(self.token, match[1])
@@ -152,13 +149,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	# 		# )
 	# 		# # chat warning
 	# 		# await self.channel_layer.group_send(
-	# 		# 	recipient_group_name, {"type": "system_message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
+	# 		# 	recipient_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
 	# 		# )
 	# 		self.queued = False
 	# 	else:
 	# 		logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 	# 		await self.channel_layer.group_send(
-	# 			self.user_group_name, {"type": "system_message", "message": f"Couldn't find a fair game of {self.game}."}
+	# 			self.user_group_name, {"type": "system.message", "message": f"Couldn't find a fair game of {self.game}."}
 	# 		)
 	# 		self.queued = False
 
@@ -170,14 +167,27 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		logging.info(f"Matchmaking: User {self.user.username} left {self.game} matchmaking.")
 		await matchmaking_manager.remove_player(self.user.username, self.game)
 		# await self.channel_layer.group_send(
-		# 	self.user_group_name, {"type": "system_message", "message": f"Left {self.game} matchmaking."}
+		# 	self.user_group_name, {"type": "system.message", "message": f"Left {self.game} matchmaking."}
 		# )
 
-	# # event handlers
-	# async def match_found(self, event):
-	# 	opponent = event["opponent"]
-	# 	game = event["game"]
-	# 	await self.send(text_data=json.dumps({"match": True, "opponent": opponent, "game": game}))
+	# event handlers
+	# match info from host(player 1)
+	async def match_found(self, event):
+		self.queued = False
+		game = event["game"]
+		roomCode = event["roomCode"]
+		opponent = event["opponent"]
+		# send match data to client
+		await self.send(text_data=json.dumps({
+			"match": "match_created",
+			"opponent": opponent,
+			"game": game,
+			"roomCode": roomCode,
+		}))
+		# chat warning for self
+		await self.channel_layer.group_send(self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent} in room {roomCode}."})
+		logging.info(f"Matchmaking: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
+
 
 	# utility methods
 	async def get_game_from_data(self, data):
@@ -194,7 +204,28 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 
 	async def get_user_rank(self):
-		url = f'http://userapi:8000/profile/{self.game}_rankings/'
+		xp = await self.get_user_xp()
+		max_rank = 50
+		xp_max = 100_000  # xp required for max rank
+		ranks = [0] * max_rank
+
+		# xp required for each rank
+		for rank in range(1, max_rank):
+			# progressive xp requirement based on rank (quadratic)
+			ranks[rank] = int((rank / max_rank) ** 2 * xp_max)
+
+		# rank based on xp
+		for rank, xp_required in enumerate(ranks):
+			if xp < xp_required:
+				return rank - 1
+
+		return max_rank
+
+
+
+
+	async def get_user_xp(self):
+		url = f'http://userapi:8000/profile/get_user_profile/'
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
@@ -203,22 +234,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				response = await client.get(url, headers=headers)
 				if response.status_code == 200:
 					data = response.json()
-
-					# Access the correct list of rankings
-					rankings = data.get(f'{self.game}_rankings', [])
-
-					if isinstance(rankings, list):
-						for user in rankings:
-							if user['username'] == self.user.username:
-								return user.get(f'{self.game}_rank', None)
-
-					logging.error("Failed to get rank: User not found in response.")
-					return None
+					return data.get(f'{self.game}_rank', 0)
 				else:
 					logging.error(f"Failed to get rank: {response.status_code} {response.text}")
 					return None
 		except httpx.RequestError as e:
-			logging.error(f"An error occurred while requesting user rank: {e}")
+			logging.error(f"An error occurred while requesting user xp: {e}")
 			return None
 
 
@@ -250,10 +271,10 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# chat group
 		self.user_group_name = "user_%s" % self.user.username
 		# # matchmaking group
-		# self.user_mm_group_name = "user_mm_%s" % self.user.username
+		self.user_mm_group_name = "user_mm_%s" % self.user.username
 		# accepting the websocket connection
 		await self.accept()
-		# await self.channel_layer.group_add(self.user_mm_group_name, self.channel_name)
+		await self.channel_layer.group_add(self.user_mm_group_name, self.channel_name)
 		logging.info(f"Matchmaking: User {self.user.username} connected.")
 		self.authenticated = True
 		self.game = None
@@ -262,7 +283,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		if self.game:
 			await matchmaking_manager.remove_player(self.user.username, self.game)
 		# await self.channel_layer.group_send(
-		# 	self.user_group_name, {"type": "system_message", "message": "Disconnected from matchmaking."}
+		# 	self.user_group_name, {"type": "system.message", "message": "Disconnected from matchmaking."}
 		# )
 		logging.info(f"Matchmaking: User {self.user.username} disconnected.")
 
