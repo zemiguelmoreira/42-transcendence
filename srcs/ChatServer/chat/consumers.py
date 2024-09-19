@@ -66,7 +66,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			if match[0] == self.user.username:
 				self.queued = False
 				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[1]}.")
-				roomCode = await create_room(self.token, self.user.username)
+				roomCode = await create_room(self.token, match[1])
 				recipient_mm_group_name = "user_mm_%s" % match[1]
 				recipient_group_name = "user_%s" % match[1]
 				# send match data to opponent
@@ -225,7 +225,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def get_user_xp(self):
-		url = f'http://userapi:8000/profile/get_user_profile/'
+		url = f'http://userapi:8000/profile/get_user_profile/?username={self.user.username}'
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}

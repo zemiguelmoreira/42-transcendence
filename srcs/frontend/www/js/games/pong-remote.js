@@ -89,7 +89,6 @@ function joinPongRoom(roomCode) {
             // Exibe o tempo do countdown
             countdownDisplay(data.time);
 		} else if (data.action === 'game_over' && !stopFlag) {
-
 			// MSG de fim de jogo
 			try {
 				document.getElementById('invitePending').innerHTML = `
@@ -330,6 +329,9 @@ document.addEventListener('keyup', function (event) {
 });
 
 function gameLoop() {
+	console.log('gameLoop');
+	if (stopFlag == true)
+		return;
 	drawGame(ballPosition, paddlePositions);
 	requestAnimationFrame(gameLoop);
 }

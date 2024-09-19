@@ -230,6 +230,8 @@ document.addEventListener('keydown', function (event) {
 
 function gameLoop() {
 	console.log('gameLoop');
+	if (stopFlag == true)
+		return;
 	drawGame();
 	requestAnimationFrame(gameLoop);
 }
