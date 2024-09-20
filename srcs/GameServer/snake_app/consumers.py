@@ -21,7 +21,7 @@ import random
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-canvasHeight = 420
+canvasHeight = 500
 canvasWidth = 980
 gridSize = 20
 

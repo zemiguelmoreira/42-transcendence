@@ -29,7 +29,6 @@ function setupSnake() {
 	// let goalSound = new Audio('./files/pong-assets/goal.wav');
 }
 
-
 function joinSnakeRoom(roomCode) {
 	console.log('Joining snake room:', roomCode);
 	const snake_accessToken = localStorage.getItem('access_token');
@@ -59,8 +58,8 @@ function joinSnakeRoom(roomCode) {
 			console.log('game started');
 
 		} else if (data.action === 'countdown') {
-            // Exibe o tempo do countdown
-            countdownDisplay(data.time);
+			// Exibe o tempo do countdown
+			countdownDisplay(data.time);
 
 		} else if (data.action === 'wait_for_player') {
 			// Wait for player
@@ -133,8 +132,8 @@ function sendMoveCommand(direction) {
 }
 
 function drawGrid() {
-	ctx.strokeStyle = 'black'; // Cor das linhas da grelha
-	ctx.lineWidth = 0.5; // Espessura das linhas
+	ctx.strokeStyle = '#345678'; // Cor das linhas da grelha
+	ctx.lineWidth = 1; // Espessura das linhas
 
 	// Desenha as linhas verticais
 	for (let x = 0; x <= canvasWidth; x += gridSize) {
@@ -203,6 +202,8 @@ function hexToRgb(hex) {
 function drawGame() {
 
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = '#000'; // Preto
+	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 	drawGrid(); // Desenha a grelha antes de desenhar outros elementos
 	drawSnakes();

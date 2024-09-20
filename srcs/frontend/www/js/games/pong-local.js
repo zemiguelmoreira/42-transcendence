@@ -24,9 +24,9 @@ function initializePongGameLocal(username, guest) {
 	let downPressed = false;
 	let player1Score = 0;
 	let player2Score = 0;
-	let leftPaddleSound = new Audio('../../files/pong-assets/ping.wav');
-	let rightPaddleSound = new Audio('../../files/pong-assets/pong.wav');
-	let wallSound = new Audio('../../files/pong-assets/wall.wav');
+	// let leftPaddleSound = new Audio('../../files/pong-assets/ping.wav');
+	// let rightPaddleSound = new Audio('../../files/pong-assets/pong.wav');
+	// let wallSound = new Audio('../../files/pong-assets/wall.wav');
 	let goalSound = new Audio('../../files/pong-assets/goal.wav');
 	let player1Name = username;
 	let player2Name = guest;
@@ -162,19 +162,19 @@ function initializePongGameLocal(username, guest) {
 		ballY += ballDirY;
 		if (ballY <= 0 || ballY + ballSize >= canvasHeight) {
 			ballDirY *= -1;
-			wallSound.play();
+			// wallSound.play();
 		}
 		if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
 			ballDirX *= -1;
-			leftPaddleSound.play();
+			// leftPaddleSound.play();
 		}
 		if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
 			ballDirX *= -1;
-			rightPaddleSound.play();
+			// rightPaddleSound.play();
 		}
 		if (ballX <= 0) {
 			player2Score++;
-			goalSound.play();
+			// goalSound.play();
 			resetBall();
 			if (player2Score >= winningScore) {
 				endGame();
@@ -182,7 +182,7 @@ function initializePongGameLocal(username, guest) {
 		}
 		if (ballX + ballSize >= canvasWidth) {
 			player1Score++;
-			goalSound.play();
+			// goalSound.play();
 			resetBall();
 			if (player1Score >= winningScore) {
 				endGame();

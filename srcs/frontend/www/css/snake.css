@@ -34,6 +34,8 @@
 }
 
 canvas {
+	width: 998px;
+	height: 503px;
 	align-items: center;
 }
 
