@@ -69,7 +69,7 @@ async function updateUserProfile(data, username, selectedProfileImage) {
         });
 
         if (response.ok) {
-            // await homeLogin(username); // Não funciona porque tem a flag para actualizar a foto da navbar fazer refresh
+            await homeLogin(username);
             await fetchUserProfile(username);
             displaySlidingMessage('Profile updated successfully!');
         } else {

@@ -4,14 +4,11 @@ import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
 import WebSocketInstance from "./socket/websocket.js";
 import { getParams } from "./login/login42.js";
-import { changeChatLoaded } from "./home/home.js";
 
 const baseURL = "https://localhost/api";
-let urlRefresh;
 
 async function goTo() {
 	try {
-		console.log('history length1: ', history.length);
 		const refreshToken = localStorage.getItem('refresh_token');
 		if (testToken(refreshToken)) {
 			await refreshAccessToken();
@@ -23,8 +20,7 @@ async function goTo() {
 			}
 			let username = await getNamebyId(payload.user_id);
 			if (username) {
-				console.log('history length2: ', history.length);
-				navigateTo(`/user/${username}`); 
+				navigateTo(`/user/${username}`);
 				await WebSocketInstance.connect();
 			}
 			else
@@ -45,14 +41,10 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 		console.error('Too many redirects');
 		return;
 	}
-
 	const matchedRoute = matchRoute(url);
-	// console.log('matchedroute: ', matchedRoute);
 	if (matchedRoute) {
-		// console.log('navigate url: ', url);
 		const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 		if (!accessAllowed) {
-			console.log('route1');
 			navigateTo(matchedRoute.page.redirect, true, redirectsCount + 1);
 			return;
 		}
@@ -91,8 +83,6 @@ function matchRoute(route) {
 
 document.addEventListener('DOMContentLoaded', function (e) {
 	window.addEventListener('popstate', (e) => {
-		console.log('state: ', e.state);
-		console.log('history length3: ', history.length);
 		if (e.state) {
 			const matchedRoute = matchRoute(e.state.page);
 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
@@ -104,15 +94,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
 					const defaultState = { page: '/' }
 					history.replaceState(defaultState, '', "/");
 					const matchedRoute = matchRoute(defaultState.page);
-					changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
 					if (matchedRoute) {
 						matchedRoute.page.loadContent(matchedRoute.params);
 					}
 				}
 				return;
 			}
-			if (e.state.page === "/")
-				changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
 			if (matchedRoute && accessAllowed) {
 				matchedRoute.page.loadContent(matchedRoute.params);
 			} else
@@ -147,13 +134,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 		}
 		window.close();
 	}
-
-	// console.log('teste  na main state: ', e.state);
-	// console.log('path name na main: ', window.location.pathname);
-	// console.log('history length: ', history.length);
-
 	if (!viewTokenRefresh()) {
-		// console.log('path name na main refresh: ', window.location.pathname);
 		navigateTo(window.location.pathname);
 	}
 	else {
