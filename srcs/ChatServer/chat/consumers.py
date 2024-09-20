@@ -20,6 +20,7 @@ User = get_user_model()
 
 class MatchmakingConsumer(AsyncWebsocketConsumer):
 	queued = False
+	match = None
 
 	async def connect(self):
 		self.authenticated = False
@@ -157,13 +158,31 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		player1 = event["player1"]
 		player2 = event["player2"]
 		player1_mm_group_name = "user_mm_%s" % player1
-		if self.match[0] == player1 and self.match[1] == player2:
-			self.queued = False
-			await self.channel_layer.group_send(
-				player1_mm_group_name, {
-					"type": "match.confirmed"
+		player1__group_name = "user_%s" % player1
+		if self.match:
+			if self.match[0] == player1 and self.match[1] == player2:
+				self.queued = False
+				await self.channel_layer.group_send(
+					player1_mm_group_name, {
+						"type": "match.confirmed"
+					}
+				)
+		else:
+			# let self know mm failed
+			await self.channel_layer.group(
+				self.user_group_name, {
+					"type": "system.message",
+					"message": "Something went wrong in matchmaking, please queue up again!"
 				}
 			)
+			# let player1 know mm failed
+			await self.channel_layer.group_send(
+				player1_group_name, {
+					"type": "system.message",
+					"message": "Something went wrong in matchmaking, please queue up again!"
+				}
+			)
+			loggin.info(f"Matchmaking: Matchmaking canceled for {player1} and {player2}, players didn't match")
 
 	#match confirmed from player2, proceed to createRoom
 	async def match_confirmed(self, event):
