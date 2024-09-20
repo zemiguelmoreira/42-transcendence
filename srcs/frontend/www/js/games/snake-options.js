@@ -1,4 +1,5 @@
 import { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer } from "./snake-pages.js";
+import { navigateTo } from "../app.js";
 
 function snakeOptions(username) {
 	try {
@@ -33,7 +34,8 @@ function snakeOptions(username) {
 	}
 	document.getElementById('snakeGameLocal').addEventListener('click', (e) => {
 		e.preventDefault();
-		snakeGameLocal(username);
+		// snakeGameLocal(username);
+		navigateTo(`/user/${username}/snake-game-local`);
 	});
 	document.getElementById('snakeGameRemote').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -41,7 +43,8 @@ function snakeOptions(username) {
 	});
 	document.getElementById('snakeGameMultiplayer').addEventListener('click', (e) => {
 		e.preventDefault();
-		snakeGameMultiplayer(username);
+		// snakeGameMultiplayer(username);
+		navigateTo(`/user/${username}/snake-game-free-for-all`);
 	});
 }
 

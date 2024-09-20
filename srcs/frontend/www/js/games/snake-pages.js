@@ -253,6 +253,7 @@ function loadSnakeRemoteScript(username) {
 	}
 }
 
+
 function loadSnakeMultiplayerScript(username) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
@@ -280,7 +281,9 @@ function loadSnakeMultiplayerScript(username) {
 }
 
 function snakeGameLocal(username) {
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
+	// document.getElementById('root').innerHTML = '';
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
+	// document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
@@ -295,9 +298,12 @@ function snakeGameLocal(username) {
 		runSnakeLocal.id = 'runSnake';
 		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		navigateTo(`/user/${username}/snake-game-local`);
+		// navigateTo(`/user/${username}/snake-game-local`);
+		loadSnakeLocalScript(username);
+
 	});
 }
+
 
 function snakeGameRemote(username) {
 	document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
@@ -386,7 +392,8 @@ function snakeGameRemote(username) {
 }
 
 function snakeGameMultiplayer(username) {
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
+	// document.getElementById('root').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
 	document.getElementById('guestInput1').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
@@ -403,7 +410,8 @@ function snakeGameMultiplayer(username) {
 		runSnakeLocal.id = 'runSnake';
 		runSnakeLocal.innerHTML = snakeGameMultiplayerPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		navigateTo(`/user/${username}/snake-game-free-for-all`);
+		// navigateTo(`/user/${username}/snake-game-free-for-all`);
+		loadSnakeMultiplayerScript(username);
 	});
 }
 
