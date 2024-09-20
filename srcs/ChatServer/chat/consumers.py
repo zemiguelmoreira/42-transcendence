@@ -60,45 +60,26 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		self.rank = await self.get_user_rank()
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
-		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-		if match:
-			# player 1 makes room
-			if match[0] == self.user.username:
-				self.queued = False
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[1]}.")
-				roomCode = await create_room(self.token, self.user.username)
+		self.match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
+		if self.match:
+			# player 1 checks with player2 the match
+			if self.match[0] == self.user.username:
 				recipient_mm_group_name = "user_mm_%s" % match[1]
 				recipient_group_name = "user_%s" % match[1]
-				# send match data to opponent
 				await self.channel_layer.group_send(
 					recipient_mm_group_name, {
-						"type": "match.found",
-						"game": self.game,
-						"roomCode": roomCode,
-						"opponent": self.user.username
-					}
+						"type": "check.match",
+						"player1": self.match[0],
+						"player2": self.match[1],
+						}
 				)
-				# chat warning for self
-				await self.channel_layer.group_send(
-					self.user_group_name, {
-						"type": "system.message",
-						"message": f"Match found! Starting a game of {self.game} against {match[1]} in room {roomCode}."
-					}
-				)
-				# send match data to client
-				await self.send(text_data=json.dumps({
-					"match": "match_created",
-					"opponent": match[1],
-					"game": self.game,
-					"roomCode": roomCode,
-				}))
 			else:
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[0]}.")
+				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}.")
 				# player 2 waits for room creation
 				await self.channel_layer.group_send(
 					self.user_group_name, {
 						"type": "system.message",
-						"message": f"Match found! Waiting for room creation by {match[0]}."
+						"message": f"Match found! Waiting for room creation by {self.match[0]}."
 					}
 				)
 		else:
@@ -145,7 +126,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	# 		# recipient_mm_group_name = "user_mm_%s" % match[1]
 	# 		# # mm info
 	# 		# await self.channel_layer.group_send(
-	# 		# 	recipient_mm_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
+	# 		# 	recipient_mm_group_name, {"type": "match_details", "opponent": self.user.username, "game": self.game}
 	# 		# )
 	# 		# # chat warning
 	# 		# await self.channel_layer.group_send(
@@ -171,9 +152,52 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# )
 
 	# event handlers
-	# match info from host(player 1)
-	async def match_found(self, event):
+	#confirm match players from player1 to player2
+	async def check_match(self, event):
+		player1 = event["player1"]
+		player2 = event["player2"]
+		player1_mm_group_name = "user_mm_%s" % player1
+		if self.match[0] == player1 and self.match[1] == player2:
+			self.queued = False
+			await self.channel_layer.group_send(
+				player1_mm_group_name, {
+					"type": "match.confirmed"
+				}
+			)
+
+	#match confirmed from player2, proceed to createRoom
+	async def match_confirmed(self, event):
 		self.queued = False
+		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[1]}.")
+		roomCode = await create_room(self.token,self. match[1])
+		# send match data to opponent
+		await self.channel_layer.group_send(
+			recipient_mm_group_name, {
+				"type": "match.details",
+				"game": self.game,
+				"roomCode": roomCode,
+				"opponent": self.user.username
+			}
+		)
+		# chat warning for self
+		await self.channel_layer.group_send(
+			self.user_group_name, {
+				"type": "system.message",
+				"message": f"Match found! Starting a game of {self.game} against {self.match[1]} in room {roomCode}."
+			}
+		)
+		# send match data to client
+		await self.send(text_data=json.dumps({
+			"match": "match_created",
+			"opponent": self.match[1],
+			"game": self.game,
+			"roomCode": roomCode,
+		}))
+
+
+
+	# match info from host(player 1)
+	async def match_details(self, event):
 		game = event["game"]
 		roomCode = event["roomCode"]
 		opponent = event["opponent"]
