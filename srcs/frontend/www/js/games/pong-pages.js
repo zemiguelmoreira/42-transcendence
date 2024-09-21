@@ -1,8 +1,8 @@
 import { initializeTournament } from './pong-tournament-bracket.js';
 import { initializePongGameLocal } from './pong-local.js';
 import { navigateTo } from '../app.js';
+import { joinPongRoom } from './pong-remote.js';
 
-let pongScriptLoaded = false;
 let guest;
 
 function startLocalPongPopup(username) {
@@ -34,6 +34,19 @@ function startLocalPongPopup(username) {
 				</div>
 			</div>
 		</div>
+	`;
+}
+
+function startRemotePongPopup(username) {
+	return `
+	<div class="home-box">
+		<div class="pong-content">
+			<div class="pong-box">
+				<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
+				<canvas id="pongCanvas" width="960" height="560"></canvas>
+			</div>
+		</div>
+	</div>
 	`;
 }
 
@@ -92,32 +105,90 @@ function pongGameLocal(username) {
 }
 
 function pongGameRemote(username) {
-	try {
-		document.getElementById('root').innerHTML = `
-			<div class="home-box">
-				<div class="pong-content">
-					<div class="pong-box">
-						<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
-						<canvas id="pongCanvas" width="960" height="560"></canvas>
-					</div>
-				</div>
-			</div>
-		`;
-	} catch (error) {
-		console.error('Erro ao carregar o conteúdo:', error);
-	}
-	if (!pongScriptLoaded) {
-		const scriptElement = document.createElement('script');
-		scriptElement.type = 'module';
-		scriptElement.src = '../../js/games/pong-remote.js';
-		scriptElement.onload = () => {
-			pongScriptLoaded = true;
-		};
-		scriptElement.onerror = () => {
-			console.error('Erro ao carregar o script pong.js');
-		};
-		document.body.appendChild(scriptElement);
-	}
+	document.getElementById('root').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
+
+	let token = localStorage.getItem('access_token');
+	const matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+
+	matchmakingSocket.onopen = () => {
+		console.log("WebSocket connection opened.");
+	};
+
+	matchmakingSocket.onmessage = (event) => {
+		const data = JSON.parse(event.data);
+
+		if (data.match == "match_created") {
+			console.log("Match created!", data.roomCode);
+			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
+			
+			const popupWindow = document.getElementById('localPending');
+			popupWindow.remove();
+
+			const runPongRemote = document.createElement('div');
+			runPongRemote.classList.add('invite-pending');
+			runPongRemote.id = 'invitePending';
+			runPongRemote.innerHTML = pongCanvasPage();
+			document.getElementById('root').appendChild(runPongRemote);
+
+			console.log("Joining room...", data.roomCode);
+			
+			if (data.game == 'pong') {
+				joinPongRoom(data.roomCode);
+			}
+
+		} else if (data.match == "match_found") {
+			console.log("Match found!", data.roomCode);
+			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
+			
+			const popupWindow = document.getElementById('localPending');
+			popupWindow.remove();
+
+			const runPongRemote = document.createElement('div');
+			runPongRemote.classList.add('invite-pending');
+			runPongRemote.id = 'invitePending';
+			runPongRemote.innerHTML = pongCanvasPage();
+			document.getElementById('root').appendChild(runPongRemote);
+
+			console.log("Joining room...", data.roomCode);
+
+			if (data.game == 'pong') {
+				joinPongRoom(data.roomCode);
+			}
+
+		} else if (data.system) {
+			document.getElementById('status').innerText = data.message;
+
+		} else if (data.error) {
+			document.getElementById('status').innerText = `Error: ${data.message}`;
+
+		} else {
+			document.getElementById('status').innerText = "Waiting for a match...";
+		}
+	};
+
+	matchmakingSocket.onclose = () => {
+		console.log("WebSocket connection closed.");
+	};
+
+	document.getElementById('joinMatchmaking').addEventListener('click', () => { // FIND OPPONENT
+		const data = JSON.stringify({
+			type: "join",
+			game: "snake"
+		});
+		matchmakingSocket.send(data);
+		document.getElementById('status').innerText = "JOINING MATCHMAKING...";
+	});
+
+	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
+		const data = JSON.stringify({
+			type: "cancel"
+		});
+		matchmakingSocket.send(data);
+		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
+		setTimeout(() => {
+			document.getElementById('localPending').remove();
+		}, 1000)
+	});
 }
 
 function pongGameTournament(username) {

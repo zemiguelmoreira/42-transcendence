@@ -1,14 +1,13 @@
 import { navigateTo } from "../app.js";
 import { initializeSnakeGameLocal } from '../../js/games/snake-local.js';
 import { initializeSnakeGameFreeForAll } from '../../js/games/snake-free-for-all.js';
-import { joinPongRoom } from "../games/pong-remote.js";
 import { joinSnakeRoom } from "../games/snake-remote.js";
 
 let guest, guest1, guest2, guest3;
 
 function startLocalSnakePopup(username) {
 	return `
-		<div class="local-pending" id="localPending">
+		<div class="local-pending" id="snakePopup">
 			<div class="local-box">
 				<div class="logo-box1">SNAKE</div>
 				<div class="local-instructions-title-custom myFont-title">LOCAL MATCH</div>
@@ -46,7 +45,7 @@ function startLocalSnakePopup(username) {
 
 function startRemoteSnakePopup(username) {
 	return `
-	<div class="local-pending" id="localPending">
+	<div class="local-pending" id="snakePopup">
 		<div class="local-box">
 			<img src="../../files/snakeMatch.png" alt="Game Image" width="150" height="50">
 			<div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div>
@@ -81,7 +80,7 @@ function startRemoteSnakePopup(username) {
 
 function startMultiplayerSnakePopup(username) {
 	return `
-		<div class="local-pending" id="localPending">
+		<div class="local-pending" id="snakePopup">
 			<div class="local-box-container-custom">
 				<div class="local-box-custom">
 					<div class="logo-box-custom1">SNAKE</div>
@@ -212,18 +211,18 @@ function snakeGameMultiplayerPage() {
 function loadSnakeLocalScript(username) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
-			const localPendingDiv = document.getElementById('localPending');
-			if (localPendingDiv && typeof initializeSnakeGameLocal === 'function') {
-				localPendingDiv.remove();
+			const snakePopupDiv = document.getElementById('snakePopup');
+			if (snakePopupDiv && typeof initializeSnakeGameLocal === 'function') {
+				snakePopupDiv.remove();
 				document.getElementById('snakeName1').textContent = username;
 				document.getElementById('snakeName2').textContent = guest;
 				initializeSnakeGameLocal(username, guest);
 			}
 		});
 	} else {
-		const localPendingDiv = document.getElementById('localPending');
-		if (localPendingDiv && typeof initializeSnakeGameLocal === 'function') {
-			localPendingDiv.remove();
+		const snakePopupDiv = document.getElementById('snakePopup');
+		if (snakePopupDiv && typeof initializeSnakeGameLocal === 'function') {
+			snakePopupDiv.remove();
 			document.getElementById('snakeName1').textContent = username;
 			document.getElementById('snakeName2').textContent = guest;
 			initializeSnakeGameLocal(username, guest);
@@ -231,34 +230,34 @@ function loadSnakeLocalScript(username) {
 	}
 }
 
-function loadSnakeRemoteScript(username) {
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', () => {
-			const localPendingDiv = document.getElementById('localPending');
-			if (localPendingDiv && typeof initializeSnakeGameRemote === 'function') {
-				localPendingDiv.remove();
-				document.getElementById('snakeName1').textContent = username;
-				document.getElementById('snakeName2').textContent = guest;
-				initializeSnakeGameRemote(username, guest);
-			}
-		});
-	} else {
-		const localPendingDiv = document.getElementById('localPending');
-		if (localPendingDiv && typeof initializeSnakeGameRemote === 'function') {
-			localPendingDiv.remove();
-			document.getElementById('snakeName1').textContent = username;
-			document.getElementById('snakeName2').textContent = guest;
-			initializeSnakeGameRemote(username, guest);
-		}
-	}
-}
+// function loadSnakeRemoteScript(username) {
+// 	if (document.readyState === 'loading') {
+// 		document.addEventListener('DOMContentLoaded', () => {
+// 			const snakePopupDiv = document.getElementById('snakePopup');
+// 			if (snakePopupDiv && typeof initializeSnakeGameRemote === 'function') {
+// 				snakePopupDiv.remove();
+// 				document.getElementById('snakeName1').textContent = username;
+// 				document.getElementById('snakeName2').textContent = guest;
+// 				initializeSnakeGameRemote(username, guest);
+// 			}
+// 		});
+// 	} else {
+// 		const snakePopupDiv = document.getElementById('snakePopup');
+// 		if (snakePopupDiv && typeof initializeSnakeGameRemote === 'function') {
+// 			snakePopupDiv.remove();
+// 			document.getElementById('snakeName1').textContent = username;
+// 			document.getElementById('snakeName2').textContent = guest;
+// 			initializeSnakeGameRemote(username, guest);
+// 		}
+// 	}
+// }
 
 function loadSnakeMultiplayerScript(username) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
-			const localPendingDiv = document.getElementById('localPending');
-			if (localPendingDiv && typeof initializeSnakeGameFreeForAll === 'function') {
-				localPendingDiv.remove();
+			const snakePopupDiv = document.getElementById('snakePopup');
+			if (snakePopupDiv && typeof initializeSnakeGameFreeForAll === 'function') {
+				snakePopupDiv.remove();
 				document.getElementById('snakeName1').textContent = username;
 				document.getElementById('snakeName2').textContent = guest1;
 				document.getElementById('snakeName3').textContent = guest2;
@@ -267,9 +266,9 @@ function loadSnakeMultiplayerScript(username) {
 			}
 		});
 	} else {
-		const localPendingDiv = document.getElementById('localPending');
-		if (localPendingDiv && typeof initializeSnakeGameFreeForAll === 'function') {
-			localPendingDiv.remove();
+		const snakePopupDiv = document.getElementById('snakePopup');
+		if (snakePopupDiv && typeof initializeSnakeGameFreeForAll === 'function') {
+			snakePopupDiv.remove();
 			document.getElementById('snakeName1').textContent = username;
 			document.getElementById('snakeName2').textContent = guest1;
 			document.getElementById('snakeName3').textContent = guest2;
@@ -284,8 +283,8 @@ function snakeGameLocal(username) {
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
-		const localPendingDiv = document.getElementById('localPending');
-		localPendingDiv.remove();
+		const snakePopupDiv = document.getElementById('snakePopup');
+		snakePopupDiv.remove();
 	});
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
@@ -316,12 +315,12 @@ function snakeGameRemote(username) {
 			console.log("Match created!", data.roomCode);
 			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
 			
-			const popupWindow = document.getElementById('localPending');
+			const popupWindow = document.getElementById('snakePopup');
 			popupWindow.remove();
 
 			const runSnakeRemote = document.createElement('div');
 			runSnakeRemote.classList.add('invite-pending');
-			runSnakeRemote.id = 'invitePending';
+			runSnakeRemote.id = 'gameDiv';
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 
@@ -336,12 +335,12 @@ function snakeGameRemote(username) {
 			console.log("Match found!", data.roomCode);
 			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
 			
-			const popupWindow = document.getElementById('localPending');
+			const popupWindow = document.getElementById('snakePopup');
 			popupWindow.remove();
 
 			const runSnakeRemote = document.createElement('div');
 			runSnakeRemote.classList.add('invite-pending');
-			runSnakeRemote.id = 'invitePending';
+			runSnakeRemote.id = 'gameDiv';
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 
@@ -382,6 +381,9 @@ function snakeGameRemote(username) {
 		});
 		matchmakingSocket.send(data);
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
+		setTimeout(() => {
+			document.getElementById('snakePopup').remove();
+		}, 1000)
 	});
 }
 
@@ -390,8 +392,8 @@ function snakeGameMultiplayer(username) {
 	document.getElementById('guestInput1').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
-		const localPendingDiv = document.getElementById('localPending');
-		localPendingDiv.remove();
+		const snakePopupDiv = document.getElementById('snakePopup');
+		snakePopupDiv.remove();
 	});
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
@@ -407,4 +409,4 @@ function snakeGameMultiplayer(username) {
 	});
 }
 
-export { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer , loadSnakeLocalScript , loadSnakeRemoteScript , loadSnakeMultiplayerScript , snakeGameRemotePage };
+export { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer , loadSnakeLocalScript , /* loadSnakeRemoteScript , */	loadSnakeMultiplayerScript , snakeGameRemotePage };

@@ -10,6 +10,7 @@ let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], dir
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
+let winner = null;
 
 const gridSize = 20;
 
@@ -20,13 +21,6 @@ function setupSnake() {
 
 	canvasWidth = document.getElementById("gameCanvasSnakeRemote").width;
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
-
-	// let upPressed = false;
-	// let downPressed = false;
-	// let leftPaddleSound = new Audio('./files/pong-assets/ping.wav');
-	// let rightPaddleSound = new Audio('./files/pong-assets/pong.wav');
-	// let wallSound = new Audio('./files/pong-assets/wall.wav');
-	// let goalSound = new Audio('./files/pong-assets/goal.wav');
 }
 
 function joinSnakeRoom(roomCode) {
@@ -38,7 +32,7 @@ function joinSnakeRoom(roomCode) {
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
 
 	snake_socket.onmessage = async function (event) {
-		console.log('onmessage(gameloop): ', event);
+		// console.log('onmessage(gameloop): ', event);
 		const data = JSON.parse(event.data);
 		console.log('data from onmessage(gameloop): ', data);
 
@@ -69,19 +63,8 @@ function joinSnakeRoom(roomCode) {
 			// Game over
 			console.log('game over');
 
-			try {
-				document.getElementById('invitePending').innerHTML = `
-					<button id='cancelButton' class="btn btn-danger">Game Over</button>
-				`;
-				document.getElementById('cancelButton').addEventListener('click', () => {
-					document.getElementById('invitePending').remove();
-				});
-			} catch (error) {
-				console.error('Erro ao carregar o conteúdo:', error);
-			}
-
+			winner = data.winner;
 			stopFlag = true;
-			const winner = data.winner;
 			const loser = data.loser;
 			const winnerScore = data.winner_score;
 			const loserScore = data.loser_score;
@@ -97,6 +80,8 @@ function joinSnakeRoom(roomCode) {
 				timestamp: timestamp,
 				ranked: true
 			});
+
+			showEndScreen(winner);
 
 		} else {
 			// Game loop
@@ -265,5 +250,30 @@ function countdown(callback) {
 function startGame() {
 	countdown(gameLoop);
 }
+
+function showEndScreen(winnerName) {
+	if (!ctx) {
+		const canvas = document.getElementById('gameCanvasSnakeRemote');
+		ctx = canvas.getContext('2d');
+	}
+
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = "#fff";
+	ctx.font = "50px CustomFont";
+	ctx.textAlign = "center";
+
+	if (winnerName === "No winner") {
+		ctx.fillText("DRAW!", canvasWidth / 2, canvasHeight / 2 + 20);
+	} else {
+		ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
+	}
+
+	setTimeout(() => {
+		document.getElementById('gameDiv').remove();
+	}, 3000);
+}
+
 
 export { joinSnakeRoom };
