@@ -100,7 +100,10 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 		if len(room['players']) == 2:
 			for player in room['players']:
-				await player.send(json.dumps({'action': 'start_game'}))
+				await player.send(json.dumps({
+					'action': 'start_game',
+					'player_names': [room['players'][0].user.username, room['players'][1].user.username],
+				}))
 
 			if 'game_loop_task' not in room or room['game_loop_task'] is None:
 				room['game_loop_task'] = asyncio.create_task(self.game_loop(room))

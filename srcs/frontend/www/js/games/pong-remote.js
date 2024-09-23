@@ -77,13 +77,22 @@ function joinPongRoom(roomCode) {
 
 	pong_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
+		// console.log('Onmessage data: ', data);
+
 		if (data.action === 'unauthorized') {
 			// Tratamento para usuários não autorizados
 		} else if (data.action === 'assign_index') {
+			// console.log('Assign Index:', data);
 			playerIndex = data.player_index;
 			ballPosition = data.ball_position;
 			paddlePositions = data.paddle_positions;
 		} else if (data.action === 'start_game') {
+			// console.log('startGame');
+
+			player1Name = data.player_names[0];
+			// console.log('player1Name:', player1Name);
+			player2Name = data.player_names[1];
+			// console.log('player2Name:', player2Name);
 			startGame();
         } else if (data.action === 'countdown') {
             // Exibe o tempo do countdown
@@ -287,6 +296,7 @@ function drawPaddles() {
 }
 
 function drawGame(ball, paddles) {
+	// console.log('drawGame');
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	drawScores();
@@ -329,7 +339,7 @@ document.addEventListener('keyup', function (event) {
 });
 
 function gameLoop() {
-	console.log('gameLoop');
+	// console.log('gameLoop');
 	if (stopFlag == true)
 		return;
 	drawGame(ballPosition, paddlePositions);

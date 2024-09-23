@@ -1,11 +1,7 @@
-let snake_socket;
+let snake_socket = null;
 let playerIndex = null;
 let stopFlag = false;
-let canvas, ctx, canvasWidth, canvasHeight;
-let player1Score = 0;
-let player2Score = 0;
-let player1Name = "";
-let player2Name = "";
+let canvas, ctx, canvasWidth, canvasHeight, player1Score, player2Score;
 let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let foodColor = "#FF0000";
@@ -15,7 +11,16 @@ let winner = null;
 const gridSize = 20;
 
 function setupSnake() {
+	playerIndex = null;
+	stopFlag = false;
+	snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
+	snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
+	foodColor = "#FF0000";
+	food = { 'x': 0, 'y': 0 };
+	winner = null;
+		
 	console.log('Setting up snake game');
+	
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	ctx = canvas.getContext('2d');
 
@@ -23,33 +28,44 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-function joinSnakeRoom(roomCode) {
+function joinSnakeRoom(roomCode, matchmaking) {
 	console.log('Joining snake room:', roomCode);
+
 	const snake_accessToken = localStorage.getItem('access_token');
-
-	setupSnake();
-
+	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
+		snake_socket.close();
+		snake_socket = null;
+	}
+	  
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
 
+	
+	snake_socket.onopen = async function (event) {
+		console.log('Snake WebSocket connection opened:', event);
+		setupSnake();
+		snake_socket.send(JSON.stringify({ action: 'join' }));
+	};
+
 	snake_socket.onmessage = async function (event) {
-		// console.log('onmessage(gameloop): ', event);
 		const data = JSON.parse(event.data);
-		console.log('data from onmessage(gameloop): ', data);
 
 		if (data.action === 'unauthorized') {
 			// Unauthorized
-			console.log('unauthorized');
+			// console.log('unauthorized');
 			snake_socket.close();
 
 		} else if (data.action === 'assign_index') {
 			// Assign player index
-			console.log('playerIndex:', playerIndex);
+			// console.log('playerIndex:', playerIndex);
 			playerIndex = data.player_index;
 
 		} else if (data.action === 'start_game') {
 			// Start game
+			console.log('game started ', data);
+			document.getElementById('snakeName1').innerText = data.player_names[0];
+			document.getElementById('snakeName2').innerText = data.player_names[1];
+
 			startGame();
-			console.log('game started');
 
 		} else if (data.action === 'countdown') {
 			// Exibe o tempo do countdown
@@ -57,11 +73,11 @@ function joinSnakeRoom(roomCode) {
 
 		} else if (data.action === 'wait_for_player') {
 			// Wait for player
-			console.log('waiting players');
+			// console.log('waiting players');
 
 		} else if (data.action === 'game_over' && !stopFlag) {
 			// Game over
-			console.log('game over');
+			// console.log('game over');
 
 			winner = data.winner;
 			stopFlag = true;
@@ -82,13 +98,15 @@ function joinSnakeRoom(roomCode) {
 			});
 
 			showEndScreen(winner);
+			matchmaking.close();
+			console.log('matchmaking webclosed closed');
 
 		} else {
 			// Game loop
-			console.log('data from else(gameloop): ', data);
+			// console.log('data from else(gameloop): ', data);
 			if (!stopFlag) {
-				player1Score = data['score'][0];
-				player2Score = data['score'][1];
+				document.getElementById('snakeScore1').innerText = player1Score = data['score'][0];
+				document.getElementById('snakeScore2').innerText = player2Score = data['score'][1];
 				snake1 = data.snakes[0];
 				snake2 = data.snakes[1];
 				food = data['food'];
@@ -96,14 +114,12 @@ function joinSnakeRoom(roomCode) {
 		}
 	};
 
-	snake_socket.onopen = function (event) {
-		console.log('WebSocket connection opened:', event);
-		snake_socket.send(JSON.stringify({ action: 'join' }));
-	};
-
 	snake_socket.onclose = function (event) {
-		console.log('WebSocket connection closed:', event);
-	};
+		console.log('Snake WebSocket connection closed:', event);
+		// Limpe o estado do jogo
+		snake_socket = null;  // Certifique-se de que a referência ao WebSocket é removida
+	  };
+	  
 }
 
 function sendMoveCommand(direction) {
@@ -197,7 +213,7 @@ function drawGame() {
 
 document.addEventListener('keydown', function (event) {
 	if (playerIndex === null) return;
-	console.log(event.key);
+	// console.log(event.key);
 	switch (event.key) {
 		case 'ArrowUp':
 			sendMoveCommand('UP');
@@ -215,7 +231,8 @@ document.addEventListener('keydown', function (event) {
 });
 
 function gameLoop() {
-	console.log('gameLoop');
+	// console.log('gameLoop');
+	// console.log('stopFlag:', stopFlag);
 	if (stopFlag == true)
 		return;
 	drawGame();
@@ -271,8 +288,9 @@ function showEndScreen(winnerName) {
 	}
 
 	setTimeout(() => {
-		document.getElementById('gameDiv').remove();
+		document.getElementById('invitePending').remove();
 	}, 3000);
+
 }
 
 

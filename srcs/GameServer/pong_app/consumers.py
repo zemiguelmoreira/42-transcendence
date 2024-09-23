@@ -135,9 +135,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 		if len(room['players']) == 2:
 			for player in room['players']:
-				await self.send(json.dumps({
+				logger.info(f'Player {player.user.username} is ready')
+				await player.send(json.dumps({
 					'action': 'start_game',
 					'player_index': player_index,
+					'player_names': [room['players'][0].user.username, room['players'][1].user.username],
 					'ball_position': room['ball_position'],
 					'paddle_positions': room['paddle_positions'],
 					'score': room['score']

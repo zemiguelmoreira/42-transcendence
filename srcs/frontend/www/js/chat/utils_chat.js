@@ -80,15 +80,15 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game) {
 		chatSocketInstance.send(response);
 		document.querySelector('.accept-button').disabled = true;
 		document.querySelector('.reject-button').disabled = true;
-		const gameDiv = document.createElement('div');
-		gameDiv.classList.add('invite-pending');
-		gameDiv.id = 'invitePending';
-		document.getElementById('root').appendChild(gameDiv);
+		const invitePending = document.createElement('div');
+		invitePending.classList.add('invite-pending');
+		invitePending.id = 'invitePending';
+		document.getElementById('root').appendChild(invitePending);
 		if (accepted) {
-			if (game == 'Pong'){
+			if (game == 'Pong') {
 				joinPongRoom(roomCode);
 			} else {
-				const runSnakeRemote = document.getElementById('invitePending'); 
+				const runSnakeRemote = document.getElementById('invitePending');
 				runSnakeRemote.innerHTML = snakeGameRemotePage();
 				document.getElementById('root').appendChild(runSnakeRemote);
 				joinSnakeRoom(roomCode);
@@ -112,7 +112,7 @@ function handleInviteResponse(username, data, chatLog) {
 		if (data.game == 'Pong') {
 			joinPongRoom(roomCode);
 		} else {
-			const runSnakeRemote = document.getElementById('invitePending'); 
+			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 			joinSnakeRoom(roomCode);
