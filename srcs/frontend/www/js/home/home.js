@@ -7,7 +7,7 @@ import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
 import { displaySlidingMessage, displayError } from "../utils/utils1.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
-import { makeHomePage , makeSimpleHomePage } from "./homepage.js";
+import { makeHomePage, makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import WebSocketInstance from "../socket/websocket.js";
@@ -17,6 +17,11 @@ import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
 
 let chatLoaded = false;
+
+function changeChatLoaded() {
+	if (chatLoaded)
+		chatLoaded = false;
+}
 
 function home() {
 	document.getElementById('root').innerHTML = '';
@@ -34,8 +39,8 @@ function home() {
 	signInUser42.addEventListener('click', function (e) {
 		e.preventDefault();
 		if (!viewToken())
-			userSignIn42();	
-		else 
+			userSignIn42();
+		else
 			displayError("To login with another user, you have to logout.");
 	});
 	const signUp = document.querySelector('#signUp');
@@ -59,120 +64,121 @@ function openSlidingWindow() {
 }
 
 function initButtonListeners(username) {
-	
-    const homeButton = document.getElementById('homeButton');
-    if (homeButton && !homeButton.hasListener) {
-        homeButton.hasListener = true;
-        homeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateTo(`/user/${username}`);
-        });
-    }
 
-    const snakeNavbar = document.getElementById('snake-navbar');
-    if (snakeNavbar && !snakeNavbar.hasListener) {
-        snakeNavbar.hasListener = true;
-        snakeNavbar.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateTo(`/user/${username}/snake`);
-        });
-    }
+	const homeButton = document.getElementById('homeButton');
+	if (homeButton && !homeButton.hasListener) {
+		homeButton.hasListener = true;
+		homeButton.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo(`/user/${username}`);
+		});
+	}
 
-    const pongCard = document.getElementById('pong-card');
-    if (pongCard && !pongCard.hasListener) {
-        pongCard.hasListener = true;
-        pongCard.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateTo(`/user/${username}/pong`);
-        });
-    }
+	const snakeNavbar = document.getElementById('snake-navbar');
+	if (snakeNavbar && !snakeNavbar.hasListener) {
+		snakeNavbar.hasListener = true;
+		snakeNavbar.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo(`/user/${username}/snake`);
+		});
+	}
 
-    const pongNavbar = document.getElementById('pong-navbar');
-    if (pongNavbar && !pongNavbar.hasListener) {
-        pongNavbar.hasListener = true;
-        pongNavbar.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateTo(`/user/${username}/pong`);
-        });
-    }
+	const pongCard = document.getElementById('pong-card');
+	if (pongCard && !pongCard.hasListener) {
+		pongCard.hasListener = true;
+		pongCard.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo(`/user/${username}/pong`);
+		});
+	}
 
-    const snakeCard = document.getElementById('snake-card');
-    if (snakeCard && !snakeCard.hasListener) {
-        snakeCard.hasListener = true;
-        snakeCard.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateTo(`/user/${username}/snake`);
-        });
-    }
+	const pongNavbar = document.getElementById('pong-navbar');
+	if (pongNavbar && !pongNavbar.hasListener) {
+		pongNavbar.hasListener = true;
+		pongNavbar.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo(`/user/${username}/pong`);
+		});
+	}
 
-    const viewProfileButton = document.getElementById('viewProfile');
-    if (viewProfileButton && !viewProfileButton.hasListener) {
-        viewProfileButton.hasListener = true;
-        viewProfileButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (viewToken()) {
-                fetchUserProfile(username);
-            } else {
-                navigateTo('/signIn');
-            }
-        });
-    }
+	const snakeCard = document.getElementById('snake-card');
+	if (snakeCard && !snakeCard.hasListener) {
+		snakeCard.hasListener = true;
+		snakeCard.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo(`/user/${username}/snake`);
+		});
+	}
 
-    const viewSettingsButton = document.getElementById('viewSettings');
-    if (viewSettingsButton && !viewSettingsButton.hasListener) {
-        viewSettingsButton.hasListener = true;
-        viewSettingsButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (viewToken()) {
-                fetchUserProfileSettings(username);
-            } else {
-                navigateTo('/signIn');
-            }
-        });
-    }
+	const viewProfileButton = document.getElementById('viewProfile');
+	if (viewProfileButton && !viewProfileButton.hasListener) {
+		viewProfileButton.hasListener = true;
+		viewProfileButton.addEventListener('click', (e) => {
+			e.preventDefault();
+			if (viewToken()) {
+				fetchUserProfile(username);
+			} else {
+				navigateTo('/signIn');
+			}
+		});
+	}
 
-    const logOutButton = document.getElementById('logOut');
-    if (logOutButton && !logOutButton.hasListener) {
-        logOutButton.hasListener = true;
-        logOutButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            removeToken(username);
-            chatSocketInstance.close();
-            WebSocketInstance.close();
-            setTimeout(function () {
-                navigateTo('/');
-            }, 2000);
-        });
-    }
+	const viewSettingsButton = document.getElementById('viewSettings');
+	if (viewSettingsButton && !viewSettingsButton.hasListener) {
+		viewSettingsButton.hasListener = true;
+		viewSettingsButton.addEventListener('click', (e) => {
+			e.preventDefault();
+			if (viewToken()) {
+				fetchUserProfileSettings(username);
+			} else {
+				navigateTo('/signIn');
+			}
+		});
+	}
 
-    const chatCard = document.getElementById('chatCard');
-    if (chatCard && !chatCard.hasListener) {
-        chatCard.hasListener = true;
-        chatCard.addEventListener('click', (e) => {
-            e.preventDefault();
-            openSlidingWindow();
-        });
-    }
+	const logOutButton = document.getElementById('logOut');
+	if (logOutButton && !logOutButton.hasListener) {
+		logOutButton.hasListener = true;
+		logOutButton.addEventListener('click', (e) => {
+			e.preventDefault();
+			removeToken(username);
+			chatLoaded = false; // introduzido para carregar de novo toda a página home
+			chatSocketInstance.close();
+			WebSocketInstance.close();
+			setTimeout(function () {
+				navigateTo('/');
+			}, 2000);
+		});
+	}
 
-    const searchForm = document.getElementById('search-form');
-    if (searchForm && !searchForm.hasListener) {
-        searchForm.hasListener = true;
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            getUser(username);
-        });
-    }
+	const chatCard = document.getElementById('chatCard');
+	if (chatCard && !chatCard.hasListener) {
+		chatCard.hasListener = true;
+		chatCard.addEventListener('click', (e) => {
+			e.preventDefault();
+			openSlidingWindow();
+		});
+	}
 
-    const searchBtn = document.getElementById('search-btn');
-    if (searchBtn && !searchBtn.hasListener) {
-        searchBtn.hasListener = true;
-        searchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            getUser(username);
-        });
-    }
+	const searchForm = document.getElementById('search-form');
+	if (searchForm && !searchForm.hasListener) {
+		searchForm.hasListener = true;
+		searchForm.addEventListener('submit', (e) => {
+			e.preventDefault();
+			getUser(username);
+		});
+	}
 
-    displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
+	const searchBtn = document.getElementById('search-btn');
+	if (searchBtn && !searchBtn.hasListener) {
+		searchBtn.hasListener = true;
+		searchBtn.addEventListener('click', (e) => {
+			e.preventDefault();
+			getUser(username);
+		});
+	}
+
+	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
 }
 
 
@@ -180,9 +186,10 @@ function initButtonListeners(username) {
 async function homeLogin(username) {
 	let dataUser = await getUserProfileByUsername(username);
 	const home_page = makeHomePage(dataUser);
-	const home_page_simple = makeSimpleHomePage(dataUser);
+	// const home_page_simple = makeSimpleHomePage(dataUser);
+	const home_page_simple = makeSimpleHomePage();
 	const chat_window = makeChatWindow(username);
-	
+
 	if (!chatLoaded) {
 		chatLoaded = true;
 		document.getElementById('root').innerHTML = '';
@@ -204,8 +211,8 @@ async function homeLogin(username) {
 		document.getElementById('mainContent').innerHTML = '';
 		document.getElementById('mainContent').insertAdjacentHTML('afterbegin', home_page_simple);
 	}
-	
+
 	initButtonListeners(username);
 }
 
-export { home, homeLogin, closeSlidingWindow }
+export { home, homeLogin, closeSlidingWindow , changeChatLoaded }

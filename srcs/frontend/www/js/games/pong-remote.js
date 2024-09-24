@@ -55,7 +55,7 @@ function setupPong() {
 
 
 
-function joinPongRoom(roomCode) {
+function joinPongRoom(roomCode, matchmaking) {
 	const pong_accessToken = localStorage.getItem('access_token');
     
 	try {
@@ -99,16 +99,7 @@ function joinPongRoom(roomCode) {
             countdownDisplay(data.time);
 		} else if (data.action === 'game_over' && !stopFlag) {
 			// MSG de fim de jogo
-			try {
-				document.getElementById('invitePending').innerHTML = `
-					<button id='cancelButton' class="btn btn-danger">Game Over</button>
-				`;
-				document.getElementById('cancelButton').addEventListener('click', () => {
-					document.getElementById('invitePending').remove();
-				});
-			} catch (error) {
-				console.error('Erro ao carregar o conteúdo:', error);
-			}
+			document.getElementById('invitePending').remove();
 
 			stopFlag = true;
 			const winner = data.winner;
@@ -126,8 +117,13 @@ function joinPongRoom(roomCode) {
 				loser_score: loserScore,
 				timestamp: timestamp,
 			});
+			
+			showEndScreen(winner);
+			matchmaking.close();
+			console.log('matchmaking webclosed closed');
 
 		} else {
+
             if (!stopFlag)
             {
                 // console.log('data: ', data);
@@ -357,6 +353,31 @@ function countdownDisplay(time) {
 
 function startGame() {
 	gameLoop();
+}
+
+function showEndScreen(winnerName) {
+	if (!ctx) {
+		const canvas = document.getElementById('pongCanvas');
+		ctx = canvas.getContext('2d');
+	}
+
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = "#fff";
+	ctx.font = "50px CustomFont";
+	ctx.textAlign = "center";
+
+	if (winnerName === "No winner") {
+		ctx.fillText("DRAW!", canvasWidth / 2, canvasHeight / 2 + 20);
+	} else {
+		ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
+	}
+
+	setTimeout(() => {
+		document.getElementById('invitePending').remove();
+	}, 3000);
+
 }
 
 export { joinPongRoom };

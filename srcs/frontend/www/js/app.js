@@ -4,6 +4,7 @@ import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
 import WebSocketInstance from "./socket/websocket.js";
 import { getParams } from "./login/login42.js";
+import { changeChatLoaded } from "./home/home.js";
 
 const baseURL = "https://localhost/api";
 
@@ -94,12 +95,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
 					const defaultState = { page: '/' }
 					history.replaceState(defaultState, '', "/");
 					const matchedRoute = matchRoute(defaultState.page);
+					changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
 					if (matchedRoute) {
 						matchedRoute.page.loadContent(matchedRoute.params);
 					}
 				}
 				return;
 			}
+			if (e.state.page === "/")
+				changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
 			if (matchedRoute && accessAllowed) {
 				matchedRoute.page.loadContent(matchedRoute.params);
 			} else

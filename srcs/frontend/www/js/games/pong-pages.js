@@ -142,8 +142,8 @@ function pongGameRemote(username) {
 		if (data.match == "match_created") {
 			console.log("Match created!", data.roomCode);
 			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
-			
-			const popupWindow = document.getElementById('localPending');
+
+			const popupWindow = document.getElementById('pongPopup');
 			popupWindow.remove();
 
 			const runPongRemote = document.createElement('div');
@@ -153,15 +153,15 @@ function pongGameRemote(username) {
 			document.getElementById('root').appendChild(runPongRemote);
 
 			console.log("Joining room...", data.roomCode);
-			
+
 			if (data.game == 'pong') {
-				joinPongRoom(data.roomCode);
+				joinPongRoom(data.roomCode, matchmakingSocket);
 			}
 
 		} else if (data.match == "match_found") {
 			console.log("Match found!", data.roomCode);
 			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
-			
+
 			const popupWindow = document.getElementById('localPending');
 			popupWindow.remove();
 
@@ -195,7 +195,7 @@ function pongGameRemote(username) {
 	document.getElementById('joinMatchmaking').addEventListener('click', () => { // FIND OPPONENT
 		const data = JSON.stringify({
 			type: "join",
-			game: "snake"
+			game: "pong"
 		});
 		matchmakingSocket.send(data);
 		document.getElementById('status').innerText = "JOINING MATCHMAKING...";
@@ -208,14 +208,14 @@ function pongGameRemote(username) {
 		matchmakingSocket.send(data);
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
-			document.getElementById('localPending').remove();
+			document.getElementById('pongPopup').remove();
 		}, 1000)
 	});
 }
 
 function pongGameTournament(username) {
-    try {
-        document.getElementById('mainContent').innerHTML = `
+	try {
+		document.getElementById('mainContent').innerHTML = `
         <div id="loadTournament" class="tournament-gradient-box">
             <div class="tournament-setup">
                 <div class="text-title-box">
@@ -269,48 +269,48 @@ function pongGameTournament(username) {
             </div>
         </div>
         `;
-        document.getElementById('btn-4-players').addEventListener('click', function () {
-            this.classList.add('active');
-            document.getElementById('btn-8-players').classList.remove('active');
-            togglePlayerInputs(4);
-        });
-        document.getElementById('btn-8-players').addEventListener('click', function () {
-            this.classList.add('active');
-            document.getElementById('btn-4-players').classList.remove('active');
-            togglePlayerInputs(8);
-        });
-        function togglePlayerInputs(count) {
-            const allInputs = document.querySelectorAll('.player-inputs .box input');
+		document.getElementById('btn-4-players').addEventListener('click', function () {
+			this.classList.add('active');
+			document.getElementById('btn-8-players').classList.remove('active');
+			togglePlayerInputs(4);
+		});
+		document.getElementById('btn-8-players').addEventListener('click', function () {
+			this.classList.add('active');
+			document.getElementById('btn-4-players').classList.remove('active');
+			togglePlayerInputs(8);
+		});
+		function togglePlayerInputs(count) {
+			const allInputs = document.querySelectorAll('.player-inputs .box input');
 
-            allInputs.forEach((input, index) => {
-                input.disabled = index >= count;
-            });
-        }
-        document.getElementById('create-tournament').addEventListener('click', function () {
-            const activePlayerCount = document.querySelector('.player-selection .btn.active').id === 'btn-4-players' ? 4 : 8;
-            const inputs = document.querySelectorAll('.player-inputs .box input');
-            let allFieldsFilled = true;
-            let players = {};
-            for (let i = 0; i < activePlayerCount; i++) {
-                inputs[i].classList.remove('input-error');
-                if (inputs[i].value.trim() === '') {
-                    inputs[i].classList.add('input-error');
-                    allFieldsFilled = false;
-                } else {
-                    players[`player${i + 1}`] = inputs[i].value.trim();
-                }
-            }
-            if (allFieldsFilled) {
-                document.getElementById('loadTournament').remove();
+			allInputs.forEach((input, index) => {
+				input.disabled = index >= count;
+			});
+		}
+		document.getElementById('create-tournament').addEventListener('click', function () {
+			const activePlayerCount = document.querySelector('.player-selection .btn.active').id === 'btn-4-players' ? 4 : 8;
+			const inputs = document.querySelectorAll('.player-inputs .box input');
+			let allFieldsFilled = true;
+			let players = {};
+			for (let i = 0; i < activePlayerCount; i++) {
+				inputs[i].classList.remove('input-error');
+				if (inputs[i].value.trim() === '') {
+					inputs[i].classList.add('input-error');
+					allFieldsFilled = false;
+				} else {
+					players[`player${i + 1}`] = inputs[i].value.trim();
+				}
+			}
+			if (allFieldsFilled) {
+				document.getElementById('loadTournament').remove();
 				displayTournamentBracket();
 				document.getElementById('canvas-confetti').style.display = "none";
 				initializeTournament(players, username);
-            }
-        });
-        togglePlayerInputs(4);
-    } catch (error) {
-        console.error('Erro ao carregar o conteúdo:', error);
-    }
+			}
+		});
+		togglePlayerInputs(4);
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
 }
 
 function displayTournamentBracket() {
@@ -331,4 +331,4 @@ function displayTournamentBracket() {
 	`;
 }
 
-export { pongGameLocal, pongGameRemote, pongGameTournament , pongCanvasPage , loadPongScript }
+export { pongGameLocal, pongGameRemote, pongGameTournament, pongCanvasPage, loadPongScript }
