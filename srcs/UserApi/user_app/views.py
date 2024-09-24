@@ -659,7 +659,6 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             current_profile = UserProfile.objects.get(user=current_user)
 
             game_type = data.get('game_type')  # "snake" or "pong"
-            game_ranked = data.get('ranked')  # True or False
             user1 = data.get('winner')
             user2 = data.get('loser')
             user1_score = data.get('winner_score')
@@ -683,41 +682,40 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 'loser_score': user2_score,
             }
 
-
             if game_type == "pong":
                 current_profile.pong_match_history.append(match_data)
 
                 if current_user.username == user1:
                     current_profile.pong_wins += 1
                     current_profile.wins += 1
+                    if ranked:
+                        if differece > 0:
+                            points_earned = 100 + differece / 10
+                        elif differece == 0:
+                            points_earned = 100
+                        else:    
+                            points_earned = 100 - differece / 5
+                        current_profile.pong_rank += points_earned
                 else:
                     current_profile.pong_losses += 1
                     current_profile.losses += 1
-                if ranked:
-                    if differece > 0:
-                        points_earned = 100 + differece / 10
-                    elif differece == 0:
-                        points_earned = 100
-                    else:    
-                        points_earned = 100 - differece / 5
-                current_profile.pong_rank += points_earned
             else:
                 current_profile.snake_match_history.append(match_data)
 
                 if current_user.username == user1:
                     current_profile.snake_wins += 1
                     current_profile.wins += 1
+                    if ranked:
+                        if differece > 0:
+                            points_earned = 100 + differece / 10
+                        elif differece == 0:
+                            points_earned = 100
+                        else:    
+                            points_earned = 100 - differece / 20
+                        current_profile.snake_rank += points_earned
                 else:
                     current_profile.snake_losses += 1
                     current_profile.losses += 1
-                if ranked:
-                    if differece > 0:
-                        points_earned = 100 + differece / 10
-                    elif differece == 0:
-                        points_earned = 100
-                    else:    
-                        points_earned = 100 - differece / 20
-                current_profile.snake_rank += points_earned
 
             current_profile.save()
 

@@ -257,6 +257,16 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 		timestamp = int(time.time())
 		formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
 		
+		to_save = {
+			'winner': winner,
+			'loser': loser,
+			'winner_score': winner_score,
+			'loser_score': loser_score,
+			'timestamp': formatted_time,
+			'game_type': 'snake',
+   			'ranked': True
+		}
+
 		result = {
 			'action': 'game_over',
 			'winner': winner,
@@ -264,17 +274,9 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			'winner_score': winner_score,
 			'loser_score': loser_score,
 			'timestamp': formatted_time,
-			'game_type': 'snake'
+			'game_type': 'snake',
 		}
 		
-		to_save = {
-			'winner': winner,
-			'loser': loser,
-			'winner_score': winner_score,
-			'loser_score': loser_score,
-			'timestamp': formatted_time,
-			'game_type': 'snake'
-		}
 
 		await self.save_match_history(to_save)
 
