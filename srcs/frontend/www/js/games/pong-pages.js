@@ -39,11 +39,33 @@ function startLocalPongPopup(username) {
 
 function startRemotePongPopup(username) {
 	return `
-	<div class="home-box">
-		<div class="pong-content">
-			<div class="pong-box">
-				<canvas id="pongBackgroundCanvas" width="960" height="560"></canvas>
-				<canvas id="pongCanvas" width="960" height="560"></canvas>
+	<div class="local-pending" id="pongPopup">
+		<div class="local-box">
+			<img src="../../files/snakeMatch.png" width="150" height="50">
+			<div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div>
+			<button id="joinMatchmaking" class="btn btn-success local-btn-custom">FIND OPPONENT</button>
+			<button id="cancelMatchmaking" class="btn btn-danger local-btn-custom">CANCEL</button>
+			<div id="status" class="local-instructions-title myFont-title">WAITING FOR A MATCH...</div>
+			<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
+			<div class="local-instructions-container">
+				<div class="local-instructions-row">
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">UP</div>
+						<div class="local-instructions-custom myFont">DOWN</div>
+					</div>
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">&#8593;</div>
+						<div class="local-instructions-custom myFont">&#8595;</div>
+					</div>
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">LEFT</div>
+						<div class="local-instructions-custom myFont">RIGHT</div>
+					</div>
+					<div class="local-instructions-column2">
+						<div class="local-instructions-custom myFont">&#8592;</div>
+						<div class="local-instructions-custom myFont">&#8594;</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
