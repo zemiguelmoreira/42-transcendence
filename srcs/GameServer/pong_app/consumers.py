@@ -25,6 +25,7 @@ canvasWidth = 960
 PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 90
 BALL_SIZE = 10
+FINAL_SCORE = 10
 
 paddles_init_y = 310 - 62
 paddle1_init_x = 0
@@ -236,9 +237,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			asyncio.create_task(player.send(json.dumps(response)))
 
 		# Verificar se o jogo terminou
-		if room['score'][0] ==11 or room['score'][1] == 11:
+		if room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
 			logger.info(f"Detectou fim de partida {room['score'][0]} - {room['score'][1]}")
-			if room['score'][0] == 11:
+			if room['score'][0] == FINAL_SCORE:
 				winner = room['players'][0].user.username
 				loser = room['players'][1].user.username
 			else:
