@@ -7,10 +7,9 @@ import { signIn } from "../login/login.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-// import { /*loadSnakeRemoteScript , */loadSnakeLocalScript , loadSnakeMultiplayerScript } from "../games/snake-pages.js";
-import { loadSnakeRemoteScript, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameLocal, snakeGameMultiplayer } from "../games/snake-pages.js";
 import { pongOptions } from "../games/pong-options.js";
-import { loadPongScript, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
+import { snakeGameLocal, snakeGameRemote , snakeGameMultiplayer } from "../games/snake-pages.js";
+import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
 
 const pages = {
@@ -33,7 +32,8 @@ const pages = {
 	},
 	'/callback': {
 		loadContent: function () {
-			const auth42Element = `<div style="height: 100%; display: flex; color: green; justify-content: center; align-items: center;">
+			const auth42Element = `
+				<div style="height: 100%; display: flex; color: green; justify-content: center; align-items: center;">
 				<p style="font-size: 30px;">Authenticating with 42...</p>
 				</div>`;
 			document.getElementById('root').innerHTML = '';
@@ -122,7 +122,6 @@ const pages = {
 	},
 	'/user/:username/snake-game-local': {
 		loadContent: function (params) {
-			// loadSnakeLocalScript(params.username);
 			snakeGameLocal(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
@@ -130,15 +129,13 @@ const pages = {
 	},
 	'/user/:username/snake-game-remote': {
 		loadContent: function (params) {
-			// loadSnakeRemoteScript(params.username);
+			snakeGameRemote(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
 	'/user/:username/snake-game-free-for-all': {
 		loadContent: function (params) {
-			// loadSnakeMultiplayerScript(params.username);
-
 			snakeGameMultiplayer(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
@@ -153,7 +150,7 @@ const pages = {
 	},
 	'/user/:username/pong-game-local': {
 		loadContent: function (params) {
-			loadPongScript(params.username);
+			pongGameLocal(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -178,6 +175,7 @@ const pages = {
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
-};
 
+}
+	
 export { pages }

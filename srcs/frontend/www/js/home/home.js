@@ -88,6 +88,7 @@ function initButtonListeners(username) {
 		pongCard.hasListener = true;
 		pongCard.addEventListener('click', (e) => {
 			e.preventDefault();
+			console.log(username);
 			navigateTo(`/user/${username}/pong`);
 		});
 	}

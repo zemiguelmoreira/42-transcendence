@@ -261,6 +261,7 @@ function loadSnakeMultiplayerScript(username) {
 function snakeGameLocal(username) {
 	// document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
+	
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
@@ -281,7 +282,8 @@ function snakeGameLocal(username) {
 }
 
 function snakeGameRemote(username) {
-    document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
+    // document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
 
     let token = localStorage.getItem('access_token');
     // Verifica se o socket já está aberto antes de tentar criar um novo
@@ -353,6 +355,7 @@ function snakeGameRemote(username) {
         document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
         setTimeout(() => {
             document.getElementById('snakePopup').remove();
+			navigateTo(`/user/${username}/snake`);
         }, 1000);
     });
 }

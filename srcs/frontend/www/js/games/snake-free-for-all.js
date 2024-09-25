@@ -18,7 +18,7 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
         { color: '#FF0000', segments: [{ x: 20, y: 5 }, { x: 20, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest3 }
     ];
 
-    let gameSpeed = 150;
+    let gameSpeed = 100;
 	let snakeScore1 = 0;
 	let snakeScore2 = 0;
 	let snakeScore3 = 0;
@@ -26,8 +26,9 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
 
 	// Desenha a grelha
 	function drawGrid() {
-		ctx.strokeStyle = 'black';
-		ctx.lineWidth = 0.5;
+		ctx.strokeStyle = '#345678'; // Cor das linhas da grelha
+		ctx.lineWidth = 1; // Espessura das linhas
+		
 		for (let x = 0; x <= canvas.width; x += gridSize) {
 			ctx.beginPath();
 			ctx.moveTo(x, 0);

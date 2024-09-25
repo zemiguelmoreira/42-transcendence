@@ -34,7 +34,7 @@ async function pongOptions(username) {
     }
     document.getElementById('pongGameLocal').addEventListener('click', (e) => {
         e.preventDefault();
-		pongGameLocal(username);
+        navigateTo(`/user/${username}/pong-game-local`);
     });
     document.getElementById('pongGameRemote').addEventListener('click', (e) => {
         e.preventDefault();

@@ -43,6 +43,7 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 		return;
 	}
 	const matchedRoute = matchRoute(url);
+	console.log('matchedRoute',matchedRoute);
 	if (matchedRoute) {
 		const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 		if (!accessAllowed) {

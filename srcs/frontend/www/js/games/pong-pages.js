@@ -107,7 +107,9 @@ function loadPongScript(username) {
 }
 
 function pongGameLocal(username) {
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
+	// document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
+	
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
@@ -122,12 +124,13 @@ function pongGameLocal(username) {
 		runPongLocal.id = 'runPong';
 		runPongLocal.innerHTML = pongCanvasPage();
 		document.getElementById('root').appendChild(runPongLocal);
-		navigateTo(`/user/${username}/pong-game-local`);
+		loadPongLocalScript(username, guest);
 	});
 }
 
 function pongGameRemote(username) {
-	document.getElementById('root').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
+	// document.getElementById('root').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
 
 	let token = localStorage.getItem('access_token');
 	const matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);

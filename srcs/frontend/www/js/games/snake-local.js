@@ -24,15 +24,15 @@ function initializeSnakeGameLocal(username, guest) {
 
 	// Continue com a configuração do jogo aqui...
 	// Controla a velocidade do jogo (menor valor = mais rápido)
-	let gameSpeed = 150;
+	let gameSpeed = 100;
 
 	let snakeScore1 = 0;
 	let snakeScore2 = 0;
 
 	// Função para desenhar a grelha
 	function drawGrid() {
-		ctx.strokeStyle = 'black';
-		ctx.lineWidth = 0.5;
+		ctx.strokeStyle = '#345678'; // Cor das linhas da grelha
+		ctx.lineWidth = 1; // Espessura das linhas
 
 		// Desenha as linhas verticais
 		for (let x = 0; x <= canvas.width; x += gridSize) {
@@ -244,7 +244,6 @@ function initializeSnakeGameLocal(username, guest) {
 			snake.segments.pop();
 		}
 	}
-
 
 	function update() {
 		// Limpa o canvas antes de desenhar o próximo frame
