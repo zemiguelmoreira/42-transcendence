@@ -1,9 +1,8 @@
 import { navigateTo } from "../app.js";
-import { pongGameLocal } from "./pong-pages.js";
 
 async function pongOptions(username) {
-    try {
-        document.getElementById('mainContent').innerHTML = `
+	try {
+		document.getElementById('mainContent').innerHTML = `
             <div class="card" style="width: 18rem;">
                 <img src="../../files/1vs1PongLocal.png" class="card-img-top" alt="alt="Enter to play"">
                 <div class="card-body">
@@ -25,25 +24,25 @@ async function pongOptions(username) {
                 <div class="card-body">
                     <h5 class="card-title">PONG TOURNMENT</h5>
                     <p class="card-text">Organize a Pong tournament between several players locally. <b>Local friendly unranked game.</b></p>
-                    <a href="" class="btn btn-primary card-btn" id="pongGameTournament">Let's Talk</a>
+                    <a href="" class="btn btn-primary card-btn" id="pongGameTournament">Let's Play</a>
                 </div>
             </div>
         `;
-    } catch (error) {
-        console.error('Erro ao carregar o conteúdo:', error);
-    }
-    document.getElementById('pongGameLocal').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateTo(`/user/${username}/pong-game-local`);
-    });
-    document.getElementById('pongGameRemote').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateTo(`/user/${username}/pong-game-remote`);
-    });
-    document.getElementById('pongGameTournament').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateTo(`/user/${username}/pong-game-tournament`);
-    });
+	} catch (error) {
+		console.error('Erro ao carregar o conteúdo:', error);
+	}
+	document.getElementById('pongGameLocal').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/pong-game-local`);
+	});
+	document.getElementById('pongGameRemote').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/pong-game-remote`);
+	});
+	document.getElementById('pongGameTournament').addEventListener('click', (e) => {
+		e.preventDefault();
+		navigateTo(`/user/${username}/pong-game-tournament`);
+	});
 }
 
 export { pongOptions };

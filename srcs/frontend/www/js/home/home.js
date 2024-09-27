@@ -182,12 +182,9 @@ function initButtonListeners(username) {
 	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
 }
 
-
-
 async function homeLogin(username) {
 	let dataUser = await getUserProfileByUsername(username);
 	const home_page = makeHomePage(dataUser);
-	// const home_page_simple = makeSimpleHomePage(dataUser);
 	const home_page_simple = makeSimpleHomePage();
 	const chat_window = makeChatWindow(username);
 

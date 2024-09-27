@@ -267,6 +267,7 @@ function snakeGameLocal(username) {
 	cancelButton.addEventListener('click', () => {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
+		navigateTo(`/user/${username}/snake`);
 	});
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
@@ -282,26 +283,21 @@ function snakeGameLocal(username) {
 }
 
 function snakeGameRemote(username) {
-    // document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
 
-    let token = localStorage.getItem('access_token');
-    // Verifica se o socket já está aberto antes de tentar criar um novo
+	let token = localStorage.getItem('access_token');
     if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
         matchmakingSocket.close();
         matchmakingSocket = null;
     }
 
-    // Remove a redeclaração "const"
-    matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
-
+	matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
     matchmakingSocket.onopen = () => {
         console.log("Matchmaking WebSocket connection opened.");
     };
 
     matchmakingSocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-
         if (data.match == "match_created") {
             console.log("Match created!", data.roomCode);
             if (document.getElementById('status')) {
@@ -318,9 +314,8 @@ function snakeGameRemote(username) {
             document.getElementById('root').appendChild(runSnakeRemote);
 
             console.log("Joining room...", data.roomCode);
-
             if (data.game == 'snake') {
-                joinSnakeRoom(data.roomCode, matchmakingSocket);
+                joinSnakeRoom(data.roomCode, matchmakingSocket, username);
             }
 
         } else if (data.system) {
@@ -362,13 +357,13 @@ function snakeGameRemote(username) {
 
 
 function snakeGameMultiplayer(username) {
-	// document.getElementById('root').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
 	document.getElementById('guestInput1').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
+		navigateTo(`/user/${username}/snake`);
 	});
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
@@ -380,7 +375,6 @@ function snakeGameMultiplayer(username) {
 		runSnakeLocal.id = 'runSnake';
 		runSnakeLocal.innerHTML = snakeGameMultiplayerPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		// navigateTo(`/user/${username}/snake-game-free-for-all`);
 		loadSnakeMultiplayerScript(username);
 	});
 }

@@ -7,6 +7,8 @@ let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], dir
 let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
 let winner = null;
+let selfUsername = null;
+let socket = null;
 
 const gridSize = 20;
 
@@ -18,9 +20,9 @@ function setupSnake() {
 	foodColor = "#FF0000";
 	food = { 'x': 0, 'y': 0 };
 	winner = null;
-		
+
 	console.log('Setting up snake game');
-	
+
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	ctx = canvas.getContext('2d');
 
@@ -28,18 +30,19 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-function joinSnakeRoom(roomCode, matchmaking) {
+function joinSnakeRoom(roomCode, matchmaking, username) {
 	console.log('Joining snake room:', roomCode);
 
+	selfUsername = username;
 	const snake_accessToken = localStorage.getItem('access_token');
 	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
 		snake_socket.close();
 		snake_socket = null;
 	}
-	  
-	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
 
-	
+	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
+	socket = snake_socket;
+
 	snake_socket.onopen = async function (event) {
 		console.log('Snake WebSocket connection opened:', event);
 		setupSnake();
@@ -118,8 +121,8 @@ function joinSnakeRoom(roomCode, matchmaking) {
 		console.log('Snake WebSocket connection closed:', event);
 		// Limpe o estado do jogo
 		snake_socket = null;  // Certifique-se de que a referência ao WebSocket é removida
-	  };
-	  
+	};
+
 }
 
 function sendMoveCommand(direction) {
@@ -201,14 +204,13 @@ function hexToRgb(hex) {
 }
 
 function drawGame() {
-
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = '#000'; // Preto
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-	drawGrid(); // Desenha a grelha antes de desenhar outros elementos
+	drawGrid();
 	drawSnakes();
-	drawFood(); // Desenha a comida
+	drawFood();
 }
 
 document.addEventListener('keydown', function (event) {
@@ -231,8 +233,17 @@ document.addEventListener('keydown', function (event) {
 });
 
 function gameLoop() {
-	// console.log('gameLoop');
-	// console.log('stopFlag:', stopFlag);
+	if (window.location.pathname !== `/user/${selfUsername}/snake-game-remote`) {
+		console.log('User left the game!');
+		document.getElementById('invitePending').remove();
+		// const data = JSON.stringify({
+        //     type: "cancel"
+        // });
+		snake_socket.send(JSON.stringify({
+			action: 'join'
+		}));
+	}
+
 	if (stopFlag == true)
 		return;
 	drawGame();

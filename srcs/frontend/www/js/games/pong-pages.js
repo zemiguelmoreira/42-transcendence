@@ -2,6 +2,7 @@ import { initializeTournament } from './pong-tournament-bracket.js';
 import { initializePongGameLocal } from './pong-local.js';
 import { navigateTo } from '../app.js';
 import { joinPongRoom } from './pong-remote.js';
+import { displaySlidingMessage } from '../utils/utils1.js';
 
 let guest;
 
@@ -109,12 +110,13 @@ function loadPongScript(username) {
 function pongGameLocal(username) {
 	// document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
-	
+
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		const localPendingDiv = document.getElementById('localPending');
 		localPendingDiv.remove();
+		navigateTo(`/user/${username}/pong`);
 	});
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', () => {
@@ -129,7 +131,6 @@ function pongGameLocal(username) {
 }
 
 function pongGameRemote(username) {
-	// document.getElementById('root').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
 
 	let token = localStorage.getItem('access_token');
@@ -148,36 +149,16 @@ function pongGameRemote(username) {
 
 			const popupWindow = document.getElementById('pongPopup');
 			popupWindow.remove();
-
 			const runPongRemote = document.createElement('div');
 			runPongRemote.classList.add('invite-pending');
 			runPongRemote.id = 'invitePending';
 			runPongRemote.innerHTML = pongCanvasPage();
-			document.getElementById('root').appendChild(runPongRemote);
 
+			document.getElementById('root').appendChild(runPongRemote);
 			console.log("Joining room...", data.roomCode);
 
 			if (data.game == 'pong') {
-				joinPongRoom(data.roomCode, matchmakingSocket);
-			}
-
-		} else if (data.match == "match_found") {
-			console.log("Match found!", data.roomCode);
-			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
-
-			const popupWindow = document.getElementById('localPending');
-			popupWindow.remove();
-
-			const runPongRemote = document.createElement('div');
-			runPongRemote.classList.add('invite-pending');
-			runPongRemote.id = 'invitePending';
-			runPongRemote.innerHTML = pongCanvasPage();
-			document.getElementById('root').appendChild(runPongRemote);
-
-			console.log("Joining room...", data.roomCode);
-
-			if (data.game == 'pong') {
-				joinPongRoom(data.roomCode);
+				joinPongRoom(data.roomCode, matchmakingSocket, username);
 			}
 
 		} else if (data.system) {
@@ -195,7 +176,7 @@ function pongGameRemote(username) {
 		console.log("WebSocket connection closed.");
 	};
 
-	document.getElementById('joinMatchmaking').addEventListener('click', () => { // FIND OPPONENT
+	document.getElementById('joinMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
 			type: "join",
 			game: "pong"
@@ -212,6 +193,7 @@ function pongGameRemote(username) {
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
 			document.getElementById('pongPopup').remove();
+			navigateTo(`/user/${username}/pong`);
 		}, 1000)
 	});
 }
@@ -219,59 +201,141 @@ function pongGameRemote(username) {
 function pongGameTournament(username) {
 	try {
 		document.getElementById('mainContent').innerHTML = `
-        <div id="loadTournament" class="tournament-gradient-box">
-            <div class="tournament-setup">
-                <div class="text-title-box">
-                    <p>SETUP</p>
-                </div>
-                <div class="text-box">
-                    <p>Insert your opponents' names and start the game. <br>Choose 4 or 8 player match.</p>
-                </div>
-                <div class="player-selection">
-                    <button id="btn-4-players" class="btn btn-primary active">4 Players</button>
-                    <button id="btn-8-players" class="btn btn-secondary">8 Players</button>
-                </div>
-                <div class="player-inputs">
-                    <div id="player-inputs-left" class="input-column">
-                        <div class="box">
-                            <input type="text" id="player1" placeholder="${username}" value="${username}"/>
-                        </div>
-                        <div class="box">
-                            <input type="text" id="player2" placeholder="Player 2 Name" value=""/>
-                        </div>
-                        <div class="box">
-                            <input type="text" id="player3" placeholder="Player 3 Name" value=""/>
-                        </div>
-                        <div class="box">
-                            <input type="text" id="player4" placeholder="Player 4 Name" value=""/>
-                        </div>
-                    </div>
-                    <div id="player-inputs-right" class="input-column">
-                        <div class="box">
-                            <input type="text" id="player5" placeholder="Player 5 Name" value=""/>
-                        </div>
-                        <div class="box">
-                            <input type="text" id="player6" placeholder="Player 6 Name" value=""/>
-                        </div>
-                        <div class="box">
-                            <input type="text" id="player7" placeholder="Player 7 Name" value=""/>
-                        </div>
-                        <div class="box">
-                            <input type="text" id="player8" placeholder="Player 8 Name" value=""/>
-                        </div>
-                    </div>
-                </div>
-                <div class="button-box">
-                    <button id="create-tournament" class="btn btn-primary btn-lg">Create Tournament</button>
-                </div>
-            </div>
-            <div class="tournament-logo">
-                <div class="logo-box1"><span class="tournament-title">TOURNAMENT</span></div>
-                <div class="logo-box2"></div>
-                <div class="logo-box3">PONG</div>
-            </div>
-        </div>
+		<div id="loadTournament" class="tournament-gradient-box">
+			<div class="tournament-setup">
+				<div class="text-title-box">
+					<p>SETUP</p>
+				</div>
+				<div class="text-box">
+					<p>Insert your opponents' names and start the game. <br>Choose 4 or 8 player match.</p>
+				</div>
+				<div class="player-selection">
+					<button id="btn-4-players" class="btn btn-primary active">4 Players</button>
+					<button id="btn-8-players" class="btn btn-secondary">8 Players</button>
+				</div>
+				<div class="player-inputs">
+					<div id="player-inputs-left" class="input-column">
+						<div class="box">
+							<input type="text" id="player1" placeholder="${username}" value="${username}"/>
+						</div>
+						<div class="box">
+							<input type="text" id="player2" placeholder="Player 2 Name" value=""/>
+						</div>
+						<div class="box">
+							<input type="text" id="player3" placeholder="Player 3 Name" value=""/>
+						</div>
+						<div class="box">
+							<input type="text" id="player4" placeholder="Player 4 Name" value=""/>
+						</div>
+					</div>
+					<div id="player-inputs-right" class="input-column">
+						<div class="box">
+							<input type="text" id="player5" placeholder="Player 5 Name" value=""/>
+						</div>
+						<div class="box">
+							<input type="text" id="player6" placeholder="Player 6 Name" value=""/>
+						</div>
+						<div class="box">
+							<input type="text" id="player7" placeholder="Player 7 Name" value=""/>
+						</div>
+						<div class="box">
+							<input type="text" id="player8" placeholder="Player 8 Name" value=""/>
+						</div>
+					</div>
+				</div>
+				<div class="button-box">
+					<button id="create-tournament" class="btn btn-primary btn-lg">Create Tournament</button>
+				</div>
+			</div>
+			<div class="tournament-logo">
+				<div class="logo-box1"><span class="tournament-title">TOURNAMENT</span></div>
+				<div class="logo-box2"></div>
+				<div class="logo-box3">PONG</div>
+			</div>
+		</div>
         `;
+
+		function validatePlayerName(input) {
+			input.addEventListener('input', function () {
+				let value = input.value;
+
+				value = value.replace(/[^a-zA-Z0-9]/g, '');
+
+				if (value.length > 10) {
+					value = value.substring(0, 10);
+				}
+
+				input.value = value;
+
+				validateNames();
+			});
+		}
+
+		const playerInputs = [
+			document.getElementById('player1'),
+			document.getElementById('player2'),
+			document.getElementById('player3'),
+			document.getElementById('player4'),
+			document.getElementById('player5'),
+			document.getElementById('player6'),
+			document.getElementById('player7'),
+			document.getElementById('player8')
+		];
+
+		playerInputs.forEach(input => {
+			if (input) {
+				validatePlayerName(input);
+			}
+		});
+
+		function checkForDuplicates(names) {
+			const lowerCaseNames = names.map(name => name.toLowerCase());
+			return new Set(lowerCaseNames).size !== lowerCaseNames.length;
+		}
+
+		function validateNames() {
+			const playerNames = playerInputs
+				.map(input => input.value.trim())
+				.filter(name => name !== '');
+
+			const hasDuplicates = checkForDuplicates(playerNames);
+
+			if (hasDuplicates) {
+				displaySlidingMessage('Error: Player names must be unique!');
+				return false;
+			}
+			return true;
+		}
+
+		document.getElementById('create-tournament').addEventListener('click', function () {
+			const activePlayerCount = document.querySelector('.player-selection .btn.active').id === 'btn-4-players' ? 4 : 8;
+			const inputs = document.querySelectorAll('.player-inputs .box input');
+			let allFieldsFilled = true;
+			let players = {};
+
+			for (let i = 0; i < activePlayerCount; i++) {
+				inputs[i].classList.remove('input-error');
+				if (inputs[i].value.trim() === '') {
+					inputs[i].classList.add('input-error');
+					allFieldsFilled = false;
+				} else {
+					players[`player${i + 1}`] = inputs[i].value.trim();
+				}
+			}
+
+			if (allFieldsFilled && validateNames()) {
+				document.getElementById('loadTournament').remove();
+				displayTournamentBracket();
+				document.getElementById('canvas-confetti').style.display = "none";
+				initializeTournament(players, username);
+				displaySlidingMessage('Welcome to the Ultimate Pong Tournament!');
+			} else if (!allFieldsFilled) {
+				displaySlidingMessage('Error: Please fill in all player names!');
+			}
+
+		});
+
+
 		document.getElementById('btn-4-players').addEventListener('click', function () {
 			this.classList.add('active');
 			document.getElementById('btn-8-players').classList.remove('active');
@@ -282,35 +346,18 @@ function pongGameTournament(username) {
 			document.getElementById('btn-4-players').classList.remove('active');
 			togglePlayerInputs(8);
 		});
+
+		// Função para habilitar/desabilitar inputs de acordo com a quantidade de jogadores
 		function togglePlayerInputs(count) {
 			const allInputs = document.querySelectorAll('.player-inputs .box input');
-
 			allInputs.forEach((input, index) => {
 				input.disabled = index >= count;
 			});
 		}
-		document.getElementById('create-tournament').addEventListener('click', function () {
-			const activePlayerCount = document.querySelector('.player-selection .btn.active').id === 'btn-4-players' ? 4 : 8;
-			const inputs = document.querySelectorAll('.player-inputs .box input');
-			let allFieldsFilled = true;
-			let players = {};
-			for (let i = 0; i < activePlayerCount; i++) {
-				inputs[i].classList.remove('input-error');
-				if (inputs[i].value.trim() === '') {
-					inputs[i].classList.add('input-error');
-					allFieldsFilled = false;
-				} else {
-					players[`player${i + 1}`] = inputs[i].value.trim();
-				}
-			}
-			if (allFieldsFilled) {
-				document.getElementById('loadTournament').remove();
-				displayTournamentBracket();
-				document.getElementById('canvas-confetti').style.display = "none";
-				initializeTournament(players, username);
-			}
-		});
+
+		// Inicializa com 4 jogadores
 		togglePlayerInputs(4);
+
 	} catch (error) {
 		console.error('Erro ao carregar o conteúdo:', error);
 	}

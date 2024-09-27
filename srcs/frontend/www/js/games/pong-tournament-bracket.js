@@ -174,12 +174,12 @@ function initializeTournament(playersObj, username) {
 					const player1 = document.createElement('div');
 					player1.className = 'player btn btn-first';
 					player1.id = `player1-${round}-${match}`;
-					player1.innerText = `Winner of Round ${round}`;
+					player1.innerText = `Round ${round}`;
 					matchDiv.appendChild(player1);
 					const player2 = document.createElement('div');
 					player2.className = 'player btn btn-second';
 					player2.id = `player2-${round}-${match}`;
-					player2.innerText = `Winner of Round ${round}`;
+					player2.innerText = `Round ${round}`;
 					matchDiv.appendChild(player2);
 					drawNeonLine(2, (totalHeight / numMatches) * 0.25, columnWidth / 2, (totalHeight / numMatches) * 0.25, 2);
 					drawNeonLine(columnWidth / 2, (totalHeight / numMatches) * 0.25, columnWidth / 2, (totalHeight / numMatches) * 0.75, 2);
