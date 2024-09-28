@@ -137,14 +137,14 @@ function pongGameRemote(username) {
 	const matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
 
 	matchmakingSocket.onopen = () => {
-		console.log("WebSocket connection opened.");
+		console.log("Matchmaking socket opened.");
 	};
 
 	matchmakingSocket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
 		if (data.match == "match_created") {
-			console.log("Match created!", data.roomCode);
+			console.log("Match created: ", data.roomCode);
 			document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
 
 			const popupWindow = document.getElementById('pongPopup');
@@ -155,7 +155,7 @@ function pongGameRemote(username) {
 			runPongRemote.innerHTML = pongCanvasPage();
 
 			document.getElementById('root').appendChild(runPongRemote);
-			console.log("Joining room...", data.roomCode);
+			console.log("Joining room: ", data.roomCode);
 
 			if (data.game == 'pong') {
 				joinPongRoom(data.roomCode, matchmakingSocket, username);
@@ -173,7 +173,7 @@ function pongGameRemote(username) {
 	};
 
 	matchmakingSocket.onclose = () => {
-		console.log("WebSocket connection closed.");
+		// console.log("Matchmaking Socket Closed.");
 	};
 
 	document.getElementById('joinMatchmaking').addEventListener('click', () => {

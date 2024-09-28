@@ -89,15 +89,12 @@ function joinPongRoom(roomCode, matchmakingSocket, username) {
 		} else if (data.action === 'countdown') {
 			countdownDisplay(data.time);
 
-		} else if (data.action === 'quit_game') {
-			pong_socket.close();
-			console.log('Opponent quitted the game!');
-			document.getElementById('invitePending').remove();
-			pong_socket.close();
-			return;
 
 		} else if (data.action === 'game_over' && !stopFlag) {
-			document.getElementById('invitePending').remove();
+
+			if (document.getElementById('invitePending'))
+				document.getElementById('invitePending').remove();
+
 			stopFlag = true;
 			const winner = data.winner;
 			const loser = data.loser;
@@ -115,8 +112,16 @@ function joinPongRoom(roomCode, matchmakingSocket, username) {
 			});
 
 			showEndScreen(winner);
-			matchmakingSocket.close();
-			console.log('matchmaking webclosed closed');
+			
+			if (pong_socket.readyState === WebSocket.OPEN) {
+				pong_socket.close();
+				console.log('Pong Socket Closed on gameLoop');
+			}
+	
+			if (matchSocket.readyState === WebSocket.OPEN) {
+				matchSocket.close();
+				console.log('Matchmaking Socket Closed on gameLoop');
+			}
 
 		} else {
 
@@ -131,11 +136,13 @@ function joinPongRoom(roomCode, matchmakingSocket, username) {
 		};
 
 		pong_socket.onopen = function () {
-			pong_socket.send(JSON.stringify({ action: 'join' }));
+			pong_socket.send(JSON.stringify({
+				action: 'join'
+			}));
 		};
 
 		pong_socket.onclose = function (event) {
-			console.log('WebSocket connection closed:', event);
+			// console.log('Pong Socket Closed: onclose():', event);
 		};
 	}
 }
@@ -296,26 +303,24 @@ document.addEventListener('keyup', function (event) {
 });
 
 function gameLoop() {
+
 	if (window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) {
-		console.log('User left the game! Player index: ', playerIndex);
+		console.log('User ', selfUsername, ' left the game!');
 
-		document.getElementById('invitePending').remove();
-
-		let opponent = null;
-		if (selfUsername === player1Name) {
-			opponent = player2Name;
-		} else {
-			opponent = player1Name;
+		if (document.getElementById('invitePending')) {
+			document.getElementById('invitePending').remove();
 		}
 
-		pong_socket.send(JSON.stringify({
-			action: 'quit',
-			other_player: opponent
-		}));
+		if (pong_socket.readyState === WebSocket.OPEN) {
+			pong_socket.close();
+			console.log('Pong Socket Closed on gameLoop');
+		}
 
-		console.log('pong_socket closed');
-		pong_socket.close();
-		matchSocket.close();
+		if (matchSocket.readyState === WebSocket.OPEN) {
+			matchSocket.close();
+			console.log('Matchmaking Socket Closed on gameLoop');
+		}
+
 		stopFlag = true;
 		return;
 	}
@@ -355,7 +360,8 @@ function showEndScreen(winnerName) {
 	ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
 
 	setTimeout(() => {
-		document.getElementById('invitePending').remove();
+		if (document.getElementById('invitePending'))
+			document.getElementById('invitePending').remove();
 	}, 3000);
 
 }
