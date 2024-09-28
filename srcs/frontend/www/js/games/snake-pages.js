@@ -297,9 +297,11 @@ function snakeGameRemote(username) {
     };
 
     matchmakingSocket.onmessage = (event) => {
+
         const data = JSON.parse(event.data);
         if (data.match == "match_created") {
             console.log("Match created!", data.roomCode);
+
             if (document.getElementById('status')) {
                 document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
 
@@ -316,6 +318,8 @@ function snakeGameRemote(username) {
             console.log("Joining room...", data.roomCode);
             if (data.game == 'snake') {
                 joinSnakeRoom(data.roomCode, matchmakingSocket, username);
+				matchmakingSocket.close();
+				console.log('matchmaking socket closed');
             }
 
         } else if (data.system) {

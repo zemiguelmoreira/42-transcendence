@@ -30,7 +30,7 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-function joinSnakeRoom(roomCode, matchmaking, username) {
+function joinSnakeRoom(roomCode, username) {
 	console.log('Joining snake room:', roomCode);
 
 	selfUsername = username;
@@ -101,8 +101,6 @@ function joinSnakeRoom(roomCode, matchmaking, username) {
 			});
 
 			showEndScreen(winner);
-			matchmaking.close();
-			console.log('matchmaking webclosed closed');
 
 		} else {
 			// Game loop
@@ -236,9 +234,7 @@ function gameLoop() {
 	if (window.location.pathname !== `/user/${selfUsername}/snake-game-remote`) {
 		console.log('User left the game!');
 		document.getElementById('invitePending').remove();
-		// const data = JSON.stringify({
-        //     type: "cancel"
-        // });
+
 		snake_socket.send(JSON.stringify({
 			action: 'join'
 		}));
@@ -246,6 +242,7 @@ function gameLoop() {
 
 	if (stopFlag == true)
 		return;
+	
 	drawGame();
 	requestAnimationFrame(gameLoop);
 }

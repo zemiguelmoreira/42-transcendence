@@ -17,8 +17,8 @@ let leftPaddleY = 0;
 let rightPaddleY = 0;
 let player1Name = "";
 let player2Name = "";
-let socket = null;
 let selfUsername = null;
+let matchSocket = null;
 
 function setupPong() {
 	count = 3;
@@ -46,13 +46,8 @@ function setupPong() {
 }
 
 function joinPongRoom(roomCode, matchmakingSocket, username) {
-	socket = matchmakingSocket;
 	selfUsername = username;
-
-	socket.onmessage = async function (event) {
-		const data = JSON.parse(event.data);
-		console.log('data:', data);
-	}
+	matchSocket = matchmakingSocket;
 
 	const pong_accessToken = localStorage.getItem('access_token');
 
@@ -77,6 +72,10 @@ function joinPongRoom(roomCode, matchmakingSocket, username) {
 		const data = JSON.parse(event.data);
 
 		if (data.action === 'unauthorized') {
+			console.log('Unauthorized to join the game!');
+			pong_socket.close();
+			return;
+
 		} else if (data.action === 'assign_index') {
 			playerIndex = data.player_index;
 			ballPosition = data.ball_position;
@@ -89,6 +88,13 @@ function joinPongRoom(roomCode, matchmakingSocket, username) {
 
 		} else if (data.action === 'countdown') {
 			countdownDisplay(data.time);
+
+		} else if (data.action === 'quit_game') {
+			pong_socket.close();
+			console.log('Opponent quitted the game!');
+			document.getElementById('invitePending').remove();
+			pong_socket.close();
+			return;
 
 		} else if (data.action === 'game_over' && !stopFlag) {
 			document.getElementById('invitePending').remove();
@@ -113,6 +119,7 @@ function joinPongRoom(roomCode, matchmakingSocket, username) {
 			console.log('matchmaking webclosed closed');
 
 		} else {
+
 			if (!stopFlag) {
 				player1Score = data.score[0];
 				player2Score = data.score[1];
@@ -289,26 +296,29 @@ document.addEventListener('keyup', function (event) {
 });
 
 function gameLoop() {
-	console.log(selfUsername);
+	if (window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) {
+		console.log('User left the game! Player index: ', playerIndex);
 
-	if (window.location.pathname !== `/user/${selfUsername}/pong-game-remote`) {
-		console.log('User left the game!');
 		document.getElementById('invitePending').remove();
 
-		socket.send(JSON.stringify({ action: 'cancel' }));
-		socket.close();
+		let opponent = null;
+		if (selfUsername === player1Name) {
+			opponent = player2Name;
+		} else {
+			opponent = player1Name;
+		}
 
+		pong_socket.send(JSON.stringify({
+			action: 'quit',
+			other_player: opponent
+		}));
+
+		console.log('pong_socket closed');
+		pong_socket.close();
+		matchSocket.close();
+		stopFlag = true;
 		return;
 	}
-
-	socket.onmessage = (event) => {
-		const data = JSON.parse(event.data);
-		if (data.match != "match_created") {
-			matchmaking.close();
-			console.log('matchmaking webclosed closed');
-			stopFlag = true;
-		}
-	};
 
 	if (stopFlag == true)
 		return;
