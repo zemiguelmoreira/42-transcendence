@@ -8,7 +8,7 @@ let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
 let winner = null;
 let selfUsername = null;
-let socket = null;
+let matchSocket = null;
 
 const gridSize = 20;
 
@@ -30,9 +30,9 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-function joinSnakeRoom(roomCode, username) {
+function joinSnakeRoom(roomCode, matchmakingSocket, username) {
 	console.log('Joining snake room:', roomCode);
-
+	matchSocket = matchmakingSocket;
 	selfUsername = username;
 	const snake_accessToken = localStorage.getItem('access_token');
 	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
