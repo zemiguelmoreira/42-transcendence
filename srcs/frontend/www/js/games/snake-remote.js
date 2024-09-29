@@ -102,6 +102,16 @@ function joinSnakeRoom(roomCode, username) {
 
 			showEndScreen(winner);
 
+			if (snake_socket.readyState === WebSocket.OPEN) {
+				snake_socket.close();
+				console.log('Snake Socket Closed on gameLoop');
+			}
+	
+			if (matchSocket.readyState === WebSocket.OPEN) {
+				matchSocket.close();
+				console.log('Matchmaking Socket Closed on gameLoop');
+			}
+	
 		} else {
 			// Game loop
 			// console.log('data from else(gameloop): ', data);
@@ -231,19 +241,32 @@ document.addEventListener('keydown', function (event) {
 });
 
 function gameLoop() {
-	if (window.location.pathname !== `/user/${selfUsername}/snake-game-remote`) {
-		console.log('User left the game!');
-		document.getElementById('invitePending').remove();
 
-		snake_socket.send(JSON.stringify({
-			action: 'join'
-		}));
+	if (window.location.pathname !== `/user/${selfUsername}/snake-game-remote` && !stopFlag) {
+		console.log('User ', selfUsername, ' left the game!');
+
+		if (document.getElementById('invitePending')) {
+			document.getElementById('invitePending').remove();
+		}
+
+		if (snake_socket.readyState === WebSocket.OPEN) {
+			snake_socket.close();
+			console.log('Snake Socket Closed on gameLoop');
+		}
+
+		if (matchSocket.readyState === WebSocket.OPEN) {
+			matchSocket.close();
+			console.log('Matchmaking Socket Closed on gameLoop');
+		}
+
+		stopFlag = true;
+		return;
 	}
 
 	if (stopFlag == true)
 		return;
-	
-	drawGame();
+
+	drawGame(ballPosition, paddlePositions);
 	requestAnimationFrame(gameLoop);
 }
 
