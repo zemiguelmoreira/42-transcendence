@@ -259,7 +259,6 @@ function loadSnakeMultiplayerScript(username) {
 }
 
 function snakeGameLocal(username) {
-	// document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
 	
 	document.getElementById('guestInput').focus();
@@ -277,88 +276,120 @@ function snakeGameLocal(username) {
 		runSnakeLocal.id = 'runSnake';
 		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		// navigateTo(`/user/${username}/snake-game-local`);
 		loadSnakeLocalScript(username);
 	});
 }
 
 function snakeGameRemote(username) {
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
+    // Insere um popup de início de jogo na página
+    document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
 
-	let token = localStorage.getItem('access_token');
+    // Recupera o token de acesso armazenado no localStorage
+    let token = localStorage.getItem('access_token');
+
+    // Fecha qualquer conexão WebSocket de matchmaking existente antes de criar uma nova
     if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
         matchmakingSocket.close();
         matchmakingSocket = null;
     }
 
-	matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+    // Cria uma nova conexão WebSocket para matchmaking
+    matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+    
+    // Evento chamado quando a conexão WebSocket é aberta
     matchmakingSocket.onopen = () => {
         console.log("Matchmaking WebSocket connection opened.");
     };
 
-    matchmakingSocket.onmessage = (event) => {
+    // Evento chamado quando ocorre um erro na conexão WebSocket
+    matchmakingSocket.onerror = function (event) {
+        console.error('Matchmaking WebSocket error observed:', event);
+        // Fecha a conexão WebSocket se estiver aberta
+        if (matchmakingSocket.readyState === WebSocket.OPEN) {
+            matchmakingSocket.close();
+            console.log('Matchmaking Socket Closed on error');
+        }
+        matchmakingSocket = null; // Reseta a referência do socket
+    };
 
-        const data = JSON.parse(event.data);
-        if (data.match == "match_created") {
+    // Evento chamado quando uma mensagem é recebida do servidor
+    matchmakingSocket.onmessage = (event) => {
+        const data = JSON.parse(event.data); // Faz o parse da mensagem recebida
+        
+        // Verifica se um match foi criado
+        if (data.match === "match_created") {
             console.log("Match created!", data.roomCode);
 
+            // Atualiza o status na interface do usuário
             if (document.getElementById('status')) {
                 document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
 
+                // Remove o popup de matchmaking
                 const popupWindow = document.getElementById('snakePopup');
                 popupWindow.remove();
             }
 
+            // Cria um novo elemento para a tela do jogo
             const runSnakeRemote = document.createElement('div');
             runSnakeRemote.classList.add('invite-pending');
             runSnakeRemote.id = 'invitePending';
-            runSnakeRemote.innerHTML = snakeGameRemotePage();
+            runSnakeRemote.innerHTML = snakeGameRemotePage(); // Insere a página do jogo
             document.getElementById('root').appendChild(runSnakeRemote);
 
             console.log("Joining room...", data.roomCode);
-            if (data.game == 'snake') {
-                joinSnakeRoom(data.roomCode, matchmakingSocket, username);
-				matchmakingSocket.close();
-				console.log('matchmaking socket closed');
+            console.log("Username: ", username);
+            // Verifica se o jogo é 'snake' e tenta entrar na sala
+            if (data.game === 'snake') {
+                joinSnakeRoom(data.roomCode, username, matchmakingSocket);
+                // Fecha o socket de matchmaking após entrar na sala
+                if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+                    matchmakingSocket.close();
+                    console.log('matchmaking socket closed');
+                }
             }
 
         } else if (data.system) {
+            // Atualiza o status com mensagens do sistema
             document.getElementById('status').innerText = data.message;
 
         } else if (data.error) {
+            // Atualiza o status com mensagens de erro
             document.getElementById('status').innerText = `Error: ${data.message}`;
 
         } else {
+            // Exibe mensagem padrão enquanto aguarda um match
             document.getElementById('status').innerText = "Waiting for a match...";
         }
     };
 
+    // Evento chamado quando a conexão WebSocket é fechada
     matchmakingSocket.onclose = () => {
         console.log("Matchmaking WebSocket connection closed.");
     };
 
+    // Adiciona evento para o botão de entrar no matchmaking
     document.getElementById('joinMatchmaking').addEventListener('click', () => {
         const data = JSON.stringify({
-            type: "join",
-            game: "snake"
+            type: "join", // Tipo da ação
+            game: "snake" // Nome do jogo
         });
-        matchmakingSocket.send(data);
-        document.getElementById('status').innerText = "JOINING MATCHMAKING...";
+        matchmakingSocket.send(data); // Envia a solicitação para entrar no matchmaking
+        document.getElementById('status').innerText = "JOINING MATCHMAKING..."; // Atualiza o status
     });
 
+    // Adiciona evento para o botão de cancelar o matchmaking
     document.getElementById('cancelMatchmaking').addEventListener('click', () => {
         const data = JSON.stringify({
-            type: "cancel"
+            type: "cancel" // Tipo da ação para cancelar
         });
-        matchmakingSocket.send(data);
-        document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
+        matchmakingSocket.send(data); // Envia a solicitação para cancelar o matchmaking
+        document.getElementById('status').innerText = "CANCELLING MATCHMAKING..."; // Atualiza o status
         setTimeout(() => {
-            document.getElementById('snakePopup').remove();
-			navigateTo(`/user/${username}/snake`);
+            document.getElementById('snakePopup').remove(); // Remove o popup após um segundo
+            navigateTo(`/user/${username}/snake`); // Navega de volta para a página do usuário
         }, 1000);
     });
 }
-
 
 function snakeGameMultiplayer(username) {
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));

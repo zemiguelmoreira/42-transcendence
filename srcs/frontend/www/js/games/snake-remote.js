@@ -30,10 +30,11 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-function joinSnakeRoom(roomCode, matchmakingSocket, username) {
+function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
 	console.log('Joining snake room:', roomCode);
 	matchSocket = matchmakingSocket;
 	selfUsername = username;
+
 	const snake_accessToken = localStorage.getItem('access_token');
 	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
 		snake_socket.close();
@@ -41,23 +42,32 @@ function joinSnakeRoom(roomCode, matchmakingSocket, username) {
 	}
 
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
-	socket = snake_socket;
 
 	snake_socket.onopen = async function (event) {
 		console.log('Snake WebSocket connection opened:', event);
 		setupSnake();
-		snake_socket.send(JSON.stringify({ action: 'join' }));
+		snake_socket.send(JSON.stringify({
+			action: 'join'
+		}));
+	};
+
+	snake_socket.onerror = function (event) {
+		console.error('Snake WebSocket error observed:', event);
+		
+		if (snake_socket.readyState === WebSocket.OPEN) {
+			snake_socket.close();
+			console.log('Snake Socket Closed on error');
+		}
+		snake_socket = null;  // Certifique-se de que a referência ao WebSocket é removida
 	};
 
 	snake_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
 
 		if (data.action === 'unauthorized') {
-			// Unauthorized
-			// console.log('unauthorized');
 			snake_socket.close();
-
-		} else if (data.action === 'assign_index') {
+		}
+		 else if (data.action === 'assign_index') {
 			// Assign player index
 			// console.log('playerIndex:', playerIndex);
 			playerIndex = data.player_index;
@@ -127,9 +137,9 @@ function joinSnakeRoom(roomCode, matchmakingSocket, username) {
 
 	snake_socket.onclose = function (event) {
 		console.log('Snake WebSocket connection closed:', event);
-		// Limpe o estado do jogo
-		snake_socket = null;  // Certifique-se de que a referência ao WebSocket é removida
+		snake_socket = null;
 	};
+	
 
 }
 
@@ -266,7 +276,7 @@ function gameLoop() {
 	if (stopFlag == true)
 		return;
 
-	drawGame(ballPosition, paddlePositions);
+	drawGame();
 	requestAnimationFrame(gameLoop);
 }
 
@@ -308,21 +318,30 @@ function showEndScreen(winnerName) {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-	ctx.fillStyle = "#fff";
-	ctx.font = "50px CustomFont";
+	
+	// Texto para "WINNER"
 	ctx.textAlign = "center";
 
-	if (winnerName === "No winner") {
-		ctx.fillText("DRAW!", canvasWidth / 2, canvasHeight / 2 + 20);
-	} else {
-		ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
-	}
+	// Desenhar "WINNER" em branco
+	ctx.fillStyle = "#fff";
+	ctx.font = "50px CustomFont";
+	ctx.fillText("WINNER", canvasWidth / 2, canvasHeight / 2);
+	
+	// Desenhar "WINNER" em vermelho deslocado
+	ctx.fillStyle = "red";
+	ctx.fillText("WINNER", canvasWidth / 2 + 4, canvasHeight / 2 + 4);
+	
+	// Texto do vencedor
+	ctx.fillStyle = "#fff"; // Nome do jogador em branco
+	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
+	ctx.fillText(`${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 60); // Ajuste a posição conforme necessário
 
+	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {
 		document.getElementById('invitePending').remove();
 	}, 3000);
-
 }
+
 
 
 export { joinSnakeRoom };

@@ -45,7 +45,7 @@ function setupPong() {
 	backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
 }
 
-function joinPongRoom(roomCode, matchmakingSocket, username) {
+function joinPongRoom(roomCode, matchmakingSocket=false, username) {
 	selfUsername = username;
 	matchSocket = matchmakingSocket;
 
