@@ -259,6 +259,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 		# Check self-collision (colisão com o próprio corpo)
 		if any(segment == head for segment in snake['segments'][1:]):
+			logger.info('colisao com proprio corpo')
 			snake['alive'] = False
 
 		# Check collision with other snakes (colisão com outras cobras)
@@ -266,6 +267,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			if i != snake_index and other_snake['alive']:
 				# Colisão de cabeça com cabeça
 				if head == other_snake['segments'][0]:
+					logger.info('colisao com outra head cobra')
 					score_self = room['score'][snake_index]
 					score_other = room['score'][i]
 
@@ -276,6 +278,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 						snake['alive'] = False  # Cobra com menos pontos perde
 					else:
 						# Se as pontuações forem iguais, escolhe aleatoriamente a vencedora
+						logger.info('colisao com outra head cobra pontuacao iguais')
 						if random.choice([True, False]):
 							snake['alive'] = False
 						else:
@@ -283,15 +286,15 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 				# Verificar colisão com o corpo da outra cobra
 				elif any(segment == head for segment in other_snake['segments'][1:]):
+					logger.info('colisao com outra body cobra')
 					snake['alive'] = False
 
 		# Verificar se sobrou apenas uma cobra viva
 		alive_snakes = [s for s in room['snakes'] if s['alive']]
 		if len(alive_snakes) == 1:
+			logger.info('sobrou apenas uma')
 			for player in room['players']:
 				player.end_game(room, alive_snakes[0]['username'])
-
-
 
 
 	def generate_food_position(self):
@@ -311,16 +314,15 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 
 
-	async def end_game(self, room, winner, loser):
+	async def end_game(self, room, winner=None):
 		logger.info('function end_game called')
+		loser = room['players'][1].user.username if room['players'][1].user.username != winner else room['players'][0].user.username
 
 		winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
 		loser_score = room['score'][1] if room['players'][0].user.username == winner else room['score'][0]
 		
-		# loser = room['players'][1].user.username if room['players'][1].user.username != winner else room['players'][0].user.username
 		logger.info(f'winner: {winner}')
 		logger.info(f'loser: {loser}')
-
 
 		timestamp = int(time.time())
 		formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
