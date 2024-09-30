@@ -342,10 +342,12 @@ function snakeGameRemote(username) {
             if (data.game === 'snake') {
                 joinSnakeRoom(data.roomCode, username, matchmakingSocket);
                 // Fecha o socket de matchmaking após entrar na sala
-                if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-                    matchmakingSocket.close();
-                    console.log('matchmaking socket closed');
-                }
+				// setTimeout(() => {
+					if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+						matchmakingSocket.close();
+						console.log('matchmaking socket closed');
+					}
+				// }, 1000);
             }
 
         } else if (data.system) {

@@ -1,3 +1,5 @@
+import { navigateTo } from "../app.js";
+
 let snake_socket = null;
 let playerIndex = null;
 let stopFlag = false;
@@ -9,8 +11,26 @@ let food = { 'x': 0, 'y': 0 };
 let winner = null;
 let selfUsername = null;
 let matchSocket = null;
+let gameSocket = null;
 
 const gridSize = 20;
+
+window.addEventListener('popstate', function(event) {
+    console.log('O usuário ativou o botão de voltar ou history.back()');
+	console.log('User left the game!');
+	
+	if (gameSocket && gameSocket.readyState === WebSocket.OPEN) {
+		gameSocket.close();
+		console.log('Snake Socket Closed on gameLoop');
+	}
+
+	if (document.getElementById('invitePending')) {
+		document.getElementById('invitePending').remove();
+	}
+
+	navigateTo(`/user/${selfUsername}/snake`);
+
+});
 
 function setupSnake() {
 	playerIndex = null;
@@ -30,10 +50,10 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
-	console.log('Joining snake room:', roomCode);
-	matchSocket = matchmakingSocket;
+async function joinSnakeRoom(roomCode, username) {
 	selfUsername = username;
+	console.log('selfUsername:', selfUsername);
+	console.log('username:', username);
 
 	const snake_accessToken = localStorage.getItem('access_token');
 	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
@@ -42,9 +62,9 @@ function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
 	}
 
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
-
+	gameSocket = snake_socket;
 	snake_socket.onopen = async function (event) {
-		console.log('Snake WebSocket connection opened:', event);
+		console.log('Snake WebSocket connection successfully opened:');
 		setupSnake();
 		snake_socket.send(JSON.stringify({
 			action: 'join'
@@ -52,7 +72,7 @@ function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
 	};
 
 	snake_socket.onerror = function (event) {
-		console.error('Snake WebSocket error observed:', event);
+		console.error('Snake WebSocket encountered an error:', event.message || event);
 		
 		if (snake_socket.readyState === WebSocket.OPEN) {
 			snake_socket.close();
@@ -66,31 +86,24 @@ function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
 
 		if (data.action === 'unauthorized') {
 			snake_socket.close();
-		}
-		 else if (data.action === 'assign_index') {
-			// Assign player index
-			// console.log('playerIndex:', playerIndex);
+		
+		} else if (data.action === 'assign_index') {
 			playerIndex = data.player_index;
 
 		} else if (data.action === 'start_game') {
-			// Start game
-			console.log('game started ', data);
+			console.log(`Game started. Player 1: ${data.player_names[0]}, Player 2: ${data.player_names[1]}`);
 			document.getElementById('snakeName1').innerText = data.player_names[0];
 			document.getElementById('snakeName2').innerText = data.player_names[1];
-
 			startGame();
 
 		} else if (data.action === 'countdown') {
-			// Exibe o tempo do countdown
 			countdownDisplay(data.time);
 
 		} else if (data.action === 'wait_for_player') {
-			// Wait for player
-			// console.log('waiting players');
+			console.log('Waiting for another player to join...');
 
 		} else if (data.action === 'game_over' && !stopFlag) {
-			// Game over
-			// console.log('game over');
+			console.log(`Game over. Winner: ${data.winner}, Loser: ${data.loser}`);
 
 			winner = data.winner;
 			stopFlag = true;
@@ -110,21 +123,17 @@ function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
 				ranked: true
 			});
 
-			showEndScreen(winner);
+			const parsedScore = JSON.parse(score);
+
+			showEndScreen(parsedScore);
 
 			if (snake_socket.readyState === WebSocket.OPEN) {
 				snake_socket.close();
-				console.log('Snake Socket Closed on gameLoop');
-			}
-	
-			if (matchSocket.readyState === WebSocket.OPEN) {
-				matchSocket.close();
-				console.log('Matchmaking Socket Closed on gameLoop');
+				console.log('Snake Socket Closed after game over');
 			}
 	
 		} else {
-			// Game loop
-			// console.log('data from else(gameloop): ', data);
+
 			if (!stopFlag) {
 				document.getElementById('snakeScore1').innerText = player1Score = data['score'][0];
 				document.getElementById('snakeScore2').innerText = player2Score = data['score'][1];
@@ -136,7 +145,6 @@ function joinSnakeRoom(roomCode, username, matchmakingSocket=false) {
 	};
 
 	snake_socket.onclose = function (event) {
-		console.log('Snake WebSocket connection closed:', event);
 		snake_socket = null;
 	};
 	
@@ -252,27 +260,6 @@ document.addEventListener('keydown', function (event) {
 
 function gameLoop() {
 
-	if (window.location.pathname !== `/user/${selfUsername}/snake-game-remote` && !stopFlag) {
-		console.log('User ', selfUsername, ' left the game!');
-
-		if (document.getElementById('invitePending')) {
-			document.getElementById('invitePending').remove();
-		}
-
-		if (snake_socket.readyState === WebSocket.OPEN) {
-			snake_socket.close();
-			console.log('Snake Socket Closed on gameLoop');
-		}
-
-		if (matchSocket.readyState === WebSocket.OPEN) {
-			matchSocket.close();
-			console.log('Matchmaking Socket Closed on gameLoop');
-		}
-
-		stopFlag = true;
-		return;
-	}
-
 	if (stopFlag == true)
 		return;
 
@@ -309,7 +296,9 @@ function startGame() {
 	countdown(gameLoop);
 }
 
-function showEndScreen(winnerName) {
+function showEndScreen(score= null) {
+	// console.log('Score: ', score);
+
 	if (!ctx) {
 		const canvas = document.getElementById('gameCanvasSnakeRemote');
 		ctx = canvas.getContext('2d');
@@ -334,11 +323,12 @@ function showEndScreen(winnerName) {
 	// Texto do vencedor
 	ctx.fillStyle = "#fff"; // Nome do jogador em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 60); // Ajuste a posição conforme necessário
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, canvasHeight / 2 + 60); // Ajuste a posição conforme necessário
 
 	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {
 		document.getElementById('invitePending').remove();
+		navigateTo(`/user/${selfUsername}/snake`);
 	}, 3000);
 }
 
