@@ -11,28 +11,12 @@ let food = { 'x': 0, 'y': 0 };
 let winner = null;
 let selfUsername = null;
 let matchSocket = null;
-let gameSocket = null;
 
 const gridSize = 20;
 
-window.addEventListener('popstate', function(event) {
-    console.log('O usuário ativou o botão de voltar ou history.back()');
-	console.log('User left the game!');
-	
-	if (gameSocket && gameSocket.readyState === WebSocket.OPEN) {
-		gameSocket.close();
-		console.log('Snake Socket Closed on gameLoop');
-	}
-
-	if (document.getElementById('invitePending')) {
-		document.getElementById('invitePending').remove();
-	}
-
-	navigateTo(`/user/${selfUsername}/snake`);
-
-});
-
 function setupSnake() {
+	console.log('Setting up snake game');
+
 	playerIndex = null;
 	stopFlag = false;
 	snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
@@ -41,8 +25,6 @@ function setupSnake() {
 	food = { 'x': 0, 'y': 0 };
 	winner = null;
 
-	console.log('Setting up snake game');
-
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	ctx = canvas.getContext('2d');
 
@@ -50,8 +32,11 @@ function setupSnake() {
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
 
-async function joinSnakeRoom(roomCode, username) {
+async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	selfUsername = username;
+	if (matchmakingSocket !== false)
+		matchSocket = matchmakingSocket;
+
 	console.log('selfUsername:', selfUsername);
 	console.log('username:', username);
 
@@ -62,7 +47,6 @@ async function joinSnakeRoom(roomCode, username) {
 	}
 
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
-	gameSocket = snake_socket;
 	snake_socket.onopen = async function (event) {
 		console.log('Snake WebSocket connection successfully opened:');
 		setupSnake();
@@ -73,12 +57,11 @@ async function joinSnakeRoom(roomCode, username) {
 
 	snake_socket.onerror = function (event) {
 		console.error('Snake WebSocket encountered an error:', event.message || event);
-		
 		if (snake_socket.readyState === WebSocket.OPEN) {
 			snake_socket.close();
 			console.log('Snake Socket Closed on error');
 		}
-		snake_socket = null;  // Certifique-se de que a referência ao WebSocket é removida
+		snake_socket = null;
 	};
 
 	snake_socket.onmessage = async function (event) {
@@ -86,7 +69,7 @@ async function joinSnakeRoom(roomCode, username) {
 
 		if (data.action === 'unauthorized') {
 			snake_socket.close();
-		
+
 		} else if (data.action === 'assign_index') {
 			playerIndex = data.player_index;
 
@@ -131,7 +114,7 @@ async function joinSnakeRoom(roomCode, username) {
 				snake_socket.close();
 				console.log('Snake Socket Closed after game over');
 			}
-	
+
 		} else {
 
 			if (!stopFlag) {
@@ -147,7 +130,7 @@ async function joinSnakeRoom(roomCode, username) {
 	snake_socket.onclose = function (event) {
 		snake_socket = null;
 	};
-	
+
 
 }
 
@@ -260,6 +243,23 @@ document.addEventListener('keydown', function (event) {
 
 function gameLoop() {
 
+	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/snake-game-remote` && !stopFlag)
+		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/snake-playing` && !stopFlag)) {
+		console.log('User left the game!');
+
+		if (document.getElementById('invitePending')) {
+			document.getElementById('invitePending').remove();
+		}
+
+		if (snake_socket.readyState === WebSocket.OPEN) {
+			snake_socket.close();
+			console.log('Snake Socket Closed on gameLoop');
+		}
+
+		stopFlag = true;
+		return;
+	}
+
 	if (stopFlag == true)
 		return;
 
@@ -296,7 +296,7 @@ function startGame() {
 	countdown(gameLoop);
 }
 
-function showEndScreen(score= null) {
+function showEndScreen(score = null) {
 	// console.log('Score: ', score);
 
 	if (!ctx) {
@@ -304,26 +304,42 @@ function showEndScreen(score= null) {
 		ctx = canvas.getContext('2d');
 	}
 
+	// Limpa o canvas e define fundo semitransparente
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-	
-	// Texto para "WINNER"
-	ctx.textAlign = "center";
 
-	// Desenhar "WINNER" em branco
+	// Divide a altura do canvas em 4 partes
+	const partHeight = canvasHeight / 4;
+
+	// Texto para "WINNER" na segunda parte do canvas
+	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("WINNER", canvasWidth / 2, canvasHeight / 2);
-	
+	ctx.fillText("WINNER", canvasWidth / 2, partHeight * 2);
+
 	// Desenhar "WINNER" em vermelho deslocado
 	ctx.fillStyle = "red";
-	ctx.fillText("WINNER", canvasWidth / 2 + 4, canvasHeight / 2 + 4);
-	
-	// Texto do vencedor
-	ctx.fillStyle = "#fff"; // Nome do jogador em branco
+	ctx.fillText("WINNER", canvasWidth / 2 + 4, partHeight * 2 + 4);
+
+	// Nome e pontuação do vencedor
+	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner}`, canvasWidth / 2, canvasHeight / 2 + 60); // Ajuste a posição conforme necessário
+	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, partHeight * 2 + 60); // Abaixo do título "WINNER"
+
+	// Texto para "LOSER" na terceira parte do canvas
+	ctx.fillStyle = "#fff";
+	ctx.font = "50px CustomFont";
+	ctx.fillText("LOSER", canvasWidth / 2, partHeight * 3);
+
+	// Desenhar "LOSER" em vermelho deslocado
+	ctx.fillStyle = "red";
+	ctx.fillText("LOSER", canvasWidth / 2 + 4, partHeight * 3 + 4);
+
+	// Nome e pontuação do perdedor
+	ctx.fillStyle = "#fff"; // Texto em branco
+	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
+	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, partHeight * 3 + 60); // Abaixo do título "LOSER"
 
 	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {
@@ -331,7 +347,6 @@ function showEndScreen(score= null) {
 		navigateTo(`/user/${selfUsername}/snake`);
 	}, 3000);
 }
-
 
 
 export { joinSnakeRoom };

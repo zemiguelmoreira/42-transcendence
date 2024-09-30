@@ -339,7 +339,7 @@ function snakeGameRemote(username) {
 			console.log("Joining room...", data.roomCode);
 			// Verifica se o jogo é 'snake' e tenta entrar na sala
 			if (data.game === 'snake') {
-				await joinSnakeRoom(data.roomCode, username);
+				await joinSnakeRoom(data.roomCode, username, matchmakingSocket);
 				setTimeout(() => {
 					// Fecha o socket de matchmaking após entrar na sala
 					if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {

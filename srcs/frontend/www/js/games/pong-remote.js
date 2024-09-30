@@ -102,7 +102,7 @@ function joinPongRoom(roomCode, username, matchmakingSocket=false) {
 			const loserScore = data.loser_score;
 			const gameType = 'pong';
 			const timestamp = new Date().toISOString();
-			
+
 			const score = JSON.stringify({
 				winner: winner,
 				loser: loser,
@@ -115,12 +115,12 @@ function joinPongRoom(roomCode, username, matchmakingSocket=false) {
 			const parsedScore = JSON.parse(score);
 
 			showEndScreen(parsedScore);
-			
+
 			if (pong_socket.readyState === WebSocket.OPEN) {
 				pong_socket.close();
 				console.log('Pong Socket Closed on gameLoop');
 			}
-	
+
 			if (matchSocket && matchSocket.readyState === WebSocket.OPEN) {
 				matchSocket.close();
 				console.log('Matchmaking Socket Closed on gameLoop');
@@ -307,8 +307,15 @@ document.addEventListener('keyup', function (event) {
 
 function gameLoop() {
 
-	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) || (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong` && !stopFlag)) {
-		console.log('User ', selfUsername, ' left the game!');
+	if (matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
+		console.log('Pong Game Remote Pathname: ', window.location.pathname);
+		console.log('StopFlag: ', stopFlag);
+	
+	if (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)
+		console.log('Pong Playing Pathname: ', window.location.pathname);
+		console.log('StopFlag: ', stopFlag);
+
+	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) || (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)) {
 
 		if (document.getElementById('invitePending')) {
 			document.getElementById('invitePending').remove();
@@ -317,11 +324,6 @@ function gameLoop() {
 		if (pong_socket.readyState === WebSocket.OPEN) {
 			pong_socket.close();
 			console.log('Pong Socket Closed on gameLoop');
-		}
-
-		if (matchSocket && matchSocket.readyState === WebSocket.OPEN) {
-			matchSocket.close();
-			console.log('Matchmaking Socket Closed on gameLoop');
 		}
 
 		stopFlag = true;

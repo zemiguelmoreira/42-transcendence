@@ -68,41 +68,56 @@ function createInviteElement(inviteMessage, sender, roomCode, game, username) {
 }
 
 function createInviteResponseButton(text, accepted, sender, roomCode, game, username) {
-	const button = document.createElement("button");
-	button.textContent = text;
-	button.classList.add(`${text.toLowerCase()}-button`);
-	button.onclick = function () {
-		const response = {
-			"accepted": accepted,
-			"inviter": sender,
-			"type": "invite_response",
-			"game": game,
-		};
-		chatSocketInstance.send(response);
-		document.querySelector('.accept-button').disabled = true;
-		document.querySelector('.reject-button').disabled = true;
-		const invitePending = document.createElement('div');
-		invitePending.classList.add('invite-pending');
-		invitePending.id = 'invitePending';
-		document.getElementById('root').appendChild(invitePending);
-		if (accepted) {
-			if (game == 'Pong') {
-				navigateTo(`/user/${username}/pong-playing`);
-				joinPongRoom(roomCode, username);
-			} else {
-				const runSnakeRemote = document.getElementById('invitePending');
-				runSnakeRemote.innerHTML = snakeGameRemotePage();
-				document.getElementById('root').appendChild(runSnakeRemote);
-				navigateTo(`/user/${username}/snake-playing`);
-				joinSnakeRoom(roomCode, username);
-			}
-		} else {
-			document.getElementById('invitePending').remove();
-			displaySlidingMessage(`Invite from ${sender} has been declined.`);
-		}
-	};
-	return button;
+    const button = document.createElement("button");
+    button.textContent = text;
+    button.classList.add(`${text.toLowerCase()}-button`);
+    
+    button.onclick = function () {
+        // Criar a resposta ao convite
+        const response = {
+            "accepted": accepted,
+            "inviter": sender,
+            "type": "invite_response",
+            "game": game,
+        };
+
+        // Enviar a resposta via WebSocket
+        chatSocketInstance.send(response);
+
+        // Usando `this` para acessar o botão clicado e o contêiner de botões
+        const buttonContainer = this.closest('.button-container');
+
+        // Desativar os botões dentro do mesmo contêiner de botões
+        buttonContainer.querySelector('.accept-button').disabled = true;
+        buttonContainer.querySelector('.reject-button').disabled = true;
+
+        // Exibir a mensagem de convite pendente
+        const invitePending = document.createElement('div');
+        invitePending.classList.add('invite-pending');
+        invitePending.id = 'invitePending';
+        document.getElementById('root').appendChild(invitePending);
+
+        // Lógica para quando o convite é aceito
+        if (accepted) {
+            if (game === 'Pong') {
+                navigateTo(`/user/${username}/pong-playing`);
+                joinPongRoom(roomCode, username);
+            } else {
+                const runSnakeRemote = document.getElementById('invitePending');
+                runSnakeRemote.innerHTML = snakeGameRemotePage();
+                document.getElementById('root').appendChild(runSnakeRemote);
+                navigateTo(`/user/${username}/snake-playing`);
+                joinSnakeRoom(roomCode, username);
+            }
+        } else {
+            document.getElementById('invitePending').remove();
+            displaySlidingMessage(`Invite from ${sender} has been declined.`);
+        }
+    };
+
+    return button;
 }
+
 
 function handleInviteResponse(username, data, chatLog) {
 	const invitee = data.invitee;
@@ -179,7 +194,7 @@ function createDropdownToggle() {
 	return dropdownToggle;
 }
 
-function createDropdownMenu(username, user, chatSocket) {
+function createDropdownMenu(username, user) {
 	const dropdownMenu = document.createElement("div");
 	dropdownMenu.classList.add("dropdown-menu");
 	if (username === user) {
