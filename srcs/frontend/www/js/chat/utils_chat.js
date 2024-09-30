@@ -7,6 +7,7 @@ import { createRoom } from "../games/game.js";
 import chatSocketInstance from "./chat_socket.js";
 import { closeSlidingWindow } from "../home/home.js";
 import { snakeGameRemotePage } from "../games/snake-pages.js";
+import { navigateTo } from "../app.js";
 
 let selectedUser = null;
 let roomCode = null;
@@ -39,11 +40,11 @@ function displayChatMessage(data, chatLog) {
 	displaySlidingMessage(messageElement.textContent);
 }
 
-function displayGameInvite(data, chatLog, chatSocket, username) {
+function displayGameInvite(data, chatLog, username) {
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
 	let game;
 	game = data.game;
-	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode, game, username);
+	const inviteElement = createInviteElement(inviteMessage, data.sender, data.roomCode, game, username);
 	chatLog.appendChild(inviteElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
 	displaySlidingMessage(inviteMessage);
@@ -86,11 +87,13 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game, user
 		document.getElementById('root').appendChild(invitePending);
 		if (accepted) {
 			if (game == 'Pong') {
+				navigateTo(`/user/${username}/pong-playing`);
 				joinPongRoom(roomCode, username);
 			} else {
 				const runSnakeRemote = document.getElementById('invitePending');
 				runSnakeRemote.innerHTML = snakeGameRemotePage();
 				document.getElementById('root').appendChild(runSnakeRemote);
+				navigateTo(`/user/${username}/snake-playing`);
 				joinSnakeRoom(roomCode, username);
 			}
 		} else {
@@ -110,11 +113,13 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has accepted your invite!`;
 		inviteResponseElement.classList.add('message-selfdm');
 		if (data.game == 'Pong') {
+			navigateTo(`/user/${username}/pong-playing`);
 			joinPongRoom(roomCode, username);
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
+			navigateTo(`/user/${username}/snake-playing`);
 			joinSnakeRoom(roomCode, username);
 		}
 	} else {

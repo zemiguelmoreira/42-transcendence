@@ -205,13 +205,13 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 			# Notificar ambos os jogadores e encerrar o jogo
 			for player in room['players']:
-				await player.end_game(room, winner, loser)
+				await player.end_game(room, winner)
 
 			logger.info(f"Game result by score: Winner: {winner}, Loser: {loser}")
 
 			# Notificar ambos os jogadores e encerrar o jogo
 			for player in room['players']:
-				await player.end_game(room, winner, loser)
+				await player.end_game(room, winner)
 
 			# Remover o jogador da sala e encerrar a partida
 			room['players'].remove(self)

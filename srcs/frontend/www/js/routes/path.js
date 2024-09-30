@@ -8,7 +8,7 @@ import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
 import { pongOptions } from "../games/pong-options.js";
-import { snakeGameLocal, snakeGameRemote , snakeGameMultiplayer } from "../games/snake-pages.js";
+import { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer } from "../games/snake-pages.js";
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
 
@@ -113,6 +113,13 @@ const pages = {
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
+	'/user/:username/snake-playing': {
+		loadContent: function (params) {
+			snakeOptions(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
 	'/user/:username/snake': {
 		loadContent: function (params) {
 			snakeOptions(params.username);
@@ -137,6 +144,13 @@ const pages = {
 	'/user/:username/snake-game-free-for-all': {
 		loadContent: function (params) {
 			snakeGameMultiplayer(params.username);
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/pong-playing': {
+		loadContent: function (params) {
+			pongOptions(params.username, params.guest);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
@@ -177,5 +191,5 @@ const pages = {
 	},
 
 }
-	
+
 export { pages }

@@ -1,3 +1,5 @@
+import { navigateTo } from "../app.js";
+
 const paddleWidth = 10;
 const paddleHeight = 90;
 const ballSize = 10;
@@ -45,9 +47,10 @@ function setupPong() {
 	backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
 }
 
-function joinPongRoom(roomCodez, username) {
+function joinPongRoom(roomCode, username, matchmakingSocket=false) {
 	selfUsername = username;
-	matchSocket = matchmakingSocket;
+	if (matchmakingSocket !== false)
+		matchSocket = matchmakingSocket;
 
 	const pong_accessToken = localStorage.getItem('access_token');
 
@@ -92,9 +95,6 @@ function joinPongRoom(roomCodez, username) {
 
 		} else if (data.action === 'game_over' && !stopFlag) {
 
-			if (document.getElementById('invitePending'))
-				document.getElementById('invitePending').remove();
-
 			stopFlag = true;
 			const winner = data.winner;
 			const loser = data.loser;
@@ -102,6 +102,7 @@ function joinPongRoom(roomCodez, username) {
 			const loserScore = data.loser_score;
 			const gameType = 'pong';
 			const timestamp = new Date().toISOString();
+			
 			const score = JSON.stringify({
 				winner: winner,
 				loser: loser,
@@ -111,14 +112,16 @@ function joinPongRoom(roomCodez, username) {
 				timestamp: timestamp,
 			});
 
-			showEndScreen(winner);
+			const parsedScore = JSON.parse(score);
+
+			showEndScreen(parsedScore);
 			
 			if (pong_socket.readyState === WebSocket.OPEN) {
 				pong_socket.close();
 				console.log('Pong Socket Closed on gameLoop');
 			}
 	
-			if (matchSocket.readyState === WebSocket.OPEN) {
+			if (matchSocket && matchSocket.readyState === WebSocket.OPEN) {
 				matchSocket.close();
 				console.log('Matchmaking Socket Closed on gameLoop');
 			}
@@ -304,7 +307,7 @@ document.addEventListener('keyup', function (event) {
 
 function gameLoop() {
 
-	if (window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) {
+	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) || (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong` && !stopFlag)) {
 		console.log('User ', selfUsername, ' left the game!');
 
 		if (document.getElementById('invitePending')) {
@@ -316,7 +319,7 @@ function gameLoop() {
 			console.log('Pong Socket Closed on gameLoop');
 		}
 
-		if (matchSocket.readyState === WebSocket.OPEN) {
+		if (matchSocket && matchSocket.readyState === WebSocket.OPEN) {
 			matchSocket.close();
 			console.log('Matchmaking Socket Closed on gameLoop');
 		}
@@ -345,7 +348,9 @@ function startGame() {
 	gameLoop();
 }
 
-function showEndScreen(winnerName) {
+function showEndScreen(score) {
+
+
 	if (!ctx) {
 		const canvas = document.getElementById('pongCanvas');
 		ctx = canvas.getContext('2d');
@@ -357,11 +362,12 @@ function showEndScreen(winnerName) {
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
 	ctx.textAlign = "center";
-	ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
+	ctx.fillText(`WINNER: ${score.winner}`, canvasWidth / 2, canvasHeight / 2 + 20);
 
 	setTimeout(() => {
 		if (document.getElementById('invitePending'))
 			document.getElementById('invitePending').remove();
+		navigateTo(`/user/${selfUsername}/pong`);
 	}, 3000);
 
 }
