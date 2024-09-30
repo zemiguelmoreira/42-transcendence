@@ -39,17 +39,17 @@ function displayChatMessage(data, chatLog) {
 	displaySlidingMessage(messageElement.textContent);
 }
 
-function displayGameInvite(data, chatLog, chatSocket) {
+function displayGameInvite(data, chatLog, chatSocket, username) {
 	const inviteMessage = `${data.sender} has invited you to play a game of ${data.game}! `;
 	let game;
 	game = data.game;
-	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode, game);
+	const inviteElement = createInviteElement(inviteMessage, data.sender, chatSocket, data.roomCode, game, username);
 	chatLog.appendChild(inviteElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
 	displaySlidingMessage(inviteMessage);
 }
 
-function createInviteElement(inviteMessage, sender, chatSocket, roomCode, game) {
+function createInviteElement(inviteMessage, sender, roomCode, game, username) {
 	const inviteElement = document.createElement("div");
 	inviteElement.classList.add('message-invite');
 	inviteElement.style.color = "coralpink";
@@ -57,8 +57,8 @@ function createInviteElement(inviteMessage, sender, chatSocket, roomCode, game) 
 	messageText.textContent = inviteMessage;
 	const buttonContainer = document.createElement("div");
 	buttonContainer.classList.add('button-container');
-	const acceptButton = createInviteResponseButton("Accept", true, sender, roomCode, game);
-	const rejectButton = createInviteResponseButton("Reject", false, sender, roomCode, game);
+	const acceptButton = createInviteResponseButton("Accept", true, sender, roomCode, game, username);
+	const rejectButton = createInviteResponseButton("Reject", false, sender, roomCode, game, username);
 	buttonContainer.appendChild(acceptButton);
 	buttonContainer.appendChild(rejectButton);
 	inviteElement.appendChild(messageText);
@@ -66,7 +66,7 @@ function createInviteElement(inviteMessage, sender, chatSocket, roomCode, game) 
 	return inviteElement;
 }
 
-function createInviteResponseButton(text, accepted, sender, roomCode, game) {
+function createInviteResponseButton(text, accepted, sender, roomCode, game, username) {
 	const button = document.createElement("button");
 	button.textContent = text;
 	button.classList.add(`${text.toLowerCase()}-button`);
@@ -86,12 +86,12 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game) {
 		document.getElementById('root').appendChild(invitePending);
 		if (accepted) {
 			if (game == 'Pong') {
-				joinPongRoom(roomCode);
+				joinPongRoom(roomCode, username);
 			} else {
 				const runSnakeRemote = document.getElementById('invitePending');
 				runSnakeRemote.innerHTML = snakeGameRemotePage();
 				document.getElementById('root').appendChild(runSnakeRemote);
-				joinSnakeRoom(roomCode);
+				joinSnakeRoom(roomCode, username);
 			}
 		} else {
 			document.getElementById('invitePending').remove();
@@ -110,12 +110,12 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has accepted your invite!`;
 		inviteResponseElement.classList.add('message-selfdm');
 		if (data.game == 'Pong') {
-			joinPongRoom(roomCode);
+			joinPongRoom(roomCode, username);
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
-			joinSnakeRoom(roomCode);
+			joinSnakeRoom(roomCode, username);
 		}
 	} else {
 		responseMessage = `${invitee} has declined your invite!`;

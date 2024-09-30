@@ -54,7 +54,7 @@ class WebSocketService {
 			if (data.message) {
 				displayChatMessage(data, this.chatLog);
 			} else if (data.invite) {
-				displayGameInvite(data, this.chatLog);
+				displayGameInvite(data, this.chatLog, username);
 			} else if (data.invite_response) {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {

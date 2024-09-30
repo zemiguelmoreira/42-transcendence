@@ -158,7 +158,7 @@ function pongGameRemote(username) {
 			console.log("Joining room: ", data.roomCode);
 
 			if (data.game == 'pong') {
-				joinPongRoom(data.roomCode, matchmakingSocket, username);
+				joinPongRoom(data.roomCode, username, matchmakingSocket);
 			}
 
 		} else if (data.system) {
