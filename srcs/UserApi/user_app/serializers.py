@@ -4,8 +4,9 @@ from .models import UserProfile
 from django.conf import settings
 import os
 from datetime import datetime
-import re
+from user_app.validators import CustomPasswordValidator
 import logging
+from django.core.exceptions import ValidationError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     email = serializers.EmailField(required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
     username = serializers.CharField(required=True, max_length=20)
@@ -32,31 +32,38 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'confirm_password']
         extra_kwargs = {'password': {'write_only': True}}
 
-
     def validate(self, data):
-        # Verifica se o email já está em uso
+        # Check if the email is already in use
         if User.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError({"email": "This email is already in use."})
 
-		# Verifica se o username já está em uso
+        # Check if the username is already in use
         if User.objects.filter(username=data['username']).exists():
             raise serializers.ValidationError({"username": "This username is already in use."})
 
-        # Verifica se as senhas correspondem
+        # Check if the passwords match
         if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
+            raise serializers.ValidationError({"password": "Passwords do not match."})
 
+        # Check username length
         if len(data['username']) > 8:
-            raise serializers.ValidationError({"user": "Username must be 8 characters or fewer. Please choose a shorter name."})
-			
-        # Retorna os dados validados, usado para dizer ao Rest que os dados passaram a validação e podem ser utilizados
+            raise serializers.ValidationError({"username": "Username must be 8 characters or fewer. Please choose a shorter name."})
+
+        # Validate password using the custom password validator
+        password_validator = CustomPasswordValidator()
+        try:
+            password_validator.validate(data['password'])  # This will raise a ValidationError if the password is invalid
+        except ValidationError as e:
+            raise serializers.ValidationError({"password": e.messages})
+
+        # Return validated data for use in user creation
         return data
-    
+
     def create(self, validated_data):
-        #retirar o confirm_password da criação do user
+        # Remove the confirm_password from the validated data
         validated_data.pop('confirm_password', None)
         print("Validated data before user creation:", validated_data)
-        user = User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)  # Create the user with the validated data
         print(f"User created: {user}")
         return user
 

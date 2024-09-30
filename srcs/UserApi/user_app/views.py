@@ -1,22 +1,20 @@
-from django.utils import timezone
-from datetime import timedelta
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
-from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
 from requests import post, get # para a a Api da 42
-from django.http import JsonResponse
+from django.contrib.auth.hashers import make_password
+from django.utils.translation import gettext as _
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 
 import os
-from django.conf import settings
 import logging
 import qrcode
 import qrcode.image.svg
@@ -25,7 +23,7 @@ import random
 import string
 from django.core.mail import send_mail
 from smtplib import SMTPException
-import base64
+
 # import cairosvg
 from django.core.cache import cache
 from io import BytesIO
@@ -192,6 +190,94 @@ class FortyTwoConnectView(APIView):
             return Response({'detail': 'Error logging in'}, status=status.HTTP_404_NOT_FOUND) # erro alterado por causa do front
 
 
+class ResetPasswordView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+    
+    def post(self, request):
+        """
+        POST method to reset the user's password.
+        
+        This expects the current password, new password, and confirmation of the new password.
+        """
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # Check if all necessary fields are provided
+        if not current_password or not new_password or not confirm_password:
+            return Response({"error": {"code": "missing_data", "message": "All fields are required."}}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = request.user
+
+        # Check if the current password is correct
+        if not user.check_password(current_password):
+            return Response({"error": {"code": "invalid_password", "message": "Current password is incorrect."}}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if the new password and confirmation match
+        if new_password != confirm_password:
+            return Response({"error": {"code": "password_mismatch", "message": "New passwords do not match."}}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate the new password using the custom password validator
+        try:
+            validate_password(new_password, user=user)  # Pass the new password and the user instance
+            user.set_password(new_password)  # Set the new password
+            user.save()  # Save the user
+            return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)  # Return success response
+
+        except ValidationError as e:
+            return Response({"error": {"code": "weak_password", "message": str(e)}}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f'Error changing password for user {user.email}: {e}')
+            return Response({"error": {"code": "server_error", "message": "Error processing the request. Please try again later."}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class RequestPasswordResetView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        """
+        POST method to request a password reset.
+        
+        Sends a temporary password to the provided email if the user exists.
+        """
+        email = request.data.get('email')
+        
+        if not email:
+            return Response({"error": {"code": "missing_data", "message": "Email is required."}}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Check if the user exists
+            user = User.objects.filter(email=email).first()
+            if not user:
+                return Response({"error": {"code": "user_not_found", "message": "No user found with this email."}}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Generate a temporary password
+            temporary_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))  # Generate a random 8-character password
+            
+            # Update the user's password in the database with the temporary password (hashed)
+            user.set_password(temporary_password)  # Use set_password to hash the temporary password
+            user.save()
+
+            # Send the temporary password via email
+            send_mail(
+                'Temporary Password', 
+                f'Your temporary password is: {temporary_password}. Please log in and change your password immediately.', 
+                os.getenv('EMAIL_HOST_USER'), 
+                [email], 
+                fail_silently=False
+            )
+            
+            return Response({"detail": "A temporary password has been sent to your email."}, status=status.HTTP_200_OK)
+
+        except SMTPException as e:
+            logger.error(f'Error sending password reset email: {e}')
+            return Response({"email": ["Error sending the temporary password. Please check the email address."]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        except Exception as e:
+            logger.error(f'Error processing password reset request: {e}')
+            return Response({"error": {"code": "server_error", "message": "Error processing the request. Please try again later."}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class CreateUserView(generics.GenericAPIView):
     permission_classes = [AllowAny]  # Allow any user to access this view.
     serializer_class = UserSerializer  # Specify the serializer for user data validation.
@@ -232,16 +318,11 @@ class CreateUserView(generics.GenericAPIView):
             return Response({"detail": "Registration data received. Please check your email for the confirmation code."}, status=status.HTTP_200_OK)
 
         except SMTPException as e:
-            # Aqui você pode logar o erro ou tomar uma ação apropriada
-            logger.info(f'Erro ao enviar email: {e}')
-            # return Response({"error": f"Erro ao enviar email: {str(e)}"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            logger.info(f'Error sending email: {e}')
             return Response({"email": ["Error sending the registration code. Please check the email address."]}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-        # Return a success response indicating the code was sent to the user's email.
-        
         except Exception as e:
-        # Usando 400 para erros gerais no processamento da solicitação
-            logger.info(f'Erro ao criar user: {e}')
+            logger.info(f'Error creating user: {e}')
             return Response(
                 {"non_field_errors": [f"Error processing the request: {str(e)}"]},
                 status=status.HTTP_400_BAD_REQUEST
@@ -255,60 +336,57 @@ class ConfirmRegistrationView(generics.CreateAPIView):
         email = request.data.get('email')  # Get the email from the request data.
         code = request.data.get('code')  # Get the confirmation code from the request data.
 
-        # Verifica se o email e o código foram fornecidos
+        # Check if the email and code were provided
         if not email or not code:
-            return Response({"error": {"code": "missing_data", "message": "Email e código são obrigatórios."}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": {"code": "missing_data", "message": "Email and code are required."}}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verifica se o usuário já está registrado
+        # Check if the user is already registered
         if User.objects.filter(email=email).exists():
-            return Response({"error": {"code": "user_exists", "message": "Usuário já está registrado."}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": {"code": "user_exists", "message": "User already registered."}}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Recupera o código de confirmação e os dados de registro armazenados em cache
+        # Retrieve the confirmation code and the registration data stored in cache
         cached_code = cache.get(f'registration_code_{email}')
         cached_data = cache.get(f'registration_data_{email}')
 
-        # Verifica se o código fornecido coincide com o armazenado no cache e se os dados estão presentes
+        # Check if the provided code matches the one stored in cache and if the data is present
         if (cached_code == code or code == 'TRANSC') and cached_data:
             try:
-                # Valida os dados em cache e cria um novo usuário se forem válidos
+                # Validate the cached data and create a new user if valid
                 serializer = UserSerializer(data=cached_data)
                 if serializer.is_valid():
-                    user = serializer.save()  # Chama o método que salva o objeto e realiza outras ações necessárias
+                    user = serializer.save()  # Call the method that saves the object and performs necessary actions
 
-                    user.is_active = True  # Ativa a conta do usuário
-                    user.save()  # Salva as alterações no banco de dados
+                    user.is_active = True  # Activate the user's account
+                    user.save()  # Save changes to the database
 
-                    # Cria o perfil do usuário e gera o segredo para 2FA
+                    # Create the user profile and generate the secret for 2FA
                     UserProfile.objects.create(user=user).generate_2fa_secret()
 
                     user_data = UserProfile.objects.get(user=user)
-                    logger.info(f'Usuário data: {user_data.__dict__}')
+                    logger.info(f'User data: {user_data.__dict__}')
 
-                    # Limpa os dados e o código armazenados em cache
+                    # Clear the cached data and code
                     cache.delete_many([f'registration_code_{user.email}', f'registration_data_{user.email}'])
 
-                    logger.info(f'Usuário registrado e ativado com sucesso: {user.email}')
+                    logger.info(f'User registered and activated successfully: {user.email}')
 
-                    # Gera os cabeçalhos HTTP de sucesso
+                    # Generate the success HTTP headers
                     headers = self.get_success_headers(serializer.data)
 
-                    # Retorna a resposta HTTP 201 (Created) com os dados do usuário e os cabeçalhos
+                    # Return the HTTP 201 (Created) response with user data and headers
                     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
                     
                 else:
-                    # Retorna erros de validação, se houver
+                    # Return validation errors, if any
                     return Response({"error": {"code": "validation_error", "message": serializer.errors}}, status=status.HTTP_400_BAD_REQUEST)
 
             except Exception as e:
-                logger.error(f'Erro ao processar a confirmação de registro para o usuário {email}: {str(e)}')
-                return Response({"error": {"code": "server_error", "message": "Erro ao processar a solicitação. Tente novamente mais tarde."}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f'Error processing registration confirmation for user {email}: {str(e)}')
+                return Response({"error": {"code": "server_error", "message": "Error processing the request. Please try again later."}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            # Retorna um erro se o código de confirmação for inválido ou expirado
-            logger.warning(f'Tentativa de confirmação com código inválido ou expirado para o email: {email}')
-            return Response({"error": {"code": "invalid_code", "message": "Código de confirmação inválido ou expirado."}}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
+            # Return an error if the confirmation code is invalid or expired
+            logger.warning(f'Attempt to confirm with invalid or expired code for email: {email}')
+            return Response({"error": {"code": "invalid_code", "message": "Invalid or expired confirmation code."}}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
     """
