@@ -11,12 +11,16 @@ async function fetchQrCode() {
         }
         const response = await fetchWithAuth(`${baseURL}/profile/get_qr_code/`, conf);
         if (!response.ok) {
-            throw new Error(`Error fetching protected data: ${response.statusText}`);
+            // throw new Error(`Error fetching protected data: ${response.statusText}`);
+            throw {
+				message: response.statusText,
+				status: response.status,
+			};
         }
         const data = await response.json();
         return data.svg;
     } catch (error) {
-        console.error(error.message);
+        console.log('error no fetchQrCode: ', error);
         return "";
     }
 }
@@ -66,12 +70,25 @@ async function verifyCode(userOrEmail, qrCode) {
         body: JSON.stringify(data),
     };
     const response = await fetchWithAuth(`${baseURL}/token/verify-2fa/`, conf);
+    console.log('response no verifyCode: ', response);
+
     if (!response.ok) {
-        const errorData = await response.json();
-        const errorObject = {
-            message: errorData.detail,
-            status: response.status,
-        };
+
+        let errorObject;
+        if (response.status === 400) {
+            const errorData = await response.json();
+            console.log('errorData login: ', errorData);
+            errorObject = {
+                message: errorData.detail,
+                status: response.status,
+            };
+        } else {
+            errorObject = {
+                message: response.statusText,
+                status: response.status,
+            };
+        }
+        // console.log(errorObject.message, errorObject.status);
         return errorObject;
     } else {
         const data = await response.json();

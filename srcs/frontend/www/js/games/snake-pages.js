@@ -281,8 +281,9 @@ function snakeGameLocal(username) {
 }
 
 function snakeGameRemote(username) {
-    document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
+    // document.getElementById('root').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
 
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
     let token = localStorage.getItem('access_token');
     // Verifica se o socket já está aberto antes de tentar criar um novo
     if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
@@ -353,6 +354,8 @@ function snakeGameRemote(username) {
         document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
         setTimeout(() => {
             document.getElementById('snakePopup').remove();
+			// console.log('username no snake remote: ', username);
+			navigateTo(`/user/${username}/snake`);
         }, 1000);
     });
 }

@@ -77,11 +77,11 @@ async function refreshAccessToken() {
 			return true;
         } else {
             const errorData = await response.json();
-            console.error('Erro de autenticação:', errorData.detail);
+            // console.error('Erro de autenticação:', errorData.detail);
 			return false;
         }
     } catch (error) {
-        console.error('Erro:', error);
+        // console.error('Erro:', error);
 		return false;
     }
 }

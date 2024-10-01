@@ -11,6 +11,7 @@ function makeSignInPage() {
 						<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
 						<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="password">
 						<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
+						<button type="submit" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</button>
 						<p id="error-message" style="display: none; color: red;"></p>
 						<button class="btn btn-outline-secondary button-size" id="backButton">GO BACK</button>
 				</form>

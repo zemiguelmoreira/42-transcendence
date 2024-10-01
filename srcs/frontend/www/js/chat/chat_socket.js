@@ -3,6 +3,7 @@ import { displayChatMessage } from "./utils_chat.js";
 import { displayGameInvite } from "./utils_chat.js";
 import { handleInviteResponse } from "./utils_chat.js";
 import { updateOnlineUsersList } from "./utils_chat.js";
+import { navigateTo } from "../app.js";
 
 class WebSocketService {
 	static instance = null;
@@ -80,6 +81,23 @@ class WebSocketService {
 			console.error('WebSocket is not open. Ready state is:', this.socketRef.readyState);
 		}
 	}
+	async sendWithToken(data) {
+        let token  = localStorage.getItem('access_token');
+        if (!token || !this.testToken(token)) {
+            console.log('No access token found or access token invalid, websocket');
+            const refreshed = await refreshAccessToken(); // testar esta parte
+            console.log('refresh token: ', refreshed);
+            if (refreshed) {
+                this.send(data);
+                // chatMessageInput.value = '';
+            } else {
+                navigateTo('/');
+            }
+        } else {
+            this.send(data);
+            // chatMessageInput.value = '';
+        }
+  	}
 	parseJwt(token) {
 		const base64Url = token.split('.')[1];
 		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

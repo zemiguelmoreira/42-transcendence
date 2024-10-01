@@ -23,7 +23,7 @@ function makeRegisterPage() {
 					<button type="submit" id="signUp" class="btn btn-outline-custom button-size">SIGN UP</button>
 					<label class="font-custom" >OR</label>
 					<a id="signIn" class="btn btn-outline-success button-size" href="">SIGN IN</a>
-					<a href="" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</a>
+					<!-- <a href="" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</a> -->
 					<p id="error-message" style="display: none; color: red;"></p>
 				</form>
 				<form id="emailCodeForm" style="display: none;">

@@ -21,6 +21,7 @@ async function goTo() {
 			}
 			let username = await getNamebyId(payload.user_id);
 			if (username) {
+				changeChatLoaded();
 				navigateTo(`/user/${username}`);
 				await WebSocketInstance.connect();
 			}
@@ -47,18 +48,24 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 		const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 		if (!accessAllowed) {
 			navigateTo(matchedRoute.page.redirect, true, redirectsCount + 1);
+			//changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do redirect que foi para '/'
 			return;
 		}
 		else {
+
 			if (replace)
 				history.replaceState({ page: url }, '', url);
 			else
 				history.pushState({ page: url }, '', url);
+
 			matchedRoute.page.loadContent(matchedRoute.params);
 			return;
 		}
 	} else {
 		console.error('Page not found: ' + url);
+		const status = 404;
+		const message = "Page not found.";
+		navigateTo(`/error/${status}/${message}`);
 	}
 }
 
@@ -83,6 +90,7 @@ function matchRoute(route) {
 }
 
 document.addEventListener('DOMContentLoaded', function (e) {
+	//history
 	window.addEventListener('popstate', (e) => {
 		if (e.state) {
 			const matchedRoute = matchRoute(e.state.page);
@@ -108,19 +116,32 @@ document.addEventListener('DOMContentLoaded', function (e) {
 				matchedRoute.page.loadContent(matchedRoute.params);
 			} else
 				navigateTo(e.state.page);
+		} else {
+			// tenho de definir um default state para o event.state quando for null
+			const defaultState = { page: '/' };
+			history.replaceState(defaultState, '', '/');
+			// Carregue o conteúdo da página padrão
+			const matchedRoute = matchRoute(defaultState.page);
+			if (matchedRoute) {
+				matchedRoute.page.loadContent(matchedRoute.params);
+			}
 		}
 	});
+	// desactivar F5 e ctrl+r
 	document.addEventListener('keydown', function (e) {
 		if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
 			e.preventDefault();
 			alert("A atualização da página foi desabilitada.");
 		}
 	});
+	// verificar se o token está válido se ficar o site ligado
 	setInterval(verifyToken, 1800000);
+	// mensagem que vem da janela usada na API42
 	window.addEventListener('message', (e) => {
 		const info = e.data;
 		getParams(info.code);
 	});
+	// para a janela - rota da API42
 	if (window.location.pathname && window.location.pathname === "/callback") {
 		let code;
 		let state;
@@ -138,6 +159,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
 		}
 		window.close();
 	}
+
+	console.log('matchroute: ', matchRoute(window.location.pathname));
+	
+	//função de entrada
 	if (!viewTokenRefresh()) {
 		navigateTo(window.location.pathname);
 	}

@@ -7,7 +7,7 @@ import { navigateTo } from "../app.js";
 import { viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
-import { handleInput, handleInputBlur } from "../utils/utils1.js";
+import { handleInput, handleInputBlur, displayError } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
 import { initializeChat } from "../chat/chat.js";
 import { makeChatWindow } from "../chat/chat_html.js";
@@ -71,6 +71,15 @@ function signIn() {
 		e.preventDefault();
 		navigateTo('/');
 	});
+
+	const signInUser42 = document.querySelector('#signInUser42');
+	signInUser42.addEventListener('click', function (e) {
+		e.preventDefault();
+		if (!viewToken())
+			userSignIn42();	
+		else 
+			displayError("To login with another user, you have to logout.");
+	});
 }
 
 async function sendIUser(userOrEmail, password) {
@@ -81,26 +90,46 @@ async function sendIUser(userOrEmail, password) {
 		body: JSON.stringify(info),
 	};
 	try {
+
 		const response = await fetch(`${baseURL}/token/`, conf);
+		let errorObject;
 		if (!response.ok) {
-			const errorData = await response.json();
-			const errorObject = {
-				message: errorData.detail,
-				status: response.status,
-			};
+			if (response.status === 401) {
+				const errorData = await response.json();
+				console.log('errorData login: ', errorData);
+				console.log('errorData login: ', errorData.detail);
+				errorObject = {
+					message: errorData.detail,
+					status: response.status,
+				};
+			} else {
+				errorObject = {
+					message: response.statusText,
+					status: response.status,
+				};
+			}
 			throw errorObject;
 		}
+
 		const data = await response.json();
 		sessionStorage.setItem('access_token', data.access);
 		localStorage.setItem('refresh_token', data.refresh);
+
 		const payload = testToken(data.access);
 		let username = await getNamebyId(payload.user_id);
+		if (username.status) {
+			// throw { message: username.message, status: username.status }
+			navigateTo(`/error/${username.status}/${username.message}`);
+			return;
+		}
+
 		const qr_code = await fetchQrCode();
 		if (qr_code) {
 			displayQrCode(qr_code);
 		} else {
-			throw { message: 'Something went wrong - qrCode', status: 401 };
+			throw { message: 'Something went wrong - qrCode not found', status: 404 };
 		}
+
 		const submitCode = document.querySelector('#verifyQrCode');
 		const qrForm = document.querySelector('#qrCodeForm');
 		submitCode.addEventListener('click', async function (e) {
@@ -108,9 +137,15 @@ async function sendIUser(userOrEmail, password) {
 			const code = qrForm.elements.qrCode.value;
 			if (code) {
 				try {
+
 					const result = await verifyCode(userOrEmail, code);
-					if (result.status && result.status === 400)
-						throw { message: 'Invalid or expired 2FA code', status: 400 };
+					if (result.status) {
+						if (result.status === 400)
+							throw { message: 'Invalid or expired 2FA code', status: 400 };
+						else 
+							throw { message: result.message, status: result.status };
+					}
+
 					qrForm.elements.qrCode.value = "";
 					document.querySelector('#qr-code').innerHTML = "";
 					document.getElementById('qrCodeForm').style.display = 'none';
@@ -119,7 +154,7 @@ async function sendIUser(userOrEmail, password) {
 					const successDiv = successContainer(username);
 					document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 					if (viewToken()) {
-						sessionStorage.removeItem('access_token');
+						// sessionStorage.removeItem('access_token'); passou para a path - /user/username
 						showSuccessMessageSignIn(username);
 					} else {
 						sessionStorage.removeItem('access_token');
@@ -130,6 +165,9 @@ async function sendIUser(userOrEmail, password) {
 						displayErrorCode(e.message);
 					} else {
 						navigateTo(`/error/${e.status}/${e.message}`);
+						localStorage.removeItem('access_token');
+						sessionStorage.removeItem('access_token');
+						localStorage.removeItem('refresh_token');
 					}
 				}
 			} else {

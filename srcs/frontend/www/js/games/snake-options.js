@@ -39,7 +39,8 @@ function snakeOptions(username) {
 	});
 	document.getElementById('snakeGameRemote').addEventListener('click', (e) => {
 		e.preventDefault();
-		snakeGameRemote(username);
+		// snakeGameRemote(username);
+		navigateTo(`/user/${username}/snake-game-remote`);
 	});
 	document.getElementById('snakeGameMultiplayer').addEventListener('click', (e) => {
 		e.preventDefault();

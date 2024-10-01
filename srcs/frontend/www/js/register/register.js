@@ -58,30 +58,50 @@ async function registerUser(user, email, password, password2) {
 		body: JSON.stringify(userInfo),
 	};
 	try {
+
 		const response = await fetch(`${baseURL}/user/register/`, sendUserInfo);
+		let message
+
 		if (!response.ok) {
-			const errorData = await response.json();
-            const message = Object.values(errorData)[0];
-			const input = Object.keys(errorData)[0];
+
+			if(response.status === 400 || response.status === 422) {
+				const errorData = await response.json(); // msn que vem do Django (serializer)
+				console.log('errorData: ', errorData);
+				message = Object.values(errorData)[0];
+				const input = Object.keys(errorData)[0];// só para controlo na consola
+				console.log('message: ', message);
+				// console.log('input: ', input);
+			} else {
+				message = response.statusText
+			}
+			
 			const errorObject = {
 				message: message,
-				status: response.status,
-				status_msn: response.statusText
+				status: response.status
 			}
+			// console.log(errorObject.message, errorObject.status, errorObject.status_msn);
 			throw errorObject;
 		}
+
 		const data = await response.json();
+		console.log('data register: ', data);
+		// { detail: "Registration data received. Please check your email for the confirmation code." } - exemplo do erro
+
 		if (data) {
 			displayEmailCode(data.detail);
 		} else {
 			throw { message: 'Something went wrong - emailCode', status: 401 };
 		}
+
 		const buttonEmailCode = document.querySelector('#verifyEmailCode');
 		buttonEmailCode.addEventListener('click', (e) => {
 			e.preventDefault();
 			submitEmailCode(email);
 		});
+
 	} catch (e) {
+
+		// o status 422 acontece quando é colocado um email que não exist, em consequência o email do code não é enviado
 		if (e.status === 400 || e.status === 422) {
 			const err_key = Object.keys(e.message)[0];
 			const err_message = e.message[err_key];
@@ -90,6 +110,7 @@ async function registerUser(user, email, password, password2) {
 		else {
 			navigateTo(`/error/${e.status}/${e.message}`);
 		}
+
 	}
 };
 

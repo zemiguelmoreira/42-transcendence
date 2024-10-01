@@ -1,7 +1,9 @@
 import { baseURL } from "../app.js";
 import { displayError } from "../utils/utils1.js";
-import { saveToken } from "../utils/tokens.js";
+import { viewToken, saveToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
+import { successContainer } from "../utils/utils1.js";
+import WebSocketInstance from "../socket/websocket.js";
 
 const clientId = 'u-s4t2ud-159130180b55795d9366f64e165fe220ae4cb2c8b5e412a3424d938148c1f337';
 const uri = encodeURIComponent('https://localhost/callback');
@@ -27,22 +29,50 @@ async function getParams(code) {
         };
         try {
             const response = await fetch(`${baseURL}/user/signIn42/`, conf);
+            console.log('response na api42: ', response);
+            let errorObject;
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorObject = {
-                    message: errorData.detail,
-                    status: response.status,
-                };
+                if (response.status === 400) {
+                    const errorData = await response.json();
+                    errorObject = {
+                        message: errorData.detail,
+                        status: response.status,
+                    };
+                } else {
+                    errorObject = {
+                        message: response.statusText,
+                        status: response.status,
+                    };
+                }
                 throw errorObject;
             }
             const data = await response.json();
+            console.log('data na api42: ', data);
             saveToken(data.access, data.refresh);
-            navigateTo(`/user/${data.user.username}`);
+            if (viewToken()) {
+                document.getElementById('root').innerHTML = "";
+                const successDiv = successContainer(data.user.username);
+                document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
+                let messageDiv = document.getElementById('successMessage');
+                messageDiv.style.display = 'block'; // Exibe a mensagem
+                setTimeout(async function () {
+                    messageDiv.style.display = 'none';
+                    await WebSocketInstance.connect();
+                    navigateTo(`/user/${data.user.username}`);
+                }, 1000);
+            } else {
+                throw { message: `User ${data.user.username} not validated - bad request`, status: 401 };
+            }
+            // navigateTo(`/user/${data.user.username}`);
         } catch (e) {
             if (e.status === 400) {
                 displayError(e.message);
             } else {
-                navigateTo('/');
+                // navigateTo('/');
+                navigateTo(`/error/${e.status}/${e.message}`);
+                localStorage.removeItem('access_token');
+                sessionStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
             }
         }
     }

@@ -1,5 +1,6 @@
 import { baseURL, navigateTo } from "../app.js";
 import { fetchWithAuth } from "../utils/fetchWithToken.js";
+import { messageContainerToken } from "../utils/utils1.js";
 
 let dataUser
 
@@ -12,7 +13,7 @@ async function getUserProfileByUsername(username) {
 	try {
 		response = await fetchWithAuth(`/api/profile/get_user_profile/?username=${username}`, conf);
 		if (!response.ok) {
-			const data = await response.json();
+			// const data = await response.json();
 			throw {
 				message: 'not possible to fetch user profile',
 				status: 401,
@@ -36,17 +37,22 @@ async function getNamebyId(id) {
 	try {
 		const response = await fetchWithAuth(`${baseURL}/profile/get_user_username/?id=${id}`, conf);
 		if (!response.ok) {
-			throw new Error('Failed to fetch user profile');
+			// throw new Error('Failed to fetch user profile');
+			throw {
+				message: response.statusText,
+				status: response.status,
+			};
 		}
 		const data = await response.json();
 		return data.username;
 	} catch (error) {
-		console.error('Error:', error);
-		return "";
+		// console.error('Error:', error);
+		console.log('response no getNamebyID: ', error);
+		return error;
 	};
 }
 
-async function fetchUserProfile(username) {
+async function fetchUserProfile(username, url = `/user/${username}/profile`) {
 	const conf = {
 		method: 'GET',
 		headers: {
@@ -55,18 +61,37 @@ async function fetchUserProfile(username) {
 	}
 	try {
 		const response = await fetchWithAuth(`${baseURL}/profile/`, conf);
+		// console.log('response: ', response);
 		if (!response.ok) {
+
 			throw {
-				message: 'Failed to fetch user profile - protected',
-				status: 404,
-				status_msg: 'Internal Server Error - user id'
+				message: response.statusText,
+				status: response.status,
 			};
+
 		}
 		let data = await response.json();
 		dataUser = data;
-		navigateTo(`/user/${username}/profile`);
+		console.log('dataUser fetchUserProfile: ', dataUser);
+		navigateTo(url);
+
 	} catch (e) {
-		navigateTo(`/error/${e.status}/${e.message}`);
+		// navigateTo(`/error/${e.status}/${e.message}`);
+		// a alterar especificar a situação status = 401
+		if (e.status === 401) {
+			const messageDiv = messageContainerToken();
+			document.getElementById('root').innerHTML = "";
+			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
+			const messageContainer = document.getElementById('tokenMessage');
+			messageContainer.style.display = 'block';
+			setTimeout(function () {
+				messageContainer.style.display = 'none';
+				navigateTo(`/signIn`);
+			}, 2000);
+			return;
+		} else {
+			navigateTo(`/error/${e.status}/${e.message}`);
+		}
 	}
 }
 
@@ -79,18 +104,37 @@ async function fetchUserProfileSettings(username) {
 	}
 	try {
 		const response = await fetchWithAuth(`${baseURL}/profile/`, conf);
+		console.log('response do fetchWithAuth no fetchUserProfileSettings: ', response);
 		if (!response.ok) {
+
 			throw {
-				message: 'Failed to fetch user profile - protected',
-				status: 404,
-				status_msg: 'Internal Server Error - user id'
+				message: response.statusText,
+				status: response.status,
 			};
+
 		}
 		let data = await response.json();
 		dataUser = data;
 		navigateTo(`/user/${username}/settings`);
+
 	} catch (e) {
-		navigateTo(`/error/${e.status}/${e.message}`);
+
+		// navigateTo(`/error/${e.status}/${e.message}`);
+		// o mesmo do que a função de cima
+		if (e.status === 401) {
+			const messageDiv = messageContainerToken();
+			document.getElementById('root').innerHTML = "";
+			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
+			const messageContainer = document.getElementById('tokenMessage');
+			messageContainer.style.display = 'block';
+			setTimeout(function () {
+				messageContainer.style.display = 'none';
+				navigateTo(`/signIn`);
+			}, 2000);
+			return;
+		} else {
+			navigateTo(`/error/${e.status}/${e.message}`);
+		}
 	}
 }
 
