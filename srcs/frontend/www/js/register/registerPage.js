@@ -1,7 +1,7 @@
 function makeRegisterPage() {
 	return `
 	<div class="login-box" id="reg">
-		<div class="login-title" id="home">Create Account</div>
+		<div class="login-title" id="home">CREATE ACCOUNT</div>
 		<div class="login-middle-box">
 			<div class="" id="registerForm">
 				<form class="login-form" id="userRegisterForm">
@@ -23,7 +23,6 @@ function makeRegisterPage() {
 					<button type="submit" id="signUp" class="btn btn-outline-custom button-size">SIGN UP</button>
 					<label class="font-custom" >OR</label>
 					<a id="signIn" class="btn btn-outline-success button-size" href="">SIGN IN</a>
-					<a href="" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</a>
 					<p id="error-message" style="display: none; color: red;"></p>
 				</form>
 				<form id="emailCodeForm" style="display: none;">
@@ -35,6 +34,11 @@ function makeRegisterPage() {
 					</div>
 					<button type="submit" id="verifyEmailCode" class="btn btn-outline-success button-size">verify code</button>
 					<p id="error-message-emailCode" style="display: none; color: red;"></p>
+				</form>
+				<form id="requestPasswordResetForm" style="display: none;">
+					<div class="login-title">PASSWORD RECOVER</div>
+					<input class="form-control button-size" type="email" id="resetEmail" placeholder="Insert your email here" required>
+					<button class="btn btn-outline-success button-size" type="button" onclick="requestPasswordReset()">REQUEST PASSWORD</button>
 				</form>
 			</div>
 		</div>

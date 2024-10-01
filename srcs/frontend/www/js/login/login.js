@@ -63,13 +63,54 @@ function signIn() {
 	document.getElementById('form1Example1').focus();
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar2');
+
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
+
 	const signInUser = document.querySelector('#signInUser');
 	signInUser.addEventListener('click', userSignIn);
+
 	document.getElementById('backButton').addEventListener('click', function (e) {
 		e.preventDefault();
 		navigateTo('/');
+	});
+
+	document.getElementById('backToSignIn').addEventListener('click', function (e) {
+		e.preventDefault();
+		window.history.back();
+	});
+
+	document.getElementById('sendPassword').addEventListener('click', function (e) {
+		e.preventDefault();
+		const emailField = document.getElementById('resetEmail');
+    
+		// Verifica se o campo de email está vazio
+		if (!emailField.value) {
+			emailField.classList.add('input-error'); // Adiciona a classe de erro se estiver vazio
+			e.preventDefault(); // Impede o envio do formulário
+		} else {
+			emailField.classList.remove('input-error'); // Remove a classe de erro se o campo estiver preenchido
+			// Aqui pode seguir com o envio do formulário
+			resetPassword();
+			navigateTo('/');
+		}
+	});
+
+
+	const signInForm = document.getElementById("userSignInForm");
+    const qrCodeForm = document.getElementById("qrCodeForm");
+    const passwordResetForm = document.getElementById("requestPasswordResetForm");
+
+	document.getElementById("recover").addEventListener("click", function (e) {
+		e.preventDefault(); // Evita o comportamento padrão do link
+
+		// Ocultar outros formulários
+		if (signInForm) signInForm.style.display = "none";
+		if (qrCodeForm) qrCodeForm.style.display = "none";
+
+		// Exibir o formulário de recuperação de senha
+		if (passwordResetForm) passwordResetForm.style.display = "block";
+
 	});
 }
 
@@ -81,6 +122,14 @@ async function sendIUser(userOrEmail, password) {
 		body: JSON.stringify(info),
 	};
 	try {
+		const signInUser42 = document.querySelector('#signInUser42');
+		signInUser42.addEventListener('click', function (e) {
+			e.preventDefault();
+			if (!viewToken())
+				userSignIn42();
+			else
+				displayError("To login with another user, you have to logout.");
+		});
 		const response = await fetch(`${baseURL}/token/`, conf);
 		if (!response.ok) {
 			const errorData = await response.json();
@@ -145,4 +194,45 @@ async function sendIUser(userOrEmail, password) {
 	}
 }
 
-export { signIn, userSignIn }
+async function resetPassword() {
+	const currentPassword = document.getElementById('currentPassword').value;
+	const newPassword = document.getElementById('newPassword').value;
+	const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+	if (newPassword !== confirmNewPassword) {
+		alert('A nova senha e a confirmação não coincidem.');
+		return;
+	}
+
+	try {
+		const response = await fetch('/api/user/reset-password/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),  // Supondo que o token esteja salvo no localStorage
+			},
+			body: JSON.stringify({
+				current_password: currentPassword,
+				new_password: newPassword,
+				confirm_password: confirmNewPassword,
+			}),
+		});
+
+		const data = await response.json();
+		if (response.ok) {
+			alert('Senha trocada com sucesso!');
+		} else {
+			if (data.error) {
+				console.error(data.error.message);
+				alert(data.error.message);
+			} else {
+				alert('Erro ao trocar a senha. Verifique seus dados e tente novamente.');
+			}
+		}
+	} catch (error) {
+		console.error('Erro ao trocar a senha:', error.message);
+		alert('Ocorreu um erro. Tente novamente mais tarde.');
+	}
+}
+
+export { signIn, userSignIn, resetPassword }

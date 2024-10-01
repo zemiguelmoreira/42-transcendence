@@ -29,20 +29,13 @@ function home() {
 	document.getElementById('form1Example1').focus();
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
+		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo();
 	});
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
-	const signInUser42 = document.querySelector('#signInUser42');
-	signInUser42.addEventListener('click', function (e) {
-		e.preventDefault();
-		if (!viewToken())
-			userSignIn42();
-		else
-			displayError("To login with another user, you have to logout.");
-	});
+
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
 }

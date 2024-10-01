@@ -295,15 +295,21 @@ h2 {
 	text-align: center;
 	color: #78BF40;
 	font-size: 12px;
+	width: 50%;
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .login-title {
 	color: rgba(255, 255, 255, 0.75);
 	text-shadow: 0 0 0.5vh #fff, 0 0 2vh #fe05e1, 0 0 3vh #fe05e1;
-	font-family: 'Exo';
-	font-size: 3em;
-	font-style: italic;
-	margin-top: 10px;
+	font-family: 'CustomFont';
+	font-size: 2em;
+	/* font-style: italic; */
+	margin-top: 50px;
 }
 
 .main-box {
@@ -402,6 +408,7 @@ h2 {
 .mb-2 {
 	margin-bottom: 0 !important;
 }
+
 .navbar-dir {
 	border-radius: 0px;
 }
