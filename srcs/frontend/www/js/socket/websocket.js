@@ -15,33 +15,44 @@ class WebSocketService {
 	}
 
 	async connect() {
-		if (
-			this.socketRef &&
-			(this.socketRef.readyState === WebSocket.OPEN ||
-				this.socketRef.readyState === WebSocket.CONNECTING)
-		) {
+		if (this.socketRef && (this.socketRef.readyState === WebSocket.OPEN || this.socketRef.readyState === WebSocket.CONNECTING)) {
 			return;
 		}
 
-		const token = localStorage.getItem("access_token");
+		let token = localStorage.getItem("access_token");
 		const refreshToken = localStorage.getItem("refresh_token");
+		
 		if (!refreshToken || !this.testToken(refreshToken)) {
+			navigateTo('/signIn');
 			return;
 		}
 		if (!token || !this.testToken(token)) {
-			const refreshed = await refreshAccessToken();
-			if (refreshed) token = localStorage.getItem("access_token");
-			else {
-				navigateTo("/");
+			console.log('No access token found or access token invalid, websocket');
+			const refreshed = await refreshAccessToken(); // testar esta parte
+			console.log('refresh token: ', refreshed);
+			if (refreshed) {
+				// token = localStorage.getItem('access_token'); // se fizer o refresh tem que ir buscar outra vez o token
+				token = localStorage.getItem('access_token') ? localStorage.getItem('access_token') : sessionStorage.getItem('access_token');
+				
+				if (!localStorage.getItem('access_token'))
+				  localStorage.setItem('access_token', token);
+				
+				console.log('token aqui: ', token);
+			} else {
+
+				console.log(' error with refresh token in socket');
+				navigateTo('/signIn');
 				return;
 			}
+
 		}
+
 		const path = `wss://${window.location.host}/api/ws/user_status/?token=${token}`;
 		this.socketRef = new WebSocket(path);
-		this.socketRef.onopen = () => { };
+		this.socketRef.onopen = () => { console.log('ligado'); };
 		this.socketRef.onmessage = (e) => { };
 		this.socketRef.onerror = (e) => { };
-		this.socketRef.onclose = () => { };
+		this.socketRef.onclose = () => { console.log('desligado'); };
 	}
 	close() {
 		if (this.socketRef && this.socketRef.readyState === WebSocket.OPEN) {

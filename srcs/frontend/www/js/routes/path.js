@@ -1,4 +1,4 @@
-import { home, homeLogin } from "../home/home.js";
+import { home, homeLogin, changeChatLoaded } from "../home/home.js";
 import { dataUser, fetchUserProfile } from "../profile/myprofile.js";
 import { dataUserSearch, dataUserFromSearch, userSearchPage } from "../search/search_user.js";
 import { navigateTo } from "../app.js";
@@ -7,6 +7,8 @@ import { signIn } from "../login/login.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
+// import { /*loadSnakeRemoteScript , */loadSnakeLocalScript , loadSnakeMultiplayerScript } from "../games/snake-pages.js";
+import { /*loadSnakeRemoteScript, */ snakeGameRemote, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameLocal, snakeGameMultiplayer } from "../games/snake-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer } from "../games/snake-pages.js";
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
@@ -15,12 +17,14 @@ import { noResults } from "../search/search_user.js";
 const pages = {
 	'/': {
 		loadContent: function () {
+			changeChatLoaded(); // para conseguir carregar a página da home totalmente
 			home();
 		},
 		access: true
 	},
 	'/signIn': {
 		loadContent: function () {
+			changeChatLoaded(); // para conseguir carregar a página da home totalmente
 			signIn();
 		},
 		access: true
@@ -43,6 +47,7 @@ const pages = {
 	},
 	'/user/:username': {
 		loadContent: function (params) {
+			sessionStorage.removeItem('access_token'); // saiu da função de signIn e passou para aqui
 			homeLogin(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
@@ -58,9 +63,9 @@ const pages = {
 				e.preventDefault();
 				navigateTo('/');
 			});
-			setTimeout(() => {
-				navigateTo('/');
-			}, 3000);
+			// setTimeout(() => {
+				// navigateTo('/');
+			// }, 3000);
 		},
 		access: true
 	},
@@ -84,7 +89,7 @@ const pages = {
 			} else if (dataUserFromSearch) {
 				edit(dataUserFromSearch, params.username);
 			} else {
-				fetchUserProfile(params.username);
+				fetchUserProfile(params.username, `/user/${params.username}/profile/edit`);
 			}
 		},
 		access: () => !!localStorage.getItem('access_token'),

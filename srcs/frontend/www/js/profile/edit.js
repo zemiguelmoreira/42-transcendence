@@ -3,6 +3,9 @@ import { makeEditProfilePage } from "./profilePages.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { fetchUserProfile } from "./myprofile.js";
 import { homeLogin } from "../home/home.js";
+import { fetchWithAuth } from "../utils/fetchWithToken.js";
+import { messageContainerToken } from "../utils/utils1.js";
+import { navigateTo } from "../app.js";
 
 function edit(data, username) {
 	document.getElementById('mainContent').innerHTML = '';
@@ -59,24 +62,50 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 		formData.append('profile_image', file);
 	}
 
+	let response;
+
+	const conf = {
+		method: 'PUT',
+		headers: {
+			// 'Authorization': `Bearer ${accessToken}`,
+		},
+		body: formData,
+	};
+
 	try {
-		const response = await fetch('/api/profile/update_profile/', {
-			method: 'PUT',
-			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-			},
-			body: formData,
-		});
+		response = await fetchWithAuth('/api/profile/update_profile/', conf);
 
 		if (response.ok) {
 			// await homeLogin(username); // Não funciona porque tem a flag para actualizar a foto da navbar fazer refresh
 			await fetchUserProfile(username);
 			displaySlidingMessage('Profile updated successfully!');
 		} else {
-			throw new Error('Failed to update profile');
+			// throw new Error('Failed to update profile');
+			throw {
+				status: response.status,
+				message: response.statusText
+			}
 		}
 	} catch (error) {
-		displaySlidingMessage('Failed to update profile! Please try again.');
+
+		if (error.status === 401) {
+
+			const messageDiv = messageContainerToken();
+			document.getElementById('root').innerHTML = "";
+			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
+			const messageContainer = document.getElementById('tokenMessage');
+			messageContainer.style.display = 'block';
+			setTimeout(function () {
+				messageContainer.style.display = 'none';
+				navigateTo(`/signIn`);
+			}, 2000);
+			return;
+
+		} else {
+
+			displaySlidingMessage('Failed to update profile! Please try again.');
+
+		}
 	}
 }
 

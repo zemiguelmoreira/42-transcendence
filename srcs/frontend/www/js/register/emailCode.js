@@ -57,8 +57,16 @@ async function submitEmailCode(email) {
 	if (code) {
 		try {
 			const result = await verifyEmailCode(email, code);
-			if (result.status && result.status === 400)
-				throw { message: 'Invalid or expired code', status: 400 };
+			console.log('result: ', result);
+			console.log('result status: ', result.status); // se não validar o result será um erro
+
+			if (result.status) {
+				if (result.status === 400)
+					throw { message: 'Invalid or expired code', status: 400 };
+				else
+					throw { message: result.message, status: result.status };
+			}
+
 			emailCodeForm.elements.code.value = "";
 			document.getElementById('emailCodeForm').style.display = 'none';
 			document.getElementById('userRegisterForm').style.display = "block";
@@ -66,6 +74,7 @@ async function submitEmailCode(email) {
 			const successDiv = successContainerRegister(result.username); //tem de devolver o user no result
 			document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 			showSuccessMessageRegister();
+
 		} catch (e) {
 			if (e.status === 400) {
 				displayErrorEmailCode(e.message);
@@ -79,10 +88,12 @@ async function submitEmailCode(email) {
 }
 
 async function verifyEmailCode(email, emailCode) {
+
     const data = {
         email: email,
         code: emailCode,
     };
+
     const conf = {
         method: 'POST',
         headers: {
@@ -90,18 +101,39 @@ async function verifyEmailCode(email, emailCode) {
         },
         body: JSON.stringify(data),
     };
+
     const response = await fetch(`${baseURL}/user/confirm_register/`, conf);
+
     if (!response.ok) {
-        const errorData = await response.json();
-        const errorObject = {
-            message: errorData.detail,
-            status: response.status,
-        };
+
+		let errorObject;
+        
+		if (response.status === 400) {
+
+			const errorData = await response.json();
+			console.log('errorData register: ', errorData);
+			errorObject = {
+				message: errorData.message,
+				status: response.status,
+			};
+
+		} else {
+
+			errorObject = {
+				message: response.statusText,
+				status: response.status,
+			};
+
+		}
+
+        console.log(errorObject.message, errorObject.status);
         return errorObject;
-    } else {
-        const data = await response.json();
-        return data;  
-    }
+
+    } 
+
+	const dataCodeUser = await response.json();
+	return dataCodeUser;  // se o resultado for validado trazo user
+    
 }
 
 export { displayEmailCode, displayErrorEmailCode, submitEmailCode, verifyEmailCode }

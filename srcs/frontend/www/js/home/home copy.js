@@ -15,7 +15,6 @@ import { handleInput, handleInputBlur } from "../utils/utils1.js";
 import { userSignIn42 } from "../login/login42.js";
 import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
-import { displayPageError } from "../html/error_page.js";
 
 let chatLoaded = false;
 
@@ -30,13 +29,20 @@ function home() {
 	document.getElementById('form1Example1').focus();
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
-		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo();
+		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo(); // função para evitar o login quando tenho token
 	});
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
-
+	const signInUser42 = document.querySelector('#signInUser42');
+	signInUser42.addEventListener('click', function (e) {
+		e.preventDefault();
+		if (!viewToken())
+			userSignIn42();
+		else
+			displayError("To login with another user, you have to logout.");
+	});
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
 }
@@ -82,7 +88,6 @@ function initButtonListeners(username) {
 		pongCard.hasListener = true;
 		pongCard.addEventListener('click', (e) => {
 			e.preventDefault();
-			console.log(username);
 			navigateTo(`/user/${username}/pong`);
 		});
 	}
@@ -110,11 +115,11 @@ function initButtonListeners(username) {
 		viewProfileButton.hasListener = true;
 		viewProfileButton.addEventListener('click', (e) => {
 			e.preventDefault();
-			// if (viewToken()) {
-			fetchUserProfile(username);
-			// } else {
-			// 	navigateTo('/signIn');
-			// }
+			if (viewToken()) {
+				fetchUserProfile(username);
+			} else {
+				navigateTo('/signIn');
+			}
 		});
 	}
 
@@ -123,11 +128,11 @@ function initButtonListeners(username) {
 		viewSettingsButton.hasListener = true;
 		viewSettingsButton.addEventListener('click', (e) => {
 			e.preventDefault();
-			// if (viewToken()) {
-			fetchUserProfileSettings(username);
-			// } else {
-			// 	navigateTo('/signIn');
-			// }
+			if (viewToken()) {
+				fetchUserProfileSettings(username);
+			} else {
+				navigateTo('/signIn');
+			}
 		});
 	}
 
@@ -176,24 +181,11 @@ function initButtonListeners(username) {
 	displaySlidingMessage('Welcome to the game! Prepare yourself for an epic adventure!');
 }
 
+
+
 async function homeLogin(username) {
-
 	let dataUser = await getUserProfileByUsername(username);
-
-	let home_page;
-	if (!dataUser.status)
-		home_page = makeHomePage(dataUser);
-	else {
-		console.log('error: ', dataUser);
-		const url_error = `/error/${dataUser.status}/${dataUser.statusText}`;
-		// navigateTo(`/error/${e.status}/${e.message}`);
-		history.replaceState({page: url_error}, '', url_error);
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('refresh_token');
-		WebSocketInstance.close();
-		navigateTo(url_error);
-		return;
-	}
+	const home_page = makeHomePage(dataUser);
 	// const home_page_simple = makeSimpleHomePage(dataUser);
 	const home_page_simple = makeSimpleHomePage();
 	const chat_window = makeChatWindow(username);
