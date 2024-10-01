@@ -7,12 +7,11 @@ import { signIn } from "../login/login.js";
 import { edit } from "../profile/edit.js";
 import { userProfilePage, profileSettings } from "../profile/userProfile.js";
 import { snakeOptions } from "../games/snake-options.js";
-// import { /*loadSnakeRemoteScript , */loadSnakeLocalScript , loadSnakeMultiplayerScript } from "../games/snake-pages.js";
-import { /*loadSnakeRemoteScript, */ snakeGameRemote, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameLocal, snakeGameMultiplayer } from "../games/snake-pages.js";
 import { pongOptions } from "../games/pong-options.js";
 import { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer } from "../games/snake-pages.js";
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
+import { displayChangePassword } from "../profile/userProfile.js";
 
 const pages = {
 	'/': {
@@ -91,6 +90,13 @@ const pages = {
 			} else {
 				fetchUserProfile(params.username, `/user/${params.username}/profile/edit`);
 			}
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/profile/update-password': {
+		loadContent: function () {
+			displayChangePassword();
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

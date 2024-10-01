@@ -154,11 +154,45 @@ function makeEditProfilePage(data) {
                     </tbody>
                 </table>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update profile</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="changePassword">Change Password</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update Profile</button>
                     <button type="button" class="btn btn-outline-secondary btn-sm" id="backButton">Back</button>
                 </div>
             </div>
         </div>
+    `;
+}
+
+function makePasswordProfilePage(data) {
+	return `
+			<div class="profile-container">
+				<div class="profile-left">
+					<div class="password-box">
+						<div class="password-title">
+							<label class="font-custom --bs-green">REQUIREMENTS</label>
+						</div>
+						<div class="password-requeriments">
+							<label class="font-custom --bs-green">8 characters</label>
+							<label class="font-custom --bs-green">1 uppercase letter</label>
+							<label class="font-custom --bs-green">1 lowercase letter</label>
+							<label class="font-custom --bs-green">1 number</label>
+						</div>
+					</div>
+				</div>
+				<div class="profile-right">
+					<form id="changePasswordForm" class="login-middle-box">
+						<img src="../../../files/padlock.png" alt="Game Image" width="150" height="150">
+						<div class="login-form">
+							<label class="font-custom --bs-green password-title">RESET PASSWORD</label>
+							<input class="form-control button-size" type="password" id="currentPassword" placeholder="CURRENT PASSWORD" required>
+							<input class="form-control button-size" type="password" id="newPassword" placeholder="INSERT NEW PASSWORD" required>
+							<input class="form-control button-size" type="password" id="confirmNewPassword" placeholder="CONFIRM NEW PASSWORD" required>
+							<button class="btn btn-outline-custom button-size" type="button" id="resetPasswordBtn">CHANGE PASSWORD</button>
+							<button class="btn btn-outline-secondary button-size" id="cancelChangePassword">CANCEL</button>
+						</div>
+					</form>
+				</div>
+			</div>
     `;
 }
 
@@ -270,4 +304,4 @@ function makeSettingsPage(data) {
 	`;
 }
 
-export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage, makeSettingsPage }
+export { makeProfilePage, makeEditProfilePage, makeProfilePageSearchOther, noResultsPage, makeSettingsPage , makePasswordProfilePage };

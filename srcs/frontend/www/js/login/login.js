@@ -2,7 +2,7 @@
 import { baseURL } from "../app.js";
 import { signIn_page } from "./loginPage.js";
 import { getCsrfToken } from "../utils/tokenCsrf.js";
-import { displayErrorSignIn, successContainer } from "../utils/utils1.js";
+import { displayErrorSignIn, displaySlidingMessage, successContainer } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
 import { viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
@@ -77,13 +77,13 @@ function signIn() {
 
 	document.getElementById('backToSignIn').addEventListener('click', function (e) {
 		e.preventDefault();
-		window.history.back();
+		navigateTo('/signIn');
 	});
 
 	document.getElementById('sendPassword').addEventListener('click', function (e) {
 		e.preventDefault();
 		const emailField = document.getElementById('resetEmail');
-    
+
 		// Verifica se o campo de email está vazio
 		if (!emailField.value) {
 			emailField.classList.add('input-error'); // Adiciona a classe de erro se estiver vazio
@@ -91,15 +91,14 @@ function signIn() {
 		} else {
 			emailField.classList.remove('input-error'); // Remove a classe de erro se o campo estiver preenchido
 			// Aqui pode seguir com o envio do formulário
-			resetPassword();
+			requestPasswordReset();
 			navigateTo('/');
 		}
 	});
 
-
 	const signInForm = document.getElementById("userSignInForm");
-    const qrCodeForm = document.getElementById("qrCodeForm");
-    const passwordResetForm = document.getElementById("requestPasswordResetForm");
+	const qrCodeForm = document.getElementById("qrCodeForm");
+	const passwordResetForm = document.getElementById("requestPasswordResetForm");
 
 	document.getElementById("recover").addEventListener("click", function (e) {
 		e.preventDefault(); // Evita o comportamento padrão do link
@@ -117,8 +116,8 @@ function signIn() {
 	signInUser42.addEventListener('click', function (e) {
 		e.preventDefault();
 		if (!viewToken())
-			userSignIn42();	
-		else 
+			userSignIn42();
+		else
 			displayError("To login with another user, you have to logout.");
 	});
 }
@@ -183,7 +182,7 @@ async function sendIUser(userOrEmail, password) {
 					if (result.status) {
 						if (result.status === 400)
 							throw { message: 'Invalid or expired 2FA code', status: 400 };
-						else 
+						else
 							throw { message: result.message, status: result.status };
 					}
 
@@ -224,44 +223,108 @@ async function sendIUser(userOrEmail, password) {
 	}
 }
 
+// Função para trocar a senha (senha atual + nova senha)
 async function resetPassword() {
-	const currentPassword = document.getElementById('currentPassword').value;
-	const newPassword = document.getElementById('newPassword').value;
-	const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+	const currentPassword = document.getElementById('currentPassword');
+	const newPassword = document.getElementById('newPassword');
+	const confirmNewPassword = document.getElementById('confirmNewPassword');
 
-	if (newPassword !== confirmNewPassword) {
-		alert('A nova senha e a confirmação não coincidem.');
+	// Verifica se os campos estão vazios e aplica a classe de erro
+	let hasError = false;
+
+	if (!currentPassword.value) {
+		currentPassword.classList.add('input-error');
+		hasError = true;
+	} else {
+		currentPassword.classList.remove('input-error');
+	}
+
+	if (!newPassword.value) {
+		newPassword.classList.add('input-error');
+		hasError = true;
+	} else {
+		newPassword.classList.remove('input-error');
+	}
+
+	if (!confirmNewPassword.value) {
+		confirmNewPassword.classList.add('input-error');
+		hasError = true;
+	} else {
+		confirmNewPassword.classList.remove('input-error');
+	}
+
+	// Se houve erro, não prosseguir
+	if (hasError) {
 		return;
 	}
 
+	// Verifica se as senhas coincidem
+	if (newPassword.value !== confirmNewPassword.value) {
+		displaySlidingMessage("Passwords don't match.");
+		return;
+	}
+
+	// Prossegue com o envio da solicitação para mudar a senha
 	try {
 		const response = await fetch('/api/user/reset-password/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),  // Supondo que o token esteja salvo no localStorage
+				'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
 			},
 			body: JSON.stringify({
-				current_password: currentPassword,
-				new_password: newPassword,
-				confirm_password: confirmNewPassword,
+				current_password: currentPassword.value,
+				new_password: newPassword.value,
+				confirm_password: confirmNewPassword.value,
 			}),
 		});
 
 		const data = await response.json();
 		if (response.ok) {
-			alert('Senha trocada com sucesso!');
+			displaySlidingMessage('Password updated with success!');
 		} else {
 			if (data.error) {
 				console.error(data.error.message);
-				alert(data.error.message);
+				displaySlidingMessage(data.error.message);
 			} else {
-				alert('Erro ao trocar a senha. Verifique seus dados e tente novamente.');
+				displaySlidingMessage('Error updating password. Please check your data and try again.');
 			}
 		}
 	} catch (error) {
-		console.error('Erro ao trocar a senha:', error.message);
-		alert('Ocorreu um erro. Tente novamente mais tarde.');
+		console.error('Error updating password:', error.message);
+		alert('An error occurred. Please try again later.');
+	}
+}
+
+
+async function requestPasswordReset() {
+	const email = document.getElementById('resetEmail').value;
+
+	try {
+		const response = await fetch('/api/user/request-password-reset/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				email: email,
+			}),
+		});
+
+		const data = await response.json();
+		if (response.ok) {
+			alert('Email de recuperação de senha enviado com sucesso!');
+		} else {
+			if (data.error) {
+				console.error(data.error.message);
+				displaySlidingMessage(data.error.message);
+			} else {
+				displaySlidingMessage('Erro ao solicitar recuperação de senha. Tente novamente.');
+			}
+		}
+	} catch (error) {
+		console.error('Erro ao solicitar recuperação de senha:', error.message);
+		alert('Ocorreu um erro. Verifique seu email e tente novamente.');
 	}
 }
 

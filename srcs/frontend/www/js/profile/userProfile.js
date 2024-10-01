@@ -4,6 +4,9 @@ import { removeFriend, unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
+import { makePasswordProfilePage } from "./profilePages.js";
+import { resetPassword } from "../login/login.js";
+
 
 function userProfilePage(userData) {
 	document.getElementById('mainContent').innerHTML = '';
@@ -244,4 +247,18 @@ function profileOtherUser(dataUser) {
 	displayBlockedList(dataUser.user.username);
 }
 
-export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings }
+function displayChangePassword() {
+	document.getElementById('mainContent').innerHTML = '';
+	const profilePassword = makePasswordProfilePage();
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePassword);
+
+	document.getElementById("resetPasswordBtn").addEventListener("click", function () {
+		resetPassword();
+	});
+
+	document.getElementById("cancelChangePassword").addEventListener("click", function () {
+		navigateTo('/user/:username/profile/edit');
+	});
+}
+
+export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings , displayChangePassword }

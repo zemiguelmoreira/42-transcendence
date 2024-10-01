@@ -20,7 +20,7 @@ let rightPaddleY = 0;
 let player1Name = "";
 let player2Name = "";
 let selfUsername = null;
-let matchSocket = null;
+let matchSocket = false;
 
 function setupPong() {
 	count = 3;
@@ -307,15 +307,8 @@ document.addEventListener('keyup', function (event) {
 
 function gameLoop() {
 
-	if (matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
-		console.log('Pong Game Remote Pathname: ', window.location.pathname);
-		console.log('StopFlag: ', stopFlag);
-	
-	if (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)
-		console.log('Pong Playing Pathname: ', window.location.pathname);
-		console.log('StopFlag: ', stopFlag);
-
-	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag) || (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)) {
+	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
+		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)) {
 
 		if (document.getElementById('invitePending')) {
 			document.getElementById('invitePending').remove();

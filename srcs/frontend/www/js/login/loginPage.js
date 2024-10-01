@@ -28,14 +28,14 @@ function makeSignInPage() {
 							<button type="submit" id="verifyQrCode" class="btn btn-outline-success button-size">verify code</button>
 							<p id="error-message-code" style="display: none; color: red;"></p>
 					</form>
-	
+
 					<form id="requestPasswordResetForm" style="display: none;">
 						<div class="font-custom --bs-green">PASSWORD RECOVER</div>
 						<input class="form-control button-size" type="email" id="resetEmail" placeholder="Insert your email here" required>
 						<button class="btn btn-outline-success button-size" type="button" id="sendPassword">REQUEST PASSWORD</button>
 						<button class="btn btn-outline-secondary button-size" id="backToSignIn">GO BACK</button>
 					</form>
-	
+
 				</div>
 			</div>
 		</div>

@@ -6,6 +6,7 @@ import { homeLogin } from "../home/home.js";
 import { fetchWithAuth } from "../utils/fetchWithToken.js";
 import { messageContainerToken } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
+import { displayChangePassword } from "./userProfile.js";
 
 function edit(data, username) {
 	document.getElementById('mainContent').innerHTML = '';
@@ -34,6 +35,10 @@ function edit(data, username) {
 		});
 	});
 
+	document.getElementById("changePassword").addEventListener("click", function () {
+		navigateTo(`/user/${username}/profile/update-password`);
+	});
+
 	document.getElementById('updateProfile').addEventListener('click', (e) => {
 		e.preventDefault();
 		updateUserProfile(data, username, selectedProfileImage);
@@ -42,6 +47,8 @@ function edit(data, username) {
 	document.getElementById("backButton").addEventListener("click", function () {
 		window.history.back();
 	});
+
+
 }
 
 async function updateUserProfile(data, username, selectedProfileImage) {
