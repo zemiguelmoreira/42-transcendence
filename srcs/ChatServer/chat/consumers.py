@@ -59,15 +59,21 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			logging.error("Matchmaking: User already in matchmaking.")
 			return
 		self.game = await self.get_game_from_data(data)
+		if self.game is None:
+			logging.error("Matchmaking: Invalid game.")
+			return
 		self.rank = await self.get_user_rank()
+		if self.rank is None:
+			logging.error("Matchmaking: Failed to get user rank.")
+			return
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
 		self.match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
 		if self.match:
 			# player 1 checks with player2 the match
 			if self.match[0] == self.user.username:
-				recipient_mm_group_name = "user_mm_%s" % match[1]
-				recipient_group_name = "user_%s" % match[1]
+				recipient_mm_group_name = "user_mm_%s" % self.match[1]
+				recipient_group_name = "user_%s" % self.match[1]
 				await self.channel_layer.group_send(
 					recipient_mm_group_name, {
 						"type": "check.match",
@@ -189,10 +195,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	async def match_confirmed(self, event):
 		self.queued = False
 		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[1]}.")
-		roomCode = await create_room(self.token,self. match[1])
+		roomCode = await create_room(self.token,self.match[1])
+		player2_mm_group_name = "user_mm_%s" % self.match[1]
 		# send match data to opponent
 		await self.channel_layer.group_send(
-			recipient_mm_group_name, {
+			player2_mm_group_name, {
 				"type": "match.details",
 				"game": self.game,
 				"roomCode": roomCode,
@@ -247,6 +254,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 	async def get_user_rank(self):
 		xp = await self.get_user_xp()
+		if xp is None:
+			logging.error("Matchmaking: Failed to get user xp.")
+			return None
 		max_rank = 50
 		xp_max = 100_000  # xp required for max rank
 		ranks = [0] * max_rank
@@ -267,7 +277,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def get_user_xp(self):
-		url = f'http://userapi:8000/profile/get_user_profile/'
+		url = f'http://userapi:8000/profile/get_user_profile/?username={self.user.username}'
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
