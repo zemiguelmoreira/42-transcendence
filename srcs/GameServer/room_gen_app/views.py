@@ -54,6 +54,6 @@ class CreateRoomView(View):
             return JsonResponse({'error': 'Authorized user does not exist'}, status=400)
 
         code = generate_unique_code()
-        room = Room.objects.create(code=code, created_by=user, authorized_user=authorized_user)
+        room = Room.objects.create(code=code,  created_by=user.username, authorized_user=authorized_user.username)
 
         return JsonResponse({'code': room.code})
