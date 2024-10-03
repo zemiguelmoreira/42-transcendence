@@ -20,7 +20,7 @@ let rightPaddleY = 0;
 let player1Name = "";
 let player2Name = "";
 let selfUsername = null;
-let matchSocket = false;
+let matchSocket = null;
 
 function setupPong() {
 	count = 3;
@@ -47,7 +47,7 @@ function setupPong() {
 	backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
 }
 
-function joinPongRoom(roomCode, username, matchmakingSocket=false) {
+function joinPongRoom(roomCode, username, matchmakingSocket) {
 	selfUsername = username;
 	if (matchmakingSocket !== false)
 		matchSocket = matchmakingSocket;
@@ -119,11 +119,6 @@ function joinPongRoom(roomCode, username, matchmakingSocket=false) {
 			if (pong_socket.readyState === WebSocket.OPEN) {
 				pong_socket.close();
 				console.log('Pong Socket Closed on gameLoop');
-			}
-
-			if (matchSocket && matchSocket.readyState === WebSocket.OPEN) {
-				matchSocket.close();
-				console.log('Matchmaking Socket Closed on gameLoop');
 			}
 
 		} else {
@@ -351,13 +346,52 @@ function showEndScreen(score) {
 		ctx = canvas.getContext('2d');
 	}
 
+	// Limpa o canvas e define fundo semitransparente
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+	// Ajuste da altura total disponível para o conteúdo
+	const totalHeight = canvasHeight * 0.7; // Usamos 70% da altura do canvas para os textos
+	const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+
+	// Define a posição de início para centrar os textos verticalmente
+	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
+
+
+
+
+	// Texto para "WINNER" na segunda parte do canvas
+	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.textAlign = "center";
-	ctx.fillText(`WINNER: ${score.winner}`, canvasWidth / 2, canvasHeight / 2 + 20);
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight); // Elevar um pouco mais o texto
+
+	// Desenhar "WINNER" em vermelho deslocado
+	ctx.fillStyle = "red";
+	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight + 4);
+
+	// Nome e pontuação do vencedor
+	ctx.fillStyle = "#fff"; // Texto em branco
+	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
+	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
+
+
+
+
+	// Texto para "LOSER" na terceira parte do canvas
+	ctx.fillStyle = "#fff";
+	ctx.font = "50px CustomFont";
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3); // Elevar o texto
+
+	// Desenhar "LOSER" em vermelho deslocado
+	ctx.fillStyle = "red";
+	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 3 + 4);
+
+	// Nome e pontuação do perdedor
+	ctx.fillStyle = "#fff"; // Texto em branco
+	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
+	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
 
 	setTimeout(() => {
 		if (document.getElementById('invitePending'))

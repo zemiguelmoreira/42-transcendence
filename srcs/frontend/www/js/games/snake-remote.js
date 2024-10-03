@@ -316,34 +316,43 @@ function showEndScreen(score = null) {
 	// Define a posição de início para centrar os textos verticalmente
 	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
 
+
+
+
 	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight * 1.5); // Elevar um pouco mais o texto
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight); // Elevar um pouco mais o texto
 
 	// Desenhar "WINNER" em vermelho deslocado
 	ctx.fillStyle = "red";
-	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight * 1.5 + 4);
+	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight + 4);
 
 	// Nome e pontuação do vencedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, startY + partHeight * 1.5 + 60); // Ajustar a posição do nome
+	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
+
+
+
 
 	// Texto para "LOSER" na terceira parte do canvas
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 2.8); // Elevar o texto
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3); // Elevar o texto
 
 	// Desenhar "LOSER" em vermelho deslocado
 	ctx.fillStyle = "red";
-	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 2.8 + 4);
+	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 3 + 4);
 
 	// Nome e pontuação do perdedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, startY + partHeight * 2.8 + 60); // Ajustar a posição do nome
+	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
+
+
+
 
 	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {

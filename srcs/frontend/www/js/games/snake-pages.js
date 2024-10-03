@@ -53,7 +53,7 @@ function startRemoteSnakePopup(username) {
 			<div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div>
 			<button id="joinMatchmaking" class="btn btn-success local-btn-custom">FIND OPPONENT</button>
 			<button id="cancelMatchmaking" class="btn btn-danger local-btn-custom">CANCEL</button>
-			<div id="status" class="local-instructions-title myFont-title">WAITING FOR A MATCH...</div>
+			<div id="status" class="local-instructions-title myFont-title">READY TO PLAY?</div>
 			<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 			<div class="local-instructions-container">
 				<div class="local-instructions-row">
@@ -359,7 +359,7 @@ function snakeGameRemote(username) {
 
 		} else {
 			// Exibe mensagem padrão enquanto aguarda um match
-			document.getElementById('status').innerText = "Waiting for a match...";
+			document.getElementById('status').innerText = "READY TO PLAY?";
 		}
 	};
 
@@ -375,7 +375,7 @@ function snakeGameRemote(username) {
 			game: "snake" // Nome do jogo
 		});
 		matchmakingSocket.send(data); // Envia a solicitação para entrar no matchmaking
-		document.getElementById('status').innerText = "JOINING MATCHMAKING..."; // Atualiza o status
+		document.getElementById('status').innerText = "MATCHMAKING..."; // Atualiza o status
 	});
 
 	// Adiciona evento para o botão de cancelar o matchmaking
@@ -383,7 +383,13 @@ function snakeGameRemote(username) {
 		const data = JSON.stringify({
 			type: "cancel" // Tipo da ação para cancelar
 		});
+		
 		matchmakingSocket.send(data); // Envia a solicitação para cancelar o matchmaking
+		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+			matchmakingSocket.close();
+			console.log('Matchmaking WebSocket connection closed.');
+		}
+		
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING..."; // Atualiza o status
 		setTimeout(() => {
 			document.getElementById('snakePopup').remove(); // Remove o popup após um segundo

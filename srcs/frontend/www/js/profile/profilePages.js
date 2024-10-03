@@ -140,7 +140,7 @@ function makeEditProfilePage(data) {
                                 <div class="profile-info">Nickname:</div>
                             </td>
                             <td>
-                                <input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="20">
+                                <input type="text" class="form-profile" id="usernameForm" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1" value="${data.profile.alias_name}" maxlength="8">
                             </td>
                         </tr>
                         <tr>

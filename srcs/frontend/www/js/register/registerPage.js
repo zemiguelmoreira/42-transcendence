@@ -8,8 +8,8 @@ function makeRegisterPage() {
 					<!-- Username input -->
 					<input type="text" style="display: none;" autocomplete="off">
 					<label class="font-custom" for="form1Example1">USERNAME</label>
-					<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="Username" maxlength="20" autocomplete="off">
-					<small id="limitChar" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 20 characters.</small>
+					<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="Username" maxlength="8" autocomplete="off">
+					<small id="limitChar" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 8 characters.</small>
 					<!-- Email input -->
 					<label class="font-custom" for="form1Example2">EMAIL</label>
 					<input type="email" class="form-control button-size" id="form1Example2" name="email" placeholder="Email">

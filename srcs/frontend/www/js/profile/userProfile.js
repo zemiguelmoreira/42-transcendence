@@ -24,6 +24,7 @@ function userProfilePage(userData) {
 function displayMatchHistory(data, TableContainer) {
 	let table = '<table class="matches-history" border="1" cellspacing="0" cellpadding="5">';
 	table += `<tbody>`;
+	data.reverse();
 	data.forEach(match => {
 		table += `
             <tr>
@@ -234,14 +235,6 @@ async function displayBlockedList(myUsername) {
 function profileSettings(dataUser) {
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
-	displayFriendsList(dataUser.user.username, true);
-	displayBlockedList(dataUser.user.username);
-}
-
-function profileOtherUser(dataUser) {
-	document.getElementById('mainContent').innerHTML = '';
-	const profileSettings = makeProfilePageSearchOther(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
 	displayFriendsList(dataUser.user.username, true);
 	displayBlockedList(dataUser.user.username);

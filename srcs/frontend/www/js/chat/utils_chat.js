@@ -13,6 +13,9 @@ let selectedUser = null;
 let roomCode = null;
 
 function displayChatMessage(data, chatLog) {
+	console.log("Chat data: ", data);
+	console.log("chatLog: ", chatLog);
+
 	const messageElement = document.createElement("div");
 	if (data.private) {
 		messageElement.classList.add('message-private');

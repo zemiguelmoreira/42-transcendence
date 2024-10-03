@@ -5,6 +5,7 @@ import { joinPongRoom } from './pong-remote.js';
 import { displaySlidingMessage } from '../utils/utils1.js';
 
 let guest;
+let matchmakingSocket = null;
 
 function startLocalPongPopup(username) {
 	return `
@@ -46,7 +47,7 @@ function startRemotePongPopup(username) {
 			<div class="local-instructions-title-custom myFont-title">REMOTE MATCH</div>
 			<button id="joinMatchmaking" class="btn btn-success local-btn-custom">FIND OPPONENT</button>
 			<button id="cancelMatchmaking" class="btn btn-danger local-btn-custom">CANCEL</button>
-			<div id="status" class="local-instructions-title myFont-title">WAITING FOR A MATCH...</div>
+			<div id="status" class="local-instructions-title myFont-title">READY TO PLAY?</div>
 			<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 			<div class="local-instructions-container">
 				<div class="local-instructions-row">
@@ -126,7 +127,12 @@ function pongGameRemote(username) {
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
 
 	let token = localStorage.getItem('access_token');
-	const matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+
+	if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+		matchmakingSocket.close();
+		matchmakingSocket = null;
+	}
+	matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
 
 	matchmakingSocket.onopen = () => {
 		console.log("Matchmaking socket opened.");
@@ -145,15 +151,20 @@ function pongGameRemote(username) {
 			runPongRemote.classList.add('invite-pending');
 			runPongRemote.id = 'invitePending';
 			runPongRemote.innerHTML = pongCanvasPage();
-
 			document.getElementById('root').appendChild(runPongRemote);
-			console.log("Joining room: ", data.roomCode);
 
-			if (data.game == 'pong') {
-				setTimeout(() => {
-					joinPongRoom(data.roomCode, username, matchmakingSocket);
-				});
-			}
+			console.log("Joining room: ", data.roomCode);
+			if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED)
+				console.log("Joining... ", matchmakingSocket);
+			joinPongRoom(data.roomCode, username, matchmakingSocket);
+
+			setTimeout(() => {
+				// Fecha o socket de matchmaking após entrar na sala
+				if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+					matchmakingSocket.close();
+					console.log('Matchmaking WebSocket connection closed after joining the room.');
+				}
+			}, 1000);
 
 		} else if (data.system) {
 			document.getElementById('status').innerText = data.message;
@@ -162,7 +173,7 @@ function pongGameRemote(username) {
 			document.getElementById('status').innerText = `Error: ${data.message}`;
 
 		} else {
-			document.getElementById('status').innerText = "Waiting for a match...";
+			document.getElementById('status').innerText = "READY TO PLAY?";
 		}
 	};
 
@@ -176,14 +187,21 @@ function pongGameRemote(username) {
 			game: "pong"
 		});
 		matchmakingSocket.send(data);
-		document.getElementById('status').innerText = "JOINING MATCHMAKING...";
+		document.getElementById('status').innerText = "MATCHMAKING...";
 	});
 
 	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
 			type: "cancel"
 		});
+
 		matchmakingSocket.send(data);
+		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+			matchmakingSocket.close();
+			matchmakingSocket = null;
+			console.log("Matchmaking socket closed.");
+		}
+
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
 			document.getElementById('pongPopup').remove();
@@ -321,8 +339,8 @@ function pongGameTournament(username) {
 				document.getElementById('loadTournament').remove();
 				displayTournamentBracket();
 				document.getElementById('canvas-confetti').style.display = "none";
-				initializeTournament(players, username);
 				displaySlidingMessage('Welcome to the Ultimate Pong Tournament!');
+				initializeTournament(players, username);
 			} else if (!allFieldsFilled) {
 				displaySlidingMessage('Error: Please fill in all player names!');
 			}

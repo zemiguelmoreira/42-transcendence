@@ -1,5 +1,6 @@
 import { runPongMatch } from './pong-tournament.js';
 import { pongCanvasPage } from './pong-pages.js';
+import { displaySlidingMessage } from '../utils/utils1.js';
 
 function confetti() {
 	let W = window.innerWidth;
@@ -97,14 +98,24 @@ function initializeTournament(playersObj, username) {
 		console.error("Erro: A variável 'players' deve ser um objeto válido com jogadores.");
 		return;
 	}
+	
 	const players = Object.values(playersObj);
+	
 	if (!isPowerOfTwo(players.length)) {
 		console.error("Erro: Número de jogadores deve ser uma potência de dois.");
 		return;
 	}
+	
 	function pongGameTournamentBracket(players) {
+		
 		const numPlayers = players.length;
 		const numRounds = Math.log2(numPlayers);
+		let numMatches = numPlayers / 2;
+		let currentRound = [...players];
+		const baseHeight = 134.5;
+		const columnWidth = 30;
+		const totalHeight = baseHeight * numMatches;
+
 		const tournamentBracket = document.getElementById('tournament-bracket');
 		tournamentBracket.innerHTML = '';
 		if (numPlayers / 2 <= 4) {
@@ -112,11 +123,7 @@ function initializeTournament(playersObj, username) {
 		} else {
 			tournamentBracket.style.alignItems = 'start';
 		}
-		let currentRound = [...players];
-		let numMatches = numPlayers / 2;
-		const baseHeight = 134.5;
-		const columnWidth = 30;
-		const totalHeight = baseHeight * numMatches;
+		
 		for (let round = 0; round < numRounds; round++) {
 			const extraRoundDiv = document.createElement('div');
 			extraRoundDiv.className = 'round';
@@ -194,6 +201,8 @@ function initializeTournament(playersObj, username) {
 			tournamentBracket.appendChild(roundDiv);
 			numMatches /= 2;
 		}
+
+
 		const penultimateRoundDiv = document.createElement('div');
 		penultimateRoundDiv.className = 'round';
 		penultimateRoundDiv.style.width = `${columnWidth}px`;
@@ -303,6 +312,7 @@ function initializeTournament(playersObj, username) {
 			const smPlayer2 = document.querySelector("#sm-player2");
 			if (smPlayer1) smPlayer1.innerText = `Player 1: ${player1}`;
 			if (smPlayer2) smPlayer2.innerText = `Player 2: ${player2}`;
+			displaySlidingMessage(`Next Match: ${player1} vs ${player2}`);
 		}
 	}
 
