@@ -154,8 +154,9 @@ function makeEditProfilePage(data) {
                     </tbody>
                 </table>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="button" class="btn btn-primary btn-sm" id="changePassword">Change Password</button>
-                    <button type="button" class="btn btn-primary btn-sm" id="updateProfile">Update Profile</button>
+					<button type="button" class="btn btn-primary btn-sm" id="changePassword">Change Password</button>
+					<button type="button" class="btn btn-primary btn-sm" id="deleteAccount">Delete Account</button>
+					<button type="button" class="btn btn-primary btn-sm" id="updateProfile">Save</button>
                     <button type="button" class="btn btn-outline-secondary btn-sm" id="backButton">Back</button>
                 </div>
             </div>

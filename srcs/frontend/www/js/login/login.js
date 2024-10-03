@@ -1,4 +1,3 @@
-
 import { baseURL } from "../app.js";
 import { signIn_page } from "./loginPage.js";
 import { getCsrfToken } from "../utils/tokenCsrf.js";
@@ -328,4 +327,42 @@ async function requestPasswordReset() {
 	}
 }
 
-export { signIn, userSignIn, resetPassword }
+async function deleteUser() {
+	const accessToken = localStorage.getItem('access_token');
+
+	if (!accessToken) {
+		alert('You are not logged in!');
+		return;
+	}
+
+	const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+
+	if (!confirmed) {
+		return;
+	}
+
+	try {
+		const response = await fetch('/api/profile/delete_user/', {
+			method: 'DELETE',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (response.status === 204) {
+			alert('User deleted successfully');
+			localStorage.removeItem('access_token');  // Remove token from local storage
+			localStorage.removeItem('refresh_token'); // Remove refresh token from local storage
+			// window.location.href = '/login';  // Redirect to login page
+		} else {
+			const data = await response.json();
+			alert(data.error || 'Failed to delete user');
+		}
+	} catch (error) {
+		console.error('Error deleting user:', error);
+		alert('Failed to delete user');
+	}
+}
+
+export { signIn, userSignIn, resetPassword, deleteUser }

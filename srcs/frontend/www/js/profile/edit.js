@@ -7,6 +7,7 @@ import { fetchWithAuth } from "../utils/fetchWithToken.js";
 import { messageContainerToken } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
 import { displayChangePassword } from "./userProfile.js";
+import { deleteUser } from "../login/login.js";
 
 function edit(data, username) {
 	document.getElementById('mainContent').innerHTML = '';
@@ -44,9 +45,14 @@ function edit(data, username) {
 		updateUserProfile(data, username, selectedProfileImage);
 	});
 
+	document.getElementById("deleteAccount").addEventListener("click", function () {
+		deleteUser();
+	});
+
 	document.getElementById("backButton").addEventListener("click", function () {
 		window.history.back();
 	});
+
 
 
 }

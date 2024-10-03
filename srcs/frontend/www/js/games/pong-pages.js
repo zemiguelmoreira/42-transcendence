@@ -55,16 +55,8 @@ function startRemotePongPopup(username) {
 						<div class="local-instructions-custom myFont">DOWN</div>
 					</div>
 					<div class="local-instructions-column2">
-						<div class="local-instructions-custom myFont">&#8593;</div>
-						<div class="local-instructions-custom myFont">&#8595;</div>
-					</div>
-					<div class="local-instructions-column2">
-						<div class="local-instructions-custom myFont">LEFT</div>
-						<div class="local-instructions-custom myFont">RIGHT</div>
-					</div>
-					<div class="local-instructions-column2">
-						<div class="local-instructions-custom myFont">&#8592;</div>
-						<div class="local-instructions-custom myFont">&#8594;</div>
+						<div class="local-instructions-custom myFont">W</div>
+						<div class="local-instructions-custom myFont">S</div>
 					</div>
 				</div>
 			</div>

@@ -309,37 +309,41 @@ function showEndScreen(score = null) {
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-	// Divide a altura do canvas em 4 partes
-	const partHeight = canvasHeight / 4;
+	// Ajuste da altura total disponível para o conteúdo
+	const totalHeight = canvasHeight * 0.7; // Usamos 70% da altura do canvas para os textos
+	const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+
+	// Define a posição de início para centrar os textos verticalmente
+	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
 
 	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("WINNER", canvasWidth / 2, partHeight * 2);
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight * 1.5); // Elevar um pouco mais o texto
 
 	// Desenhar "WINNER" em vermelho deslocado
 	ctx.fillStyle = "red";
-	ctx.fillText("WINNER", canvasWidth / 2 + 4, partHeight * 2 + 4);
+	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight * 1.5 + 4);
 
 	// Nome e pontuação do vencedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, partHeight * 2 + 60); // Abaixo do título "WINNER"
+	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, startY + partHeight * 1.5 + 60); // Ajustar a posição do nome
 
 	// Texto para "LOSER" na terceira parte do canvas
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("LOSER", canvasWidth / 2, partHeight * 3);
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 2.8); // Elevar o texto
 
 	// Desenhar "LOSER" em vermelho deslocado
 	ctx.fillStyle = "red";
-	ctx.fillText("LOSER", canvasWidth / 2 + 4, partHeight * 3 + 4);
+	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 2.8 + 4);
 
 	// Nome e pontuação do perdedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, partHeight * 3 + 60); // Abaixo do título "LOSER"
+	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, startY + partHeight * 2.8 + 60); // Ajustar a posição do nome
 
 	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {
@@ -347,6 +351,7 @@ function showEndScreen(score = null) {
 		navigateTo(`/user/${selfUsername}/snake`);
 	}, 3000);
 }
+
 
 
 export { joinSnakeRoom };
