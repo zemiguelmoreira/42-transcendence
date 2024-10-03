@@ -82,14 +82,14 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 						}
 				)
 			else:
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}.")
 				# player 2 waits for room creation
-				await self.channel_layer.group_send(
-					self.user_group_name, {
-						"type": "system.message",
-						"message": f"Match found! Waiting for room creation by {self.match[0]}."
-					}
-				)
+				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}.")
+				# await self.channel_layer.group_send(
+				# 	self.user_group_name, {
+				# 		"type": "system.message",
+				# 		"message": f"Match found! Waiting for room creation by {self.match[0]}."
+				# 	}
+				# )
 		else:
 			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
@@ -100,53 +100,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			)
 			self.queued = False
 
-	# async def join_matchmaking(self, data):
-	# 	if self.queued:
-	# 		logging.error("Matchmaking: User already in matchmaking.")
-	# 		return
-	# 	self.game = await self.get_game_from_data(data)
-	# 	self.rank = await self.get_user_rank()
-	# 	# add to queue & find match
-	# 	logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
-	# 	self.queued = True
-	# 	match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-	# 	# await self.channel_layer.group_send(
-	# 	# 	self.user_group_name, {"type": "system.message", "message": f"Waiting for a fair opponent in {self.game}."}
-	# 	# )
-	# 	if match:
-	# 		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
-	# 		logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
-	# 		await self.channel_layer.group_send(
-	# 			self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
-	# 		)
-	# 		# send match data
-	# 		roomCode = await create_room(self.token, match[1])
-	# 		await self.send(text_data=json.dumps({
-    #    			"match": True,
-    #       		"opponent": match[1],
-    #         	"game": self.game,
-	# 			"roomCode": roomCode,
-    #          }))
-	# 		# # send match data to opponent
-	# 		# # chat group
-	# 		# recipient_group_name = "user_%s" % match[1]
-	# 		# # mm group
-	# 		# recipient_mm_group_name = "user_mm_%s" % match[1]
-	# 		# # mm info
-	# 		# await self.channel_layer.group_send(
-	# 		# 	recipient_mm_group_name, {"type": "match_details", "opponent": self.user.username, "game": self.game}
-	# 		# )
-	# 		# # chat warning
-	# 		# await self.channel_layer.group_send(
-	# 		# 	recipient_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
-	# 		# )
-	# 		self.queued = False
-	# 	else:
-	# 		logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
-	# 		await self.channel_layer.group_send(
-	# 			self.user_group_name, {"type": "system.message", "message": f"Couldn't find a fair game of {self.game}."}
-	# 		)
-	# 		self.queued = False
+
 
 	async def cancel_matchmaking(self, data):
 		if not self.queued:
@@ -210,7 +164,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_send(
 			self.user_group_name, {
 				"type": "system.message",
-				"message": f"Match found! Starting a game of {self.game} against {self.match[1]} in room {roomCode}."
+				"message": f"Match found! Starting a game of {self.game} against {self.match[1]}"
 			}
 		)
 		# send match data to client
@@ -234,7 +188,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			"roomCode": roomCode,
 		}))
 		# chat warning for self
-		await self.channel_layer.group_send(self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent} in room {roomCode}."})
+		await self.channel_layer.group_send(self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"})
 		logging.info(f"Matchmaking: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
 
 
