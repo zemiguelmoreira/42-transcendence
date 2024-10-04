@@ -71,7 +71,7 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game, user
     const button = document.createElement("button");
     button.textContent = text;
     button.classList.add(`${text.toLowerCase()}-button`);
-    
+
     button.onclick = function () {
         // Criar a resposta ao convite
         const response = {
