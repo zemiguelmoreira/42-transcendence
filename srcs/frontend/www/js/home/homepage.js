@@ -1,6 +1,6 @@
-function makeHomePage(data) {
+function makeNavbar(data) {
 	return `
-	<div class="navbar-div">
+		<div class="navbar-div">
 		<nav class="navbar navbar-expand bg-body-tertiary" data-bs-theme="dark">
 			<div class="container-fluid">
 				<div class="navbar-collapse" id="navbarSupportedContent">
@@ -26,7 +26,7 @@ function makeHomePage(data) {
 					<ul class="navbar-nav">
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-								<img src="${data.profile.profile_image_url}" alt="User Icon" width="30" height="30">
+								<img src="${data.profile.profile_image_url}" id="miniPhoto" alt="User Icon" width="30" height="30">
 							</a>
 							<ul class="dropdown-menu dropdown-menu-end">
 								<li><a class="dropdown-item" id="viewProfile" href="">Profile</a></li>
@@ -40,7 +40,12 @@ function makeHomePage(data) {
 			</div>
 		</nav>
 	</div>
+	`;
+}
 
+function makeHomePage(navbar) {
+	return `
+	${navbar}
 	<div class="home-box" id="mainContent">
 		<div class="card" style="width: 18rem;">
 			<img src="/files/minipong.png" class="card-img-top" alt="Enter to play">
@@ -104,4 +109,4 @@ function makeSimpleHomePage() {
 	`;
 }
 
-export { makeHomePage , makeSimpleHomePage }
+export { makeHomePage , makeSimpleHomePage , makeNavbar}

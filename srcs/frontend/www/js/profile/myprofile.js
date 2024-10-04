@@ -1,6 +1,7 @@
 import { baseURL, navigateTo } from "../app.js";
 import { fetchWithAuth } from "../utils/fetchWithToken.js";
 import { messageContainerToken } from "../utils/utils1.js";
+import { makeNavbar } from "../home/homepage.js";
 
 let dataUser
 
@@ -74,6 +75,7 @@ async function fetchUserProfile(username, url = `/user/${username}/profile`) {
 		dataUser = data;
 		console.log('dataUser fetchUserProfile: ', dataUser);
 		navigateTo(url);
+		makeNavbar(data);
 
 	} catch (e) {
 		// navigateTo(`/error/${e.status}/${e.message}`);

@@ -1,6 +1,5 @@
 import { baseURL } from "../app.js";
 import { signIn_page } from "./loginPage.js";
-import { getCsrfToken } from "../utils/tokenCsrf.js";
 import { displayErrorSignIn, displaySlidingMessage, successContainer } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
 import { viewToken, testToken } from "../utils/tokens.js";
@@ -8,8 +7,6 @@ import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import { handleInput, handleInputBlur, displayError } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
-import { initializeChat } from "../chat/chat.js";
-import { makeChatWindow } from "../chat/chat_html.js";
 import WebSocketInstance from "../socket/websocket.js";
 
 function insertInputValidation1(qrForm) {

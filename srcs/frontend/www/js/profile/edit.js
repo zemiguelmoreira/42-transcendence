@@ -1,13 +1,11 @@
-
 import { makeEditProfilePage } from "./profilePages.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { fetchUserProfile } from "./myprofile.js";
-import { homeLogin } from "../home/home.js";
 import { fetchWithAuth } from "../utils/fetchWithToken.js";
 import { messageContainerToken } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
-import { displayChangePassword } from "./userProfile.js";
 import { deleteUser } from "../login/login.js";
+import { getUserProfileByUsername } from "./myprofile.js";
 
 function edit(data, username) {
 	document.getElementById('mainContent').innerHTML = '';
@@ -91,6 +89,11 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 		if (response.ok) {
 			// await homeLogin(username); // Não funciona porque tem a flag para actualizar a foto da navbar fazer refresh
 			await fetchUserProfile(username);
+		
+			let newData = await getUserProfileByUsername(username);
+			document.getElementById('miniPhoto').src = newData.profile.profile_image_url;
+			console.log('newData: ', newData);
+
 			displaySlidingMessage('Profile updated successfully!');
 		} else {
 			// throw new Error('Failed to update profile');

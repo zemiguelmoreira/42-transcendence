@@ -1,6 +1,5 @@
 import { navigateTo } from "../app.js";
 import { register_page } from "../register/registerPage.js";
-import { viewToken } from "../utils/tokens.js";
 import { fetchUserProfile, fetchUserProfileSettings } from "../profile/myprofile.js";
 import { getUser } from "../search/search_user.js";
 import { removeToken } from "../utils/tokens.js";
@@ -12,10 +11,9 @@ import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import WebSocketInstance from "../socket/websocket.js";
 import { handleInput, handleInputBlur } from "../utils/utils1.js";
-import { userSignIn42 } from "../login/login42.js";
 import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
-import { displayPageError } from "../html/error_page.js";
+import { makeNavbar } from "./homepage.js";
 
 let chatLoaded = false;
 
@@ -181,11 +179,11 @@ function initButtonListeners(username) {
 async function homeLogin(username) {
 
 	let dataUser = await getUserProfileByUsername(username);
-	
-
 	let home_page;
+
 	if (!dataUser.status) {
-		home_page = makeHomePage(dataUser);
+		const navbar = makeNavbar(dataUser);
+		home_page = makeHomePage(navbar);
 	} else {
 		console.log('error: ', dataUser);
 		const url_error = `/error/${dataUser.status}/${dataUser.statusText}`;
