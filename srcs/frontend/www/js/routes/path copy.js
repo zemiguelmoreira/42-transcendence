@@ -55,26 +55,19 @@ const pages = {
 	},
 	'/error/:status/:message': {
 		loadContent: function (params) {
-
-			let makeError;
-			const main = document.getElementById('mainContent');
-			console.log('main: ', main);
-			if (main) {
-				console.log('main no main: ', main);
-				makeError = displayPageError(params.status, params.message);
-				main.innerHTML = '';
-				main.insertAdjacentHTML('afterbegin', makeError);
-			} else {
-				makeError = displayPageError(params.status, params.message);
-				document.getElementById('root').innerHTML = '';
-				document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
-			}
+			const makeError = displayPageError(params.status, params.message);
+			document.getElementById('root').innerHTML = '';
+			document.getElementById('root').insertAdjacentHTML('afterbegin', makeError);
+			// document.getElementById('mainContent').innerHTML = '';
+			// document.getElementById('mainContent').insertAdjacentHTML('afterbegin', makeError);
 			const home_error = document.getElementById('a_error');
 			home_error.addEventListener('click', (e) => {
 				e.preventDefault();
 				navigateTo('/');
 			});
-
+			// setTimeout(() => {
+				// navigateTo('/');
+			// }, 3000);
 		},
 		access: true
 	},
@@ -126,13 +119,9 @@ const pages = {
 		redirect: '/'
 	},
 	'/user/:username/settings': {
-		loadContent: function (params) {
+		loadContent: function () {
 			if (dataUser) {
 				profileSettings(dataUser);
-			} else if (dataUserFromSearch)
-				profileSettings(dataUserFromSearch);
-			else {
-				fetchUserProfile(params.username, `/user/${params.username}/settings`);
 			}
 		},
 		access: () => !!localStorage.getItem('access_token'),

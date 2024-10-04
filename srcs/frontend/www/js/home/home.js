@@ -20,11 +20,13 @@ import { displayPageError } from "../html/error_page.js";
 let chatLoaded = false;
 
 function changeChatLoaded() {
+	console.log('chatLoaded: ', chatLoaded); // para teste
 	if (chatLoaded)
 		chatLoaded = false;
 }
 
 function home() {
+	console.log('passei aqui');
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
 	document.getElementById('form1Example1').focus();
@@ -179,11 +181,12 @@ function initButtonListeners(username) {
 async function homeLogin(username) {
 
 	let dataUser = await getUserProfileByUsername(username);
+	
 
 	let home_page;
-	if (!dataUser.status)
+	if (!dataUser.status) {
 		home_page = makeHomePage(dataUser);
-	else {
+	} else {
 		console.log('error: ', dataUser);
 		const url_error = `/error/${dataUser.status}/${dataUser.statusText}`;
 		// navigateTo(`/error/${e.status}/${e.message}`);
@@ -192,7 +195,7 @@ async function homeLogin(username) {
 		localStorage.removeItem('refresh_token');
 		WebSocketInstance.close();
 		navigateTo(url_error);
-		return;
+		return false;
 	}
 	// const home_page_simple = makeSimpleHomePage(dataUser);
 	const home_page_simple = makeSimpleHomePage();
@@ -219,7 +222,7 @@ async function homeLogin(username) {
 		document.getElementById('mainContent').innerHTML = '';
 		document.getElementById('mainContent').insertAdjacentHTML('afterbegin', home_page_simple);
 	}
-
+	console.log('function homelogin');
 	initButtonListeners(username);
 	// let message = `Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.`;
 	// const messageData = {
@@ -227,6 +230,7 @@ async function homeLogin(username) {
 	// 	"message": message
 	// };
 	// chatSocketInstance.sendWithToken(messageData);
+	return true; //
 }
 
 export { home, homeLogin, closeSlidingWindow , changeChatLoaded }

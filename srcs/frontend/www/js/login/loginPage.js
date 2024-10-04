@@ -7,8 +7,8 @@ function makeSignInPage() {
 	
 					<form id="userSignInForm">
 							<label class="font-custom --bs-green" for="form1Example1">USERNAME</label>
-							<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" maxlength="20">
-							<small id="limitChar2" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 20 characters.</small>
+							<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" maxlength="8">
+							<small id="limitChar2" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 8 characters.</small>
 							<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
 							<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="password">
 							<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>

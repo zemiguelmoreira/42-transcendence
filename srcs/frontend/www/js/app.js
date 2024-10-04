@@ -5,6 +5,7 @@ import { refreshAccessToken } from "./utils/fetchWithToken.js";
 import WebSocketInstance from "./socket/websocket.js";
 import { getParams } from "./login/login42.js";
 import { changeChatLoaded } from "./home/home.js";
+import { homeLogin } from "./home/home.js";
 
 const baseURL = "https://localhost/api";
 
@@ -21,6 +22,7 @@ async function goTo() {
 			}
 			let username = await getNamebyId(payload.user_id);
 			if (username) {
+				console.log('teste goto');
 				changeChatLoaded();
 				navigateTo(`/user/${username}`);
 				await WebSocketInstance.connect();
@@ -30,10 +32,12 @@ async function goTo() {
 		} else {
 			navigateTo('/');
 		}
+		return;
 	} catch (e) {
 		e.status = "400";
 		e.message = "home page user! function goTo";
 		navigateTo(`/error/${e.status}/${e.message}`);
+		return;
 	}
 }
 
@@ -79,6 +83,7 @@ function matchRoute(route) {
 		});
 		const regex = new RegExp('^' + regexPath + '$');
 		const match = route.match(regex);
+		console.log('match', match);
 		if (match) {
 			const params = {};
 			paramNames.forEach((name, index) => {
@@ -90,42 +95,79 @@ function matchRoute(route) {
 	return null;
 }
 
-document.addEventListener('DOMContentLoaded', function (e) {
+document.addEventListener('DOMContentLoaded', async function (e) {
 	//history
-	window.addEventListener('popstate', (e) => {
+	window.addEventListener('popstate', async (e) => {
+		console.log('state: ', e.state);
+		// console.log('state page: ', e.state.page);
 		if (e.state) {
 			const matchedRoute = matchRoute(e.state.page);
+			console.log('state: ', e.state);
+			// console.log('state page: ', e.state.page);
+			console.log('matchedroute history: ', matchedRoute); // para teste
 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
-			if (accessAllowed && e.state.page === "/signIn") {
+			if (accessAllowed && (e.state.page === "/signIn" || e.state.page === "/")){
 				if (!localStorage.getItem('access_token')) {
 					matchedRoute.page.loadContent(matchedRoute.params);
-				}
-				else {
-					const defaultState = { page: '/' }
-					history.replaceState(defaultState, '', "/");
-					const matchedRoute = matchRoute(defaultState.page);
-					changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
-					if (matchedRoute) {
-						matchedRoute.page.loadContent(matchedRoute.params);
+				} else {
+					// const defaultState = { page: '/' }
+					// history.replaceState(defaultState, '', "/");
+					// const matchedRoute = matchRoute(defaultState.page);
+					// changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
+					// if (matchedRoute) {
+					// 	matchedRoute.page.loadContent(matchedRoute.params);
+					// }
+					const refreshToken = localStorage.getItem('refresh_token');
+					if (testToken(refreshToken)) {
+						await refreshAccessToken();
+						const accessToken = localStorage.getItem('access_token');
+						const payload = testToken(accessToken);
+						if (!payload) {
+							navigateTo('/', true);
+							return;
+						}
+						let username = await getNamebyId(payload.user_id);
+						if (username) {
+							console.log('teste refresh');
+							console.log('page to replace: ', window.location.pathname);
+							// const pathState = { 'page': window.location.pathname}; 
+							// history.replaceState(pathState, '', window.location.pathname);
+							// history.replaceState(pathState, '', window.location.pathname);
+							changeChatLoaded();
+							// matchedRoute.page.loadContent(matchedRoute.params);
+							navigateTo(`/user/${username}`);
+							await WebSocketInstance.connect();
+						}
+						else
+							navigateTo('/');
+					} else {
+						navigateTo('/');
 					}
 				}
 				return;
 			}
-			if (e.state.page === "/")
-				changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do histórico
-			if (matchedRoute && accessAllowed) {
-				matchedRoute.page.loadContent(matchedRoute.params);
-			} else
-				navigateTo(e.state.page);
-		} else {
-			// tenho de definir um default state para o event.state quando for null
-			const defaultState = { page: '/' };
-			history.replaceState(defaultState, '', '/');
-			// Carregue o conteúdo da página padrão
-			const matchedRoute = matchRoute(defaultState.page);
-			if (matchedRoute) {
-				matchedRoute.page.loadContent(matchedRoute.params);
+			if (e.state.page === "/") {
+				changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do 
+				return;
 			}
+			if (matchedRoute && accessAllowed) {
+				console.log('teste history not navigate');
+				matchedRoute.page.loadContent(matchedRoute.params);
+			} else {
+				console.log('teste history navigate');
+				navigateTo(e.state.page);
+			}
+		} else {
+				// tenho de definir um default state para o event.state quando for null
+				// console.log('teste');
+				// const defaultState = { page: '/' };
+				// history.replaceState(defaultState, '', '/');
+				// // Carregue o conteúdo da página padrão
+				// const matchedRoute = matchRoute(defaultState.page);
+				// if (matchedRoute) {
+				// 	matchedRoute.page.loadContent(matchedRoute.params);
+				// }
+				navigateTo('/', true);
 		}
 	});
 	// desactivar F5 e ctrl+r
@@ -161,23 +203,158 @@ document.addEventListener('DOMContentLoaded', function (e) {
 		window.close();
 	}
 
+
+
+	console.log('pathname: ', window.location.pathname);
 	console.log('matchroute: ', matchRoute(window.location.pathname));
+
+
+	const currentPath = window.location.pathname;
+	const matchedRoute = matchRoute(currentPath);
+  
+	// Se encontrar uma rota correspondente
+	// if (matchedRoute) {
+	//   // Substitui o estado atual no histórico, criando um novo ponto de partida
+	//   history.replaceState({ page: currentPath }, '', currentPath);
+  
+	//   // Carrega o conteúdo da página correspondente
+	//   matchedRoute.page.loadContent(matchedRoute.params);
+
+	// } else {
+	//   // Se a rota não for válida, navega para uma página padrão (por exemplo, home ou 404)
+	// //   navigateTo('/');
+	// 	const status = 404;
+	// 	const message = "Page not found.";
+	// 	const errorState = { page: `/error/${status}/${message}` };
+	// 	history.replaceState(errorState, '', `/error/${status}/${message}`);
+	// 	navigateTo(`/error/${status}/${message}`);
+	// 	return;
+	// }
+
+	// if (!matchRoute(window.location.pathname)) {
+	// 	const status = 404;
+	// 	const message = "Page not found.";
+	// 	const errorState = { page: `/error/${status}/${message}` };
+	// 	history.replaceState(errorState, '', `/error/${status}/${message}`);
+	// 	navigateTo(`/error/${status}/${message}`);
+	// 	return;
+	// } //else {
+	// 	const routeOk = matchRoute(window.location.pathname);
+	// 	console.log('routeOk: ', routeOk);
+	// 	changeChatLoaded();
+	// 	// homeLogin
+	// }
 	
 	//função de entrada
-	if (!viewTokenRefresh()) {
-		navigateTo(window.location.pathname);
-	}
-	else {
-		if (window.location.pathname && window.location.pathname === "/signIn") {
+
+	// if (!viewTokenRefresh()) {
+	// 	console.log('teste');
+	// 	navigateTo(window.location.pathname);
+	// }
+	// else {
+	// 	if (window.location.pathname && window.location.pathname === "/signIn") {
+	// 		console.log('teste1');
+	// 		localStorage.removeItem('access_token');
+	// 		sessionStorage.removeItem('access_token');
+	// 		localStorage.removeItem('refresh_token');
+	// 		navigateTo(window.location.pathname);
+	// 	}
+	// 	else {
+	// 		goTo();
+	// 	}
+	// }
+
+
+
+	if (matchedRoute) {
+
+		if (!viewTokenRefresh()) {
+			console.log('teste');
+			// navigateTo("/"); // este não funciona com o refresh quando está no signIn e nãi há token
 			localStorage.removeItem('access_token');
 			sessionStorage.removeItem('access_token');
 			localStorage.removeItem('refresh_token');
 			navigateTo(window.location.pathname);
-		}
-		else {
+
+		} else if (window.location.pathname && window.location.pathname === "/signIn") {
+
+			console.log('teste1');
+			localStorage.removeItem('access_token');
+			sessionStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
+			navigateTo(window.location.pathname);
+
+		} else if (window.location.pathname && window.location.pathname !== "/") {
+
+			console.log('teste2');
+			// Substitui o estado atual no histórico, criando um novo ponto de partida
+			// history.replaceState({ page: currentPath }, '', currentPath);
+
+			// Carrega o conteúdo da página
+			
+			// let username = await getNamebyId(payload.user_id);
+			// if (username) {
+			// 	console.log('teste refresh');
+			// 	changeChatLoaded();
+			// 	homeLogin(username);
+			// 	matchedRoute.page.loadContent(matchedRoute.params);
+			// }
+			const refreshToken = localStorage.getItem('refresh_token');
+			if (testToken(refreshToken)) {
+				await refreshAccessToken();
+				const accessToken = localStorage.getItem('access_token');
+				const payload = testToken(accessToken);
+				if (!payload) {
+					navigateTo('/', true);
+					return;
+				}
+				let username = await getNamebyId(payload.user_id);
+				if (username) {
+					console.log('teste refresh');
+					console.log('page to replace: ', window.location.pathname);
+					const pathState = { 'page': window.location.pathname}; 
+					// history.replaceState(pathState, '', window.location.pathname);
+					history.replaceState(pathState, '', window.location.pathname);
+					changeChatLoaded();
+					const test = await homeLogin(username);
+					console.log('slidingMessage: ', document.getElementById('slidingMessage'));
+					console.log('teste: ', test);
+					
+					// matchedRoute.page.loadContent(matchedRoute.params);
+					navigateTo(window.location.pathname, true);
+					await WebSocketInstance.connect();
+				}
+				else
+					navigateTo('/');
+			} else {
+				navigateTo('/');
+			}
+
+		} else {
+
+			console.log('teste3');
 			goTo();
+
 		}
-	}
+  
+	  } else {
+		// Se a rota não for válida, navega para uma página padrão (por exemplo, home ou 404)
+	  //   navigateTo('/');
+		  const status = 404;
+		  const message = "Page not found.";
+		//   if (username) {
+			// console.log('teste refresh');
+			// changeChatLoaded();
+			// homeLogin(username);
+		//   }
+		//   const errorState = { page: `/error/${status}/${message}` };
+		//   history.replaceState(errorState, '', `/error/${status}/${message}`);
+		  navigateTo(`/error/${status}/${message}`, true);
+	  }
+
+
+
+
 });
 
 export { baseURL, navigateTo, goTo, matchRoute }
