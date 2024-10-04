@@ -39,6 +39,7 @@ class MatchmakingManager:
 
 		return None
 
+
 	async def wait_for_match(self, username, game, rank, step=1):
 		for tolerance in range(2, 50, step):  # increase tolerance by 'step' each iteration
 			await asyncio.sleep(step)  # wait for 'step' seconds

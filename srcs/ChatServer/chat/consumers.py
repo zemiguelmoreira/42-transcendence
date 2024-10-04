@@ -20,6 +20,8 @@ User = get_user_model()
 
 class MatchmakingConsumer(AsyncWebsocketConsumer):
 	queued = False
+	match = None # coz of check match handler
+	game = None # coz of cleanup connection
 
 	async def connect(self):
 		self.authenticated = False
@@ -57,50 +59,37 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			logging.error("Matchmaking: User already in matchmaking.")
 			return
 		self.game = await self.get_game_from_data(data)
+		if self.game is None:
+			logging.error("Matchmaking: Invalid game.")
+			return
 		self.rank = await self.get_user_rank()
+		if self.rank is None:
+			logging.error("Matchmaking: Failed to get user rank.")
+			return
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
-		match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-		if match:
-			# player 1 makes room
-			if match[0] == self.user.username:
-				self.queued = False
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[1]}.")
-				roomCode = await create_room(self.token, match[1])
-				recipient_mm_group_name = "user_mm_%s" % match[1]
-				recipient_group_name = "user_%s" % match[1]
-				# send match data to opponent
+		self.match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
+		if self.match:
+			# player 1 checks with player2 the match
+			if self.match[0] == self.user.username:
+				recipient_mm_group_name = "user_mm_%s" % self.match[1]
+				recipient_group_name = "user_%s" % self.match[1]
 				await self.channel_layer.group_send(
 					recipient_mm_group_name, {
-						"type": "match.found",
-						"game": self.game,
-						"roomCode": roomCode,
-						"opponent": self.user.username
-					}
+						"type": "check.match",
+						"player1": self.match[0],
+						"player2": self.match[1],
+						}
 				)
-				# chat warning for self
-				await self.channel_layer.group_send(
-					self.user_group_name, {
-						"type": "system.message",
-						"message": f"Match found! Starting a game of {self.game} against {match[1]} in room {roomCode}."
-					}
-				)
-				# send match data to client
-				await self.send(text_data=json.dumps({
-					"match": "match_created",
-					"opponent": match[1],
-					"game": self.game,
-					"roomCode": roomCode,
-				}))
 			else:
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {match[0]}.")
 				# player 2 waits for room creation
-				await self.channel_layer.group_send(
-					self.user_group_name, {
-						"type": "system.message",
-						"message": f"Match found! Waiting for room creation by {match[0]}."
-					}
-				)
+				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}.")
+				# await self.channel_layer.group_send(
+				# 	self.user_group_name, {
+				# 		"type": "system.message",
+				# 		"message": f"Match found! Waiting for room creation by {self.match[0]}."
+				# 	}
+				# )
 		else:
 			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
@@ -111,53 +100,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			)
 			self.queued = False
 
-	# async def join_matchmaking(self, data):
-	# 	if self.queued:
-	# 		logging.error("Matchmaking: User already in matchmaking.")
-	# 		return
-	# 	self.game = await self.get_game_from_data(data)
-	# 	self.rank = await self.get_user_rank()
-	# 	# add to queue & find match
-	# 	logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
-	# 	self.queued = True
-	# 	match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-	# 	# await self.channel_layer.group_send(
-	# 	# 	self.user_group_name, {"type": "system.message", "message": f"Waiting for a fair opponent in {self.game}."}
-	# 	# )
-	# 	if match:
-	# 		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game}.")
-	# 		logging.info(f"Matchmaking: Match is against {match[1]} in {self.game}.")
-	# 		await self.channel_layer.group_send(
-	# 			self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {self.game} against {match[1]}."}
-	# 		)
-	# 		# send match data
-	# 		roomCode = await create_room(self.token, match[1])
-	# 		await self.send(text_data=json.dumps({
-    #    			"match": True,
-    #       		"opponent": match[1],
-    #         	"game": self.game,
-	# 			"roomCode": roomCode,
-    #          }))
-	# 		# # send match data to opponent
-	# 		# # chat group
-	# 		# recipient_group_name = "user_%s" % match[1]
-	# 		# # mm group
-	# 		# recipient_mm_group_name = "user_mm_%s" % match[1]
-	# 		# # mm info
-	# 		# await self.channel_layer.group_send(
-	# 		# 	recipient_mm_group_name, {"type": "match_found", "opponent": self.user.username, "game": self.game}
-	# 		# )
-	# 		# # chat warning
-	# 		# await self.channel_layer.group_send(
-	# 		# 	recipient_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {self.game} against {self.user.username}."}
-	# 		# )
-	# 		self.queued = False
-	# 	else:
-	# 		logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
-	# 		await self.channel_layer.group_send(
-	# 			self.user_group_name, {"type": "system.message", "message": f"Couldn't find a fair game of {self.game}."}
-	# 		)
-	# 		self.queued = False
+
 
 	async def cancel_matchmaking(self, data):
 		if not self.queued:
@@ -171,9 +114,69 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# )
 
 	# event handlers
-	# match info from host(player 1)
-	async def match_found(self, event):
+	#confirm match players from player1 to player2
+	async def check_match(self, event):
+		player1 = event["player1"]
+		player2 = event["player2"]
+		player1_mm_group_name = "user_mm_%s" % player1
+		player1_group_name = "user_%s" % player1
+		if self.match:
+			if self.match[0] == player1 and self.match[1] == player2:
+				self.queued = False
+				await self.channel_layer.group_send(
+					player1_mm_group_name, {
+						"type": "match.confirmed"
+					}
+				)
+		else:
+			# let self know mm failed
+			await self.channel_layer.group(
+				self.user_group_name, {
+					"type": "system.message",
+					"message": "Something went wrong in matchmaking, please queue up again!"
+				}
+			)
+			# let player1 know mm failed
+			await self.channel_layer.group_send(
+				player1_group_name, {
+					"type": "system.message",
+					"message": "Something went wrong in matchmaking, please queue up again!"
+				}
+			)
+			loggin.info(f"Matchmaking: Matchmaking canceled for {player1} and {player2}, players didn't match")
+
+	#match confirmed from player2, proceed to createRoom
+	async def match_confirmed(self, event):
 		self.queued = False
+		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[1]}.")
+		roomCode = await create_room(self.token,self.match[1])
+		player2_mm_group_name = "user_mm_%s" % self.match[1]
+		# send match data to opponent
+		await self.channel_layer.group_send(
+			player2_mm_group_name, {
+				"type": "match.details",
+				"game": self.game,
+				"roomCode": roomCode,
+				"opponent": self.user.username
+			}
+		)
+		# chat warning for self
+		await self.channel_layer.group_send(
+			self.user_group_name, {
+				"type": "system.message",
+				"message": f"Match found! Starting a game of {self.game} against {self.match[1]}"
+			}
+		)
+		# send match data to client
+		await self.send(text_data=json.dumps({
+			"match": "match_created",
+			"opponent": self.match[1],
+			"game": self.game,
+			"roomCode": roomCode,
+		}))
+
+	# match info from host(player 1)
+	async def match_details(self, event):
 		game = event["game"]
 		roomCode = event["roomCode"]
 		opponent = event["opponent"]
@@ -185,7 +188,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			"roomCode": roomCode,
 		}))
 		# chat warning for self
-		await self.channel_layer.group_send(self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent} in room {roomCode}."})
+		await self.channel_layer.group_send(self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"})
 		logging.info(f"Matchmaking: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
 
 
@@ -205,6 +208,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 	async def get_user_rank(self):
 		xp = await self.get_user_xp()
+		if xp is None:
+			logging.error("Matchmaking: Failed to get user xp.")
+			return None
 		max_rank = 50
 		xp_max = 100_000  # xp required for max rank
 		ranks = [0] * max_rank
@@ -277,7 +283,6 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_add(self.user_mm_group_name, self.channel_name)
 		logging.info(f"Matchmaking: User {self.user.username} connected.")
 		self.authenticated = True
-		self.game = None
 
 	async def cleanup_connection(self):
 		if self.game:
@@ -316,10 +321,11 @@ async def create_room(game_accessToken, authorized_user):
 
 	return data.get('code') if data else None
 
-class ChatConsumer(AsyncWebsocketConsumer):
-	online_users = {}
-	invited = {}
 
+class ChatConsumer(AsyncWebsocketConsumer):
+	online_users = {} #dict of online users
+	inviting = False # inviting status
+	pending = [] # pending invites
 	async def connect(self):
 		self.authenticated = False
 		self.token = await self.validate_token()
@@ -351,6 +357,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"invite": self.handle_invite,
 			"invite_response": self.handle_invite_response,
 			"cancel_invite": self.handle_cancel_invite,
+			"tourney_warning": self.handle_tourney_warning,
 		}
 		if msgtype in message_type_map:
 			await message_type_map[msgtype](data)
@@ -362,23 +369,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		else:
 			await self.handle_private_message(data, recipient)
 
-	# Adicionando a função handle_cancel_invite
-	async def handle_cancel_invite(self, data):
-		recipient = data.get("recipient", None)
+	# receive handlers
+	# tourney warning
+	async def handle_tourney_warning(self, data):
+		message = data.message
+		await self.channel_layer.group_send(
+			self.user_group_name, {"type": "system.message", "message": message}
+		)
 
-		# Verificando se o convite é válido
-		if not recipient or not self.invited.get(recipient, False):
+	#cancel inviter invite
+	async def handle_cancel_invite(self, data):
+		self.inviting = False
+		recipient = data.get("recipient", None)
+		if not recipient:
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": "No invite to cancel."}
 			)
 			logging.error("Cancel Invite: No invite to cancel.")
 			return
-
-		# Removendo o convite
-		self.invited.pop(recipient, None)
-		self.invited[self.user.username] = False
-
-		# Notificando o destinatário que o convite foi cancelado
 		recipient_group_name = "user_%s" % recipient
 		await self.channel_layer.group_send(
 			recipient_group_name, {
@@ -388,20 +396,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		)
 		logging.info(f"Invite to {recipient} canceled by {self.user.username}.")
 
-	# Adicionando handler para a mensagem de cancelamento do convite
-	async def cancel_invite_message(self, event):
-		sender = event["sender"]
-		await self.send(text_data=json.dumps({
-			"invite_cancelled": True,
-			"sender": sender,
-			"message": f"Invite from {sender} has been cancelled."
-		}))
-
-	# receive handlers
+	#send inviter invite
 	async def handle_invite(self, data):
 		recipient = data.get("recipient", None)
 		game = data.get("game", None)
-		roomCode = data.get("roomCode", None)
 
 		# invite error handling
 		if not recipient or recipient == self.user.username:
@@ -410,41 +408,45 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			)
 			logging.error("Invite: Invalid recipient.")
 			return
-		if self.invited.get(recipient, False):
+		if self.inviting:
 			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "error.message", "message": "User already has an invite pending."}
+				self.user_group_name, {"type": "error.message", "message": f"Something went wrong with the last invite sent."}
 			)
-			logging.error("Invite: Recipient already has an invite pending.")
+			logging.error("Invite: Last invite error.")
 			return
-		if self.invited.get(self.user.username, False):
+		else:
+			# sending invite
+			recipient_group_name = "user_%s" % recipient
 			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "error.message", "message": "You already have an invite pending."}
+				recipient_group_name, {
+					"type": "invite.message",
+					"sender": self.user.username,
+					"game": game,
+				}
 			)
-			logging.error("Invite: an invite pending.")
-			return
+			self.inviting = True
+			logging.info(f"Invite sent to {recipient} by {self.user.username}.")
 
-  		# setting invite flags
-		self.invited[recipient] = True
-		self.invited[self.user.username] = True
-
-  		# sending invite
-		recipient_group_name = "user_%s" % recipient
-		await self.channel_layer.group_send(
-			recipient_group_name, {
-				"type": "invite.message",
-				"sender": self.user.username,
-				"game": game,
-				"roomCode": roomCode,
-			}
-		)
-		logging.info(f"Invite sent to {recipient}.")
-
-
+	# invitee response to invite
+	#  creates room if accepted and sends roomcode to inviter and frontend
 	async def handle_invite_response(self, data):
 		game = data.get("game", None)
 		inviter = data.get("inviter", None)
 		accepted = data.get("accepted", False)
-
+		roomCode = None
+		if inviter not in self.pending:
+			logging.error("Invite was cancelled")
+			await self.channel_layer.group_send(
+				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was cancelled."}
+			)
+			return
+		if accepted:
+			roomCode = await create_room(self.token, inviter)
+			await self.send(text_data=json.dumps({
+				"room": True,
+				"game": game,
+				"roomCode": roomCode
+			}))
   		# answering invite
 		inviter_group_name = "user_%s" % inviter
 		await self.channel_layer.group_send(
@@ -452,14 +454,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"type": "invite.response",
 				"invitee": self.user.username,
 				"accepted": accepted,
-				"game": game
+				"game": game,
+				"roomCode": roomCode
 			}
 		)
+		self.pending.remove(inviter)
 		logging.info(f"Invite response sent to {inviter}.")
 
-  		# setting invite flags
-		self.invited[self.user.username] = False
-		self.invited[inviter] = False
 
 	async def handle_private_message(self, data, recipient):
 		message = data.get("message", None)
@@ -537,29 +538,46 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 		await self.send(text_data=json.dumps({"message": message, "error": True, "sender": "Error"}))
 
+	# invitee letting frontend know of received invite
 	async def invite_message(self, event):
 		sender = event["sender"]
 		game = event.get("game", None)
 		roomCode = event.get("roomCode", None)
-
 		await self.send(text_data=json.dumps({
 			"invite": True,
 			"sender": sender,
 			"game": game,
-			"roomCode": roomCode
 		}))
+		self.pending.append(sender)
 
+	# inviter letting frontend know of invite response
 	async def invite_response(self, event):
+		if self.inviting is False:
+			logging.error("this invite was canceled previously, not doing anything")
+			return
 		invitee = event["invitee"]
 		accepted = event["accepted"]
 		game = event.get("game", "a game")
-
+		roomCode = event.get("roomCode", None)
+		self.inviting = False
 		await self.send(text_data=json.dumps({
 			"invite_response": True,
 			"invitee": invitee,
 			"accepted": accepted,
-			"game": game
+			"game": game,
+			"roomCode": roomCode
 		}))
+
+
+	# cancel invite for invitee
+	async def cancel_invite_message(self, event):
+		sender = event["sender"]
+		await self.send(text_data=json.dumps({
+			"invite_cancelled": True,
+			"sender": sender,
+			"message": f"Invite from {sender} has been cancelled."
+		}))
+		self.pending.remove(sender)
 
 	async def update_status(self, event):
 		online_users = event['online_users']
