@@ -43,6 +43,8 @@ class UserSerializer(serializers.ModelSerializer):
 
         # Check if the passwords match
         if data['password'] != data['confirm_password']:
+            logger.info(f'password {data["password"]}')
+            logger.info(f'confirm password {data["confirm_password"]}')
             raise serializers.ValidationError({"password": "Passwords do not match."})
 
         # Check username length
