@@ -324,7 +324,8 @@ async def create_room(game_accessToken, authorized_user):
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	online_users = {} #dict of online users
-	inviting = False
+	inviting = False # inviting status
+	pending = [] # pending invites
 	async def connect(self):
 		self.authenticated = False
 		self.token = await self.validate_token()
@@ -356,6 +357,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"invite": self.handle_invite,
 			"invite_response": self.handle_invite_response,
 			"cancel_invite": self.handle_cancel_invite,
+			"tourney_warning": self.handle_tourney_warning,
 		}
 		if msgtype in message_type_map:
 			await message_type_map[msgtype](data)
@@ -368,6 +370,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.handle_private_message(data, recipient)
 
 	# receive handlers
+	# tourney warning
+	async def handle_tourney_warning(self, data):
+		message = data.message
+		await self.channel_layer.group_send(
+			self.user_group_name, {"type": "system.message", "message": message}
+		)
+
 	#cancel inviter invite
 	async def handle_cancel_invite(self, data):
 		self.inviting = False
@@ -399,7 +408,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			)
 			logging.error("Invite: Invalid recipient.")
 			return
-		if self.invinting:
+		if self.inviting:
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": f"Something went wrong with the last invite sent."}
 			)
@@ -415,7 +424,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"game": game,
 				}
 			)
-			self.invinting = True
+			self.inviting = True
 			logging.info(f"Invite sent to {recipient} by {self.user.username}.")
 
 	# invitee response to invite
@@ -425,6 +434,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		inviter = data.get("inviter", None)
 		accepted = data.get("accepted", False)
 		roomCode = None
+		if inviter not in self.pending:
+			logging.error("Invite was cancelled")
+			await self.channel_layer.group_send(
+				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was cancelled."}
+			)
+			return
 		if accepted:
 			roomCode = await create_room(self.token, inviter)
 			await self.send(text_data=json.dumps({
@@ -443,6 +458,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"roomCode": roomCode
 			}
 		)
+		self.pending.remove(inviter)
 		logging.info(f"Invite response sent to {inviter}.")
 
 
@@ -532,6 +548,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"sender": sender,
 			"game": game,
 		}))
+		self.pending.append(sender)
 
 	# inviter letting frontend know of invite response
 	async def invite_response(self, event):
@@ -542,7 +559,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		accepted = event["accepted"]
 		game = event.get("game", "a game")
 		roomCode = event.get("roomCode", None)
-		self.invinting = False
+		self.inviting = False
 		await self.send(text_data=json.dumps({
 			"invite_response": True,
 			"invitee": invitee,
@@ -550,6 +567,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"game": game,
 			"roomCode": roomCode
 		}))
+
 
 	# cancel invite for invitee
 	async def cancel_invite_message(self, event):
@@ -559,6 +577,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"sender": sender,
 			"message": f"Invite from {sender} has been cancelled."
 		}))
+		self.pending.remove(sender)
 
 	async def update_status(self, event):
 		online_users = event['online_users']

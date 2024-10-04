@@ -91,14 +91,10 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
         buttonContainer.querySelector('.reject-button').disabled = true;
 
         // Exibir a mensagem de convite pendente
-        const invitePending = document.createElement('div');
-        invitePending.classList.add('invite-pending');
-        invitePending.id = 'invitePending';
-        document.getElementById('root').appendChild(invitePending);
 
-        // Lógica para quando o convite é aceito
+
         if (!accepted) {
-            document.getElementById('invitePending').remove();
+
             displaySlidingMessage(`Invite from ${sender} has been declined.`);
         }
     };
@@ -108,13 +104,17 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 
 // handle cancel the invite for invitee after inviter canceled
 function handleInviteCancelled(username, data) {
-
+	// document.getElementById('invitePending').remove();
 }
 
 // get room code and join game for invitee
 function getRoomCode(username, data) {
 	const roomCode = data.roomCode;
 	const game = data.game;
+	const invitePending = document.createElement('div');
+	invitePending.classList.add('invite-pending');
+	invitePending.id = 'invitePending';
+	document.getElementById('root').appendChild(invitePending);
 	if (game === 'Pong') {
 		navigateTo(`/user/${username}/pong-playing`);
 		joinPongRoom(roomCode, username);
