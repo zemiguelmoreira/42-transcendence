@@ -357,7 +357,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"invite": self.handle_invite,
 			"invite_response": self.handle_invite_response,
 			"cancel_invite": self.handle_cancel_invite,
-			"tourney_warning": self.handle_tourney_warning,
+			"sys_message": self.handle_sys_message,
 		}
 		if msgtype in message_type_map:
 			await message_type_map[msgtype](data)
@@ -371,8 +371,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	# receive handlers
 	# tourney warning
-	async def handle_tourney_warning(self, data):
-		message = data.message
+	async def handle_sys_message(self, data):
+		message = data.get("message", None)
 		await self.channel_layer.group_send(
 			self.user_group_name, {"type": "system.message", "message": message}
 		)

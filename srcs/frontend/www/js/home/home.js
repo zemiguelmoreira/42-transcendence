@@ -221,6 +221,12 @@ async function homeLogin(username) {
 	}
 
 	initButtonListeners(username);
+	// let message = `Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.`;
+	// const messageData = {
+	// 	"type": "sys_message",
+	// 	"message": message
+	// };
+	// chatSocketInstance.sendWithToken(messageData);
 }
 
 export { home, homeLogin, closeSlidingWindow , changeChatLoaded }
