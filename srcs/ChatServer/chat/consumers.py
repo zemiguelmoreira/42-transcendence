@@ -412,8 +412,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			return
 		else:
 			# sending invite
-			recipient_g
-			oup_name = "user_%s" % recipient
+			recipient_group_name = "user_%s" % recipient
 			await self.channel_layer.group_send(
 				recipient_group_name, {
 					"type": "invite.message",
@@ -434,7 +433,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		if accepted:
 			roomCode = await create_room(self.token, inviter)
 			await self.send(text_data=json.dumps({#################
-				"invite_response": True,
+				"room": True,
 				"inviter": inviter,####
 				"accepted": accepted,
 				"game": game,

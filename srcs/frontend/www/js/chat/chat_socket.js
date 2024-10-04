@@ -3,6 +3,7 @@ import { displayChatMessage } from "./utils_chat.js";
 import { displayGameInvite } from "./utils_chat.js";
 import { handleInviteResponse } from "./utils_chat.js";
 import { updateOnlineUsersList } from "./utils_chat.js";
+import { getRoomCode } from "./utils_chat.js";
 import { navigateTo } from "../app.js";
 
 class WebSocketService {
@@ -60,6 +61,8 @@ class WebSocketService {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {
 				updateOnlineUsersList(username, data.online_users);
+			} else if (data.room) {
+				getRoomCode(username, data);
 			}
 		};
 		this.socketRef.onerror = error => {

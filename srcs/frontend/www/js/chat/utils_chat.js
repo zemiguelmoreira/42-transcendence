@@ -98,18 +98,7 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game, user
         document.getElementById('root').appendChild(invitePending);
 
         // Lógica para quando o convite é aceito
-        if (accepted) {
-            if (game === 'Pong') {
-                navigateTo(`/user/${username}/pong-playing`);
-                joinPongRoom(roomCode, username);
-            } else {
-                const runSnakeRemote = document.getElementById('invitePending');
-                runSnakeRemote.innerHTML = snakeGameRemotePage();
-                document.getElementById('root').appendChild(runSnakeRemote);
-                navigateTo(`/user/${username}/snake-playing`);
-                joinSnakeRoom(roomCode, username);
-            }
-        } else {
+        if (!accepted) {
             document.getElementById('invitePending').remove();
             displaySlidingMessage(`Invite from ${sender} has been declined.`);
         }
@@ -118,15 +107,28 @@ function createInviteResponseButton(text, accepted, sender, roomCode, game, user
     return button;
 }
 
+function getRoomCode(username, data) {
+	roomCode = data.roomCode;
+	if (game === 'Pong') {
+		navigateTo(`/user/${username}/pong-playing`);
+		joinPongRoom(roomCode, username);
+	} else {
+		const runSnakeRemote = document.getElementById('invitePending');
+		runSnakeRemote.innerHTML = snakeGameRemotePage();
+		document.getElementById('root').appendChild(runSnakeRemote);
+		navigateTo(`/user/${username}/snake-playing`);
+		joinSnakeRoom(roomCode, username);
+	}
+
+}
 
 function handleInviteResponse(username, data, chatLog) {
+	const roomCode = data.roomCode;
 	const invitee = data.invitee;
 	const accepted = data.accepted;
 	let responseMessage;
 	const inviteResponseElement = document.createElement("div");
 	if (accepted) {
-		responseMessage = `${invitee} has accepted your invite!`;
-		inviteResponseElement.classList.add('message-selfdm');
 		if (data.game == 'Pong') {
 			navigateTo(`/user/${username}/pong-playing`);
 			joinPongRoom(roomCode, username);
@@ -137,6 +139,8 @@ function handleInviteResponse(username, data, chatLog) {
 			navigateTo(`/user/${username}/snake-playing`);
 			joinSnakeRoom(roomCode, username);
 		}
+		responseMessage = `${invitee} has accepted your invite!`;
+		inviteResponseElement.classList.add('message-selfdm');
 	} else {
 		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.classList.add('message-error');
@@ -252,12 +256,12 @@ function handleCancelInvite(recipient, roomCode) {
 }
 
 async function sendGameInvite(user, game) {
-	roomCode = await createRoom(user);
+	// roomCode = await createRoom(user);
 	const inviteMessage = {
 		"type": "invite",
 		"recipient": user,
 		"game": game,
-		"roomCode": roomCode
+		// "roomCode": roomCode
 	};
 	chatSocketInstance.send(inviteMessage);
 	const invitePendingDiv = document.createElement('div');
@@ -275,4 +279,4 @@ async function sendGameInvite(user, game) {
 	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
-export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList }
+export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode }
