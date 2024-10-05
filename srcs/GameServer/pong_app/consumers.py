@@ -113,6 +113,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'paddle_speed': 800,
                 'end_game': False,
                 'disconnect': "",
+                'wall_collision': False
             }
 
         room = PongConsumer.rooms[self.room.code]
@@ -173,33 +174,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             logger.error(f"Room {self.room.code} not found in PongConsumer.rooms")
             return
 
-            # logger.info('End Game ', room['end_game'])
-
-        # if self in room['players'] and len(room['players']) == 2:
-
-        #     if room['players'][0].user.username == self.user.username:
-        #         winner = room['players'][1].user.username
-        #         loser = room['players'][0].user.username
-        #     else:
-        #         winner = room['players'][0].user.username
-        #         loser = room['players'][1].user.username
-
-        #     logger.info(f"winner and loser: {winner} - {loser}")
-
-        #     if len(room['players']) == 2:
-        #         for player in room['players']:
-        #             logger.info(player.user.username)
-        #             await player.end_game(room, winner, loser)
-            
-            # room['players'].remove(self)
-
-        # if len(room['players']) == 0:
-        #     room['game_loop_task'].cancel()
-        #     room['game_loop_task'] = None
-            # await self.close()
-            # del PongConsumer.rooms[self.room.code]
-
-
     async def receive(self, text_data):
         data = json.loads(text_data)
 
@@ -207,7 +181,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             if data['action'] == 'move':
                 player_index = data['player_index']
                 direction = data['direction']
-                PongConsumer.rooms[self.room.code]['current_directions'][player_index] = direction
+                if PongConsumer.rooms[self.room.code]:
+                    PongConsumer.rooms[self.room.code]['current_directions'][player_index] = direction
 
     async def game_loop(self, room):
         last_time = time.time()
@@ -224,9 +199,15 @@ class PongConsumer(AsyncWebsocketConsumer):
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
         room['ball_position'][1] += room['ball_velocity'][1] * delta_time
 
-        if room['ball_position'][1] <= 0  or room['ball_position'][1] + BALL_SIZE >= canvasHeight:
+        # wall collision
+        if not room['wall_collision'] and (room['ball_position'][1] <= 0  or room['ball_position'][1] + BALL_SIZE >= canvasHeight):
             room['ball_velocity'][1] *= -1
-
+            room['wall_collision'] == True
+        
+        #reset collision flag
+        if room['ball_position'][1] > BALL_SIZE + 1 and room['ball_position'][1] < canvasHeight - BALL_SIZE - 1:
+            room['wall_collision'] == False
+        
         if is_goal_paddle1(room['ball_position'][0]):
             room['score'][0] += 1
             room['ball_position'] = [ball_init_x, ball_init_y]
