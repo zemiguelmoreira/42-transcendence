@@ -2,6 +2,7 @@ import { navigateTo } from "../app.js";
 import { initializeSnakeGameLocal } from '../../js/games/snake-local.js';
 import { initializeSnakeGameFreeForAll } from '../../js/games/snake-free-for-all.js';
 import { joinSnakeRoom } from "../games/snake-remote.js";
+import { displaySlidingMessage } from "../utils/utils1.js";
 
 let guest, guest1, guest2, guest3;
 let matchmakingSocket = null;
@@ -12,10 +13,12 @@ function startLocalSnakePopup(username) {
 			<div class="local-box">
 				<div class="logo-box1">SNAKE</div>
 				<div class="local-instructions-title-custom myFont-title">LOCAL MATCH</div>
-				<input id="guestInput" class="local-input-custom" type="text" placeholder="Enter guest name" maxlength="10" autofocus value="Player 2">
-				<button id="playButton" class="btn btn-success local-btn-custom">PLAY</button>
-				<button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
-				<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
+				<form id="gameForm">
+					<input id="guestInput" class="local-input-custom" type="text" value="Guest" maxlength="10" autofocus>
+					<button id="playButton" class="btn btn-success local-btn-custom" type="submit">PLAY</button>
+					<button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
+				</form>
+					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 				<div class="local-instructions-container">
 					<div class="local-instructions-column">
 						<div class="local-instructions-custom myFont-title">${username}</div>
@@ -87,9 +90,9 @@ function startMultiplayerSnakePopup(username) {
 				<div class="local-box-custom">
 					<div class="logo-box-custom1">SNAKE</div>
 					<div class="local-instructions-title-custom myFont-title">MULTIPLAYER MATCH</div>
-					<input id="guestInput1" class="local-input-custom" type="text" placeholder="Enter guest 1 name" maxlength="10" autofocus value="Player 1">
-					<input id="guestInput2" class="local-input-custom" type="text" placeholder="Enter guest 2 name" maxlength="10" autofocus value="Player 2">
-					<input id="guestInput3" class="local-input-custom" type="text" placeholder="Enter guest 3 name" maxlength="10" autofocus value="Player 3">
+					<input id="guestInput1" class="local-input-custom" type="text" maxlength="10" autofocus value="Guest1">
+					<input id="guestInput2" class="local-input-custom" type="text" maxlength="10" autofocus value="Guest2">
+					<input id="guestInput3" class="local-input-custom" type="text" maxlength="10" autofocus value="Guest3">
 					<button id="playButton" class="btn btn-success local-btn-custom">PLAY</button>
 					<button id="cancelButton" class="btn btn-danger local-btn-custom">CANCEL</button>
 				</div>
@@ -259,24 +262,46 @@ function loadSnakeMultiplayerScript(username) {
 }
 
 function snakeGameLocal(username) {
+	// Insere o popup no DOM
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
 
+	// Define foco inicial no campo de input
 	document.getElementById('guestInput').focus();
+
+	// Função para remover o popup ao clicar no botão "CANCEL"
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
-		navigateTo(`/user/${username}/snake`);
+		navigateTo(`/user/${username}/snake`); // Navegação para outra página
 	});
-	const playButton = document.getElementById('playButton');
-	playButton.addEventListener('click', () => {
-		guest = document.querySelector('#guestInput').value;
+
+	// Validação do formulário e controle do início do jogo
+	document.getElementById("gameForm").addEventListener("submit", function (event) {
+		const inputField = document.getElementById("guestInput");
+		const userInput = inputField.value.trim();
+
+		// Expressão regular para garantir que o nome só contenha letras e números
+		const validNamePattern = /^[a-zA-Z0-9]+$/;
+
+		// Validação do input
+		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
+			event.preventDefault(); // Impede o envio do formulário se a validação falhar
+			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
+			inputField.classList.add('input-error');
+			return; // Para evitar prosseguir se a validação falhar
+		} else {
+			inputField.classList.remove('input-error');
+		}
+
+		// Se a validação passar, insere o jogo no DOM
+		guest = userInput; // Define o nome do guest
 		const runSnakeLocal = document.createElement('div');
 		runSnakeLocal.classList.add('invite-pending');
 		runSnakeLocal.id = 'runSnake';
-		runSnakeLocal.innerHTML = snakeGameLocalPage();
+		runSnakeLocal.innerHTML = snakeGameLocalPage(); // Insere a página do jogo
 		document.getElementById('root').appendChild(runSnakeLocal);
-		loadSnakeLocalScript(username);
+		loadSnakeLocalScript(username); // Carrega o script do jogo
 	});
 }
 
@@ -383,13 +408,13 @@ function snakeGameRemote(username) {
 		const data = JSON.stringify({
 			type: "cancel" // Tipo da ação para cancelar
 		});
-		
+
 		matchmakingSocket.send(data); // Envia a solicitação para cancelar o matchmaking
 		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
 			matchmakingSocket.close();
 			console.log('Matchmaking WebSocket connection closed.');
 		}
-		
+
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING..."; // Atualiza o status
 		setTimeout(() => {
 			document.getElementById('snakePopup').remove(); // Remove o popup após um segundo
@@ -401,23 +426,66 @@ function snakeGameRemote(username) {
 function snakeGameMultiplayer(username) {
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
 	document.getElementById('guestInput1').focus();
+
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
 		navigateTo(`/user/${username}/snake`);
 	});
+
+	// Função para verificar duplicação de nomes
+	function checkForDuplicates(names) {
+		const lowerCaseNames = names.map(name => name.toLowerCase());
+		return new Set(lowerCaseNames).size !== lowerCaseNames.length;
+	}
+
+	// Função de validação de nomes
+	function validateNames() {
+		const inputs = document.querySelectorAll('.local-input-custom');
+		const validNamePattern = /^[a-zA-Z0-9]+$/;
+		let allFieldsValid = true;
+		let playerNames = [];
+
+		inputs.forEach(input => {
+			const name = input.value.trim();
+			guest1 = input.value.trim();
+			guest2 = input.value.trim();
+			guest3 = input.value.trim();
+			// Verifica se o campo está vazio ou se o nome contém caracteres inválidos
+			if (name.length === 0 || !validNamePattern.test(name)) {
+				input.classList.add('input-error');
+				displaySlidingMessage('Error: Name must be 1-10 characters long and contain only letters or numbers.');
+				allFieldsValid = false;
+			} else {
+				input.classList.remove('input-error');
+				playerNames.push(name);
+			}
+		});
+
+		// Verifica duplicados
+		if (allFieldsValid && checkForDuplicates(playerNames)) {
+			displaySlidingMessage('Error: Player names must be unique!');
+			allFieldsValid = false;
+		}
+
+		return allFieldsValid;
+	}
+
 	const playButton = document.getElementById('playButton');
-	playButton.addEventListener('click', () => {
-		guest1 = document.querySelector('#guestInput1').value;
-		guest2 = document.querySelector('#guestInput2').value;
-		guest3 = document.querySelector('#guestInput3').value;
-		const runSnakeLocal = document.createElement('div');
-		runSnakeLocal.classList.add('invite-pending');
-		runSnakeLocal.id = 'runSnake';
-		runSnakeLocal.innerHTML = snakeGameMultiplayerPage();
-		document.getElementById('root').appendChild(runSnakeLocal);
-		loadSnakeMultiplayerScript(username);
+	playButton.addEventListener('click', (event) => {
+		event.preventDefault(); // Previne o envio do formulário
+		const allFieldsValid = validateNames();
+
+		if (allFieldsValid) {
+			// Proceder ao início do jogo
+			const runSnakeLocal = document.createElement('div');
+			runSnakeLocal.classList.add('invite-pending');
+			runSnakeLocal.id = 'runSnake';
+			runSnakeLocal.innerHTML = snakeGameMultiplayerPage();
+			document.getElementById('root').appendChild(runSnakeLocal);
+			loadSnakeMultiplayerScript(username);
+		}
 	});
 }
 

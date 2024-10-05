@@ -1,4 +1,5 @@
 import { navigateTo } from '../app.js';
+import { displaySlidingMessage } from '../utils/utils1.js';
 
 function initializeSnakeGameLocal(username, guest) {
 
@@ -279,9 +280,10 @@ function initializeSnakeGameLocal(username, guest) {
 	}
 
 	async function endGame(snake_winner) {
+		let winner, loser, winnerScore, loserScore;
+		
 		try {
 			// Determina o vencedor e o perdedor
-			let winner, loser, winnerScore, loserScore;
 			winner = snake_winner;
 
 			// Define o vencedor e o perdedor com base no nome da cobrinha
@@ -337,23 +339,35 @@ function initializeSnakeGameLocal(username, guest) {
 		ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		// Define o estilo do texto
+		// Ajuste da altura total disponível para o conteúdo
+		const totalHeight = canvas.height * 0.7; // Usamos 70% da altura do canvas para os textos
+		const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+
+		// Define a posição de início para centrar os textos verticalmente
+		const startY = (canvas.height - totalHeight) / 2; // Centraliza o conteúdo no canvas
+
+		// Texto para "WINNER" na segunda parte do canvas
+		ctx.textAlign = "center";
 		ctx.fillStyle = "#fff";
 		ctx.font = "50px CustomFont";
-		ctx.textAlign = "center";
+		ctx.fillText("WINNER", canvas.width / 2, startY + partHeight); // Elevar um pouco mais o texto
 
-		// Se o nome do vencedor for "No winner", significa que houve empate
-		if (winnerName === "No winner") {
-			ctx.fillText("DRAW!", canvas.width / 2, canvas.height / 2 + 20);
-		} else {
-			ctx.fillText(`WINNER: ${winnerName}`, canvas.width / 2, canvas.height / 2 + 20);
-		}
+		// Desenhar "WINNER" em vermelho deslocado
+		ctx.fillStyle = "red";
+		ctx.fillText("WINNER", canvas.width / 2 + 4, startY + partHeight + 4);
+
+		// Nome e pontuação do vencedor
+		ctx.fillStyle = "#fff"; // Texto em branco
+		ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
+		ctx.fillText(`${winnerName}`, canvas.width / 2, startY + partHeight + 60); // Ajustar a posição do nome
+
 
 		// Após um atraso de 3 segundos, remove o jogo da tela
 		setTimeout(() => {
 			const closeGame = document.getElementById('runSnake');
 			if (closeGame) {
 				closeGame.remove();
+				displaySlidingMessage('Cool game right? What about another match?');
 				navigateTo(`/user/${username}/snake`);
 			}
 		}, 3000);

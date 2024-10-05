@@ -4,7 +4,6 @@ const paddleWidth = 10;
 const paddleHeight = 90;
 const ballSize = 10;
 
-let count = 3;
 let pong_socket;
 let paddlePositions = "";
 let ballPosition = "";
@@ -23,7 +22,6 @@ let selfUsername = null;
 let matchSocket = null;
 
 function setupPong() {
-	count = 3;
 	paddlePositions = "";
 	ballPosition = "";
 	playerIndex = null;
@@ -301,7 +299,6 @@ document.addEventListener('keyup', function (event) {
 });
 
 function gameLoop() {
-
 	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
 		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)) {
 
@@ -339,8 +336,6 @@ function startGame() {
 }
 
 function showEndScreen(score) {
-
-
 	if (!ctx) {
 		const canvas = document.getElementById('pongCanvas');
 		ctx = canvas.getContext('2d');
@@ -358,9 +353,6 @@ function showEndScreen(score) {
 	// Define a posição de início para centrar os textos verticalmente
 	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
 
-
-
-
 	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
@@ -374,10 +366,7 @@ function showEndScreen(score) {
 	// Nome e pontuação do vencedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
-
-
-
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
 
 	// Texto para "LOSER" na terceira parte do canvas
 	ctx.fillStyle = "#fff";
@@ -391,7 +380,7 @@ function showEndScreen(score) {
 	// Nome e pontuação do perdedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
+	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
 
 	setTimeout(() => {
 		if (document.getElementById('invitePending'))

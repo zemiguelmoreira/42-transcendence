@@ -13,10 +13,12 @@ function startLocalPongPopup(username) {
 			<div class="local-box">
 				<div class="logo-box1">PONG</div>
 				<div class="local-instructions-title-custom myFont-title">LOCAL MATCH</div>
-				<input id="guestInput" class="local-input-custom" type="text" placeholder="Enter guest name" maxlength="10" autofocus value="Player 2">
-				<button id="playButton" class="btn btn-success local-btn-custom">Play</button>
-				<button id="cancelButton" class="btn btn-danger local-btn-custom">Cancel</button>
-				<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
+				<form id="gameForm">
+					<input id="guestInput" class="local-input-custom" type="text" maxlength="10" autofocus value="Guest">
+					<button id="playButton" class="btn btn-success local-btn-custom">Play</button>
+					<button id="cancelButton" class="btn btn-danger local-btn-custom">Cancel</button>
+				</form>
+					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 				<div class="local-instructions-container">
 					<div class="local-instructions-column">
 						<div class="local-instructions-custom myFont-title">${username}</div>
@@ -111,9 +113,26 @@ function pongGameLocal(username) {
 		localPendingDiv.remove();
 		navigateTo(`/user/${username}/pong`);
 	});
-	const playButton = document.getElementById('playButton');
-	playButton.addEventListener('click', () => {
-		guest = document.querySelector('#guestInput').value;
+
+	// Validação do formulário e controle do início do jogo
+	document.getElementById("gameForm").addEventListener("submit", function (event) {
+		const inputField = document.getElementById("guestInput");
+		const userInput = inputField.value.trim();
+
+		// Expressão regular para garantir que o nome só contenha letras e números
+		const validNamePattern = /^[a-zA-Z0-9]+$/;
+
+		// Validação do input
+		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
+			event.preventDefault(); // Impede o envio do formulário se a validação falhar
+			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
+			inputField.classList.add('input-error');
+			return; // Para evitar prosseguir se a validação falhar
+		} else {
+			inputField.classList.remove('input-error');
+		}
+
+		guest = userInput;
 		const runPongLocal = document.createElement('div');
 		runPongLocal.classList.add('invite-pending');
 		runPongLocal.id = 'runPong';
@@ -346,7 +365,6 @@ function pongGameTournament(username) {
 			}
 
 		});
-
 
 		document.getElementById('btn-4-players').addEventListener('click', function () {
 			this.classList.add('active');

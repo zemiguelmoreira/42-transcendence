@@ -1,4 +1,4 @@
-function displaySlidingMessage(message, invite = false) {
+function displaySlidingMessage(message) {
 	const minLength = 10;
 	if (message.length < minLength) {
 		message = message.padEnd(minLength, ' ');

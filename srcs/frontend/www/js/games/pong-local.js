@@ -1,3 +1,5 @@
+import { displaySlidingMessage } from '../utils/utils1.js';
+
 function initializePongGameLocal(username, guest) {
 	const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
 	const backgroundCtx = backgroundCanvas.getContext("2d");
@@ -9,9 +11,9 @@ function initializePongGameLocal(username, guest) {
 	const paddleHeight = 90;
 	const ballSize = 10;
 	const winningScore = 10;
-	let paddleSpeed = 15;
-	let ballSpeedX = 6;
-	let ballSpeedY = 6;
+	let paddleSpeed = 16;
+	let ballSpeedX = 9;
+	let ballSpeedY = 8;
 	let leftPaddleY = canvasHeight / 2 - paddleHeight / 2;
 	let rightPaddleY = canvasHeight / 2 - paddleHeight / 2;
 	let ballX = canvasWidth / 2 - ballSize / 2;
@@ -31,23 +33,6 @@ function initializePongGameLocal(username, guest) {
 	let player1Name = username;
 	let player2Name = guest;
 	let gameOver = false;
-
-	function showEndScreen(winnerName) {
-		const rectWidth = 400;
-		const rectHeight = 200;
-		const rectX = (canvasWidth - rectWidth) / 2;
-		const rectY = (canvasHeight - rectHeight) / 2;
-		ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-		ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
-		ctx.fillStyle = "#fff";
-		ctx.font = "50px CustomFont";
-		ctx.textAlign = "center";
-		ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
-		setTimeout(() => {
-			const closeGame = document.getElementById('runPong');
-			closeGame.remove();
-		}, 3000);
-	}
 
 	function drawPONG(letterSpacing = -5) {
 		ctx.font = "100px PongFont";
@@ -283,7 +268,45 @@ function initializePongGameLocal(username, guest) {
 		}
 	});
 
+	function showEndScreen(winnerName) {
+		// Limpa o canvas antes de desenhar a mensagem de fim de jogo
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Desenha o fundo para a mensagem de fim de jogo
+		ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		// Ajuste da altura total disponível para o conteúdo
+		const totalHeight = canvas.height * 0.7; // Usamos 70% da altura do canvas para os textos
+		const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+
+		// Define a posição de início para centrar os textos verticalmente
+		const startY = (canvas.height - totalHeight) / 2; // Centraliza o conteúdo no canvas
+
+		// Texto para "WINNER" na segunda parte do canvas
+		ctx.textAlign = "center";
+		ctx.fillStyle = "#fff";
+		ctx.font = "50px CustomFont";
+		ctx.fillText("WINNER", canvas.width / 2, startY + partHeight); // Elevar um pouco mais o texto
+
+		// Desenhar "WINNER" em vermelho deslocado
+		ctx.fillStyle = "red";
+		ctx.fillText("WINNER", canvas.width / 2 + 4, startY + partHeight + 4);
+
+		// Nome e pontuação do vencedor
+		ctx.fillStyle = "#fff"; // Texto em branco
+		ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
+		ctx.fillText(`${winnerName}`, canvas.width / 2, startY + partHeight + 60); // Ajustar a posição do nome
+
+		setTimeout(() => {
+			const closeGame = document.getElementById('runPong');
+			closeGame.remove();
+			displaySlidingMessage('What a challenge! What about another match?');
+		}, 3000);
+	}
+
 	updateGame();
 }
+
 
 export { initializePongGameLocal }

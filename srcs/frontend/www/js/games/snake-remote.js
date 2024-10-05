@@ -3,7 +3,7 @@ import { navigateTo } from "../app.js";
 let snake_socket = null;
 let playerIndex = null;
 let stopFlag = false;
-let canvas, ctx, canvasWidth, canvasHeight, player1Score, player2Score;
+let ctx, canvasWidth, canvasHeight;
 let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let foodColor = "#FF0000";
@@ -11,12 +11,9 @@ let food = { 'x': 0, 'y': 0 };
 let winner = null;
 let selfUsername = null;
 let matchSocket = null;
-
 const gridSize = 20;
 
 function setupSnake() {
-	console.log('Setting up snake game');
-
 	playerIndex = null;
 	stopFlag = false;
 	snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
@@ -24,10 +21,8 @@ function setupSnake() {
 	foodColor = "#FF0000";
 	food = { 'x': 0, 'y': 0 };
 	winner = null;
-
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	ctx = canvas.getContext('2d');
-
 	canvasWidth = document.getElementById("gameCanvasSnakeRemote").width;
 	canvasHeight = document.getElementById("gameCanvasSnakeRemote").height;
 }
@@ -297,8 +292,6 @@ function startGame() {
 }
 
 function showEndScreen(score = null) {
-	// console.log('Score: ', score);
-
 	if (!ctx) {
 		const canvas = document.getElementById('gameCanvasSnakeRemote');
 		ctx = canvas.getContext('2d');
@@ -316,9 +309,6 @@ function showEndScreen(score = null) {
 	// Define a posição de início para centrar os textos verticalmente
 	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
 
-
-
-
 	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
@@ -332,10 +322,7 @@ function showEndScreen(score = null) {
 	// Nome e pontuação do vencedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner} - ${score.winner_score}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
-
-
-
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
 
 	// Texto para "LOSER" na terceira parte do canvas
 	ctx.fillStyle = "#fff";
@@ -349,10 +336,7 @@ function showEndScreen(score = null) {
 	// Nome e pontuação do perdedor
 	ctx.fillStyle = "#fff"; // Texto em branco
 	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser} - ${score.loser_score}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
-
-
-
+	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
 
 	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {
@@ -360,7 +344,5 @@ function showEndScreen(score = null) {
 		navigateTo(`/user/${selfUsername}/snake`);
 	}, 3000);
 }
-
-
 
 export { joinSnakeRoom };
