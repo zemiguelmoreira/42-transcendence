@@ -728,31 +728,59 @@ class Verify2FACodeView(APIView):
             return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateMatchHistoryView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    """
+    API View to update the match history of a user. 
+    If the game is ranked, both the winner and the loser need to be registered users.
+    If the game is not ranked, only the authenticated user (winner or loser) will have their profile updated.
+    """
+    permission_classes = [IsAuthenticated]  # Requires the user to be authenticated
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to update the match history. The game data includes details such as
+        the type of game (pong/snake), the winner, the loser, scores, timestamp, and whether the game is ranked.
+
+        If the game is ranked:
+          - Both the winner and loser profiles must exist and will be updated accordingly.
+        If the game is not ranked:
+          - Only the authenticated user's profile will be updated (winner or loser).
+        """
         data = request.data
-        logger.info(f'request data :  {data}')
+        logger.info(f'Request data: {data}')
+        
         try:
+            # Get the current authenticated user and their profile
             current_user = self.request.user
             current_profile = UserProfile.objects.get(user=current_user)
 
+            # Extract match details from the request data
             game_type = data.get('game_type')  # "snake" or "pong"
             user1 = data.get('winner')
             user2 = data.get('loser')
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
-            ranked = data.get('ranked')
-            
-            winner_profile = UserProfile.objects.get(user__username=user1)
-            loser_profile = UserProfile.objects.get(user__username=user2)
-            if game_type == "pong":
-                differece = winner_profile.pong_rank - loser_profile.pong_rank
-            else:
-                differece = winner_profile.snake_rank - loser_profile.snake_rank
-            if differece > 1000:
-                differece = 1000
+            ranked = data.get('ranked')  # True or False
 
+            # Initialize winner and loser profiles as None
+            winner_profile = None
+            loser_profile = None
+
+            # If the game is ranked, we need to retrieve both users' profiles
+            if ranked:
+                try:
+                    winner_profile = UserProfile.objects.get(user__username=user1)
+                    loser_profile = UserProfile.objects.get(user__username=user2)
+                except UserProfile.DoesNotExist:
+                    # If one of the profiles does not exist, return an error for ranked games
+                    return Response({'error': 'Ranked game requires both users to be registered.'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                # For unranked games, we only update the profile of the authenticated user
+                if current_user.username == user1:
+                    winner_profile = current_profile
+                elif current_user.username == user2:
+                    loser_profile = current_profile
+
+            # Create the match data that will be saved in the user's match history
             match_data = {
                 'timestamp': data.get('timestamp'),
                 'winner': user1,
@@ -761,48 +789,87 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 'loser_score': user2_score,
             }
 
+            # If the game type is "pong"
             if game_type == "pong":
-                current_profile.pong_match_history.append(match_data)
+                # Update the winner's profile
+                if winner_profile:
+                    winner_profile.pong_match_history.append(match_data)
+                    winner_profile.pong_wins += 1
+                    winner_profile.wins += 1
 
-                if current_user.username == user1:
-                    current_profile.pong_wins += 1
-                    current_profile.wins += 1
-                    if ranked:
+                # Update the loser's profile
+                if loser_profile:
+                    loser_profile.pong_losses += 1
+                    loser_profile.losses += 1
+
+                # If the game is ranked, calculate and update points
+                if ranked and winner_profile and loser_profile:
+                    # Calculate rank difference between the winner and loser
+                    differece = winner_profile.pong_rank - loser_profile.pong_rank
+                    if differece > 1000:
+                        differece = 1000
+
+                    # Update rank for the current user based on whether they won or lost
+                    if current_user.username == user1:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
-                        else:    
+                        else:
                             points_earned = 100 - differece / 5
                         current_profile.pong_rank += points_earned
-                else:
-                    current_profile.pong_losses += 1
-                    current_profile.losses += 1
-            else:
-                current_profile.snake_match_history.append(match_data)
 
-                if current_user.username == user1:
-                    current_profile.snake_wins += 1
-                    current_profile.wins += 1
-                    if ranked:
+            # If the game type is "snake"
+            else:
+                # Update the winner's profile
+                if winner_profile:
+                    winner_profile.snake_match_history.append(match_data)
+                    winner_profile.snake_wins += 1
+                    winner_profile.wins += 1
+
+                # Update the loser's profile
+                if loser_profile:
+                    loser_profile.snake_losses += 1
+                    loser_profile.losses += 1
+
+                # If the game is ranked, calculate and update points
+                if ranked and winner_profile and loser_profile:
+                    # Calculate rank difference between the winner and loser
+                    differece = winner_profile.snake_rank - loser_profile.snake_rank
+                    if differece > 1000:
+                        differece = 1000
+
+                    # Update rank for the current user based on whether they won or lost
+                    if current_user.username == user1:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
-                        else:    
+                        else:
                             points_earned = 100 - differece / 20
                         current_profile.snake_rank += points_earned
-                else:
-                    current_profile.snake_losses += 1
-                    current_profile.losses += 1
 
-            current_profile.save()
 
+            # If the game is ranked, save the winner's and loser's profiles (if not the same as the current user)
+            if ranked:
+                if winner_profile and winner_profile != current_profile:
+                    winner_profile.save()
+                if loser_profile and loser_profile != current_profile:
+                    loser_profile.save()
+            else:
+                # Save the current user's profile
+                current_profile.save()
+
+            # Return success response
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
 
+        # Handle case where user is not found
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Handle any other exceptions that may occur
         except Exception as e:
+            logger.error(f"An error occurred: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 

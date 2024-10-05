@@ -83,7 +83,7 @@ function matchRoute(route) {
 		});
 		const regex = new RegExp('^' + regexPath + '$');
 		const match = route.match(regex);
-		console.log('match', match);
+		// console.log('match', match);
 		if (match) {
 			const params = {};
 			paramNames.forEach((name, index) => {

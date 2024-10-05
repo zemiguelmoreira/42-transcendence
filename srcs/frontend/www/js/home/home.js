@@ -64,6 +64,7 @@ function initButtonListeners(username) {
 		homeButton.hasListener = true;
 		homeButton.addEventListener('click', (e) => {
 			e.preventDefault();
+			closeSlidingWindow();
 			navigateTo(`/user/${username}`);
 		});
 	}
@@ -73,6 +74,7 @@ function initButtonListeners(username) {
 		snakeNavbar.hasListener = true;
 		snakeNavbar.addEventListener('click', (e) => {
 			e.preventDefault();
+			closeSlidingWindow();
 			navigateTo(`/user/${username}/snake`);
 		});
 	}
@@ -92,6 +94,7 @@ function initButtonListeners(username) {
 		pongNavbar.hasListener = true;
 		pongNavbar.addEventListener('click', (e) => {
 			e.preventDefault();
+			closeSlidingWindow();
 			navigateTo(`/user/${username}/pong`);
 		});
 	}
@@ -110,11 +113,8 @@ function initButtonListeners(username) {
 		viewProfileButton.hasListener = true;
 		viewProfileButton.addEventListener('click', (e) => {
 			e.preventDefault();
-			// if (viewToken()) {
+			closeSlidingWindow();
 			fetchUserProfile(username);
-			// } else {
-			// 	navigateTo('/signIn');
-			// }
 		});
 	}
 
@@ -123,11 +123,8 @@ function initButtonListeners(username) {
 		viewSettingsButton.hasListener = true;
 		viewSettingsButton.addEventListener('click', (e) => {
 			e.preventDefault();
-			// if (viewToken()) {
+			closeSlidingWindow();
 			fetchUserProfileSettings(username);
-			// } else {
-			// 	navigateTo('/signIn');
-			// }
 		});
 	}
 
