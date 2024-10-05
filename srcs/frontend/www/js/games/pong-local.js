@@ -1,3 +1,7 @@
+let lastTime = Date.now(); // Armazena o timestamp inicial
+let frameCount = 0; // Contador de frames no segundo atual
+let fps = 0; // Frames por segundo
+
 function initializePongGameLocal(username, guest) {
 	const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
 	const backgroundCtx = backgroundCanvas.getContext("2d");
@@ -241,6 +245,21 @@ function initializePongGameLocal(username, guest) {
 	}
 
 	function updateGame() {
+		const currentTime = Date.now(); // Tempo atual em milissegundos
+		frameCount++; // Incrementa o contador de frames
+	
+		// Calcula o tempo decorrido desde o último segundo
+		const deltaTime = currentTime - lastTime;
+	
+		if (deltaTime >= 1000) {
+			// Um segundo passou, podemos calcular o FPS
+			fps = frameCount;
+			frameCount = 0; // Reseta a contagem de frames
+			lastTime = currentTime; // Atualiza o último timestamp para o novo segundo
+	
+			// Exibe o FPS calculado no console ou na tela
+			console.log(`FPS: ${fps}`);
+		}
 		if (gameOver) {
 			return;
 		}
