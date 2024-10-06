@@ -1,4 +1,3 @@
-import { SOCKET_URL_STATUS } from "../utils/settings.js";
 import { refreshAccessToken } from "../utils/fetchWithToken.js";
 import { navigateTo } from "../app.js";
 

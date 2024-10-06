@@ -13,6 +13,8 @@ from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext as _
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
+from django.http import HttpResponse
+
 
 import os
 import logging
@@ -94,7 +96,7 @@ class FortyTwoConnectView(APIView):
             'client_id': clientId,
             'client_secret': client_secret,
             'code': code,
-            'redirect_uri': 'https://localhost/callback',
+            'redirect_uri': f'https://{request.get_host()}/callback',
         })
 
         data = response.json()

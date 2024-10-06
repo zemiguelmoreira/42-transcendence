@@ -7,7 +7,7 @@ import { getParams } from "./login/login42.js";
 import { changeChatLoaded } from "./home/home.js";
 import { homeLogin } from "./home/home.js";
 
-const baseURL = "https://localhost/api";
+const baseURL = `https://${window.location.host}/api`;
 
 async function goTo() {
 	try {
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				code: code,
 				state: state
 			}
-			window.opener.postMessage(params, 'https://localhost/');
+			window.opener.postMessage(params, `https://${window.location.host}`);
 		}
 		window.close();
 	}

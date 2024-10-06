@@ -1,13 +1,13 @@
 import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeProfilePageSearchOther, noResultsPage } from "../profile/profilePages.js";
 import { navigateTo } from "../app.js";
-import { messageContainerToken , displaySlidingMessage } from "../utils/utils1.js";
-import { addFriend , blockUser } from "../utils/manageUsers.js";
+import { messageContainerToken, displaySlidingMessage } from "../utils/utils1.js";
+import { addFriend, blockUser } from "../utils/manageUsers.js";
 
 let dataUserSearch;
 let dataUserFromSearch;
 
-async function userSearchPage(dataUserSearch, username) {
+async function userSearchPage(dataUserSearch) {
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
@@ -21,33 +21,31 @@ async function userSearchPage(dataUserSearch, username) {
 	});
 }
 
-function noResults(username, query) {
+function noResults(query) {
 	document.getElementById('mainContent').innerHTML = '';
 	const noResultsUserId = noResultsPage(query);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', noResultsUserId);
 }
 
-async function getUser(username) {
-	
+async function getUser(username, user) {
 	try {
-
 		let query;
-		const searchInputElement = document.getElementById('search-input');
-		query = searchInputElement.value;
+
+		if (user)
+			query = user;
+		else {
+			const searchInputElement = document.getElementById('search-input');
+			query = searchInputElement.value;
+			searchInputElement.value = "";
+		}
 
 		if (query) {
-
-			searchInputElement.value = "";
 			const user = await getUserProfileByUsername(query);
 			console.log('Resposta no getUser: ', user);
-
 			if (user.status && user.status === 404) {
-
 				navigateTo(`/user/${username}/profile/search/noresults/${query}`);
 				return;
-
 			} else if (user.status && user.status === 401) {
-
 				const messageDiv = messageContainerToken();
 				document.getElementById('root').innerHTML = "";
 				document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
@@ -58,14 +56,11 @@ async function getUser(username) {
 					navigateTo(`/signIn`);
 				}, 2000);
 				return;
-
 			} else if (user.status) {
-
 				throw {
 					status: user.status,
 					message: user.statusText
 				}
-
 			}
 
 			dataUserSearch = user;
@@ -85,7 +80,7 @@ async function getUser(username) {
 }
 
 async function viewUserProfile(username, searchUser) {
-	
+
 	try {
 		let query = searchUser;
 		const user = await getUserProfileByUsername(query);

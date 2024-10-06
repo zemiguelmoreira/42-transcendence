@@ -198,6 +198,7 @@ function makePasswordProfilePage(data) {
 }
 
 function makeProfilePageSearchOther(data) {
+	console.log('Others Profile: ', data);
 	return `
 	<div class="profile-container">
 		<div class="profile-left">
