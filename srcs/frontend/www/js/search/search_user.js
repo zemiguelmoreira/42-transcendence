@@ -3,18 +3,27 @@ import { makeProfilePageSearchOther, noResultsPage } from "../profile/profilePag
 import { navigateTo } from "../app.js";
 import { messageContainerToken, displaySlidingMessage } from "../utils/utils1.js";
 import { addFriend, blockUser } from "../utils/manageUsers.js";
+import { displayMatchHistory } from "../profile/userProfile.js";
 
 let dataUserSearch;
 let dataUserFromSearch;
 
 async function userSearchPage(dataUserSearch) {
+	console.log('DataUserSearch: ', dataUserSearch);
+
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePageDataSearch = makeProfilePageSearchOther(dataUserSearch);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageDataSearch);
+
+	
+	displayMatchHistory(dataUserSearch.profile.pong_match_history, "pongTableContainer");
+	displayMatchHistory(dataUserSearch.profile.snake_match_history, "snakeTableContainer");
+
 	document.getElementById('addFriend').addEventListener('click', async (e) => {
 		e.preventDefault();
 		await addFriend(dataUserSearch.user.username, displaySlidingMessage);
 	});
+	
 	document.getElementById('blockUser').addEventListener('click', async (e) => {
 		e.preventDefault();
 		await blockUser(dataUserSearch.user.username, displaySlidingMessage);
