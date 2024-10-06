@@ -66,6 +66,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		if self.rank is None:
 			logging.error("Matchmaking: Failed to get user rank.")
 			return
+		await self.matchmake()
+
+	async def matchmake(self):
 		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
 		self.match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
@@ -83,7 +86,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				)
 			else:
 				# player 2 waits for room creation
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}.")
+				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}. Awaiting confirmation")
 				# await self.channel_layer.group_send(
 				# 	self.user_group_name, {
 				# 		"type": "system.message",
@@ -101,7 +104,6 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			self.queued = False
 
 
-
 	async def cancel_matchmaking(self, data):
 		if not self.queued:
 			logging.error("Matchmaking: User not in matchmaking.")
@@ -114,6 +116,14 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# )
 
 	# event handlers
+	async def rejoin_matchmaking(self, event):
+		if not self.queued or not self.rank or not self.game:
+			logging.error("Matchmaking: Error in rejoining matchmaking after failed match.")
+			return
+		logging.info(f"{self.user.username} rejoining matchmaking after failed match.")
+		await self.matchmake()
+
+
 	#confirm match players from player1 to player2
 	async def check_match(self, event):
 		player1 = event["player1"]
@@ -128,22 +138,29 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 						"type": "match.confirmed"
 					}
 				)
-		else:
-			# let self know mm failed
-			await self.channel_layer.group(
-				self.user_group_name, {
-					"type": "system.message",
-					"message": "Something went wrong in matchmaking, please queue up again!"
-				}
-			)
-			# let player1 know mm failed
-			await self.channel_layer.group_send(
-				player1_group_name, {
-					"type": "system.message",
-					"message": "Something went wrong in matchmaking, please queue up again!"
-				}
-			)
-			loggin.info(f"Matchmaking: Matchmaking canceled for {player1} and {player2}, players didn't match")
+			else:
+				await self.channel_layer.group_send(
+					player1_mm_group_name, {
+						"type": "rejoin.matchmaking"
+					}
+				)
+				logging.info(f"Matchmaking failed to match Player1: {player1} with Player2: {player2}")
+		# else:
+		# 	# let self know mm failed
+		# 	await self.channel_layer.group(
+		# 		self.user_group_name, {
+		# 			"type": "system.message",
+		# 			"message": "Something went wrong in matchmaking, please queue up again!"
+		# 		}
+		# 	)
+		# 	# let player1 know mm failed
+		# 	await self.channel_layer.group_send(
+		# 		player1_group_name, {
+		# 			"type": "system.message",
+		# 			"message": "Something went wrong in matchmaking, please queue up again!"
+		# 		}
+		# 	)
+		# 	loggin.info(f"Matchmaking: Matchmaking canceled for {player1} and {player2}, players didn't match")
 
 	#match confirmed from player2, proceed to createRoom
 	async def match_confirmed(self, event):
@@ -213,21 +230,19 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 		max_rank = 50
 		xp_max = 100_000  # xp required for max rank
-		ranks = [0] * max_rank
+		xpByRank = [0] * max_rank
 
 		# xp required for each rank
 		for rank in range(1, max_rank):
 			# progressive xp requirement based on rank (quadratic)
-			ranks[rank] = int((rank / max_rank) ** 2 * xp_max)
+			xpByRank[rank] = int((rank / max_rank) ** 2 * xp_max)
 
 		# rank based on xp
-		for rank, xp_required in enumerate(ranks):
+		for rank, xp_required in enumerate(xpByRank):
 			if xp < xp_required:
 				return rank - 1
 
 		return max_rank
-
-
 
 
 	async def get_user_xp(self):
