@@ -230,21 +230,19 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 		max_rank = 50
 		xp_max = 100_000  # xp required for max rank
-		ranks = [0] * max_rank
+		xpByRank = [0] * max_rank
 
 		# xp required for each rank
 		for rank in range(1, max_rank):
 			# progressive xp requirement based on rank (quadratic)
-			ranks[rank] = int((rank / max_rank) ** 2 * xp_max)
+			xpByRank[rank] = int((rank / max_rank) ** 2 * xp_max)
 
 		# rank based on xp
-		for rank, xp_required in enumerate(ranks):
+		for rank, xp_required in enumerate(xpByRank):
 			if xp < xp_required:
 				return rank - 1
 
 		return max_rank
-
-
 
 
 	async def get_user_xp(self):
