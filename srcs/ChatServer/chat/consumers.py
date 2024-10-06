@@ -33,13 +33,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		self.user = await self.get_user_from_token(self.token)
 		if not self.user:
 			await self.close()
-			logging.error("Matchmaking: Failed to get user from token.")
+			logging.error("Matchmaking: connect: Failed to get user from token.")
 			return
 		await self.initialize_connection()
 
-	async def disconnect(self, close_code):
+	async def disconnect(self):
 		if not self.authenticated:
-			logging.info("Matchmaking: Not authenticated user disconnected.")
+			logging.info("Matchmaking: disconnect: Not authenticated user disconnected.")
 			return
 		await self.cleanup_connection()
 		return
@@ -56,27 +56,27 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 	async def join_matchmaking(self, data):
 		if self.queued:
-			logging.error("Matchmaking: User already in matchmaking.")
+			logging.error("Matchmaking: join_matchmaking: User already in matchmaking.")
 			return
 		self.game = await self.get_game_from_data(data)
 		if self.game is None:
-			logging.error("Matchmaking: Invalid game.")
+			logging.error("Matchmaking: join_matchmaking: Invalid game.")
 			return
 		self.rank = await self.get_user_rank()
 		if self.rank is None:
-			logging.error("Matchmaking: Failed to get user rank.")
+			logging.error("Matchmaking: join_matchmaking: Failed to get user rank.")
 			return
 		await self.matchmake()
 
 	async def matchmake(self):
-		logging.info(f"Matchmaking: User {self.user.username} joined {self.game} matchmaking.")
+		logging.info(f"Matchmaking: matchmake: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
 		self.match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
 		if self.match:
 			# player 1 checks with player2 the match
 			if self.match[0] == self.user.username:
 				recipient_mm_group_name = "user_mm_%s" % self.match[1]
-				recipient_group_name = "user_%s" % self.match[1]
+				# recipient_group_name = "user_%s" % self.match[1]
 				await self.channel_layer.group_send(
 					recipient_mm_group_name, {
 						"type": "check.match",
@@ -86,7 +86,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				)
 			else:
 				# player 2 waits for room creation
-				logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[0]}. Awaiting confirmation")
+				logging.info(f"Matchmaking: matchmake: Match found for {self.user.username} in {self.game} against {self.match[0]}. Awaiting confirmation")
 				# await self.channel_layer.group_send(
 				# 	self.user_group_name, {
 				# 		"type": "system.message",
@@ -94,7 +94,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				# 	}
 				# )
 		else:
-			logging.info(f"Matchmaking: User {self.user.username} didn't find a fair game of {self.game}.")
+			logging.info(f"Matchmaking: matchmake: User {self.user.username} didn't find a fair game of {self.game}.")
 			await self.channel_layer.group_send(
 				self.user_group_name, {
 					"type": "system.message",
@@ -104,23 +104,23 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			self.queued = False
 
 
-	async def cancel_matchmaking(self, data):
+	async def cancel_matchmaking(self):
 		if not self.queued:
-			logging.error("Matchmaking: User not in matchmaking.")
+			logging.error("Matchmaking: cancel_matchmaking: User not in matchmaking.")
 			return
 		self.queued = False
-		logging.info(f"Matchmaking: User {self.user.username} left {self.game} matchmaking.")
+		logging.info(f"Matchmaking: cancel_matchmaking: User {self.user.username} left {self.game} matchmaking.")
 		await matchmaking_manager.remove_player(self.user.username, self.game)
 		# await self.channel_layer.group_send(
 		# 	self.user_group_name, {"type": "system.message", "message": f"Left {self.game} matchmaking."}
 		# )
 
 	# event handlers
-	async def rejoin_matchmaking(self, event):
+	async def rejoin_matchmaking(self):
 		if not self.queued or not self.rank or not self.game:
-			logging.error("Matchmaking: Error in rejoining matchmaking after failed match.")
+			logging.error("Matchmaking: rejoin_matchmaking: Error in rejoining matchmaking after failed match.")
 			return
-		logging.info(f"{self.user.username} rejoining matchmaking after failed match.")
+		logging.info(f"Matchmaking: rejoin_matchmaking: {self.user.username} rejoining matchmaking after failed match.")
 		await self.matchmake()
 
 
@@ -129,7 +129,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		player1 = event["player1"]
 		player2 = event["player2"]
 		player1_mm_group_name = "user_mm_%s" % player1
-		player1_group_name = "user_%s" % player1
+		# player1_group_name = "user_%s" % player1
 		if self.match:
 			if self.match[0] == player1 and self.match[1] == player2:
 				self.queued = False
@@ -144,7 +144,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 						"type": "rejoin.matchmaking"
 					}
 				)
-				logging.info(f"Matchmaking failed to match Player1: {player1} with Player2: {player2}")
+				logging.info(f"Matchmaking: check_match: Failed to match Player1: {player1} with Player2: {player2}")
+
 		# else:
 		# 	# let self know mm failed
 		# 	await self.channel_layer.group(
@@ -165,7 +166,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	#match confirmed from player2, proceed to createRoom
 	async def match_confirmed(self, event):
 		self.queued = False
-		logging.info(f"Matchmaking: Match found for {self.user.username} in {self.game} against {self.match[1]}.")
+		logging.info(f"Matchmaking: match_confirmed: Match found for {self.user.username} in {self.game} against {self.match[1]}.")
 		roomCode = await create_room(self.token,self.match[1])
 		player2_mm_group_name = "user_mm_%s" % self.match[1]
 		# send match data to opponent
@@ -206,27 +207,27 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		}))
 		# chat warning for self
 		await self.channel_layer.group_send(self.user_group_name, {"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"})
-		logging.info(f"Matchmaking: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
+		logging.info(f"Matchmaking: match_details: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
 
 
 	# utility methods
 	async def get_game_from_data(self, data):
 		game = data.get("game", None)
 		if not game:
-			logging.error("Matchmaking: No game provided.")
+			logging.error("Matchmaking: get_game_from_data: No game provided.")
 			return None
 		elif game == "pong":
 			return "pong"
 		elif game == "snake":
 			return "snake"
 		else:
-			logging.error("Matchmaking: Invalid game.")
+			logging.error("Matchmaking: get_game_from_data: Invalid game.")
 			return None
 
 	async def get_user_rank(self):
 		xp = await self.get_user_xp()
 		if xp is None:
-			logging.error("Matchmaking: Failed to get user xp.")
+			logging.error("Matchmaking: get_user_rank: Failed to get user xp.")
 			return None
 		max_rank = 50
 		xp_max = 100_000  # xp required for max rank
@@ -257,10 +258,10 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 					data = response.json()
 					return data.get(f'{self.game}_rank', 0)
 				else:
-					logging.error(f"Failed to get rank: {response.status_code} {response.text}")
+					logging.error(f"Matchmaking: get_user_xp: Failed to get rank: {response.status_code} {response.text}")
 					return None
 		except httpx.RequestError as e:
-			logging.error(f"An error occurred while requesting user xp: {e}")
+			logging.error(f"Matchmaking: get_user_xp: An error occurred while requesting user xp: {e}")
 			return None
 
 
@@ -278,13 +279,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# getting token from query string
 		token = self.scope['query_string'].decode().split('=')[1]
 		if not token:
-			logging.error("Matchmaking: No token provided.")
+			logging.error("Matchmaking: valide_token: No token provided.")
 			return None
 		try:
 			access_token = AccessToken(token)
 			return access_token
 		except (InvalidToken, TokenError):
-			logging.error("Matchmaking: Invalid token.")
+			logging.error("Matchmaking: validate_token: Invalid token.")
 			return None
 
 
@@ -296,7 +297,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# accepting the websocket connection
 		await self.accept()
 		await self.channel_layer.group_add(self.user_mm_group_name, self.channel_name)
-		logging.info(f"Matchmaking: User {self.user.username} connected.")
+		logging.info(f"Matchmaking: initialize_connection: User {self.user.username} connected.")
 		self.authenticated = True
 
 	async def cleanup_connection(self):
@@ -305,13 +306,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# await self.channel_layer.group_send(
 		# 	self.user_group_name, {"type": "system.message", "message": "Disconnected from matchmaking."}
 		# )
-		logging.info(f"Matchmaking: User {self.user.username} disconnected.")
+		logging.info(f"cleanup_connection: Matchmaking: User {self.user.username} disconnected.")
 
 async def create_room(game_accessToken, authorized_user):
 	data = None
 
-	logger.info(f"Creating room for {authorized_user}")
-	logger.info(f"Game Access Token: {game_accessToken}")
+	logger.info(f"Matchmaking: create_room: Creating room for {authorized_user}")
+	logger.info(f"Matchmaking: create_room: Game Access Token: {game_accessToken}")
 
 	try:
 		async with httpx.AsyncClient() as client:
@@ -329,15 +330,16 @@ async def create_room(game_accessToken, authorized_user):
 			logger.info(f"CreateRoom: {data}")
 
 			if response.status_code != 200:
-				logger.error(f"Error: {data}")
+				logger.error(f"Matchmaking: create_room: Error: {data}")
 
 	except Exception as e:
-		logger.info(f'Error creating room: {e}')
+		logger.info(f'Matchmaking: create_room: Error creating room: {e}')
 
 	return data.get('code') if data else None
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
+	MAX_MESSAGE_LENGTH = 200
 	online_users = {} #dict of online users
 	inviting = False # inviting status
 	pending = [] # pending invites
@@ -351,14 +353,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.user = await self.get_user_from_token(self.token)
 		if not self.user:
 			await self.close()
-			logging.error("Failed to get user from token.")
+			logging.error("Chat: connect: Failed to get user from token.")
 			return
 		await self.initialize_connection()
 
 
 	async def disconnect(self, close_code):
 		if not self.authenticated:
-			logging.info("Not authenticated user disconnected.")
+			logging.info("Chat: disconnect: Not authenticated user disconnected.")
 			return
 		await self.cleanup_connection()
 		return
@@ -400,7 +402,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": "No invite to cancel."}
 			)
-			logging.error("Cancel Invite: No invite to cancel.")
+			logging.error("Chat: handle_cancel_invite: Cancel Invite: No invite to cancel.")
 			return
 		recipient_group_name = "user_%s" % recipient
 		await self.channel_layer.group_send(
@@ -409,7 +411,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"sender": self.user.username,
 			}
 		)
-		logging.info(f"Invite to {recipient} canceled by {self.user.username}.")
+		logging.info(f"Chat: handle_cancel_invite: Invite to {recipient} canceled by {self.user.username}.")
 
 	#send inviter invite
 	async def handle_invite(self, data):
@@ -421,13 +423,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": "Invite a valid user."}
 			)
-			logging.error("Invite: Invalid recipient.")
+			logging.error("Chat: handle_invite: Invite: Invalid recipient.")
 			return
 		if self.inviting:
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": f"Something went wrong with the last invite sent."}
 			)
-			logging.error("Invite: Last invite error.")
+			logging.error("Chat: handle_invite: Invite: Last invite error.")
 			return
 		else:
 			# sending invite
@@ -440,7 +442,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				}
 			)
 			self.inviting = True
-			logging.info(f"Invite sent to {recipient} by {self.user.username}.")
+			logging.info(f"Chat: handle_invite: Invite sent to {recipient} by {self.user.username}.")
 
 	# invitee response to invite
 	#  creates room if accepted and sends roomcode to inviter and frontend
@@ -450,7 +452,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		accepted = data.get("accepted", False)
 		roomCode = None
 		if inviter not in self.pending:
-			logging.error("Invite was cancelled")
+			logging.error("Chat: handle_invite_response: Invite was cancelled")
 			await self.channel_layer.group_send(
 				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was cancelled."}
 			)
@@ -474,11 +476,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			}
 		)
 		self.pending.remove(inviter)
-		logging.info(f"Invite response sent to {inviter}.")
+		logging.info(f"Chat: handle_invite_response: Invite response sent to {inviter}.")
 
 
 	async def handle_private_message(self, data, recipient):
 		message = data.get("message", None)
+		if not message or message > self.MAX_MESSAGE_LENGTH:
+			logging.info("Chat: handle_private_message: Message not send because it is too big.")
 		recipient_group_name = "user_%s" % recipient
 		# to self
 		if recipient == self.user.username:
@@ -499,12 +503,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def handle_public_message(self, data):
 		message = data.get("message", None)
+		if not message or message > self.MAX_MESSAGE_LENGTH:
+			logging.info("Chat: handle_public_message: Message not send because it is too big.")
 		await self.channel_layer.group_send(
 		self.room_group_name, {"type": "chat.message", "message": message, "sender": self.user.username}
 			)
-		logging.info(f"Public message sent by {self.user.username}.")
+		logging.info(f"Chat: handle_public_message: Public message sent by {self.user.username}.")
 
 
+	# event handlers
 	async def chat_message(self, event):
 		message = event["message"]
 		sender = event["sender"]
@@ -512,7 +519,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		blocked_users = await self.get_blocked_user_list()
 		if blocked_users is None:
 			blocked_users = []
-			logging.error("Failed to get blocked users list.")
+			logging.error("Chat: chat_message: Failed to get blocked users list.")
 		if sender in blocked_users:
 			return
 		if sender == self.user.username:
@@ -527,7 +534,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		blocked_users = await self.get_blocked_user_list()
 		if blocked_users is None:
 			blocked_users = []
-			logging.error("Failed to get blocked users list.")
+			logging.error("Chat: receive_dm: Failed to get blocked users list.")
 		if sender == self.user.username or sender in blocked_users:
 			return
 		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
@@ -557,7 +564,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def invite_message(self, event):
 		sender = event["sender"]
 		game = event.get("game", None)
-		roomCode = event.get("roomCode", None)
 		await self.send(text_data=json.dumps({
 			"invite": True,
 			"sender": sender,
@@ -568,7 +574,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	# inviter letting frontend know of invite response
 	async def invite_response(self, event):
 		if self.inviting is False:
-			logging.error("this invite was canceled previously, not doing anything")
+			logging.error("Chat: invite_response: This invite was canceled previously, not doing anything")
 			return
 		invitee = event["invitee"]
 		accepted = event["accepted"]
@@ -600,7 +606,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps({
 			'online_users': online_users
 		}))
-		logging.info("Status updated.")
+		logging.info("Chat: update_status: Status updated.")
 
 	# connection methods
 	@database_sync_to_async
@@ -616,13 +622,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		# getting token from query string
 		token = self.scope['query_string'].decode().split('=')[1]
 		if not token:
-			logging.error("No token provided.")
+			logging.error("Chat: valdiate_token: No token provided.")
 			return None
 		try:
 			access_token = AccessToken(token)
 			return access_token
 		except (InvalidToken, TokenError):
-			logging.error("Invalid token.")
+			logging.error("Chat: validate_token: Invalid token.")
 			return None
 
 	async def initialize_connection(self):
@@ -631,7 +637,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.user_group_name = "user_%s" % self.user.username
 		# accepting the websocket connection
 		await self.accept()
-		logging.info(f"User {self.user.username} connected.")
+		logging.info(f"Chat: initialize_connection: User {self.user.username} connected.")
 		self.authenticated = True
 		# adding user to channel groups and online list
 		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -650,7 +656,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 		await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 		await self.remove_online_user()
-		logging.info(f"User {self.user.username} disconnected.")
+		logging.info(f"Chat: cleanup_connection: User {self.user.username} disconnected.")
 
 	# utility methods
 	async def add_online_user(self):
