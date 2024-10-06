@@ -3,7 +3,7 @@ import { navigateTo } from "../app.js";
 let snake_socket = null;
 let playerIndex = null;
 let stopFlag = false;
-let ctx, canvasWidth, canvasHeight;
+let ctx, canvasWidth, canvasHeight, player1Score, player2Score;
 let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let foodColor = "#FF0000";
