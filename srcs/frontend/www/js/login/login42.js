@@ -6,7 +6,7 @@ import { successContainer } from "../utils/utils1.js";
 import WebSocketInstance from "../socket/websocket.js";
 
 const clientId = 'u-s4t2ud-159130180b55795d9366f64e165fe220ae4cb2c8b5e412a3424d938148c1f337';
-const uri = encodeURIComponent('https://localhost/callback');
+const uri = encodeURIComponent(`https://${window.location.host}/callback`);
 const scope = encodeURIComponent('public');
 const state = 'csrf_protect';
 

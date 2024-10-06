@@ -1,6 +1,6 @@
 import { home, homeLogin, changeChatLoaded } from "../home/home.js";
 import { dataUser, fetchUserProfile } from "../profile/myprofile.js";
-import { dataUserSearch, dataUserFromSearch, userSearchPage } from "../search/search_user.js";
+import { dataUserSearch, dataUserFromSearch, userSearchPage, getUser } from "../search/search_user.js";
 import { navigateTo } from "../app.js";
 import { displayPageError } from "../html/error_page.js";
 import { signIn } from "../login/login.js";
@@ -113,7 +113,12 @@ const pages = {
 	},
 	'/user/:username/profile/search/:user': {
 		loadContent: function (params) {
-			userSearchPage(dataUserSearch, params.username);
+			if (dataUserSearch)
+				userSearchPage(dataUserSearch, params.user);
+			else {
+				getUser(params.username, params.user);
+			}
+			// userSearchPage(dataUserSearch, params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
