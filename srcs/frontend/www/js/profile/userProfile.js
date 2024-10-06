@@ -8,12 +8,17 @@ import { makePasswordProfilePage } from "./profilePages.js";
 import { resetPassword } from "../login/login.js";
 
 
-function userProfilePage(userData) {
+function userProfilePage(userData, user) {
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePageData = makeProfilePage(userData);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
+
+	console.log('PRINT PONG: ', userData.profile.pong_match_history);
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
+
+	console.log('PRINT SNAKE: ', userData.profile.snake_match_history);
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
+
 	displayProfileFriendsList(userData.user.username);
 	document.getElementById('editProfile').addEventListener('click', (e) => {
 		e.preventDefault();
@@ -254,4 +259,4 @@ function displayChangePassword() {
 	});
 }
 
-export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings , displayChangePassword }
+export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings , displayChangePassword , displayMatchHistory }

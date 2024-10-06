@@ -78,6 +78,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 				'snake_speed': 500,
 				'end_game': False,
 				'disconnect': "",
+				'save_count': 0
 			}
 
 		room = SnakeConsumer.rooms[self.room.code]
@@ -165,6 +166,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			
 			await self.update_game_state(room )
 			await asyncio.sleep(0.08)  # Increase update frequency for smoother ball movement
+		
 
 	async def update_game_state(self, room):
 		alive_snakes = [snake for snake in room['snakes'] if snake['alive']]
@@ -213,12 +215,12 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			for player in room['players']:
 				await player.end_game(room, winner)
 
-			# Remover o jogador da sala e encerrar a partida
-			room['players'].remove(self)
-			logger.info('Player removed from room')
+			# # Remover o jogador da sala e encerrar a partida
+			# room['players'].remove(self)
+			# logger.info('Player removed from room')
 
 		# Se não houver mais jogadores, cancelar o loop do jogo
-		if len(room['players']) == 0:
+		if len(room['players']) == 0 or room['save_count'] == 2:
 			room['game_loop_task'].cancel()
 			room['game_loop_task'] = None
 			del SnakeConsumer.rooms[self.room.code]
@@ -291,7 +293,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 		# Verificar se sobrou apenas uma cobra viva
 		alive_snakes = [s for s in room['snakes'] if s['alive']]
-		if len(alive_snakes) == 1:
+		if len(alive_snakes) == 1 and not room['end_game']:
 			logger.info('sobrou apenas uma')
 			for player in room['players']:
 				player.end_game(room, alive_snakes[0]['username'])
@@ -346,16 +348,11 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			'timestamp': formatted_time,
 			'game_type': 'snake',
 		}
-		
 
 		await self.save_match_history(to_save)
-
+		room['save_count'] += 1
 		for player in room['players']:
-			await player.send(json.dumps(result))
-
-		# Limpar o estado da sala
-		await self.close()
-		del SnakeConsumer.rooms[self.room.code]
+			await self.send(json.dumps(result))
 
 
 	async def save_match_history(self, match_data):

@@ -105,7 +105,7 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 
 			showEndScreen(parsedScore);
 
-			if (snake_socket.readyState === WebSocket.OPEN) {
+			if (snake_socket && snake_socket.readyState === WebSocket.OPEN) {
 				snake_socket.close();
 				console.log('Snake Socket Closed after game over');
 			}
@@ -247,7 +247,9 @@ function gameLoop() {
 		}
 
 		if (snake_socket.readyState === WebSocket.OPEN) {
-			snake_socket.close();
+			setTimeout(() => {
+				snake_socket.close();
+			}, 1000);
 			console.log('Snake Socket Closed on gameLoop');
 		}
 
