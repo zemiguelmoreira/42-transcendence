@@ -319,7 +319,7 @@ function snakeGameRemote(username) {
 	}
 
 	// Cria uma nova conexão WebSocket para matchmaking
-	matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+	matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
 
 	// Evento chamado quando a conexão WebSocket é aberta
 	matchmakingSocket.onopen = () => {

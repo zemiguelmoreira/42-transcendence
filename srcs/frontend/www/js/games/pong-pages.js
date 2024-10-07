@@ -151,7 +151,7 @@ function pongGameRemote(username) {
 		matchmakingSocket.close();
 		matchmakingSocket = null;
 	}
-	matchmakingSocket = new WebSocket(`wss://${window.location.host}/chat/ws/mm/?token=${token}`);
+	matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
 
 	matchmakingSocket.onopen = () => {
 		console.log("Matchmaking socket opened.");
@@ -407,7 +407,7 @@ function displayTournamentBracket() {
 			</div>
 			<button id="startMatchBtn" class="sm-start-button">START MATCH</button>
 		</div>
-		<div id="tournament-bracket" class="tournament-bracket"></div>		
+		<div id="tournament-bracket" class="tournament-bracket"></div>
 	`;
 }
 
