@@ -14,6 +14,12 @@ services:
     depends_on:
       user_management:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     restart: always
     networks:
       - transcendence-net
@@ -26,15 +32,22 @@ services:
       - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
-      - "8443:8443"
+      - "443:443"
     expose:
       - "80"
     depends_on:
       frontend:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: always
     networks:
       - transcendence-net
+
 
 
   user_management:
