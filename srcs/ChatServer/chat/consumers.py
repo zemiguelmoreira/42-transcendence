@@ -19,8 +19,6 @@ logging.basicConfig(level=logging.INFO)
 User = get_user_model()
 
 class MatchmakingConsumer(AsyncWebsocketConsumer):
-	def __init__(self):
-		self.game = None # coz of cleanup connection
 
 
 	async def connect(self):
@@ -226,6 +224,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_add(self.user_mm_group_name, self.channel_name)
 		logging.info(f"Matchmaking: initialize_connection: User {self.user.username} connected.")
 		self.authenticated = True
+		self.game = None # coz of cleanup connection
 
 
 	async def cleanup_connection(self):
