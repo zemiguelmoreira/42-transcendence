@@ -7,7 +7,10 @@ import { getParams } from "./login/login42.js";
 import { changeChatLoaded } from "./home/home.js";
 import { homeLogin } from "./home/home.js";
 
-const baseURL = `https://${window.location.host}:8443/api`;
+console.log('window location host:', window.location.host);
+
+const baseURL = `https://${window.location.host}/api`;
+const baseSocket =wss
 
 async function goTo() {
 	try {
@@ -198,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				code: code,
 				state: state
 			}
-			window.opener.postMessage(params, 'https://localhost/');
+			window.opener.postMessage(params, `https://${window.location.host}`);
 		}
 		window.close();
 	}
@@ -289,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 			console.log('teste2');
 			// Substitui o estado atual no histórico, criando um novo ponto de partida
 			// history.replaceState({ page: currentPath }, '', currentPath);
-
+			baseURL
 			// Carrega o conteúdo da página
 			
 			// let username = await getNamebyId(payload.user_id);
