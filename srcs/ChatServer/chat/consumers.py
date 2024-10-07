@@ -22,8 +22,6 @@ User = get_user_model()
 class ChatConsumer(AsyncWebsocketConsumer):
 	MAX_MESSAGE_LENGTH = 200
 	online_users = {} #dict of online users
-	inviting = False # inviting status
-	pending = [] # pending invites
 
 
 	async def connect(self):
@@ -164,7 +162,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def handle_private_message(self, data, recipient):
 		message = data.get("message", None)
-		if not message or len(message) > self.MAX_MESSAGE_LENGTH:
+		if not message or len(message) > ChatConsumer.MAX_MESSAGE_LENGTH:
 			logging.info("Chat: handle_private_message: Message not send because it is too big.")
 			return
 		recipient_group_name = "user_%s" % recipient
@@ -187,7 +185,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def handle_public_message(self, data):
 		message = data.get("message", None)
-		if not message or len(message) > self.MAX_MESSAGE_LENGTH:
+		if not message or len(message) > ChatConsumer.MAX_MESSAGE_LENGTH:
 			logging.info("Chat: handle_public_message: Message not send because it is too big.")
 			return
 		await self.channel_layer.group_send(
@@ -289,10 +287,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.pending.remove(sender)
 
 	async def update_status(self, event):
-		online_users = event['online_users']
-
 		await self.send(text_data=json.dumps({
-			'online_users': online_users
+			'online_users': event['online_users']
 		}))
 		logging.info("Chat: update_status: Status updated.")
 
@@ -330,6 +326,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 		logging.info(f"Chat: initialize_connection: User {self.user.username} connected.")
 		self.authenticated = True
+		self.inviting = False # inviting status
+		self.pending = [] # pending invites
 		# adding user to channel groups and online list
 		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 		await self.channel_layer.group_add(self.user_group_name, self.channel_name)
@@ -345,20 +343,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	# utility methods
 	async def add_online_user(self):
-		self.online_users[self.user.username] = self.online_users.get(self.user.username, 0) + 1
+		ChatConsumer.online_users[self.user.username] = ChatConsumer.online_users.get(self.user.username, 0) + 1
 		await self.update_user_status()
 
 
 	async def remove_online_user(self):
-		if self.online_users.get(self.user.username, 0) > 1:
-			self.online_users[self.user.username] -= 1
+		if ChatConsumer.online_users.get(self.user.username, 0) > 1:
+			ChatConsumer.online_users[self.user.username] -= 1
 		else:
-			self.online_users.pop(self.user.username, None)
+			ChatConsumer.online_users.pop(self.user.username, None)
 		await self.update_user_status()
 
 
 	async def update_user_status(self):
-		online_users_sorted = sorted(list(self.online_users))
+		online_users_sorted = sorted(list(ChatConsumer.online_users))
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{

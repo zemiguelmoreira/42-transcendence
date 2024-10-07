@@ -11,6 +11,7 @@ channel_layer = get_channel_layer()
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
 
 class MatchmakingManager:
+	# class attribute (shared)
 	redis_client = redis_client
 	matchmaking_tasks = {}
 
@@ -37,12 +38,12 @@ class MatchmakingManager:
 		player_data = json.dumps({"username": username, "rank": rank})
 		queue_key = f"queue:{game}"
 		# check if player is already in the queue
-		if self.redis_client.lrem(queue_key, 0, username) > 0:
+		if MatchmakingManager.redis_client.lrem(queue_key, 0, username) > 0:
 			logging.info(f"User {username} is already in the {game} queue.")
 			return
-		self.redis_client.rpush(queue_key, player_data)
+		MatchmakingManager.redis_client.rpush(queue_key, player_data)
 		task = asyncio.create_task(self.start_matchmaking(username, game, rank))
-		self.matchmaking_tasks[username] = task
+		MatchmakingManager.matchmaking_tasks[username] = task
 		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank} task_id: {id(task)}")
 
 
@@ -50,9 +51,9 @@ class MatchmakingManager:
 		queue_key = f"queue:{game}"
 		match = None
 		# loop through queue list on redis
-		queue_length = self.redis_client.llen(queue_key)
+		queue_length = MatchmakingManager.redis_client.llen(queue_key)
 		for i in range(queue_length):
-			player_data = self.redis_client.lindex(queue_key, i)
+			player_data = MatchmakingManager.redis_client.lindex(queue_key, i)
 			player = json.loads(player_data)
 			# check if i player is a match within tolerance
 			if player["username"] != username and abs(rank - player["rank"]) <= tolerance:
@@ -93,11 +94,11 @@ class MatchmakingManager:
 		)
 
 	async def cancel_matchmaking(self, username, game):
-		if username in self.matchmaking_tasks:
-			task = self.matchmaking_tasks[username]
+		if username in MatchmakingManager.matchmaking_tasks:
+			task = MatchmakingManager.matchmaking_tasks[username]
 			if not task.done():  # check if the task is still running
 				task.cancel()
-			del self.matchmaking_tasks[username]  # remove from tracking
+			del MatchmakingManager.matchmaking_tasks[username]  # remove from tracking
 		await self.remove_player(username, game)
 
 
@@ -105,16 +106,16 @@ class MatchmakingManager:
 		logging.info(f"Matchmaking: remove_player: Removing {username} from {game} queue")
 		queue_key = f"queue:{game}"
 		# get the full list of players in the queue
-		queue_length = self.redis_client.llen(queue_key)
+		queue_length = MatchmakingManager.redis_client.llen(queue_key)
 		for i in range(queue_length):
-			player_data = self.redis_client.lindex(queue_key, i)
+			player_data = MatchmakingManager.redis_client.lindex(queue_key, i)
 			if player_data is None:
 				continue
 			player = json.loads(player_data)
 			# check if the username matches
 			if player["username"] == username:
 				# remove player data from the queue
-				self.redis_client.lrem(queue_key, 1, player_data)  # remove the first occurrence of player_data
+				MatchmakingManager.redis_client.lrem(queue_key, 1, player_data)  # remove the first occurrence of player_data
 				logging.info(f"Matchmaking: remove_player: {username} successfully removed from {game} queue")
 				break
 		else:
