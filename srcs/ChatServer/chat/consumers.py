@@ -20,7 +20,7 @@ User = get_user_model()
 
 class MatchmakingConsumer(AsyncWebsocketConsumer):
 	queued = False
-	match = None # coz of check match handler
+	matched = False
 	game = None # coz of cleanup connection
 
 	async def connect(self):
@@ -71,37 +71,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 	async def matchmake(self):
 		logging.info(f"Matchmaking: matchmake: User {self.user.username} joined {self.game} matchmaking.")
 		self.queued = True
-		self.match = await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
-		if self.match:
-			# player 1 checks with player2 the match
-			if self.match[0] == self.user.username:
-				recipient_mm_group_name = "user_mm_%s" % self.match[1]
-				# recipient_group_name = "user_%s" % self.match[1]
-				await self.channel_layer.group_send(
-					recipient_mm_group_name, {
-						"type": "check.match",
-						"player1": self.match[0],
-						"player2": self.match[1],
-						}
-				)
-			else:
-				# player 2 waits for room creation
-				logging.info(f"Matchmaking: matchmake: Match found for {self.user.username} in {self.game} against {self.match[0]}. Awaiting confirmation")
-				# await self.channel_layer.group_send(
-				# 	self.user_group_name, {
-				# 		"type": "system.message",
-				# 		"message": f"Match found! Waiting for room creation by {self.match[0]}."
-				# 	}
-				# )
-		else:
-			logging.info(f"Matchmaking: matchmake: User {self.user.username} didn't find a fair game of {self.game}.")
-			await self.channel_layer.group_send(
-				self.user_group_name, {
-					"type": "system.message",
-					"message": f"Couldn't find a fair game of {self.game}."
-				}
-			)
-			self.queued = False
+		await matchmaking_manager.add_player(self.user.username, self.game, self.rank)
 
 
 	async def cancel_matchmaking(self):
@@ -116,7 +86,34 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# )
 
 	# event handlers
+	async def match_notFound(self, event):
+		logging.info(f"Matchmaking: match_notFound: Match not found for {self.user.username} in {self.game}. Rejoining matchmaking.")
+		await self.rejoin_matchmaking()
+
+	async def match_found(self, event):
+		self.queued = False
+		self.matched = True
+		game = event["game"]
+		self.player1 = event["player1"]
+		self.player2 = event["player2"]
+		player1_mm_group_name = "user_mm_%s" % player1
+		player2_mm_group_name = "user_mm_%s" % player2
+		# player 1 checks with player2 the match
+		if player1 == self.user.username:
+			await self.channel_layer.group_send(
+				player1_mm_group_name, {
+					"type": "check.match",
+					"player1": player1,
+					"player2": player2,
+				}
+			)
+		else:
+			# player 2 waits for room creation
+			logging.info(f"Matchmaking: matchmake: Match found for {self.user.username} in {self.game} against {self.match[0]}. Awaiting confirmation")
+
+
 	async def rejoin_matchmaking(self):
+		self.matched = False
 		if not self.queued or not self.rank or not self.game:
 			logging.error("Matchmaking: rejoin_matchmaking: Error in rejoining matchmaking after failed match.")
 			return
@@ -126,13 +123,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 	#confirm match players from player1 to player2
 	async def check_match(self, event):
-		player1 = event["player1"]
-		player2 = event["player2"]
-		player1_mm_group_name = "user_mm_%s" % player1
-		# player1_group_name = "user_%s" % player1
-		if self.match:
-			if self.match[0] == player1 and self.match[1] == player2:
-				self.queued = False
+		check_player1 = event["player1"]
+		check_player2 = event["player2"]
+		player1_mm_group_name = "user_mm_%s" % check_player1
+		if self.matched:
+			if self.player1 == check_player1 and self.player2 == check_player2:
 				await self.channel_layer.group_send(
 					player1_mm_group_name, {
 						"type": "match.confirmed"
@@ -144,31 +139,16 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 						"type": "rejoin.matchmaking"
 					}
 				)
-				logging.info(f"Matchmaking: check_match: Failed to match Player1: {player1} with Player2: {player2}")
+				logging.info(f"Matchmaking: check_match: Failed to match Player1: {self.player1} with Player2: {self.player2}")
+		else:
+			logging.info(f"Matchmaking: check_match: Failed to match Player1: {check_player1} with Player2: {check_player2}")
 
-		# else:
-		# 	# let self know mm failed
-		# 	await self.channel_layer.group(
-		# 		self.user_group_name, {
-		# 			"type": "system.message",
-		# 			"message": "Something went wrong in matchmaking, please queue up again!"
-		# 		}
-		# 	)
-		# 	# let player1 know mm failed
-		# 	await self.channel_layer.group_send(
-		# 		player1_group_name, {
-		# 			"type": "system.message",
-		# 			"message": "Something went wrong in matchmaking, please queue up again!"
-		# 		}
-		# 	)
-		# 	loggin.info(f"Matchmaking: Matchmaking canceled for {player1} and {player2}, players didn't match")
 
 	#match confirmed from player2, proceed to createRoom
 	async def match_confirmed(self, event):
-		self.queued = False
-		logging.info(f"Matchmaking: match_confirmed: Match found for {self.user.username} in {self.game} against {self.match[1]}.")
+		logging.info(f"Matchmaking: match_confirmed: Match found for {self.user.username} in {self.game} against {self.player2}.")
 		roomCode = await create_room(self.token,self.match[1])
-		player2_mm_group_name = "user_mm_%s" % self.match[1]
+		player2_mm_group_name = "user_mm_%s" % self.player2
 		# send match data to opponent
 		await self.channel_layer.group_send(
 			player2_mm_group_name, {
@@ -182,13 +162,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_send(
 			self.user_group_name, {
 				"type": "system.message",
-				"message": f"Match found! Starting a game of {self.game} against {self.match[1]}"
+				"message": f"Match found! Starting a game of {self.game} against {self.player2}"
 			}
 		)
 		# send match data to client
 		await self.send(text_data=json.dumps({
 			"match": "match_created",
-			"opponent": self.match[1],
+			"opponent": self.player2,
 			"game": self.game,
 			"roomCode": roomCode,
 		}))
