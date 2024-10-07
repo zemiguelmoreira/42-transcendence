@@ -3,24 +3,48 @@ import redis
 import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import logging
 
-channel_layer = channels.layers.get_channel_layer()
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+channel_layer = get_channel_layer()
+redis_client = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
 
 class MatchmakingManager:
 	def __init__(self):
 		self.redis_client = redis_client
+		self.matchmaking_tasks = {}
+
+
+	async def start_matchmaking(self, username, game, rank):
+		task = asyncio.current_task()
+		try:
+			match = await self.find_match(username, game, rank)
+			if match:
+				await self.send_match(username, match, game)
+			else:
+				match = await self.wait_for_match(username, game, rank)
+				await self.send_match(username, match, game)
+		except asyncio.CancelledError:
+			logging.info(f"MatchmakingManager: start_matchmaking: Matchmaking task for {username} was cancelled.")
+			return
+		except Exception as e:
+			logging.error(f"MatchmakingManager: start_matchmaking: An error occurred in the matchmaking task for {username}: {e}")
+		finally:
+			await self.cancel_matchmaking(username, game)
+
 
 	async def add_player(self, username, game, rank):
 		player_data = json.dumps({"username": username, "rank": rank})
 		queue_key = f"queue:{game}"
+		# check if player is already in the queue
+		if self.redis_client.lrem(queue_key, 0, username) > 0:
+			logging.info(f"User {username} is already in the {game} queue.")
+			return
 		self.redis_client.rpush(queue_key, player_data)
-		match = await self.find_match(username, game, rank)
-		if match:
-			await self.send_match(username, match, game)
-		else:
-			match = await self.wait_for_match(username, game, rank)
-			await self.send_match(username, match, game)
+		task = asyncio.create_task(self.start_matchmaking(username, game, rank))
+		self.matchmaking_tasks[username] = task
+		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank} task_id: {id(task)}")
 
 
 	async def find_match(self, username, game, rank, tolerance=0):
@@ -37,13 +61,9 @@ class MatchmakingManager:
 				break
 		# if a match is found, remove both players from the queue
 		if match:
-			self.remove_player(username, game)
-			self.remove_player(match["username"], game)
-			# order players by rank or alphabetically if same rank
-			if rank == match["rank"]:
-				return sorted([{"username": username, "rank": rank}, match], key=lambda x: x["username"])
-			else:
-				return sorted([{"username": username, "rank": rank}, match], key=lambda x: x["rank"])
+			await self.remove_player(username, game)
+			await self.remove_player(match["username"], game)
+			return match
 		return None
 
 
@@ -55,43 +75,52 @@ class MatchmakingManager:
 				return match
 		return None
 
+
 	async def send_match(self, username, match, game):
-		if not match or len(match) != 2:
-			logging.error("Matchmaking: send_match: Match not found or incomplete")
-			user_mm_group_name = f"user_mm_{username}"
+		user_mm_group_name = f"user_mm_{username}"
+		if not match:
+			logging.error("Matchmaking: send_match: Match not found")
 			await channel_layer.group_send(
 			user_mm_group_name, {"type": "match.notFound"})
 			return
-		player1 = match[0] # player1 dictionary
-		player2 = match[1] # player2 dictionary
-		player1_username = player1['username']
-		player2_username = player2['username']
-		player1_mm_group_name = f"user_mm_{player1_username}"
-		player2_mm_group_name = f"user_mm_{player2_username}"
-
+		opponent = match["username"]
 		await channel_layer.group_send(
-			player1_mm_group_name, player2_mm_group_name,
+			user_mm_group_name,
 			{
 				"type": "match.found",
 				"game": game,
-				"player1": player1_username,
-				"player2": player2_username,
+				"opponent": opponent
 			}
 		)
 
+	async def cancel_matchmaking(self, username, game):
+		if username in self.matchmaking_tasks:
+			task = self.matchmaking_tasks[username]
+			if not task.done():  # check if the task is still running
+				task.cancel()
+			del self.matchmaking_tasks[username]  # remove from tracking
+		await self.remove_player(username, game)
+
 
 	async def remove_player(self, username, game):
+		logging.info(f"Matchmaking: remove_player: Removing {username} from {game} queue")
 		queue_key = f"queue:{game}"
+		# get the full list of players in the queue
 		queue_length = self.redis_client.llen(queue_key)
-
-		# remove player from queue
 		for i in range(queue_length):
 			player_data = self.redis_client.lindex(queue_key, i)
+			if player_data is None:
+				continue
 			player = json.loads(player_data)
-
+			# check if the username matches
 			if player["username"] == username:
-				self.redis_client.lrem(queue_key, 1, player_data)
+				# remove player data from the queue
+				self.redis_client.lrem(queue_key, 1, player_data)  # remove the first occurrence of player_data
+				logging.info(f"Matchmaking: remove_player: {username} successfully removed from {game} queue")
 				break
+		else:
+			# if the loop completes without breaking, the user was not found
+			logging.warning(f"Matchmaking: remove_player: {username} not found in {game} queue")
 
 
 # single instance
