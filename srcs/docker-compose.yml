@@ -1,4 +1,5 @@
-#healthchecks for djangos missing
+version: "3.8"
+
 services:
   frontend:
     build: ./frontend
@@ -13,12 +14,6 @@ services:
     depends_on:
       user_management:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "http://localhost"]
-    #   interval: 5s
-    #   timeout: 10s
-    #   retries: 5
-    #   start_period: 30s
     restart: always
     networks:
       - transcendence-net
@@ -31,21 +26,16 @@ services:
       - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
-      - "443:443"
+      - "8443:8443"
     expose:
       - "80"
     depends_on:
       frontend:
         condition: service_started
-    # healthcheck:
-    #   test: ["CMD", "curl", "http://localhost"]
-    #   interval: 5s
-    #   timeout: 4s
-    #   retries: 5
-    #   start_period: 5s
     restart: always
     networks:
       - transcendence-net
+
 
   user_management:
     build: ./UserApi
@@ -152,60 +142,16 @@ services:
 
 volumes:
   nginx-conf:
-    name: nginx-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./nginx/conf
-      o: bind
   frontend-data:
-    name: frontend-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend/www
-      o: bind
   frontend-conf:
-    name: frontend-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend/conf
-      o: bind
   user-app:
-    name: user-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./UserApi
-      o: bind
   chat-app:
-    name: chat-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./ChatServer
-      o: bind
   game-app:
-    name: game-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./GameServer
-      o: bind
   postgres-data:
-    name: postgres-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ${SQL_PATH}
-      o: bind
 
 networks:
   transcendence-net:
-    name: transcendence-net
     driver: bridge
   backend-net:
-    name: backend-net
     driver: bridge
     internal: true

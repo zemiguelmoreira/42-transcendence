@@ -7,7 +7,7 @@ import { getParams } from "./login/login42.js";
 import { changeChatLoaded } from "./home/home.js";
 import { homeLogin } from "./home/home.js";
 
-const baseURL = "https://localhost/api";
+const baseURL = `https://${window.location.host}:8443/api`;
 
 async function goTo() {
 	try {
