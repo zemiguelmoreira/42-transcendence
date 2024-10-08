@@ -249,7 +249,7 @@ class RequestPasswordResetView(generics.GenericAPIView):
             # Check if the user exists
             user = User.objects.filter(email=email).first()
             if not user:
-                return Response({"error": {"code": "user_not_found", "message": "No user found with this email."}}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": {"code": "user_not_found", "message": "No user found with this email."}}, status=status.HTTP_400_BAD_REQUEST)
             
             # Generate a temporary password
             temporary_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))  # Generate a random 8-character password

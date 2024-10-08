@@ -27,17 +27,21 @@ function noResults(username, query) {
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', noResultsUserId);
 }
 
-async function getUser(username) {
+async function getUser(username, user) {
 	
 	try {
 
 		let query;
-		const searchInputElement = document.getElementById('search-input');
-		query = searchInputElement.value;
+		if (user)
+			query = user;
+		else { 
+			const searchInputElement = document.getElementById('search-input');
+			query = searchInputElement.value;
+			searchInputElement.value = "";
+		}
 
 		if (query) {
 
-			searchInputElement.value = "";
 			const user = await getUserProfileByUsername(query);
 			console.log('Resposta no getUser: ', user);
 

@@ -10,7 +10,7 @@ function makeChatWindow() {
 					<div class="chat-window">
 						<div class="messages" id="chat-log"></div>
 						<div class="message-input">
-							<input id="chat-message-input" type="text" placeholder="Type a message...">
+							<input id="chat-message-input" type="text" placeholder="Type a message (max 200 characters)..." maxlength="200">
 							<button id="chat-message-submit">Send</button>
 						</div>
 					</div>

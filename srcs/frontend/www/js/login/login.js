@@ -76,21 +76,28 @@ function signIn() {
 		navigateTo('/signIn');
 	});
 
-	document.getElementById('sendPassword').addEventListener('click', function (e) {
-		e.preventDefault();
-		const emailField = document.getElementById('resetEmail');
+	// document.getElementById('sendPassword').addEventListener('click', function (e) {
+	// 	e.preventDefault();
+	// 	const emailField = document.getElementById('resetEmail');
 
-		// Verifica se o campo de email está vazio
-		if (!emailField.value) {
-			emailField.classList.add('input-error'); // Adiciona a classe de erro se estiver vazio
-			e.preventDefault(); // Impede o envio do formulário
-		} else {
-			emailField.classList.remove('input-error'); // Remove a classe de erro se o campo estiver preenchido
-			// Aqui pode seguir com o envio do formulário
-			requestPasswordReset();
-			navigateTo('/');
-		}
-	});
+	// 	// Verifica se o campo de email está vazio
+	// 	if (!emailField.value) {
+	// 		emailField.classList.add('input-error'); // Adiciona a classe de erro se estiver vazio
+	// 		// e.preventDefault(); // Impede o envio do formulário
+	// 	} else {
+	// 		emailField.classList.remove('input-error'); // Remove a classe de erro se o campo estiver preenchido
+	// 		// Aqui pode seguir com o envio do formulário
+	// 		requestPasswordReset();
+	// 		// navigateTo('/');
+	// 	}
+	// });
+
+	// document.getElementById('sendPassword').addEventListener('click', function (e) {
+	// 	e.preventDefault();
+	// 	requestPasswordReset();
+	// 	// navigateTo('/');
+	
+	// });
 
 	const signInForm = document.getElementById("userSignInForm");
 	const qrCodeForm = document.getElementById("qrCodeForm");
@@ -104,7 +111,17 @@ function signIn() {
 		if (qrCodeForm) qrCodeForm.style.display = "none";
 
 		// Exibir o formulário de recuperação de senha
-		if (passwordResetForm) passwordResetForm.style.display = "block";
+		if (passwordResetForm) 
+			passwordResetForm.style.display = "block";
+
+		document.getElementById('resetEmail').focus();
+		
+		document.getElementById('sendPassword').addEventListener('click', function (e) {
+			e.preventDefault();
+			requestPasswordReset();
+			// console.log('click1');
+			// navigateTo('/');
+		});
 
 	});
 
@@ -114,7 +131,7 @@ function signIn() {
 		if (!viewToken())
 			userSignIn42();
 		else
-			displayError("To login with another user, you have to logout.");
+			displayErrorSignIn("To login with another user, you have to logout.");
 	});
 }
 
@@ -293,36 +310,87 @@ async function resetPassword() {
 }
 
 
-async function requestPasswordReset() {
-	const email = document.getElementById('resetEmail').value;
-
-	try {
-		const response = await fetch('/api/user/request-password-reset/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				email: email,
-			}),
-		});
-
-		const data = await response.json();
-		if (response.ok) {
-			alert('Email de recuperação de senha enviado com sucesso!');
-		} else {
-			if (data.error) {
-				console.error(data.error.message);
-				displaySlidingMessage(data.error.message);
-			} else {
-				displaySlidingMessage('Erro ao solicitar recuperação de senha. Tente novamente.');
-			}
+function displayErrorReqPassword(errorMessage) {
+	const errorDiv = document.getElementById('error-message-password');
+	errorDiv.innerHTML = "";
+	errorDiv.textContent = `${errorMessage} Try again`;
+	errorDiv.style.display = 'block';
+	document.getElementById('resetEmail').focus();
+	const registerForm = document.querySelector('#requestPasswordResetForm');
+	for (let element of registerForm.elements) {
+		if (element.classList.contains('form-control')) {
+			element.addEventListener('input', function () {
+				if (element.value) {
+					errorDiv.style.display = 'none';
+				}
+			});
 		}
-	} catch (error) {
-		console.error('Erro ao solicitar recuperação de senha:', error.message);
-		alert('Ocorreu um erro. Verifique seu email e tente novamente.');
 	}
 }
+
+
+async function requestPasswordReset() {
+
+	const email = document.getElementById('resetEmail').value;
+	const passwordResetForm = document.getElementById("requestPasswordResetForm");
+	document.getElementById('resetEmail').value = '';
+		// requestPasswordReset();
+		// navigateTo('/');
+		// console.log('click');
+		// console.log('email: ', email);
+
+		if (email) {
+			try {
+					const response = await fetch('/api/user/request-password-reset/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							email: email,
+						}),
+					});
+
+					console.log('response: ', response);
+					let errorObject;
+					let data;
+					
+					if (response.ok) {
+						data = await response.json();
+						console.log('data no recup password: ', data);
+						// alert('Email de recuperação de senha enviado com sucesso!');
+						navigateTo('/signIn');
+					} else {
+						// console.log('error2: ', data.error);
+						if (response.status === 400) {
+							data = await response.json();
+							errorObject = {
+								message: data.error.message,
+								status: response.status,
+							};
+						} else {
+							errorObject = {
+								message: response.statusText,
+								status: response.status,
+							};
+						}
+						throw errorObject;				
+					}
+			} catch (e) {
+				console.log('Erro ao solicitar recuperação de senha:', e.message);
+				// alert('Ocorreu um erro. Verifique seu email e tente novamente.');
+				if (e.status === 400){
+					console.log('teste passei aqui');
+					displayErrorReqPassword(e.message);
+				} else {
+					navigateTo(`/error/${e.status}/${e.message}`);
+				}
+			}
+		} else {
+			insertInputValidation1(passwordResetForm);
+		}
+}
+
 
 async function deleteUser() {
 	const accessToken = localStorage.getItem('access_token');
