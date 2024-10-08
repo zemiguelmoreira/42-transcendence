@@ -1,4 +1,4 @@
-import { viewTokenRefresh, testToken, verifyToken } from "./utils/tokens.js";
+import { viewTokenRefresh, testToken, verifyToken, removeToken } from "./utils/tokens.js";
 import { getNamebyId } from "./profile/myprofile.js";
 import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
@@ -17,6 +17,8 @@ async function goTo() {
 			const accessToken = localStorage.getItem('access_token');
 			const payload = testToken(accessToken);
 			if (!payload) {
+				removeToken();
+				sessionStorage.removeItem('access_token');
 				navigateTo('/');
 				return;
 			}
@@ -28,8 +30,12 @@ async function goTo() {
 				await WebSocketInstance.connect();
 			}
 			else
+				removeToken();
+				sessionStorage.removeItem('access_token');
 				navigateTo('/');
 		} else {
+			removeToken();
+			sessionStorage.removeItem('access_token');
 			navigateTo('/');
 		}
 		return;
@@ -37,6 +43,8 @@ async function goTo() {
 		e.status = "400";
 		e.message = "home page user! function goTo";
 		navigateTo(`/error/${e.status}/${e.message}`);
+		removeToken();
+		sessionStorage.removeItem('access_token');
 		return;
 	}
 }

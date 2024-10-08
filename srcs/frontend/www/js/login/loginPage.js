@@ -14,8 +14,8 @@ function makeSignInPage() {
 							<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
 							<a href="" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</a>
 							<a href="" id="recover" class="btn btn-outline-custom button-size">RECOVER PASSWORD</a>
-							<p id="error-message" style="display: none; color: red;"></p>
 							<button class="btn btn-outline-secondary button-size" id="backButton">GO BACK</button>
+							<p id="error-message" style="display: none; color: red;"></p>
 					</form>
 	
 					<form id="qrCodeForm" style="display: none;">
@@ -32,8 +32,9 @@ function makeSignInPage() {
 					<form id="requestPasswordResetForm" style="display: none;">
 						<div class="font-custom --bs-green">PASSWORD RECOVER</div>
 						<input class="form-control button-size" type="email" id="resetEmail" placeholder="Insert your email here" required>
-						<button class="btn btn-outline-success button-size" type="button" id="sendPassword">REQUEST PASSWORD</button>
+						<button class="btn btn-outline-success button-size" type="submit" id="sendPassword">REQUEST PASSWORD</button>
 						<button class="btn btn-outline-secondary button-size" id="backToSignIn">GO BACK</button>
+						<p id="error-message-password" style="display: none; color: red;"></p>
 					</form>
 
 				</div>
