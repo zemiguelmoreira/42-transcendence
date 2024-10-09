@@ -748,7 +748,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
           - Only the authenticated user's profile will be updated (winner or loser).
         """
         data = request.data
-        logger.info(f'Request data: {data}')
+        logger.info(f'Request data: {data}')    
         
         try:
             # Get the current authenticated user and their profile
@@ -757,12 +757,14 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
             # Extract match details from the request data
             game_type = data.get('game_type')  # "snake" or "pong"
-            user1 = data.get('winner')
-            user2 = data.get('loser')
+            winner = data.get('winner')
+            loser = data.get('loser')
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
             ranked = data.get('ranked')  # True or False
-
+            
+            current_is_winner = True if current_user.username == winner else False
+            points_earned = 0
             # Initialize winner and loser profiles as None
             winner_profile = None
             loser_profile = None
@@ -770,40 +772,35 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             # If the game is ranked, we need to retrieve both users' profiles
             if ranked:
                 try:
-                    winner_profile = UserProfile.objects.get(user__username=user1)
-                    loser_profile = UserProfile.objects.get(user__username=user2)
+                    winner_profile = UserProfile.objects.get(user__username=winner)
+                    loser_profile = UserProfile.objects.get(user__username=loser)
                 except UserProfile.DoesNotExist:
                     # If one of the profiles does not exist, return an error for ranked games
                     return Response({'error': 'Ranked game requires both users to be registered.'}, status=status.HTTP_404_NOT_FOUND)
-            else:
-                # For unranked games, we only update the profile of the authenticated user
-                if current_user.username == user1:
-                    winner_profile = current_profile
-                elif current_user.username == user2:
-                    loser_profile = current_profile
 
             # Create the match data that will be saved in the user's match history
             match_data = {
                 'timestamp': data.get('timestamp'),
-                'winner': user1,
+                'winner': winner,
                 'winner_score': user1_score,
-                'loser': user2,
+                'loser': loser,
                 'loser_score': user2_score,
             }
 
             # If the game type is "pong"
             if game_type == "pong":
                 # Update the winner's profile
-                if winner_profile:
-                    winner_profile.pong_match_history.append(match_data)
-                    winner_profile.pong_wins += 1
-                    winner_profile.wins += 1
+                if current_is_winner:
+                    current_profile.pong_wins += 1
+                    current_profile.wins += 1
 
                 # Update the loser's profile
-                if loser_profile:
-                    loser_profile.pong_losses += 1
-                    loser_profile.losses += 1
-
+                else:
+                    current_profile.pong_losses += 1
+                    current_profile.losses += 1
+                
+                current_profile.pong_match_history.append(match_data)
+            
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
                     # Calculate rank difference between the winner and loser
@@ -812,28 +809,31 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         differece = 1000
 
                     # Update rank for the current user based on whether they won or lost
-                    if current_user.username == user1:
+                    logger.info(f'current is winner = {current_is_winner}')
+                    if current_is_winner:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
-                        else:
-                            points_earned = 100 - differece / 5
-                        current_profile.pong_rank += points_earned
+                    else:
+                        points_earned = 100 - differece / 20
+                    
+                    current_profile.pong_rank += points_earned
 
             # If the game type is "snake"
             else:
-                # Update the winner's profile
-                if winner_profile:
-                    winner_profile.snake_match_history.append(match_data)
-                    winner_profile.snake_wins += 1
-                    winner_profile.wins += 1
+               # Update the winner's profile
+                if current_user.username == winner:
+                    current_profile.snake_wins += 1
+                    current_profile.wins += 1
 
                 # Update the loser's profile
-                if loser_profile:
-                    loser_profile.snake_losses += 1
-                    loser_profile.losses += 1
-
+                else:
+                    current_profile.snake_losses += 1
+                    current_profile.losses += 1
+                
+                current_profile.snake_match_history.append(match_data)
+            
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
                     # Calculate rank difference between the winner and loser
@@ -842,25 +842,17 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         differece = 1000
 
                     # Update rank for the current user based on whether they won or lost
-                    if current_user.username == user1:
+                    if current_is_winner:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
-                        else:
-                            points_earned = 100 - differece / 20
-                        current_profile.snake_rank += points_earned
-
-
-            # If the game is ranked, save the winner's and loser's profiles (if not the same as the current user)
-            if ranked:
-                if winner_profile and winner_profile != current_profile:
-                    winner_profile.save()
-                if loser_profile and loser_profile != current_profile:
-                    loser_profile.save()
-            else:
-                # Save the current user's profile
-                current_profile.save()
+                    else:
+                        points_earned = 100 - differece / 20
+                    
+                    current_profile.snake_rank += points_earned
+            
+            current_profile.save()
 
             # Return success response
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
