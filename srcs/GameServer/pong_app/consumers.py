@@ -160,19 +160,19 @@ class PongConsumer(AsyncWebsocketConsumer):
                 }))
 
     async def disconnect(self, close_code):
-        logger.info('Disconnected Called\n')
-        
-        try:
+        logger.info(f'Disconnected: {self.user.username}')
+        if self.room.code in PongConsumer.rooms:
             room = PongConsumer.rooms[self.room.code]
-            
-            # Sinalizar o fim do jogo
-            room['end_game'] = True
-            room['disconnect'] = self.user.username
-            logger.info(f"Room {self.room.code}: Game ended by disconnection from {self.user.username}")
-            
-        except KeyError:
-            logger.error(f"Room {self.room.code} not found in PongConsumer.rooms")
-            return
+
+            if self in room['players']:
+                room['players'].remove(self)
+                logger.info(f'{self.user.username} removed from room {self.room.code}')
+
+            # If no players are left, cleanup the room
+            if not room['players']:
+                room['game_loop_task'].cancel()
+                del PongConsumer.rooms[self.room.code]
+        await self.close()
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -245,7 +245,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
            # Verificar se o jogo terminou por desconexão
     
-        if room.get('end_game'):
+        if room.get('end_game') and not (room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE):
             logger.info('Game identified as ending due to disconnection')
             loser = room['disconnect']
             
@@ -320,7 +320,10 @@ class PongConsumer(AsyncWebsocketConsumer):
         }
 
         # Salvar partida no banco de dados
-        await self.save_match_history(to_save) 
+        logger.info(f'winner: {winner} - self: {self.user.username}')
+        if winner == self.user.username:
+            for player in room['players']:
+                await player.save_match_history(to_save)
 
         # Enviar resultado para todos os jogadores
         for player in room['players']:
@@ -331,12 +334,13 @@ class PongConsumer(AsyncWebsocketConsumer):
         del PongConsumer.rooms[self.room.code]
 
     async def save_match_history(self, match_data):
-        url = 'http://userapi:8000/profile/update_match_history/'
+        url = 'http://userapi:8000/profile/update_match_history/'   
         headers = {
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {self.token}',
         }
-
+        logger.info(f'self username: {self.user.username}')
+        logger.info(f'self token: {self.token}')
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, json=match_data, headers=headers)
