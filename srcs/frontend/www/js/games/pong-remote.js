@@ -138,7 +138,7 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 		};
 
 		pong_socket.onclose = function (event) {
-			// console.log('Pong Socket Closed: onclose():', event);
+			console.log('Pong Socket Closed: onclose():', event);
 		};
 	}
 }

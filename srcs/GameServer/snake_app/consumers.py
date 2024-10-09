@@ -78,7 +78,6 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 				'snake_speed': 500,
 				'end_game': False,
 				'disconnect': "",
-				'save_count': 0
 			}
 
 		room = SnakeConsumer.rooms[self.room.code]
@@ -117,30 +116,22 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			await self.send(json.dumps({'action': 'wait_for_player'}))
 
 	async def disconnect(self, close_code):
-		try:
+		logger.info(f'Disconnected: {self.user.username}')
+		if self.room.code in SnakeConsumer.rooms:
 			room = SnakeConsumer.rooms[self.room.code]
-			
-			# Sinalizar o fim do jogo
+
+			# if self in room['players']:
+			# 	room['players'].remove(self)
+			# 	logger.info(f'{self.user.username} removed from room {self.room.code}')
 			room['end_game'] = True
 			room['disconnect'] = self.user.username
 			logger.info(f"Room {self.room.code}: Game ended by disconnection from {self.user.username}")
-			
-		except KeyError:
-			logger.error(f"Room {self.room.code} not found in SnakeConsumer.rooms")
-			return
-		# room = SnakeConsumer.rooms.get(self.room.code, None)
 
-		# if room:
-		# 	# Se o jogador desconectar, removê-lo da lista de jogadores ativos
-		# 	if hasattr(self, 'is_player') and self.is_player and self in room['players']:
-		# 		room['players'].remove(self)
-
-		# 	# Não cancelar o loop do jogo mesmo que um jogador saia
-		# 	if not room['players']:
-		# 		# Se não houver jogadores, podemos deixar o jogo ativo e aguardando reconexão.
-		# 		room['game_loop_task'] = None
-
-		# await self.close()
+			# If no players are left, cleanup the room
+			if not room['players']:
+				room['game_loop_task'].cancel()
+				del SnakeConsumer.rooms[self.room.code]
+		await self.close()
 
 	async def receive(self, text_data):
 		data = json.loads(text_data)
@@ -193,7 +184,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 			# Verificar se o jogo terminou por desconexão
 
-		if room.get('end_game'): 
+		if room.get('end_game') and len(alive_snakes) != 1:
 			logger.info('Game identified as ending due to disconnection')
 			loser = room['disconnect']
 			
@@ -215,12 +206,8 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			for player in room['players']:
 				await player.end_game(room, winner)
 
-			# # Remover o jogador da sala e encerrar a partida
-			# room['players'].remove(self)
-			# logger.info('Player removed from room')
-
 		# Se não houver mais jogadores, cancelar o loop do jogo
-		if len(room['players']) == 0 or room['save_count'] == 2:
+		if len(room['players']) == 0:
 			room['game_loop_task'].cancel()
 			room['game_loop_task'] = None
 			del SnakeConsumer.rooms[self.room.code]
@@ -348,9 +335,11 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			'timestamp': formatted_time,
 			'game_type': 'snake',
 		}
+		
+		if winner == self.user.username:
+			for player in room['players']:
+				await player.save_match_history(to_save)
 
-		await self.save_match_history(to_save)
-		room['save_count'] += 1
 		for player in room['players']:
 			await self.send(json.dumps(result))
 
