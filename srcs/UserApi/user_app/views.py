@@ -786,6 +786,8 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 try:
                     winner_profile = UserProfile.objects.get(user__username=winner)
                     loser_profile = UserProfile.objects.get(user__username=loser)
+                    winner_profile = UserProfile.objects.get(user__username=winner)
+                    loser_profile = UserProfile.objects.get(user__username=loser)
                 except UserProfile.DoesNotExist:
                     # If one of the profiles does not exist, return an error for ranked games
                     return Response({'error': 'Ranked game requires both users to be registered.'}, status=status.HTTP_404_NOT_FOUND)
@@ -794,7 +796,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             match_data = {
                 'timestamp': data.get('timestamp'),
                 'winner': winner,
+                'winner': winner,
                 'winner_score': user1_score,
+                'loser': loser,
                 'loser': loser,
                 'loser_score': user2_score,
             }
@@ -834,6 +838,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
             # If the game type is "snake"
             else:
+               # Update the winner's profile
+                if current_user.username == winner:
+                    current_profile.snake_wins += 1
+                    current_profile.wins += 1
                # Update the winner's profile
                 if current_user.username == winner:
                     current_profile.snake_wins += 1
