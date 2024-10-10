@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 			if (matchedRoute && accessAllowed) {
 				console.log('teste history not navigate');
 				matchedRoute.page.loadContent(matchedRoute.params);
-			} else {
+			} else {TRANSCENDENCE
 				console.log('teste history navigate');
 				navigateTo(e.state.page);
 			}

@@ -7,6 +7,7 @@ from datetime import datetime
 from user_app.validators import CustomPasswordValidator
 import logging
 from django.core.exceptions import ValidationError
+from urllib.parse import urlparse, urlunparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -91,8 +92,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
             return api_image_url
 
         if obj.profile_image:
+            # Obter a URL absoluta da imagem
             url = request.build_absolute_uri(obj.profile_image.url)
-            return url.replace('http://', 'https://')
+            
+            # Fazer o parse da URL
+            parsed_url = urlparse(url)
+            
+            # Construir a nova URL
+            # Alterar o esquema para 'https' e adicionar a porta ':8443' ao netloc
+            new_netloc = f'{parsed_url.hostname}:8443'
+            new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
+            
+            logger.info(f'formatted url: {new_url}')
+            return new_url
         return None
 
     def validate_profile_image(self, value):

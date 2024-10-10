@@ -189,6 +189,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         while room['players']:
             current_time = time.time()
+            
             delta_time = current_time - last_time
             last_time = current_time
             
