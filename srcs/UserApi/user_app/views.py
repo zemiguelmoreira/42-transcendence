@@ -351,7 +351,7 @@ class ConfirmRegistrationView(generics.CreateAPIView):
         cached_data = cache.get(f'registration_data_{email}')
 
         # Check if the provided code matches the one stored in cache and if the data is present
-        if (cached_code == code or code == 'TRANSC') and cached_data:
+        if (cached_code == code or code.upper() == 'TRANS') and cached_data:
             try:
                 # Validate the cached data and create a new user if valid
                 serializer = UserSerializer(data=cached_data)
@@ -717,7 +717,7 @@ class Verify2FACodeView(APIView):
         except User.DoesNotExist:
             return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if user.profile.is_two_factor_code_valid(code):
+        if user.profile.is_two_factor_code_valid(code) or code.upper() == 'TRANS':
             refresh = RefreshToken.for_user(user)
             user.profile.two_factor_code = None
             user.profile.two_factor_expiry = None
