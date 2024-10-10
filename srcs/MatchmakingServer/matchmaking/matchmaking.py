@@ -18,27 +18,27 @@ class MatchmakingManager:
 	async def start_matchmaking(self, username, game, rank):
 		task = asyncio.current_task()
 		try:
-			match = await self.find_match(username, game, rank)
+			match = await MatchmakingManager.find_match(username, game, rank)
 			if match:
-				await self.send_match(username, match, game)
+				await MatchmakingManager.send_match(username, match, game)
 			else:
-				match = await self.wait_for_match(username, game, rank)
-				await self.send_match(username, match, game)
+				match = await MatchmakingManager.wait_for_match(username, game, rank)
+				await MatchmakingManager.send_match(username, match, game)
 		except asyncio.CancelledError:
 			logging.info(f"MatchmakingManager: start_matchmaking: Matchmaking task for {username} was cancelled.")
 		except Exception as e:
 			logging.error(f"MatchmakingManager: start_matchmaking: An error occurred in the matchmaking task for {username}: {e}")
 		finally:
-			await self.cancel_matchmaking(username, game)
+			await MatchmakingManager.cancel_matchmaking(username, game)
 
 
 	async def add_player(self, username, game, rank):
 		player_data = json.dumps({"username": username, "rank": rank})
 		queue_key = f"queue:{game}"
 		# if user is already in the queue, remove them
-		await self.cancel_matchmaking(username, game)
+		await MatchmakingManager.cancel_matchmaking(username, game)
 		await redis_client.rpush(queue_key, player_data)
-		task = asyncio.create_task(self.start_matchmaking(username, game, rank))
+		task = asyncio.create_task(MatchmakingManager.start_matchmaking(username, game, rank))
 		MatchmakingManager.matchmaking_tasks[username] = task
 		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank} task_id: {id(task)}")
 
@@ -58,8 +58,8 @@ class MatchmakingManager:
 		# if a match is found, remove both players from the queue
 		if match:
 			async with MatchmakingManager.lock:
-				await self.remove_player(username, game)
-				await self.remove_player(match["username"], game)
+				await MatchmakingManager.remove_player(username, game)
+				await MatchmakingManager.remove_player(match["username"], game)
 				return match
 		return None
 
@@ -67,7 +67,7 @@ class MatchmakingManager:
 	async def wait_for_match(self, username, game, rank, step=1):
 		for tolerance in range(1, 50, step):  # increase tolerance by 'step' each iteration
 			await asyncio.sleep(tolerance)  # wait
-			match = await self.find_match(username, game, rank, tolerance=tolerance)
+			match = await MatchmakingManager.find_match(username, game, rank, tolerance=tolerance)
 			if match:
 				return match
 		return None
@@ -96,7 +96,7 @@ class MatchmakingManager:
 			if not task.done():  # check if the task is still running
 				task.cancel()
 			del MatchmakingManager.matchmaking_tasks[username]  # remove from tracking
-		await self.remove_player(username, game)
+		await MatchmakingManager.remove_player(username, game)
 
 
 	# needs to iterate through the list because of json format
