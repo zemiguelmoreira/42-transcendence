@@ -10,7 +10,6 @@ import { homeLogin } from "./home/home.js";
 console.log('window location host:', window.location.host);
 
 const baseURL = `https://${window.location.host}/api`;
-const baseSocket =wss
 
 async function goTo() {
 	try {

@@ -5,9 +5,9 @@ services:
     build: ./frontend
     container_name: frontend
     image: frontend:42
-    volumes:
-      - frontend-data:/usr/share/nginx/html:ro
-      - frontend-conf:/etc/nginx/conf.d:ro
+    # volumes:
+      # - frontend-data:/usr/share/nginx/html:ro
+      # - frontend-conf:/etc/nginx/conf.d:ro
     init: true
     expose:
       - "80"
@@ -22,8 +22,8 @@ services:
     build: ./nginx
     container_name: nginx
     image: nginx:42
-    volumes:
-      - nginx-conf:/etc/nginx/conf.d:ro
+    # volumes:
+      # - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
       - "8443:8443"
@@ -41,8 +41,8 @@ services:
     build: ./UserApi
     container_name: userapi
     image: userapi:42
-    volumes:
-      - user-app:/usr/src/app
+    # volumes:
+      # - user-app:/usr/src/app
     init: true
     ports:
       - "8000:8000"
@@ -66,8 +66,8 @@ services:
     build: ./GameServer
     container_name: gameserver
     image: gameserver:42
-    volumes:
-      - game-app:/usr/src/app
+    # volumes:
+      # - game-app:/usr/src/app
     init: true
     ports:
       - "8001:8001"
@@ -85,8 +85,8 @@ services:
     build: ./ChatServer
     container_name: chatserver
     image: chatserver:42
-    volumes:
-      - chat-app:/usr/src/app
+    # volumes:
+      # - chat-app:/usr/src/app
     init: true
     ports:
       - "8002:8002"
@@ -104,8 +104,8 @@ services:
     build: ./postgres
     container_name: postgres
     image: postgres:42
-    volumes:
-      - postgres-data:/var/lib/postgresql/data/:rw
+    # volumes:
+      # - postgres-data:/var/lib/postgresql/data/:rw
     init: true
     expose:
       - "5432"

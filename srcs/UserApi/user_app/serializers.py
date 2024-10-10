@@ -92,7 +92,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         if obj.profile_image:
             url = request.build_absolute_uri(obj.profile_image.url)
-            return url.replace('http://', 'https://')
+            return url.replace('http://localhost', 'https://localhost:8443')
         return None
 
     def validate_profile_image(self, value):
