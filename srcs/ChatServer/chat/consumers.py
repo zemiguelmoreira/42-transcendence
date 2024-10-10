@@ -91,7 +91,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"sender": self.user.username,
 			}
 		)
-		logging.info(f"Chat: handle_cancel_invite: Invite to {recipient} canceled by {self.user.username}.")
+		logging.info(f"Chat: handle_cancel_invite: Invite to {recipient} cancelled by {self.user.username}.")
 
 
 	#send inviter invite
@@ -133,9 +133,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		accepted = data.get("accepted", False)
 		roomCode = None
 		if inviter not in self.pending:
-			logging.error("Chat: handle_invite_response: Invite was canceled")
+			logging.error("Chat: handle_invite_response: Invite was cancelled")
 			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was canceled."}
+				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was cancelled."}
 			)
 			return
 		if accepted:
@@ -260,7 +260,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	# inviter letting frontend know of invite response
 	async def invite_response(self, event):
 		if self.inviting is False:
-			logging.error("Chat: invite_response: This invite was canceled previously, not doing anything")
+			logging.error("Chat: invite_response: This invite was cancelled previously, not doing anything")
 			return
 		invitee = event["invitee"]
 		accepted = event["accepted"]
@@ -280,9 +280,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def cancel_invite_message(self, event):
 		sender = event["sender"]
 		await self.send(text_data=json.dumps({
-			"invite_canceled": True,
+			"invite_cancelled": True,
 			"sender": sender,
-			# "message": f"Invite from {sender} has been canceled."
+			# "message": f"Invite from {sender} has been cancelled."
 		}))
 		self.pending.remove(sender)
 

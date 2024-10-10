@@ -113,6 +113,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			"game": game,
 			"roomCode": roomCode,
 		}))
+		await self.close()
+
 
 
 	# match info from host
@@ -120,7 +122,14 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		game = event["game"]
 		roomCode = event["roomCode"]
 		opponent = event["opponent"]
+		await matchmaking_manager.cancel_matchmaking(self.user.username, game)
 		logging.info(f"Matchmaking: match_details: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
+		# chat warning for self
+		await self.channel_layer.group_send(
+			self.user_group_name, {
+				"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"
+			}
+		)
 		# send match data to client
 		await self.send(text_data=json.dumps({
 			"match": "match_created",
@@ -128,12 +137,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			"game": game,
 			"roomCode": roomCode,
 		}))
-		# chat warning for self
-		await self.channel_layer.group_send(
-			self.user_group_name, {
-				"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"
-			}
-		)
+		await self.close()
 
 
 	# utility methods

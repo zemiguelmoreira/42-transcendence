@@ -25,7 +25,7 @@ function displayChatMessage(data, chatLog) {
 		messageElement.classList.add('message-error');
 	} else if (data.invite_response) {
 		messageElement.classList.add('message-invite-response');
-	} else if (data.invite-canceled) {
+	} else if (data.invite-cancelled) {
 		messageElement.classList.add('message-error');
 	} else {
 		messageElement.classList.add('message-default');
@@ -114,15 +114,15 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
     return button;
 }
 
-// handle cancel the invite for invitee after inviter canceled
-function handleInviteCanceled(username, data, chatLog) {
+// handle cancel the invite for invitee after inviter cancelled
+function handleInviteCancelled(username, data, chatLog) {
 	// document.getElementById('invitePending').remove();
-	const inviteCanceledElement = document.createElement("div");
-	inviteCanceledElement.classList.add('message-error');
-	inviteCanceledElement.textContent = `${data.sender} has canceled the invite.`;
-	chatLog.appendChild(inviteCanceledElement);
+	const inviteCancelledElement = document.createElement("div");
+	inviteCancelledElement.classList.add('message-error');
+	inviteCancelledElement.textContent = `${data.sender} has cancelled the invite.`;
+	chatLog.appendChild(inviteCancelledElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
-	displaySlidingMessage(`${data.sender} has canceled the invite.`);
+	displaySlidingMessage(`${data.sender} has cancelled the invite.`);
 }
 
 // get room code and join game for invitee
@@ -277,7 +277,7 @@ function handleCancelInvite(recipient) {
 		"recipient": recipient,
 	};
 	chatSocketInstance.send(cancelMessage);
-	displaySlidingMessage(`Invite to ${recipient} has been canceled.`);
+	displaySlidingMessage(`Invite to ${recipient} has been cancelled.`);
 }
 
 
@@ -304,4 +304,4 @@ async function sendGameInvite(user, game) {
 	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
-export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCanceled }
+export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }
