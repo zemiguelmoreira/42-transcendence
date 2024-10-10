@@ -1,17 +1,56 @@
-function displaySlidingMessage(message) {
+function displaySlidingMessage(message, rep = '4') {
 	const minLength = 10;
 	if (message.length < minLength) {
 		message = message.padEnd(minLength, ' ');
 	}
 	const slidingMessageDiv = document.getElementById('slidingMessage');
+	if (!slidingMessageDiv) {
+		console.error("Element with ID 'slidingMessage' not found.");
+		return;
+	}
+	// Show the element again (in case it was hidden)
+	slidingMessageDiv.style.display = 'block';
 	slidingMessageDiv.textContent = message;
+	// Reset the animation by setting it to 'none' first
 	slidingMessageDiv.style.animation = 'none';
+	// Remove any previous 'animationend' listeners to prevent duplicate calls
+	slidingMessageDiv.removeEventListener('animationend', handleAnimationEnd);
+	// Use requestAnimationFrame to restart the animation
 	requestAnimationFrame(() => {
 		requestAnimationFrame(() => {
-			slidingMessageDiv.style.animation = 'slide-in 20s linear infinite';
+			slidingMessageDiv.style.animation = `slide-in 20s linear ${rep}`;
 		});
 	});
+	// Function to handle the animation ending when reps are finite
+	function handleAnimationEnd() {
+		if (rep !== 'infinite') {
+			// Hide the element when the animation completes
+			slidingMessageDiv.style.display = 'none';
+		}
+	}
+	// Add an event listener for the animationend event only when rep is finite
+	if (rep !== 'infinite') {
+		slidingMessageDiv.addEventListener('animationend', handleAnimationEnd);
+	}
 }
+
+
+function clearSlidingMessage() {
+	const slidingMessageDiv = document.getElementById('slidingMessage');
+	if (!slidingMessageDiv) {
+		console.error("Element with ID 'slidingMessage' not found.");
+		return;
+	}
+	const handleAnimationIteration = () => {
+		// Hide the element when the current cycle ends (next iteration begins)
+		slidingMessageDiv.style.display = 'none';
+		slidingMessageDiv.style.animation = 'none'; // Stop the animation
+		slidingMessageDiv.removeEventListener('animationiteration', handleAnimationIteration);
+	};
+	// Add the event listener for the next animation iteration
+	slidingMessageDiv.addEventListener('animationiteration', handleAnimationIteration);
+}
+
 
 function limparDivAll(divId) {
 	var div = document.getElementById(divId);
@@ -150,4 +189,4 @@ function clearCookies() {
 	}
 }
 
-export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur }
+export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur, clearSlidingMessage };

@@ -25,8 +25,8 @@ class MatchmakingManager:
 			else:
 				match = await self.wait_for_match(username, game, rank)
 				await self.send_match(username, match, game)
-		except asyncio.CancelledError:
-			logging.info(f"MatchmakingManager: start_matchmaking: Matchmaking task for {username} was cancelled.")
+		except asyncio.CanceledError:
+			logging.info(f"MatchmakingManager: start_matchmaking: Matchmaking task for {username} was canceled.")
 			return
 		except Exception as e:
 			logging.error(f"MatchmakingManager: start_matchmaking: An error occurred in the matchmaking task for {username}: {e}")

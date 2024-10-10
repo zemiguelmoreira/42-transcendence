@@ -4,7 +4,7 @@ import { fetchUserProfile, fetchUserProfileSettings } from "../profile/myprofile
 import { getUser } from "../search/search_user.js";
 import { removeToken } from "../utils/tokens.js";
 import { handleSignUp } from "../register/register.js";
-import { displaySlidingMessage, displayError } from "../utils/utils1.js";
+import { displaySlidingMessage, displayError, clearSlidingMessage } from "../utils/utils1.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeHomePage, makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
@@ -167,6 +167,7 @@ function initButtonListeners(username) {
 		searchBtn.addEventListener('click', (e) => {
 			e.preventDefault();
 			getUser(username);
+			closeSlidingWindow();
 		});
 	}
 
@@ -208,6 +209,7 @@ async function homeLogin(username) {
 			if (slidingWindow.classList.contains('closed')) {
 				slidingWindow.classList.remove('closed');
 				slidingWindow.classList.add('open');
+				clearSlidingMessage();
 			} else {
 				slidingWindow.classList.remove('open');
 				slidingWindow.classList.add('closed');

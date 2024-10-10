@@ -89,7 +89,7 @@ class FortyTwoConnectView(APIView):
         logger.info(f'valor do code: {code}')
         logger.info(f'valor do state: {state}')
         logger.info(f'valor do clientId: {clientId}')
-        
+
         # Faz a requisição para trocar o código pelo token de acesso
         response = post('https://api.intra.42.fr/oauth/token', data={
             'grant_type': 'authorization_code',
@@ -101,10 +101,10 @@ class FortyTwoConnectView(APIView):
 
         data = response.json()
         logger.info(f'data: {data}')
-        
+
         if 'access_token' in data:
             access_token = data['access_token']
-            
+
             logger.info(f'valor do access_token: {access_token}')
 
             # Usa o token para obter informações do usuário
@@ -114,7 +114,7 @@ class FortyTwoConnectView(APIView):
             logger.info(f'user: {user_data}')
             logger.info(f"user: {user_data['login']}")
             logger.info(f"user: {user_data['email']}")
-            logger.info(f"user: {user_data['image']['link']}")      
+            logger.info(f"user: {user_data['image']['link']}")
 
             data = {
                 'username': user_data['login'],
@@ -134,8 +134,8 @@ class FortyTwoConnectView(APIView):
                 # Verificar o valor de user_42 no UserProfile
                 if hasattr(user_profile, 'userApi42') and not user_profile.userApi42:
                     return Response({"detail": "This username is already in use."}, status=status.HTTP_400_BAD_REQUEST)
-                    
-        
+
+
             # Verifica se o email já existe (caso o email seja obrigatório ou esteja presente)
             if data['email'] and User.objects.filter(email=data['email']).exists():
                 user_test = User.objects.get(email=data['email'])
@@ -194,11 +194,11 @@ class FortyTwoConnectView(APIView):
 
 class ResetPasswordView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
-    
+
     def post(self, request):
         """
         POST method to reset the user's password.
-        
+
         This expects the current password, new password, and confirmation of the new password.
         """
         current_password = request.data.get('current_password')
@@ -208,13 +208,13 @@ class ResetPasswordView(generics.GenericAPIView):
         # Check if all necessary fields are provided
         if not current_password or not new_password or not confirm_password:
             return Response({"error": {"code": "missing_data", "message": "All fields are required."}}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         user = request.user
 
         # Check if the current password is correct
         if not user.check_password(current_password):
             return Response({"error": {"code": "invalid_password", "message": "Current password is incorrect."}}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Check if the new password and confirmation match
         if new_password != confirm_password:
             return Response({"error": {"code": "password_mismatch", "message": "New passwords do not match."}}, status=status.HTTP_400_BAD_REQUEST)
@@ -235,40 +235,40 @@ class ResetPasswordView(generics.GenericAPIView):
 
 class RequestPasswordResetView(generics.GenericAPIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request):
         """
         POST method to request a password reset.
-        
+
         Sends a temporary password to the provided email if the user exists.
         """
         email = request.data.get('email')
-        
+
         if not email:
             return Response({"error": {"code": "missing_data", "message": "Email is required."}}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             # Check if the user exists
             user = User.objects.filter(email=email).first()
             if not user:
                 return Response({"error": {"code": "user_not_found", "message": "No user found with this email."}}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             # Generate a temporary password
             temporary_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))  # Generate a random 8-character password
-            
+
             # Update the user's password in the database with the temporary password (hashed)
             user.set_password(temporary_password)  # Use set_password to hash the temporary password
             user.save()
 
             # Send the temporary password via email
             send_mail(
-                'Temporary Password', 
-                f'Your temporary password is: {temporary_password}. Please log in and change your password immediately.', 
-                os.getenv('EMAIL_HOST_USER'), 
-                [email], 
+                'Temporary Password',
+                f'Your temporary password is: {temporary_password}. Please log in and change your password immediately.',
+                os.getenv('EMAIL_HOST_USER'),
+                [email],
                 fail_silently=False
             )
-            
+
             return Response({"detail": "A temporary password has been sent to your email."}, status=status.HTTP_200_OK)
 
         except SMTPException as e:
@@ -287,10 +287,10 @@ class CreateUserView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         """
         POST method for user registration.
-        
-        Receives user data, validates it, generates a confirmation code, stores data in the cache, 
+
+        Receives user data, validates it, generates a confirmation code, stores data in the cache,
         and sends an email with the confirmation code.
-        
+
         @param request: The HTTP request containing user data (email, username, password, etc.)
         @param args: Additional positional arguments.
         @param kwargs: Additional keyword arguments.
@@ -377,7 +377,7 @@ class ConfirmRegistrationView(generics.CreateAPIView):
 
                     # Return the HTTP 201 (Created) response with user data and headers
                     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-                    
+
                 else:
                     # Return validation errors, if any
                     return Response({"error": {"code": "validation_error", "message": serializer.errors}}, status=status.HTTP_400_BAD_REQUEST)
@@ -731,7 +731,7 @@ class Verify2FACodeView(APIView):
 
 class UpdateMatchHistoryView(generics.GenericAPIView):
     """
-    API View to update the match history of a user. 
+    API View to update the match history of a user.
     If the game is ranked, both the winner and the loser need to be registered users.
     If the game is not ranked, only the authenticated user (winner or loser) will have their profile updated.
     """
@@ -749,7 +749,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
         """
         data = request.data
         logger.info(f'Request data: {data}')
-        
+
         try:
             # Get the current authenticated user and their profile
             current_user = self.request.user
@@ -757,12 +757,13 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
             # Extract match details from the request data
             game_type = data.get('game_type')  # "snake" or "pong"
-            user1 = data.get('winner')
-            user2 = data.get('loser')
+            winner = data.get('winner')
+            loser = data.get('loser')
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
             ranked = data.get('ranked')  # True or False
 
+            current_is_winner = True if current_user.username == winner else False
             # Initialize winner and loser profiles as None
             winner_profile = None
             loser_profile = None
@@ -770,39 +771,34 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             # If the game is ranked, we need to retrieve both users' profiles
             if ranked:
                 try:
-                    winner_profile = UserProfile.objects.get(user__username=user1)
-                    loser_profile = UserProfile.objects.get(user__username=user2)
+                    winner_profile = UserProfile.objects.get(user__username=winner)
+                    loser_profile = UserProfile.objects.get(user__username=loser)
                 except UserProfile.DoesNotExist:
                     # If one of the profiles does not exist, return an error for ranked games
                     return Response({'error': 'Ranked game requires both users to be registered.'}, status=status.HTTP_404_NOT_FOUND)
-            else:
-                # For unranked games, we only update the profile of the authenticated user
-                if current_user.username == user1:
-                    winner_profile = current_profile
-                elif current_user.username == user2:
-                    loser_profile = current_profile
 
             # Create the match data that will be saved in the user's match history
             match_data = {
                 'timestamp': data.get('timestamp'),
-                'winner': user1,
+                'winner': winner,
                 'winner_score': user1_score,
-                'loser': user2,
+                'loser': loser,
                 'loser_score': user2_score,
             }
 
             # If the game type is "pong"
             if game_type == "pong":
                 # Update the winner's profile
-                if winner_profile:
-                    winner_profile.pong_match_history.append(match_data)
-                    winner_profile.pong_wins += 1
-                    winner_profile.wins += 1
+                if current_user.username == winner:
+                    current_profile.pong_wins += 1
+                    current_profile.wins += 1
 
                 # Update the loser's profile
-                if loser_profile:
-                    loser_profile.pong_losses += 1
-                    loser_profile.losses += 1
+                else:
+                    current_profile.pong_losses += 1
+                    current_profile.losses += 1
+
+                current_profile.pong_match_history.append(match_data)
 
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
@@ -812,27 +808,29 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         differece = 1000
 
                     # Update rank for the current user based on whether they won or lost
-                    if current_user.username == user1:
+                    if current_user.username == winner:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
-                        else:
-                            points_earned = 100 - differece / 5
-                        current_profile.pong_rank += points_earned
+                    else:
+                        points_earned = 100 - differece / 20
+
+                    current_profile.pong_rank += points_earned
 
             # If the game type is "snake"
             else:
-                # Update the winner's profile
-                if winner_profile:
-                    winner_profile.snake_match_history.append(match_data)
-                    winner_profile.snake_wins += 1
-                    winner_profile.wins += 1
+               # Update the winner's profile
+                if current_user.username == winner:
+                    current_profile.snake_wins += 1
+                    current_profile.wins += 1
 
                 # Update the loser's profile
-                if loser_profile:
-                    loser_profile.snake_losses += 1
-                    loser_profile.losses += 1
+                else:
+                    current_profile.snake_losses += 1
+                    current_profile.losses += 1
+
+                current_profile.snake_match_history.append(match_data)
 
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
@@ -842,25 +840,17 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         differece = 1000
 
                     # Update rank for the current user based on whether they won or lost
-                    if current_user.username == user1:
+                    if current_user.username == winner:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
-                        else:
-                            points_earned = 100 - differece / 20
-                        current_profile.snake_rank += points_earned
+                    else:
+                        points_earned = 100 - differece / 20
 
+                    current_profile.snake_rank += points_earned
 
-            # If the game is ranked, save the winner's and loser's profiles (if not the same as the current user)
-            if ranked:
-                if winner_profile and winner_profile != current_profile:
-                    winner_profile.save()
-                if loser_profile and loser_profile != current_profile:
-                    loser_profile.save()
-            else:
-                # Save the current user's profile
-                current_profile.save()
+            current_profile.save()
 
             # Return success response
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
@@ -868,7 +858,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
         # Handle case where user is not found
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
         # Handle any other exceptions that may occur
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")

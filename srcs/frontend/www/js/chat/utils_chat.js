@@ -25,6 +25,8 @@ function displayChatMessage(data, chatLog) {
 		messageElement.classList.add('message-error');
 	} else if (data.invite_response) {
 		messageElement.classList.add('message-invite-response');
+	} else if (data.invite-canceled) {
+		messageElement.classList.add('message-error');
 	} else {
 		messageElement.classList.add('message-default');
 	}
@@ -38,7 +40,18 @@ function displayChatMessage(data, chatLog) {
 	messageElement.appendChild(contentElement);
 	chatLog.appendChild(messageElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
-	displaySlidingMessage(messageElement.textContent);
+	let slidingWindow = document.querySelector('.sliding-window');
+	if (data.system || data.error) {
+		displaySlidingMessage(messageElement.textContent);
+	} else if (data.received && slidingWindow && slidingWindow.classList.contains('closed')) {
+		let slide;
+		if (data.private) {
+			slide = "New private message from " + data.sender.substring(5);
+		} else if (data.public) {
+				slide = "New public message from " + data.sender;
+		}
+		displaySlidingMessage(slide);
+	}
 }
 
 function displayGameInvite(data, chatLog, username) {
@@ -93,11 +106,7 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
         buttonContainer.querySelector('.accept-button').disabled = true;
         buttonContainer.querySelector('.reject-button').disabled = true;
 
-        // Exibir a mensagem de convite pendente
-
-
         if (!accepted) {
-
             displaySlidingMessage(`Invite from ${sender} has been declined.`);
         }
     };
@@ -106,8 +115,14 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 }
 
 // handle cancel the invite for invitee after inviter canceled
-function handleInviteCancelled(username, data) {
+function handleInviteCanceled(username, data, chatLog) {
 	// document.getElementById('invitePending').remove();
+	const inviteCanceledElement = document.createElement("div");
+	inviteCanceledElement.classList.add('message-error');
+	inviteCanceledElement.textContent = `${data.sender} has canceled the invite.`;
+	chatLog.appendChild(inviteCanceledElement);
+	chatLog.scrollTop = chatLog.scrollHeight;
+	displaySlidingMessage(`${data.sender} has canceled the invite.`);
 }
 
 // get room code and join game for invitee
@@ -289,4 +304,4 @@ async function sendGameInvite(user, game) {
 	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
-export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }
+export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCanceled }

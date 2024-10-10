@@ -133,9 +133,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		accepted = data.get("accepted", False)
 		roomCode = None
 		if inviter not in self.pending:
-			logging.error("Chat: handle_invite_response: Invite was cancelled")
+			logging.error("Chat: handle_invite_response: Invite was canceled")
 			await self.channel_layer.group_send(
-				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was cancelled."}
+				self.user_group_name, {"type": "error.message", "message": f"Invite from {inviter} was canceled."}
 			)
 			return
 		if accepted:
@@ -206,9 +206,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		if sender in blocked_users:
 			return
 		if sender == self.user.username:
-			await self.send(text_data=json.dumps({"message": message, "self": True, "sender": "To all"}))
+			await self.send(text_data=json.dumps({"message": message, "self": True, "sender": "To all", "sent": True, "public": True}))
 		else:
-			await self.send(text_data=json.dumps({"message": message, "sender": sender}))
+			await self.send(text_data=json.dumps({"message": message, "sender": sender, "received": True, "public": True}))
 
 
 	async def receive_dm(self, event):
@@ -221,13 +221,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			logging.error("Chat: receive_dm: Failed to get blocked users list.")
 		if sender == self.user.username or sender in blocked_users:
 			return
-		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender}))
+		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "From " + sender, "received": True}))
 
 
 	async def send_dm(self, event):
 		message = event["message"]
 		dest = event["dest"]
-		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "To " + dest}))
+		await self.send(text_data=json.dumps({"message": message, "private": True, "sender": "To " + dest, "sent": True}))
 
 
 	async def self_dm(self, event):
@@ -280,9 +280,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def cancel_invite_message(self, event):
 		sender = event["sender"]
 		await self.send(text_data=json.dumps({
-			"invite_cancelled": True,
+			"invite_canceled": True,
 			"sender": sender,
-			"message": f"Invite from {sender} has been cancelled."
+			# "message": f"Invite from {sender} has been canceled."
 		}))
 		self.pending.remove(sender)
 
