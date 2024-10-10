@@ -2,8 +2,6 @@ import json
 import os
 import django
 from django.conf import settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatServer.settings')
-django.setup()
 import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -12,16 +10,19 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 import logging
 import httpx
+# import aioredis
 
-
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatServer.settings')
+django.setup()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 User = get_user_model()
+# redis_client = aioredis.from_url("redis://redis:6379", decode_responses=True)
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	MAX_MESSAGE_LENGTH = 200
-	online_users = {} #dict of online users
+	online_users = {}
 
 
 	async def connect(self):

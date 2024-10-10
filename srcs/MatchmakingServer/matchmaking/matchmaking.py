@@ -11,8 +11,6 @@ channel_layer = get_channel_layer()
 redis_client = aioredis.from_url("redis://redis:6379", decode_responses=True)
 
 class MatchmakingManager:
-	# class attribute (shared)
-	redis_client = redis_client
 	matchmaking_tasks = {}
 	lock = asyncio.Lock()
 
@@ -39,7 +37,7 @@ class MatchmakingManager:
 		queue_key = f"queue:{game}"
 		# if user is already in the queue, remove them
 		await self.cancel_matchmaking(username, game)
-		await MatchmakingManager.redis_client.rpush(queue_key, player_data)
+		await redis_client.rpush(queue_key, player_data)
 		task = asyncio.create_task(self.start_matchmaking(username, game, rank))
 		MatchmakingManager.matchmaking_tasks[username] = task
 		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank} task_id: {id(task)}")
@@ -49,9 +47,9 @@ class MatchmakingManager:
 		queue_key = f"queue:{game}"
 		match = None
 		# loop through queue list on redis
-		queue_length = await MatchmakingManager.redis_client.llen(queue_key)
+		queue_length = await redis_client.llen(queue_key)
 		for i in range(queue_length):
-			player_data = await MatchmakingManager.redis_client.lindex(queue_key, i)
+			player_data = await redis_client.lindex(queue_key, i)
 			player = json.loads(player_data)
 			# check if i player is a match within tolerance
 			if player["username"] != username and abs(rank - player["rank"]) <= tolerance:
@@ -106,16 +104,16 @@ class MatchmakingManager:
 		logging.info(f"Matchmaking: remove_player: Removing {username} from {game} queue")
 		queue_key = f"queue:{game}"
 		# get the full list of players in the queue
-		queue_length = await MatchmakingManager.redis_client.llen(queue_key)
+		queue_length = await redis_client.llen(queue_key)
 		for i in range(queue_length):
-			player_data = await MatchmakingManager.redis_client.lindex(queue_key, i)
+			player_data = await redis_client.lindex(queue_key, i)
 			if player_data is None:
 				continue
 			player = json.loads(player_data)
 			# check if the username matches
 			if player["username"] == username:
 				# remove player data from the queue
-				await MatchmakingManager.redis_client.lrem(queue_key, 0, player_data)
+				await redis_client.lrem(queue_key, 0, player_data)
 				logging.info(f"Matchmaking: remove_player: {username} successfully removed from {game} queue")
 				break
 		else:
