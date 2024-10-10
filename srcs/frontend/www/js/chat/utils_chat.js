@@ -25,7 +25,7 @@ function displayChatMessage(data, chatLog) {
 		messageElement.classList.add('message-error');
 	} else if (data.invite_response) {
 		messageElement.classList.add('message-invite-response');
-	} else if (data.invite-cancelled) {
+	} else if (data.invite_cancelled) {
 		messageElement.classList.add('message-error');
 	} else {
 		messageElement.classList.add('message-default');

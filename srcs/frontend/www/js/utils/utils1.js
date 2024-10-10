@@ -5,7 +5,7 @@ function displaySlidingMessage(message, rep = '4') {
 	}
 	const slidingMessageDiv = document.getElementById('slidingMessage');
 	if (!slidingMessageDiv) {
-		console.error("Element with ID 'slidingMessage' not found.");
+		console.log("Element with ID 'slidingMessage' not found.");
 		return;
 	}
 	// Show the element again (in case it was hidden)
@@ -38,7 +38,7 @@ function displaySlidingMessage(message, rep = '4') {
 function clearSlidingMessage() {
 	const slidingMessageDiv = document.getElementById('slidingMessage');
 	if (!slidingMessageDiv) {
-		console.error("Element with ID 'slidingMessage' not found.");
+		console.log("Element with ID 'slidingMessage' not found.");
 		return;
 	}
 	const handleAnimationIteration = () => {
