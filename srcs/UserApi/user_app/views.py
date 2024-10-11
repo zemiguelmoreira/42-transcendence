@@ -512,6 +512,17 @@ class FriendListView(generics.GenericAPIView):
 
         return Response({'friends': response_data}, status=status.HTTP_200_OK)
 
+class UpdateOnlineStatusView(generics.GenericAPIView, mixins.UpdateModelMixin):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserProfileSerializer
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        is_logged_in = request.data.get('is_logged_in')
+
+        UserProfile.objects.filter(user=user).update(is_logged_in=is_logged_in)
+        return Response({'status': 'Online status updated successfully'}, status=status.HTTP_200_OK)
+
 ### Views de Gestão de Bloqueios
 
 class BlockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):

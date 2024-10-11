@@ -64,6 +64,7 @@ ASGI_APPLICATION = 'UserApi.asgi.application'
 
 # Application definition
 INSTALLED_APPS = [
+	'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -74,7 +75,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'user_app',
-    'monitoring_app'
 ]
 
 MIDDLEWARE = [
@@ -207,7 +207,6 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

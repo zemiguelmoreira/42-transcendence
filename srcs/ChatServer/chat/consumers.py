@@ -345,7 +345,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	# utility methods
 	async def add_online_user(self):
 		ChatConsumer.online_users[self.user.username] = ChatConsumer.online_users.get(self.user.username, 0) + 1
-		await self.update_user_status()
+		if ChatConsumer.online_users[self.user.username] == 1:
+			await self.update_user_status(True)
 
 
 	async def remove_online_user(self):
@@ -353,10 +354,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			ChatConsumer.online_users[self.user.username] -= 1
 		else:
 			ChatConsumer.online_users.pop(self.user.username, None)
-		await self.update_user_status()
+			await self.update_user_status(False)
 
 
-	async def update_user_status(self):
+	async def update_user_status(self, is_logged_in):
 		online_users_sorted = sorted(list(ChatConsumer.online_users))
 		await self.channel_layer.group_send(
 			self.room_group_name,
@@ -365,6 +366,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'online_users': online_users_sorted
 			}
 		)
+		await self.post_user_status(is_logged_in)
+
+
+	async def post_user_status(self, is_logged_in):
+		url = 'http://userapi:8000/profile/update_onlinestatus/'  # URL for the other container's API
+		headers = {
+			'Authorization': f'Bearer {self.token}',  # Add the authorization token in headers
+		}
+		data = {
+			'is_logged_in': is_logged_in  # Payload to update the online status
+		}
+
+		# Using httpx.AsyncClient() to make the POST request
+		async with httpx.AsyncClient() as client:
+			try:
+				response = await client.post(url, headers=headers, json=data)
+
+				# Check if the request was successful
+				if response.status_code == 200:
+					logging.info('Online status updated successfully.')
+				else:
+					logging.error(f'Failed to update online status: {response.json()}')
+			except httpx.RequestError as exc:
+				logging.error(f'Failed to update online status: {exc}')
 
 
 	async def get_blocked_user_list(self):

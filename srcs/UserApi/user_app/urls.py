@@ -28,6 +28,7 @@ urlpatterns = [
     path('profile/add_friend/', views.AddFriendView.as_view(), name='add_friend'),
     path('profile/remove_friend/', views.RemoveFriendView.as_view(), name='remove_friend'),
     path('profile/friend_list/', views.FriendListView.as_view(), name='blocked?list'),
+    path('profile/update_onlinestatus/', views.UpdateOnlineStatusView.as_view(), name='update_onlinestatus'),
 
     path('profile/block_user/', views.BlockUserView.as_view(), name='block_user'),
     path('profile/unblock_user/', views.UnblockUserView.as_view(), name='unblock_user'),
