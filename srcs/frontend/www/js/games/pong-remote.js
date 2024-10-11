@@ -220,21 +220,49 @@ function drawDigit(ctx, n, x, y) {
 	});
 }
 
+// function drawPONG(letterSpacing = -5) {
+// 	ctx.font = "100px PongFont";  // Escolha a fonte e o tamanho desejado
+// 	ctx.fillStyle = "#69696950";  // Cor do texto (branco)
+
+// 	const text = "PONG";
+
+// 	const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing - 15;
+// 	let xPosition = (canvasWidth - totalTextWidth) / 2;
+
+// 	const yPosition = canvasHeight - 20;  // Afastar 20px da borda inferior
+
+// 	for (let i = 0; i < text.length; i++) {
+// 		ctx.fillText(text[i], xPosition, yPosition);
+// 		xPosition += ctx.measureText(text[i]).width + letterSpacing;  // Avançar a posição X, adicionando o espaçamento
+// 	}
+// }
+
 function drawPONG(letterSpacing = -5) {
-	ctx.font = "100px PongFont";  // Escolha a fonte e o tamanho desejado
-	ctx.fillStyle = "#69696950";  // Cor do texto (branco)
+    ctx.font = "100px PongFont";  // Fonte e tamanho desejados
+    ctx.fillStyle = "#69696950";  // Cor do texto (transparente com 50% opacidade)
 
-	const text = "PONG";
+    const text = "PONG";
 
-	const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing - 15;
-	let xPosition = (canvasWidth - totalTextWidth) / 2;
+    // Calcula a largura total do texto considerando o espaçamento entre letras
+    const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing - 15;
 
-	const yPosition = canvasHeight - 20;  // Afastar 20px da borda inferior
+    // Calcula a posição inicial do texto para centralizar horizontalmente
+    let xPosition = (canvasWidth - totalTextWidth) / 2;
 
-	for (let i = 0; i < text.length; i++) {
-		ctx.fillText(text[i], xPosition, yPosition);
-		xPosition += ctx.measureText(text[i]).width + letterSpacing;  // Avançar a posição X, adicionando o espaçamento
-	}
+    // A posição Y do texto (afastado 20px da borda inferior)
+    const yPosition = canvasHeight - 20;
+
+    // Calcula a altura do texto (pode ser ajustada manualmente)
+    const textHeight = 100;  // Altura da fonte "PongFont" que você está usando
+
+    // Limpa o espaço onde o texto será desenhado (um retângulo ao redor do texto)
+    ctx.clearRect(xPosition - 5, yPosition - textHeight, totalTextWidth + 10, textHeight + 10);
+
+    // Desenha cada letra individualmente, considerando o espaçamento
+    for (let i = 0; i < text.length; i++) {
+        ctx.fillText(text[i], xPosition, yPosition);
+        xPosition += ctx.measureText(text[i]).width + letterSpacing;  // Avança a posição X, adicionando o espaçamento
+    }
 }
 
 function drawDashedLine() {
@@ -304,7 +332,7 @@ function drawScores() {
 
 function drawRect(x, y, width, height, color, ctx) {
 	ctx.fillStyle = color;
-	ctx.fillRect(x, y, widthS, height);
+	ctx.fillRect(x, y, width, height);
 }
 
 // function drawBall() {
@@ -352,6 +380,7 @@ function drawGame() {
 
 	// Desenhar os paddles e a bola nas novas posições
 	drawPaddles();
+	drawPONG();
 	drawBall();
 	drawScores();
 
