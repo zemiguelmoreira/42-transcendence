@@ -265,46 +265,46 @@ function drawDashedLine() {
 // }
 
 function drawScores() {
-    // Definição do tamanho dos dígitos e espaçamento
-    const digitWidth = 3 * (20 + 0); // 3 segmentos + 0 margens
-    const digitHeight = 5 * (20 + 0); // 5 segmentos de altura
-    const scoreSpacing = 10;
-    
-    // Posições dos jogadores no canvas
-    const player1X = canvasWidth / 2 - digitWidth - scoreSpacing - (digitWidth / 3);
-    const player2X = canvasWidth / 2 + scoreSpacing + (digitWidth / 3);
-    const scoreY = 30; // Altura onde as pontuações são desenhadas
+	// Definição do tamanho dos dígitos e espaçamento
+	const digitWidth = 3 * (20 + 0); // 3 segmentos + 0 margens
+	const digitHeight = 5 * (20 + 0); // 5 segmentos de altura
+	const scoreSpacing = 10;
 
-    // Limpar apenas a área ao redor das pontuações de cada jogador
-    const clearPadding = 2; // Extra para garantir que tudo ao redor seja limpo
+	// Posições dos jogadores no canvas
+	const player1X = canvasWidth / 2 - digitWidth - scoreSpacing - (digitWidth / 3);
+	const player2X = canvasWidth / 2 + scoreSpacing + (digitWidth / 3);
+	const scoreY = 30; // Altura onde as pontuações são desenhadas
 
-    // Limpar pontuação do Jogador 1
-    backgroundCtx.clearRect(
-        player1X - clearPadding,       // X inicial, com padding
-        scoreY - clearPadding,         // Y inicial, com padding
-        digitWidth + clearPadding * 2, // Largura com padding extra
-        digitHeight + clearPadding * 2 // Altura com padding extra
-    );
+	// Limpar apenas a área ao redor das pontuações de cada jogador
+	const clearPadding = 2; // Extra para garantir que tudo ao redor seja limpo
 
-    // Limpar pontuação do Jogador 2
-    backgroundCtx.clearRect(
-        player2X - clearPadding,       // X inicial, com padding
-        scoreY - clearPadding,         // Y inicial, com padding
-        digitWidth + clearPadding * 2, // Largura com padding extra
-        digitHeight + clearPadding * 2 // Altura com padding extra
-    );
+	// Limpar pontuação do Jogador 1
+	backgroundCtx.clearRect(
+		player1X - clearPadding,       // X inicial, com padding
+		scoreY - clearPadding,         // Y inicial, com padding
+		digitWidth + clearPadding * 2, // Largura com padding extra
+		digitHeight + clearPadding * 2 // Altura com padding extra
+	);
 
-    // Desenhar linha tracejada central
-    drawDashedLine();
+	// Limpar pontuação do Jogador 2
+	backgroundCtx.clearRect(
+		player2X - clearPadding,       // X inicial, com padding
+		scoreY - clearPadding,         // Y inicial, com padding
+		digitWidth + clearPadding * 2, // Largura com padding extra
+		digitHeight + clearPadding * 2 // Altura com padding extra
+	);
 
-    // Redesenhar os dígitos das pontuações
-    drawDigit(backgroundCtx, player1Score, player1X, scoreY); // Pontuação do Jogador 1
-    drawDigit(backgroundCtx, player2Score, player2X, scoreY); // Pontuação do Jogador 2
+	// Desenhar linha tracejada central
+	drawDashedLine();
+
+	// Redesenhar os dígitos das pontuações
+	drawDigit(backgroundCtx, player1Score, player1X, scoreY); // Pontuação do Jogador 1
+	drawDigit(backgroundCtx, player2Score, player2X, scoreY); // Pontuação do Jogador 2
 }
 
 function drawRect(x, y, width, height, color, ctx) {
 	ctx.fillStyle = color;
-	ctx.fillRect(x, y, width, height);
+	ctx.fillRect(x, y, widthS, height);
 }
 
 // function drawBall() {
@@ -327,63 +327,63 @@ function drawRect(x, y, width, height, color, ctx) {
 // }
 
 function drawGame() {
-    // Definir um extra padding para limpar ao redor da bola e dos paddles
-    const extraPadding = 2;
-    const paddleOffset = 5; // Deslocamento dos paddles para o interior do canvas
+	// Definir um extra padding para limpar ao redor da bola e dos paddles
+	const extraPadding = 2;
+	const paddleOffset = 5; // Deslocamento dos paddles para o interior do canvas
 
-    // Limpar a posição anterior da bola, adicionando 2 pixels de cada lado
-    ctx.clearRect(previousBallX - extraPadding, previousBallY - extraPadding, ballSize + extraPadding * 2, ballSize + extraPadding * 2);
-    
-    // Limpar a posição anterior do paddle esquerdo, levando em consideração o offset de 5 pixels
-    ctx.clearRect(
-        paddleOffset - extraPadding,          // X inicial (considerando o deslocamento)
-        previousLeftPaddleY - extraPadding,   // Y inicial, com padding
-        paddleWidth + extraPadding * 2,       // Largura do paddle com padding extra
-        paddleHeight + extraPadding * 2       // Altura do paddle com padding extra
-    );
+	// Limpar a posição anterior da bola, adicionando 2 pixels de cada lado
+	ctx.clearRect(previousBallX - extraPadding, previousBallY - extraPadding, ballSize + extraPadding * 2, ballSize + extraPadding * 2);
 
-    // Limpar a posição anterior do paddle direito, levando em consideração o offset de 5 pixels
-    ctx.clearRect(
-        canvasWidth - paddleWidth - paddleOffset - extraPadding, // X inicial, com padding e offset
-        previousRightPaddleY - extraPadding,      // Y inicial, com padding
-        paddleWidth + extraPadding * 2,           // Largura do paddle com padding extra
-        paddleHeight + extraPadding * 2           // Altura do paddle com padding extra
-    );
+	// Limpar a posição anterior do paddle esquerdo, levando em consideração o offset de 5 pixels
+	ctx.clearRect(
+		paddleOffset - extraPadding,          // X inicial (considerando o deslocamento)
+		previousLeftPaddleY - extraPadding,   // Y inicial, com padding
+		paddleWidth + extraPadding * 2,       // Largura do paddle com padding extra
+		paddleHeight + extraPadding * 2       // Altura do paddle com padding extra
+	);
 
-    // Desenhar os paddles e a bola nas novas posições
-    drawPaddles();
-    drawBall();
-    drawScores();
+	// Limpar a posição anterior do paddle direito, levando em consideração o offset de 5 pixels
+	ctx.clearRect(
+		canvasWidth - paddleWidth - paddleOffset - extraPadding, // X inicial, com padding e offset
+		previousRightPaddleY - extraPadding,      // Y inicial, com padding
+		paddleWidth + extraPadding * 2,           // Largura do paddle com padding extra
+		paddleHeight + extraPadding * 2           // Altura do paddle com padding extra
+	);
 
-    // Atualizar as posições anteriores
-    previousBallX = ballX;
-    previousBallY = ballY;
-    previousLeftPaddleY = leftPaddleY;
-    previousRightPaddleY = rightPaddleY;
+	// Desenhar os paddles e a bola nas novas posições
+	drawPaddles();
+	drawBall();
+	drawScores();
+
+	// Atualizar as posições anteriores
+	previousBallX = ballX;
+	previousBallY = ballY;
+	previousLeftPaddleY = leftPaddleY;
+	previousRightPaddleY = rightPaddleY;
 }
 
 
 // function drawPaddles() {
 //     // Desenha o paddle esquerdo
 //     drawRect(0, leftPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
-    
+
 //     // Desenha o paddle direito
 //     drawRect(canvasWidth - paddleWidth, rightPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
 // }
 
 function drawPaddles() {
-    const paddleOffset = 5; // Distância das extremidades laterais
+	const paddleOffset = 5; // Distância das extremidades laterais
 
-    // Paddle esquerdo: posicionado 5px para dentro a partir da borda esquerda
-    ctx.fillRect(paddleOffset, leftPaddleY, paddleWidth, paddleHeight);
+	// Paddle esquerdo: posicionado 5px para dentro a partir da borda esquerda
+	ctx.fillRect(paddleOffset, leftPaddleY, paddleWidth, paddleHeight);
 
-    // Paddle direito: posicionado 5px para dentro a partir da borda direita
-    ctx.fillRect(canvasWidth - paddleWidth - paddleOffset, rightPaddleY, paddleWidth, paddleHeight);
+	// Paddle direito: posicionado 5px para dentro a partir da borda direita
+	ctx.fillRect(canvasWidth - paddleWidth - paddleOffset, rightPaddleY, paddleWidth, paddleHeight);
 }
 
 function drawBall() {
-    // Desenha a bola
-    drawRect(ballX, ballY, ballSize, ballSize, "#fff", ctx);
+	// Desenha a bola
+	drawRect(ballX, ballY, ballSize, ballSize, "#fff", ctx);
 }
 
 
