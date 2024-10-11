@@ -7,7 +7,8 @@ pyotp
 qrcode
 channels_redis
 channels
-daphne
+# daphne==4.1.2
+gunicorn
 python-dotenv
 Pillow
 requests #acrescentado para fazer o request

@@ -64,7 +64,8 @@ ASGI_APPLICATION = 'UserApi.asgi.application'
 
 # Application definition
 INSTALLED_APPS = [
-	'daphne',
+	'gunicorn',
+	# 'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

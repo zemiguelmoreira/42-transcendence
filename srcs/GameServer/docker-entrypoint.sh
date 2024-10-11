@@ -10,5 +10,5 @@ python manage.py migrate
 #         --email $DJANGO_SUPERUSER_EMAIL
 # fi
 
-daphne -b 0.0.0.0 -p 8001 GameServer.asgi:application
-
+# daphne -b 0.0.0.0 -p 8001 GameServer.asgi:application
+python manage.py runserver 0.0.0.0:8001
