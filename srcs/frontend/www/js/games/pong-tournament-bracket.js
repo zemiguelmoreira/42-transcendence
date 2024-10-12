@@ -293,6 +293,7 @@ function initializeTournament(playersObj, username) {
 				document.querySelector("#final-winner").innerText = winners[0];
 				document.querySelector("#startMatchBtn").style.display = "none";
 				document.getElementById("canvas-confetti").style.display = "block";
+				displaySlidingMessage(`Congratulations to the winner ${winners[0]}!`);
 				confetti();
 			}
 		} else {
@@ -313,7 +314,7 @@ function initializeTournament(playersObj, username) {
 			const smPlayer2 = document.querySelector("#sm-player2");
 			if (smPlayer1) smPlayer1.innerText = `Player 1: ${player1}`;
 			if (smPlayer2) smPlayer2.innerText = `Player 2: ${player2}`;
-			let message = `The next match will be ${ player1 } vs ${ player2 }. Be ready!`;
+			let message = `The next match will be ${player1} vs ${player2}. Be ready!`;
 			displaySlidingMessage(message);
 			const messageData = {
 				"type": "sys_message",

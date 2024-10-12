@@ -12,8 +12,8 @@ async function runPongMatch(player1Name, player2Name, username) {
 		const ballSize = 10;
 		const winningScore = 10;
 
-		let paddleSpeed = 15;
-		let ballSpeedX = 6;
+		let paddleSpeed = 20;
+		let ballSpeedX = 7;
 		let ballSpeedY = 6;
 		let leftPaddleY = canvasHeight / 2 - paddleHeight / 2;
 		let rightPaddleY = canvasHeight / 2 - paddleHeight / 2;

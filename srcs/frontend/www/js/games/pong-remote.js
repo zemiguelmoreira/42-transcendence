@@ -380,6 +380,7 @@ function drawGame() {
 
 	// Desenhar os paddles e a bola nas novas posições
 	drawPaddles();
+	drawPlayerNames();
 	drawPONG();
 	drawBall();
 	drawScores();

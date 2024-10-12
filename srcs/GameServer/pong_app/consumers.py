@@ -107,10 +107,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'players': [],
                 'ball_position': [ball_init_x, ball_init_y],
                 'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
-                'ball_velocity': [500, 500],
+                'ball_velocity': [400, 350],
                 'current_directions': ['idle', 'idle'],
                 'score': [0, 0],
-                'paddle_speed': 800,
+                'paddle_speed': 900,
                 'end_game': False,
                 'disconnect': "",
                 'wall_collision': False
@@ -193,7 +193,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             last_time = current_time
             
             await self.update_game_state(room, delta_time)
-            await asyncio.sleep(0.008)  # Increase update frequency for smoother ball movement
+            await asyncio.sleep(0.015)  # Increase update frequency for smoother ball movement
 
     async def update_game_state(self, room, delta_time):
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
