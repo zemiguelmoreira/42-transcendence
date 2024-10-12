@@ -370,20 +370,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	async def post_user_status(self, is_logged_in):
-		url = 'http://userapi:8000/profile/update_onlinestatus/'  # URL for the other container's API
+		url = 'http://userapi:8000/profile/update_onlinestatus/'
 		headers = {
-			'Authorization': f'Bearer {self.token}',  # Add the authorization token in headers
+			'Authorization': f'Bearer {self.token}',
 		}
 		data = {
-			'is_logged_in': is_logged_in  # Payload to update the online status
+			'is_logged_in': is_logged_in
 		}
-
-		# Using httpx.AsyncClient() to make the POST request
 		async with httpx.AsyncClient() as client:
 			try:
 				response = await client.post(url, headers=headers, json=data)
-
-				# Check if the request was successful
 				if response.status_code == 200:
 					logging.info('Online status updated successfully.')
 				else:
