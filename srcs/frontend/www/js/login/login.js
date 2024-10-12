@@ -7,7 +7,7 @@ import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import { handleInput, handleInputBlur, displayError } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
-import WebSocketInstance from "../socket/websocket.js";
+// import WebSocketInstance from "../socket/websocket.js";
 
 function insertInputValidation1(qrForm) {
 	for (let element of qrForm.elements) {
@@ -48,7 +48,7 @@ function showSuccessMessageSignIn(username) {
 	messageDiv.style.display = 'block';
 	setTimeout(function () {
 		messageDiv.style.display = 'none';
-		WebSocketInstance.connect();
+		// WebSocketInstance.connect();
 		navigateTo(`/user/${username}`);
 	}, 1000);
 }
@@ -96,7 +96,7 @@ function signIn() {
 	// 	e.preventDefault();
 	// 	requestPasswordReset();
 	// 	// navigateTo('/');
-	
+
 	// });
 
 	const signInForm = document.getElementById("userSignInForm");
@@ -111,11 +111,11 @@ function signIn() {
 		if (qrCodeForm) qrCodeForm.style.display = "none";
 
 		// Exibir o formulário de recuperação de senha
-		if (passwordResetForm) 
+		if (passwordResetForm)
 			passwordResetForm.style.display = "block";
 
 		document.getElementById('resetEmail').focus();
-		
+
 		document.getElementById('sendPassword').addEventListener('click', function (e) {
 			e.preventDefault();
 			requestPasswordReset();
@@ -354,7 +354,7 @@ async function requestPasswordReset() {
 					console.log('response: ', response);
 					let errorObject;
 					let data;
-					
+
 					if (response.ok) {
 						data = await response.json();
 						console.log('data no recup password: ', data);
@@ -374,7 +374,7 @@ async function requestPasswordReset() {
 								status: response.status,
 							};
 						}
-						throw errorObject;				
+						throw errorObject;
 					}
 			} catch (e) {
 				console.log('Erro ao solicitar recuperação de senha:', e.message);

@@ -2,7 +2,6 @@ import { viewTokenRefresh, testToken, verifyToken, removeToken } from "./utils/t
 import { getNamebyId } from "./profile/myprofile.js";
 import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
-import WebSocketInstance from "./socket/websocket.js";
 import { getParams } from "./login/login42.js";
 import { changeChatLoaded } from "./home/home.js";
 import { homeLogin } from "./home/home.js";
@@ -27,7 +26,6 @@ async function goTo() {
 				console.log('teste goto');
 				changeChatLoaded();
 				navigateTo(`/user/${username}`);
-				await WebSocketInstance.connect();
 			}
 			else
 				removeToken();
@@ -138,13 +136,12 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 						if (username) {
 							console.log('teste refresh');
 							console.log('page to replace: ', window.location.pathname);
-							// const pathState = { 'page': window.location.pathname}; 
+							// const pathState = { 'page': window.location.pathname};
 							// history.replaceState(pathState, '', window.location.pathname);
 							// history.replaceState(pathState, '', window.location.pathname);
 							changeChatLoaded();
 							// matchedRoute.page.loadContent(matchedRoute.params);
 							navigateTo(`/user/${username}`);
-							await WebSocketInstance.connect();
 						}
 						else
 							navigateTo('/');
@@ -155,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				return;
 			}
 			if (e.state.page === "/") {
-				changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do 
+				changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do
 				return;
 			}
 			if (matchedRoute && accessAllowed) {
@@ -219,12 +216,12 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 
 	const currentPath = window.location.pathname;
 	const matchedRoute = matchRoute(currentPath);
-  
+
 	// Se encontrar uma rota correspondente
 	// if (matchedRoute) {
 	//   // Substitui o estado atual no histórico, criando um novo ponto de partida
 	//   history.replaceState({ page: currentPath }, '', currentPath);
-  
+
 	//   // Carrega o conteúdo da página correspondente
 	//   matchedRoute.page.loadContent(matchedRoute.params);
 
@@ -252,7 +249,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 	// 	changeChatLoaded();
 	// 	// homeLogin
 	// }
-	
+
 	//função de entrada
 
 	// if (!viewTokenRefresh()) {
@@ -299,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 			// history.replaceState({ page: currentPath }, '', currentPath);
 
 			// Carrega o conteúdo da página
-			
+
 			// let username = await getNamebyId(payload.user_id);
 			// if (username) {
 			// 	console.log('teste refresh');
@@ -320,17 +317,16 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				if (username) {
 					console.log('teste refresh');
 					console.log('page to replace: ', window.location.pathname);
-					const pathState = { 'page': window.location.pathname}; 
+					const pathState = { 'page': window.location.pathname};
 					// history.replaceState(pathState, '', window.location.pathname);
 					history.replaceState(pathState, '', window.location.pathname);
 					changeChatLoaded();
 					const test = await homeLogin(username);
 					console.log('slidingMessage: ', document.getElementById('slidingMessage'));
 					console.log('teste: ', test);
-					
+
 					// matchedRoute.page.loadContent(matchedRoute.params);
 					navigateTo(window.location.pathname, true);
-					await WebSocketInstance.connect();
 				}
 				else
 					navigateTo('/');
@@ -344,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 			goTo();
 
 		}
-  
+
 	  } else {
 		// Se a rota não for válida, navega para uma página padrão (por exemplo, home ou 404)
 	  //   navigateTo('/');

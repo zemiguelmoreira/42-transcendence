@@ -9,7 +9,7 @@ import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeHomePage, makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
-import WebSocketInstance from "../socket/websocket.js";
+// import WebSocketInstance from "../socket/websocket.js";
 import { handleInput, handleInputBlur } from "../utils/utils1.js";
 import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
@@ -136,7 +136,7 @@ function initButtonListeners(username) {
 			removeToken(username);
 			chatLoaded = false; // introduzido para carregar de novo toda a página home
 			chatSocketInstance.close();
-			WebSocketInstance.close();
+			// WebSocketInstance.close();
 			setTimeout(function () {
 				navigateTo('/');
 			}, 2000);
@@ -189,7 +189,7 @@ async function homeLogin(username) {
 		history.replaceState({page: url_error}, '', url_error);
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('refresh_token');
-		WebSocketInstance.close();
+		// WebSocketInstance.close();
 		navigateTo(url_error);
 		return false;
 	}

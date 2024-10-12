@@ -3,7 +3,7 @@ import { displayError } from "../utils/utils1.js";
 import { viewToken, saveToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
 import { successContainer } from "../utils/utils1.js";
-import WebSocketInstance from "../socket/websocket.js";
+// import WebSocketInstance from "../socket/websocket.js";
 
 const clientId = 'u-s4t2ud-159130180b55795d9366f64e165fe220ae4cb2c8b5e412a3424d938148c1f337';
 const uri = encodeURIComponent(`https://${window.location.host}/callback`);
@@ -57,7 +57,7 @@ async function getParams(code) {
                 messageDiv.style.display = 'block'; // Exibe a mensagem
                 setTimeout(async function () {
                     messageDiv.style.display = 'none';
-                    await WebSocketInstance.connect();
+                    // await WebSocketInstance.connect();
                     navigateTo(`/user/${data.user.username}`);
                 }, 1000);
             } else {

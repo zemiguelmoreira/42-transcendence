@@ -383,32 +383,32 @@
 	<script src="pong.js"></script>
 	<!-- <script src="snake.js"></script> -->
 	<script>
-		let socket = null;
+		// let socket = null;
 
-		function connectWebSocket() {
-			const accessToken = localStorage.getItem('accessToken');
-			socket = new WebSocket(`wss://${window.location.host}/api/ws/user_status/?token=${accessToken}`);
+		// function connectWebSocket() {
+		// 	const accessToken = localStorage.getItem('accessToken');
+		// 	socket = new WebSocket(`wss://${window.location.host}/api/ws/user_status/?token=${accessToken}`);
 
-			socket.onopen = function (event) {
-				console.log('WebSocket connected');
-			};
+		// 	socket.onopen = function (event) {
+		// 		console.log('WebSocket connected');
+		// 	};
 
-			socket.onmessage = function (event) {
-				console.log('Message from server:', event.data);
-			};
+		// 	socket.onmessage = function (event) {
+		// 		console.log('Message from server:', event.data);
+		// 	};
 
-			socket.onerror = function (error) {
-				console.error('WebSocket error:', error);
-				// localStorage.removeItem('accessToken');
-				// localStorage.removeItem('refreshToken');
-			};
+		// 	socket.onerror = function (error) {
+		// 		console.error('WebSocket error:', error);
+		// 		// localStorage.removeItem('accessToken');
+		// 		// localStorage.removeItem('refreshToken');
+		// 	};
 
-			socket.onclose = function (event) {
-				console.log('WebSocket closed:', event);
-				// localStorage.removeItem('accessToken');
-				// localStorage.removeItem('refreshToken');
-			};
-		}
+		// 	socket.onclose = function (event) {
+		// 		console.log('WebSocket closed:', event);
+		// 		// localStorage.removeItem('accessToken');
+		// 		// localStorage.removeItem('refreshToken');
+		// 	};
+		// }
 
 		async function requestPasswordReset() {
 			const email = document.getElementById('resetEmail').value;
@@ -612,7 +612,7 @@
 					alert('2FA verification successful. You are logged in.');
 					document.getElementById('loginForm').style.display = 'block';
 					document.getElementById('verifyForm').style.display = 'none';
-					connectWebSocket();
+					// connectWebSocket();
 				} else {
 					const errorText = await response.text();
 					try {
@@ -678,12 +678,13 @@
 						alert('Session expired. Please login again.');
 						localStorage.removeItem('accessToken');
 						localStorage.removeItem('refreshToken');
-					} else {
-						connectWebSocket();
 					}
+					//  else {
+					// 	connectWebSocket();
+					// }
 				} else {
 					alert('User already logged in!');
-					connectWebSocket();
+					// connectWebSocket();
 				}
 			}
 		});
