@@ -1,4 +1,4 @@
-import { viewTokenRefresh, testToken, verifyToken, removeToken } from "./utils/tokens.js";
+import { viewTokenRefresh, testToken, verifyToken } from "./utils/tokens.js";
 import { getNamebyId } from "./profile/myprofile.js";
 import { pages } from "./routes/path.js";
 import { refreshAccessToken } from "./utils/fetchWithToken.js";
@@ -16,7 +16,8 @@ async function goTo() {
 			const accessToken = localStorage.getItem('access_token');
 			const payload = testToken(accessToken);
 			if (!payload) {
-				removeToken();
+				localStorage.removeItem('access_token');
+				localStorage.removeItem('refresh_token');
 				sessionStorage.removeItem('access_token');
 				navigateTo('/');
 				return;
@@ -27,12 +28,15 @@ async function goTo() {
 				changeChatLoaded();
 				navigateTo(`/user/${username}`);
 			}
-			else
-				removeToken();
+			else {
+				localStorage.removeItem('access_token');
+				localStorage.removeItem('refresh_token');
 				sessionStorage.removeItem('access_token');
 				navigateTo('/');
+			}
 		} else {
-			removeToken();
+			localStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
 			sessionStorage.removeItem('access_token');
 			navigateTo('/');
 		}
@@ -41,7 +45,8 @@ async function goTo() {
 		e.status = "400";
 		e.message = "home page user! function goTo";
 		navigateTo(`/error/${e.status}/${e.message}`);
-		removeToken();
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('refresh_token');
 		sessionStorage.removeItem('access_token');
 		return;
 	}
@@ -123,6 +128,19 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 					// if (matchedRoute) {
 					// 	matchedRoute.page.loadContent(matchedRoute.params);
 					// }
+					// chega aqui através do history quando temos o token
+					if (window.location.pathname === "/signIn" || window.location.pathname === "/") {
+
+							console.log(' location no history vindo do user: ', window.location.pathname);
+							localStorage.removeItem('access_token');
+							localStorage.removeItem('refresh_token');
+							sessionStorage.removeItem('access_token');
+							// navigateTo(window.location.pathname);
+							matchedRoute.page.loadContent(matchedRoute.params);
+							return;
+
+					}
+
 					const refreshToken = localStorage.getItem('refresh_token');
 					if (testToken(refreshToken)) {
 						await refreshAccessToken();
@@ -143,10 +161,17 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 							// matchedRoute.page.loadContent(matchedRoute.params);
 							navigateTo(`/user/${username}`);
 						}
-						else
+						else {
 							navigateTo('/');
+							localStorage.removeItem('access_token');
+							localStorage.removeItem('refresh_token');
+							sessionStorage.removeItem('access_token');
+						}
 					} else {
 						navigateTo('/');
+						localStorage.removeItem('access_token');
+						localStorage.removeItem('refresh_token');
+						sessionStorage.removeItem('access_token');
 					}
 				}
 				return;
@@ -172,6 +197,10 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				// if (matchedRoute) {
 				// 	matchedRoute.page.loadContent(matchedRoute.params);
 				// }
+				console.log('pathname state null: ', window.location.pathname);
+				localStorage.removeItem('access_token');
+				localStorage.removeItem('refresh_token');
+				sessionStorage.removeItem('access_token');
 				navigateTo('/', true);
 		}
 	});

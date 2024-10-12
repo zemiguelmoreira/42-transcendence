@@ -20,6 +20,7 @@ function userProfilePage(userData, user) {
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
 
 	displayProfileFriendsList(userData.user.username);
+
 	document.getElementById('editProfile').addEventListener('click', (e) => {
 		e.preventDefault();
 		navigateTo(`/user/${userData.user.username}/profile/edit`);
@@ -259,4 +260,4 @@ function displayChangePassword() {
 	});
 }
 
-export { userProfilePage, displayFriendsList, displayBlockedList, profileSettings , displayChangePassword , displayMatchHistory }
+export { userProfilePage, displayFriendsList, displayProfileFriendsList, displayBlockedList, profileSettings , displayChangePassword , displayMatchHistory }
