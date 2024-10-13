@@ -259,33 +259,8 @@ function gameLoop() {
 	requestAnimationFrame(gameLoop);
 }
 
-function countdown(callback) {
-	let count = 3;
-
-	function drawCountdown() {
-		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-		// ctx.drawImage(backgroundImg, 0, 0, canvasWidth, canvasHeight);
-		ctx.font = '48px Arial';
-		ctx.fillStyle = 'white';
-		ctx.textAlign = 'center';
-		ctx.fillText(count, canvasWidth / 2, canvasHeight / 2);
-	}
-
-	function updateCountdown() {
-		if (count > 0) {
-			drawCountdown();
-			count--;
-			setTimeout(updateCountdown, 1000);
-		} else {
-			callback();
-		}
-	}
-
-	updateCountdown();
-}
-
 function startGame() {
-	countdown(gameLoop);
+	gameLoop();
 }
 
 function showEndScreen(score, dataPlayer1, dataPlayer2) {
@@ -293,10 +268,6 @@ function showEndScreen(score, dataPlayer1, dataPlayer2) {
 		const canvas = document.getElementById('gameCanvasSnakeRemote');
 		ctx = canvas.getContext('2d');
 	}
-
-	console.log('Score:', score);
-	console.log('DataPlayer1:', dataPlayer1);
-	console.log('DataPlayer2:', dataPlayer2);
 
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";

@@ -24,16 +24,23 @@ function changeChatLoaded() {
 }
 
 function home() {
-	console.log('passei aqui');
 	document.getElementById('root').innerHTML = '';
 	document.getElementById('root').insertAdjacentHTML('afterbegin', register_page);
 	document.getElementById('form1Example1').focus();
+	
 	document.getElementById('signIn').addEventListener('click', (e) => {
 		e.preventDefault();
 		(!localStorage.getItem('access_token')) ? navigateTo('/signIn') : goTo();
 	});
+	
+	document.getElementById('register').addEventListener('click', function () {
+		document.getElementById('welcome-box').style.display = 'none';
+		document.getElementById('reg').style.display = 'block';
+	});
+	
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
+	
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
 
@@ -41,6 +48,7 @@ function home() {
 
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
+
 }
 
 function closeSlidingWindow() {
