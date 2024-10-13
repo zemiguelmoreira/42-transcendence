@@ -140,6 +140,8 @@ function sendMoveCommand(direction) {
 function drawGrid() {
 	ctx.strokeStyle = '#345678';
 	ctx.lineWidth = 1;
+	ctx.strokeStyle = '#345678';
+	ctx.lineWidth = 1;
 
 	for (let x = 0; x <= canvasWidth; x += gridSize) {
 		ctx.beginPath();
@@ -158,6 +160,7 @@ function drawGrid() {
 
 function drawFood() {
 	ctx.fillStyle = foodColor;
+	ctx.fillStyle = foodColor;
 	ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
 }
 
@@ -168,8 +171,10 @@ function drawSnakes() {
 	for (let i = 0; i < segmentCount1; i++) {
 		const segment = snake1.segments[i];
 		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5;
+		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5;
 		const color = snake1.color;
 
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
@@ -177,9 +182,10 @@ function drawSnakes() {
 	for (let i = 0; i < segmentCount2; i++) {
 		const segment = snake2.segments[i];
 		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
+		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
 		const color = snake2.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; 
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 }
@@ -193,6 +199,7 @@ function hexToRgb(hex) {
 		b = parseInt(hex[3] + hex[3], 16);
 	}
 
+
 	else if (hex.length === 7) {
 		r = parseInt(hex[1] + hex[2], 16);
 		g = parseInt(hex[3] + hex[4], 16);
@@ -204,6 +211,7 @@ function hexToRgb(hex) {
 
 function drawGame() {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = '#000';
 	ctx.fillStyle = '#000';
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -260,6 +268,7 @@ function gameLoop() {
 
 function startGame() {
 	gameLoop();
+	gameLoop();
 }
 
 function showEndScreen(score = null) {
@@ -276,9 +285,14 @@ function showEndScreen(score = null) {
 	const partHeight = totalHeight / 4;
 	const startY = (canvasHeight - totalHeight) / 2;
 
+	const totalHeight = canvasHeight * 0.7;
+	const partHeight = totalHeight / 4;
+	const startY = (canvasHeight - totalHeight) / 2;
+
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 
 	ctx.fillStyle = "red";
@@ -288,11 +302,19 @@ function showEndScreen(score = null) {
 	ctx.font = "40px CustomFont";
 	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60);
 	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60);
+	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 
 	ctx.fillStyle = "red";
 	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 3 + 4);
+
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60);
 
 	ctx.fillStyle = "#fff";
 	ctx.font = "40px CustomFont";
