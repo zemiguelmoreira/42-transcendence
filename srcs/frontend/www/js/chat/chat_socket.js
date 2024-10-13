@@ -6,6 +6,7 @@ import { updateOnlineUsersList } from "./utils_chat.js";
 import { handleInviteCancelled} from "./utils_chat.js"
 import { getRoomCode } from "./utils_chat.js";
 import { navigateTo } from "../app.js";
+import { displayFriendsList, displayProfileFriendsList } from "../profile/userProfile.js";
 
 class WebSocketService {
 	static instance = null;
@@ -62,6 +63,13 @@ class WebSocketService {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {
 				updateOnlineUsersList(username, data.online_users);
+				console.log('location: ', window.location.pathname);
+				if (window.location.pathname === `/user/${username}/profile`) {
+					displayProfileFriendsList(username);
+				}
+				else if (window.location.pathname === `/user/${username}/settings`) {
+					displayFriendsList(username, true);
+				}
 			} else if (data.room) {
 				getRoomCode(username, data);
 			} else if (data.invite_cancelled)

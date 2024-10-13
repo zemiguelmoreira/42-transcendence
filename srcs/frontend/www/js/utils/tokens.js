@@ -67,7 +67,9 @@ function verifyToken() {
 	// 	if (!testToken(token)) {
 	// 		WebSocketInstance.close();
 	// 		navigateTo('/');
-	// 		removeToken();
+	// 		localStorage.removeItem('access_token');
+	// 		localStorage.removeItem('refresh_token');
+	// 		sessionStorage.removeItem('access_token');
 	// 	}
 	// }
 	if (chatSocketInstance.state() === 1) {
@@ -75,7 +77,9 @@ function verifyToken() {
 		if (!testToken(token)) {
 			chatSocketInstance.close();
 			navigateTo('/');
-			removeToken();
+			localStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
+			sessionStorage.removeItem('access_token');
 		}
 	}
 }
