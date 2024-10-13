@@ -125,8 +125,6 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	snake_socket.onclose = function (event) {
 		snake_socket = null;
 	};
-
-
 }
 
 function sendMoveCommand(direction) {
@@ -140,10 +138,9 @@ function sendMoveCommand(direction) {
 }
 
 function drawGrid() {
-	ctx.strokeStyle = '#345678'; // Cor das linhas da grelha
-	ctx.lineWidth = 1; // Espessura das linhas
+	ctx.strokeStyle = '#345678';
+	ctx.lineWidth = 1;
 
-	// Desenha as linhas verticais
 	for (let x = 0; x <= canvasWidth; x += gridSize) {
 		ctx.beginPath();
 		ctx.moveTo(x, 0);
@@ -151,7 +148,6 @@ function drawGrid() {
 		ctx.stroke();
 	}
 
-	// Desenha as linhas horizontais
 	for (let y = 0; y <= canvasHeight; y += gridSize) {
 		ctx.beginPath();
 		ctx.moveTo(0, y);
@@ -161,7 +157,7 @@ function drawGrid() {
 }
 
 function drawFood() {
-	ctx.fillStyle = foodColor; // Usa a cor armazenada
+	ctx.fillStyle = foodColor;
 	ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
 }
 
@@ -171,19 +167,19 @@ function drawSnakes() {
 
 	for (let i = 0; i < segmentCount1; i++) {
 		const segment = snake1.segments[i];
-		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5; // Calcula o valor alfa baseado na posição do segmento
+		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5;
 		const color = snake1.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; // Ajusta a cor com opacidade
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 
 	for (let i = 0; i < segmentCount2; i++) {
 		const segment = snake2.segments[i];
-		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5; // Calcula o valor alfa baseado na posição do segmento
+		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
 		const color = snake2.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; // Ajusta a cor com opacidade
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; 
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 }
@@ -191,13 +187,12 @@ function drawSnakes() {
 function hexToRgb(hex) {
 	let r = 0, g = 0, b = 0;
 
-	// 3 dígitos
 	if (hex.length === 4) {
 		r = parseInt(hex[1] + hex[1], 16);
 		g = parseInt(hex[2] + hex[2], 16);
 		b = parseInt(hex[3] + hex[3], 16);
 	}
-	// 6 dígitos
+
 	else if (hex.length === 7) {
 		r = parseInt(hex[1] + hex[2], 16);
 		g = parseInt(hex[3] + hex[4], 16);
@@ -209,7 +204,7 @@ function hexToRgb(hex) {
 
 function drawGame() {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	ctx.fillStyle = '#000'; // Preto
+	ctx.fillStyle = '#000';
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 	drawGrid();
@@ -219,7 +214,6 @@ function drawGame() {
 
 document.addEventListener('keydown', function (event) {
 	if (playerIndex === null) return;
-	// console.log(event.key);
 	switch (event.key) {
 		case 'ArrowUp':
 			sendMoveCommand('UP');
@@ -264,33 +258,8 @@ function gameLoop() {
 	requestAnimationFrame(gameLoop);
 }
 
-function countdown(callback) {
-	let count = 3;
-
-	function drawCountdown() {
-		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-		// ctx.drawImage(backgroundImg, 0, 0, canvasWidth, canvasHeight);
-		ctx.font = '48px Arial';
-		ctx.fillStyle = 'white';
-		ctx.textAlign = 'center';
-		ctx.fillText(count, canvasWidth / 2, canvasHeight / 2);
-	}
-
-	function updateCountdown() {
-		if (count > 0) {
-			drawCountdown();
-			count--;
-			setTimeout(updateCountdown, 1000);
-		} else {
-			callback();
-		}
-	}
-
-	updateCountdown();
-}
-
 function startGame() {
-	countdown(gameLoop);
+	gameLoop();
 }
 
 function showEndScreen(score = null) {
@@ -299,48 +268,36 @@ function showEndScreen(score = null) {
 		ctx = canvas.getContext('2d');
 	}
 
-	// Limpa o canvas e define fundo semitransparente
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-	// Ajuste da altura total disponível para o conteúdo
-	const totalHeight = canvasHeight * 0.7; // Usamos 70% da altura do canvas para os textos
-	const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+	const totalHeight = canvasHeight * 0.7;
+	const partHeight = totalHeight / 4;
+	const startY = (canvasHeight - totalHeight) / 2;
 
-	// Define a posição de início para centrar os textos verticalmente
-	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
-
-	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight); // Elevar um pouco mais o texto
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 
-	// Desenhar "WINNER" em vermelho deslocado
 	ctx.fillStyle = "red";
 	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight + 4);
 
-	// Nome e pontuação do vencedor
-	ctx.fillStyle = "#fff"; // Texto em branco
-	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
-
-	// Texto para "LOSER" na terceira parte do canvas
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60);
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3); // Elevar o texto
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 
-	// Desenhar "LOSER" em vermelho deslocado
 	ctx.fillStyle = "red";
 	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 3 + 4);
 
-	// Nome e pontuação do perdedor
-	ctx.fillStyle = "#fff"; // Texto em branco
-	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60);
 
-	// Remover o elemento 'invitePending' após 3 segundos
 	setTimeout(() => {
 		document.getElementById('invitePending').remove();
 		navigateTo(`/user/${selfUsername}/snake`);
