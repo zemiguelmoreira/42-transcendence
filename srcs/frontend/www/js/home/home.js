@@ -45,6 +45,7 @@ function home() {
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
 	
+	
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
 
@@ -52,6 +53,7 @@ function home() {
 
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
+
 
 }
 

@@ -160,6 +160,7 @@ function drawGrid() {
 
 function drawFood() {
 	ctx.fillStyle = foodColor;
+	ctx.fillStyle = foodColor;
 	ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
 }
 
@@ -173,15 +174,17 @@ function drawSnakes() {
 		const color = snake1.color;
 
 		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 
 	for (let i = 0; i < segmentCount2; i++) {
 		const segment = snake2.segments[i];
 		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
+		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
 		const color = snake2.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; 
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 }
@@ -205,6 +208,7 @@ function hexToRgb(hex) {
 
 function drawGame() {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	ctx.fillStyle = '#000';
 	ctx.fillStyle = '#000';
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -261,6 +265,7 @@ function gameLoop() {
 
 function startGame() {
 	gameLoop();
+	gameLoop();
 }
 
 function showEndScreen(score, dataPlayer1, dataPlayer2) {
@@ -277,9 +282,14 @@ function showEndScreen(score, dataPlayer1, dataPlayer2) {
 	const partHeight = totalHeight / 4;
 	const startY = (canvasHeight - totalHeight) / 2;
 
+	const totalHeight = canvasHeight * 0.7;
+	const partHeight = totalHeight / 4;
+	const startY = (canvasHeight - totalHeight) / 2;
+
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 
 	ctx.fillStyle = "red";
@@ -291,6 +301,7 @@ function showEndScreen(score, dataPlayer1, dataPlayer2) {
 
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 
 	ctx.fillStyle = "red";
