@@ -38,8 +38,7 @@ class MatchmakingManager:
 		# if user is already in the queue, remove them
 		await self.cancel_matchmaking(username, game)
 		await redis_client.rpush(queue_key, player_data)
-		task = asyncio.create_task(self.start_matchmaking(username, game, rank))
-		MatchmakingManager.matchmaking_tasks[username] = task
+		MatchmakingManager.matchmaking_tasks[username] = asyncio.create_task(self.start_matchmaking(username, game, rank))
 		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank} task_id: {id(task)}")
 
 

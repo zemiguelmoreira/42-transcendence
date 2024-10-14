@@ -39,7 +39,7 @@ async def get_room(code):
         return room
     except Room.DoesNotExist:
         return None
-    
+
 
 def get_related_users(room):
     return room.created_by, room.authorized_user
