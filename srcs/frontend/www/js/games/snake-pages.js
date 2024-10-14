@@ -48,6 +48,7 @@ function startLocalSnakePopup(username) {
 }
 
 function startRemoteSnakePopup() {
+function startRemoteSnakePopup() {
 	return `
 	<div class="local-pending" id="snakePopup">
 		<div class="local-box">
@@ -274,7 +275,6 @@ function snakeGameLocal(username) {
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
-
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
 
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
@@ -302,7 +302,7 @@ function snakeGameLocal(username) {
 }
 
 function snakeGameRemote(username) {
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup());
 
 	let token = localStorage.getItem('access_token');
 
@@ -312,7 +312,7 @@ function snakeGameRemote(username) {
 	}
 
 	matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
-	matchmakingSocket.onopen = () => {
+	matchmakingSocket.onopen = (event) => {
 		console.log("Matchmaking WebSocket connection opened.");
 	};
 
@@ -329,14 +329,12 @@ function snakeGameRemote(username) {
 	matchmakingSocket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		const data = JSON.parse(event.data);
-		// let usernameData = await getUserProfileByUsername(username); // Não pode ser usado aqui
 
 		if (data.match === "match_created") {
 			console.log("Match created!", data.roomCode);
 
 			if (document.getElementById('status')) {
 				document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
-
 				const popupWindow = document.getElementById('snakePopup');
 				popupWindow.remove();
 			}
@@ -474,4 +472,5 @@ function snakeGameMultiplayer(username) {
 	});
 }
 
+export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage };
 export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage };

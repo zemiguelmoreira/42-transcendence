@@ -185,7 +185,7 @@ function drawSnakes() {
 		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
 		const color = snake2.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; 
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 }
