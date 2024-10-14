@@ -48,7 +48,6 @@ function startLocalSnakePopup(alias_name) {
 }
 
 function startRemoteSnakePopup() {
-	console.log("startRemoteSnakePopup Loaded!");
 	return `
 	<div class="local-pending" id="snakePopup">
 		<div class="local-box">
@@ -163,7 +162,6 @@ function snakeGameLocalPage() {
 }
 
 function snakeGameRemotePage() {
-	console.log("snakeGameRemotePage Loaded!");
 	return `
 		<div class="snake-content">
 			<div class="snake-container">
@@ -327,7 +325,6 @@ function snakeGameRemote(username) {
 
 			if (document.getElementById('status')) {
 				document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
-
 				const popupWindow = document.getElementById('snakePopup');
 				popupWindow.remove();
 			}

@@ -30,6 +30,7 @@ function setupSnake() {
 
 async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	selfUsername = username;
+
 	if (matchmakingSocket !== false)
 		matchSocket = matchmakingSocket;
 
@@ -40,7 +41,7 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	}
 
 	snake_socket = new WebSocket(`wss://${window.location.host}/game/ws/snake/${roomCode}/?token=${snake_accessToken}`);
-	snake_socket.onopen = async function (event) {
+	snake_socket.onopen = async function () {
 		console.log('Snake WebSocket connection successfully opened:');
 		setupSnake();
 		snake_socket.send(JSON.stringify({
@@ -112,7 +113,6 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 			}
 
 		} else {
-
 			if (!stopFlag) {
 				document.getElementById('snakeScore1').innerText = player1Score = data['score'][0];
 				document.getElementById('snakeScore2').innerText = player2Score = data['score'][1];
@@ -123,7 +123,7 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 		}
 	};
 
-	snake_socket.onclose = function (event) {
+	snake_socket.onclose = function () {
 		snake_socket = null;
 	};
 
