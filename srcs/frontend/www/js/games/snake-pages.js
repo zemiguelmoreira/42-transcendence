@@ -48,6 +48,7 @@ function startLocalSnakePopup(alias_name) {
 }
 
 function startRemoteSnakePopup() {
+function startRemoteSnakePopup() {
 	return `
 	<div class="local-pending" id="snakePopup">
 		<div class="local-box">
@@ -274,7 +275,6 @@ function snakeGameLocal(username, dataUsername) {
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
-
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
 
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
@@ -331,7 +331,6 @@ function snakeGameRemote(username) {
 
 			if (document.getElementById('status')) {
 				document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
-
 				const popupWindow = document.getElementById('snakePopup');
 				popupWindow.remove();
 			}
