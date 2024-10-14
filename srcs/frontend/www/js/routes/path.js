@@ -165,7 +165,7 @@ const pages = {
 		redirect: '/'
 	},
 	'/user/:username/snake-game-remote': {
-		loadContent: function (params) {
+		loadContent: async function (params) {
 			snakeGameRemote(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
