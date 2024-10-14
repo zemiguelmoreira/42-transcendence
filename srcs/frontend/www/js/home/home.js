@@ -38,6 +38,10 @@ function home() {
 		document.getElementById('reg').style.display = 'block';
 	});
 	
+	document.getElementById('login').addEventListener('click', function () {
+		navigateTo('/signIn');
+	});
+
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
 	
