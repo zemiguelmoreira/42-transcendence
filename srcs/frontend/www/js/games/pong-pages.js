@@ -5,7 +5,7 @@ import { joinPongRoom } from './pong-remote.js';
 import { displaySlidingMessage } from '../utils/utils1.js';
 
 let guest;
-let matchmakingSocket = null;
+let matchmakingSocketPong = null;
 
 function startLocalPongPopup(username) {
 	return `
@@ -147,17 +147,17 @@ function pongGameRemote(username) {
 
 	let token = localStorage.getItem('access_token');
 
-	if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-		matchmakingSocket.close();
-		matchmakingSocket = null;
+	if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+		matchmakingSocketPong.close();
+		matchmakingSocketPong = null;
 	}
-	matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
+	matchmakingSocketPong = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
 
-	matchmakingSocket.onopen = () => {
+	matchmakingSocketPong.onopen = () => {
 		console.log("Matchmaking socket opened.");
 	};
 
-	matchmakingSocket.onmessage = (event) => {
+	matchmakingSocketPong.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
 		if (data.match == "match_created") {
@@ -173,14 +173,14 @@ function pongGameRemote(username) {
 			document.getElementById('root').appendChild(runPongRemote);
 
 			console.log("Joining room: ", data.roomCode);
-			if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED)
-				console.log("Joining... ", matchmakingSocket);
-			joinPongRoom(data.roomCode, username, matchmakingSocket);
+			if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED)
+				console.log("Joining... ", matchmakingSocketPong);
+			joinPongRoom(data.roomCode, username, matchmakingSocketPong);
 
 			setTimeout(() => {
 				// Fecha o socket de matchmaking após entrar na sala
-				if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-					matchmakingSocket.close();
+				if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+					matchmakingSocketPong.close();
 					console.log('Matchmaking WebSocket connection closed after joining the room.');
 				}
 			}, 1000);
@@ -196,7 +196,7 @@ function pongGameRemote(username) {
 		}
 	};
 
-	matchmakingSocket.onclose = () => {
+	matchmakingSocketPong.onclose = () => {
 		// console.log("Matchmaking Socket Closed.");
 	};
 
@@ -205,7 +205,7 @@ function pongGameRemote(username) {
 			type: "join",
 			game: "pong"
 		});
-		matchmakingSocket.send(data);
+		matchmakingSocketPong.send(data);
 		document.getElementById('status').innerText = "MATCHMAKING...";
 	});
 
@@ -214,10 +214,10 @@ function pongGameRemote(username) {
 			type: "cancel"
 		});
 
-		matchmakingSocket.send(data);
-		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-			matchmakingSocket.close();
-			matchmakingSocket = null;
+		matchmakingSocketPong.send(data);
+		if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+			matchmakingSocketPong.close();
+			matchmakingSocketPong = null;
 			console.log("Matchmaking socket closed.");
 		}
 
@@ -411,4 +411,4 @@ function displayTournamentBracket() {
 	`;
 }
 
-export { pongGameLocal, pongGameRemote, pongGameTournament, pongCanvasPage, loadPongScript }
+export { pongGameLocal, pongGameRemote, pongGameTournament, pongCanvasPage, loadPongScript, matchmakingSocketPong }
