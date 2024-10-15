@@ -759,8 +759,8 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
           - Only the authenticated user's profile will be updated (winner or loser).
         """
         data = request.data
-        logger.info(f'Request data: {data}')
-
+        logger.info(f'Request data: {data}')    
+        
         try:
             # Get the current authenticated user and their profile
             current_user = self.request.user
@@ -773,8 +773,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
             ranked = data.get('ranked')  # True or False
-
+            
             current_is_winner = True if current_user.username == winner else False
+            points_earned = 0
             # Initialize winner and loser profiles as None
             winner_profile = None
             loser_profile = None
@@ -800,7 +801,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             # If the game type is "pong"
             if game_type == "pong":
                 # Update the winner's profile
-                if current_user.username == winner:
+                if current_is_winner:
                     current_profile.pong_wins += 1
                     current_profile.wins += 1
 
@@ -808,9 +809,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 else:
                     current_profile.pong_losses += 1
                     current_profile.losses += 1
-
+                
                 current_profile.pong_match_history.append(match_data)
-
+            
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
                     # Calculate rank difference between the winner and loser
@@ -819,14 +820,15 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         differece = 1000
 
                     # Update rank for the current user based on whether they won or lost
-                    if current_user.username == winner:
+                    logger.info(f'current is winner = {current_is_winner}')
+                    if current_is_winner:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
                     else:
                         points_earned = 100 - differece / 20
-
+                    
                     current_profile.pong_rank += points_earned
 
             # If the game type is "snake"
@@ -840,9 +842,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 else:
                     current_profile.snake_losses += 1
                     current_profile.losses += 1
-
+                
                 current_profile.snake_match_history.append(match_data)
-
+            
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
                     # Calculate rank difference between the winner and loser
@@ -851,16 +853,16 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         differece = 1000
 
                     # Update rank for the current user based on whether they won or lost
-                    if current_user.username == winner:
+                    if current_is_winner:
                         if differece > 0:
                             points_earned = 100 + differece / 10
                         elif differece == 0:
                             points_earned = 100
                     else:
                         points_earned = 100 - differece / 20
-
+                    
                     current_profile.snake_rank += points_earned
-
+            
             current_profile.save()
 
             # Return success response

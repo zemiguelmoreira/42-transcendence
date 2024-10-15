@@ -42,33 +42,12 @@ def is_goal_paddle2(ball_x):
     return ball_x <= 0
 
 
-#    // Colisão da bola com os paddles
-#     if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
-#         ballDirX *= -1;
-#         leftPaddleSound.play();  // Som de colisão com o paddle esquerdo
-#     }
-#     if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
-#         ballDirX *= -1;
-#         rightPaddleSound.play();  // Som de colisão com o paddle direito
-#     }
-
 def is_collision_paddle1(ball_x, ball_y, paddle_y):
     return (ball_x <= PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
-    # collision_area_top = paddle_y
-    # collision_area_bottom = paddle_y + PADDLE_HEIGHT
-    # collision_area_left = paddle1_init_x
-    # collision_area_right = paddle1_init_x + PADDLE_WIDTH
 
-    # return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
 
 def is_collision_paddle2(ball_x, ball_y, paddle_y):
     return (ball_x + BALL_SIZE >= canvasWidth - PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
-    # collision_area_top = paddle_y
-    # collision_area_bottom = paddle_y + PADDLE_HEIGHT
-    # collision_area_left = paddle2_init_x
-    # collision_area_right = paddle2_init_x + PADDLE_WIDTH
-
-    # return (collision_area_left <= ball_x <= collision_area_right) and (collision_area_top <= ball_y <= collision_area_bottom)
 
 class PongConsumer(AsyncWebsocketConsumer):
     rooms = {}
@@ -105,14 +84,13 @@ class PongConsumer(AsyncWebsocketConsumer):
         if self.room.code not in PongConsumer.rooms:
             PongConsumer.rooms[self.room.code] = {
                 'players': [],
+                'paddles': [{'username': "", 'alive': True },{ 'username': "", 'alive': True }],
                 'ball_position': [ball_init_x, ball_init_y],
                 'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
                 'ball_velocity': [500, 500],
                 'current_directions': ['idle', 'idle'],
                 'score': [0, 0],
                 'paddle_speed': 800,
-                'end_game': False,
-                'disconnect': "",
                 'wall_collision': False
             }
 
@@ -128,6 +106,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             self.is_player = True
             room['players'].append(self)
             player_index = room['players'].index(self)
+            room['paddles'][player_index]['username'] = self.user.username
 
             await self.send(json.dumps({
                 'action': 'assign_index',
@@ -160,19 +139,23 @@ class PongConsumer(AsyncWebsocketConsumer):
                 }))
 
     async def disconnect(self, close_code):
-        logger.info('Disconnected Called\n')
-        
-        try:
-            room = PongConsumer.rooms[self.room.code]
-            
-            # Sinalizar o fim do jogo
-            room['end_game'] = True
-            room['disconnect'] = self.user.username
-            logger.info(f"Room {self.room.code}: Game ended by disconnection from {self.user.username}")
-            
-        except KeyError:
-            logger.error(f"Room {self.room.code} not found in PongConsumer.rooms")
-            return
+        logger.info(f'Disconnected: {self.user.username}')
+
+        # Verificar se a sala ainda existe
+        room = PongConsumer.rooms.get(self.room.code)  # Tenta obter a sala de forma segura
+        if room:
+            player_index = None
+            for i, player in enumerate(room['players']):
+                if player.user.id == self.user.id:
+                    player_index = i
+                    break
+
+            if player_index is not None:
+                room['paddles'][player_index]['alive'] = False
+                logger.info(f"Player {self.user.username}'s paddle is now dead due to disconnection.")
+
+        await self.close()
+
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -191,11 +174,28 @@ class PongConsumer(AsyncWebsocketConsumer):
             current_time = time.time()
             delta_time = current_time - last_time
             last_time = current_time
+            logger.info('update')
+            logger.info(f'players in room: {room["players"]}')
+
             
             await self.update_game_state(room, delta_time)
             await asyncio.sleep(0.008)  # Increase update frequency for smoother ball movement
+        
+        if not room['players']:
+            if 'game_loop_task' in room:
+                room['game_loop_task'].cancel()  # Cancela o loop do jogo
+            del PongConsumer.rooms[self.room.code]  # Remove a sala
 
     async def update_game_state(self, room, delta_time):
+        alive_paddles = [paddle for paddle in room['paddles'] if paddle['alive']]
+        logger.info(f'paddles alive: {alive_paddles}')
+        if len(alive_paddles) <= 1:
+            if len(alive_paddles) == 1:
+                logger.info(f'alive paddles == 1')
+                for player in room['players']:
+                    await player.end_game(room, alive_paddles[0]['username'])
+            return
+
         room['ball_position'][0] += room['ball_velocity'][0] * delta_time
         room['ball_position'][1] += room['ball_velocity'][1] * delta_time
 
@@ -235,6 +235,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
 
         response = {
+            'action': 'update_game_state',
             'ball_position': room['ball_position'],
             'paddle_positions': room['paddle_positions'],
             'score': room['score']
@@ -242,59 +243,27 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         for player in room['players']:
             asyncio.create_task(player.send(json.dumps(response)))
-
-           # Verificar se o jogo terminou por desconexão
-    
-        if room.get('end_game'):
-            logger.info('Game identified as ending due to disconnection')
-            loser = room['disconnect']
-            
-            # Definir o vencedor com base no jogador que não desconectou
-            if room['players'][0].user.username == loser:
-                winner = room['players'][1].user.username
-            else:
-                winner = room['players'][0].user.username
-
-            logger.info(f"Game result due to disconnection: Winner: {winner}, Loser: {loser}")
-
-            # Notificar ambos os jogadores e encerrar o jogo
-            for player in room['players']:
-                await player.end_game(room, winner, loser)
             
         # Verificar se o jogo terminou pelo placar
-        elif room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
+        if room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
             logger.info(f"Game finished by reaching final score: {room['score'][0]} - {room['score'][1]}")
-
             if room['score'][0] == FINAL_SCORE:
-                winner = room['players'][0].user.username
-                loser = room['players'][1].user.username
+                room['paddles'][1]['alive'] = False
             else:
-                loser = room['players'][0].user.username
-                winner = room['players'][1].user.username
+                room['paddles'][0]['alive'] = False
+            
 
-            logger.info(f"Game result by score: Winner: {winner}, Loser: {loser}")
-
-            # Notificar ambos os jogadores e encerrar o jogo
-            for player in room['players']:
-                await player.end_game(room, winner, loser)
-
-            # Remover o jogador da sala e encerrar a partida
-            room['players'].remove(self)
-            logger.info('Player removed from room')
-
-        # Se não houver mais jogadores, cancelar o loop do jogo
-        if len(room['players']) == 0:
-            room['game_loop_task'].cancel()
-            room['game_loop_task'] = None
-            del PongConsumer.rooms[self.room.code]
-        
-        
-
-    async def end_game(self, room, winner, loser):
+    async def end_game(self, room, winner):
         logger.info('function end_game called')
         
+        loser = room['players'][0].user.username if room['players'][0].user.username != winner else room['players'][1].user.username
+        
+        
+        logger.info(f'winner: {winner}')
+        logger.info(f'loser: {loser}')
+        
         winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
-        loser_score = room['score'][0] if room['players'][0].user.username == loser else room['score'][1]
+        loser_score = room['score'][0] if room['players'][0].user.username != winner else room['score'][1]
 
         timestamp = int(time.time())
         formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
@@ -320,23 +289,22 @@ class PongConsumer(AsyncWebsocketConsumer):
         }
 
         # Salvar partida no banco de dados
-        await self.save_match_history(to_save) 
+        if winner == self.user.username:
+            for player in room['players']:
+                await player.save_match_history(to_save)
+                await player.send(json.dumps(result))
+            room['players'].clear()  # Limpa a lista de jogadores
+        
 
-        # Enviar resultado para todos os jogadores
-        for player in room['players']:
-            await player.send(json.dumps(result))
-
-        # Limpar o estado da sala
-        await self.close()
-        del PongConsumer.rooms[self.room.code]
 
     async def save_match_history(self, match_data):
-        url = 'http://userapi:8000/profile/update_match_history/'
+        url = 'http://userapi:8000/profile/update_match_history/'   
         headers = {
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {self.token}',
         }
-
+        logger.info(f'self username: {self.user.username}')
+        logger.info(f'self token: {self.token}')
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, json=match_data, headers=headers)
