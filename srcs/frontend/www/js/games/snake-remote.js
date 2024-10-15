@@ -239,7 +239,7 @@ document.addEventListener('keydown', function (event) {
 function gameLoop() {
 
 	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/snake-game-remote` && !stopFlag)
-		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/snake-playing` && !stopFlag)) {
+		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/chat-playing` && !stopFlag)) {
 		console.log('User left the game!');
 
 		if (document.getElementById('invitePending')) {

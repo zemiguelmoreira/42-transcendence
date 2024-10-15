@@ -301,7 +301,7 @@ document.addEventListener('keyup', function (event) {
 
 function gameLoop() {
 	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
-		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-playing` && !stopFlag)) {
+		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/chat-playing` && !stopFlag)) {
 
 		if (document.getElementById('invitePending')) {
 			document.getElementById('invitePending').remove();

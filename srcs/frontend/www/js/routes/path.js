@@ -143,7 +143,7 @@ const pages = {
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
-	'/user/:username/snake-playing': {
+	'/user/:username/chat-playing': {
 		loadContent: function (params) {
 			snakeOptions(params.username);
 		},
@@ -178,13 +178,13 @@ const pages = {
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'
 	},
-	'/user/:username/pong-playing': {
-		loadContent: function (params) {
-			pongOptions(params.username, params.guest);
-		},
-		access: () => !!localStorage.getItem('access_token'),
-		redirect: '/'
-	},
+	// '/user/:username/pong-playing': {
+	// 	loadContent: function (params) {
+	// 		pongOptions(params.username, params.guest);
+	// 	},
+	// 	access: () => !!localStorage.getItem('access_token'),
+	// 	redirect: '/'
+	// },
 	'/user/:username/pong': {
 		loadContent: function (params) {
 			pongOptions(params.username, params.guest);

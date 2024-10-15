@@ -8,7 +8,7 @@ import { closeSlidingWindow } from "../home/home.js";
 import { snakeGameRemotePage } from "../games/snake-pages.js";
 import { navigateTo } from "../app.js";
 
-let selectedUser = null;
+let selectedUser = null, invitedUser = null;
 
 function displayChatMessage(data, chatLog) {
 	console.log("Chat data: ", data);
@@ -48,7 +48,7 @@ function displayChatMessage(data, chatLog) {
 		if (data.private) {
 			slide = "New private message from " + data.sender.substring(5);
 		} else if (data.public) {
-				slide = "New public message from " + data.sender;
+			slide = "New public message from " + data.sender;
 		}
 		displaySlidingMessage(slide);
 	}
@@ -83,35 +83,35 @@ function createInviteElement(inviteMessage, sender, game, username) {
 
 // invitee invite creation
 function createInviteResponseButton(text, accepted, sender, game, username) {
-    const button = document.createElement("button");
-    button.textContent = text;
-    button.classList.add(`${text.toLowerCase()}-button`);
+	const button = document.createElement("button");
+	button.textContent = text;
+	button.classList.add(`${text.toLowerCase()}-button`);
 
-    button.onclick = function () {
-        // Criar a resposta ao convite
-        const response = {
-            "accepted": accepted,
-            "inviter": sender,
-            "type": "invite_response",
-            "game": game,
-        };
+	button.onclick = function () {
+		// Criar a resposta ao convite
+		const response = {
+			"accepted": accepted,
+			"inviter": sender,
+			"type": "invite_response",
+			"game": game,
+		};
 
-        // Enviar a resposta via WebSocket
-        chatSocketInstance.send(response);
+		// Enviar a resposta via WebSocket
+		chatSocketInstance.send(response);
 
-        // Usando `this` para acessar o botão clicado e o contêiner de botões
-        const buttonContainer = this.closest('.button-container');
+		// Usando `this` para acessar o botão clicado e o contêiner de botões
+		const buttonContainer = this.closest('.button-container');
 
-        // Desativar os botões dentro do mesmo contêiner de botões
-        buttonContainer.querySelector('.accept-button').disabled = true;
-        buttonContainer.querySelector('.reject-button').disabled = true;
+		// Desativar os botões dentro do mesmo contêiner de botões
+		buttonContainer.querySelector('.accept-button').disabled = true;
+		buttonContainer.querySelector('.reject-button').disabled = true;
 
-        if (!accepted) {
-            displaySlidingMessage(`Invite from ${sender} has been declined.`);
-        }
-    };
+		if (!accepted) {
+			displaySlidingMessage(`Invite from ${sender} has been declined.`);
+		}
+	};
 
-    return button;
+	return button;
 }
 
 // handle cancel the invite for invitee after inviter cancelled
@@ -155,13 +155,13 @@ function handleInviteResponse(username, data, chatLog) {
 	const inviteResponseElement = document.createElement("div");
 	if (accepted) {
 		if (data.game == 'Pong') {
-			navigateTo(`/user/${username}/pong-playing`);
+			// navigateTo(`/user/${username}/pong-playing`);
 			joinPongRoom(roomCode, username);
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
-			navigateTo(`/user/${username}/snake-playing`);
+			// navigateTo(`/user/${username}/snake-playing`);
 			joinSnakeRoom(roomCode, username);
 		}
 		responseMessage = `${invitee} has accepted your invite!`;
@@ -245,8 +245,8 @@ function createDropdownMenu(username, user) {
 	});
 	const action3 = document.createElement("hr");
 	action3.classList.add("dropdown-divider");
-	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong"));
-	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(user, "Snake"));
+	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(username, user, "Pong"));
+	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(username, user, "Snake"));
 	dropdownMenu.appendChild(action1);
 	dropdownMenu.appendChild(action0);
 	dropdownMenu.appendChild(action2);
@@ -282,12 +282,13 @@ function handleCancelInvite(recipient) {
 
 
 // inviter sends invite
-async function sendGameInvite(user, game) {
+async function sendGameInvite(username, user, game) {
 	const inviteMessage = {
 		"type": "invite",
 		"recipient": user,
 		"game": game,
 	};
+	invitedUser = user;
 	chatSocketInstance.send(inviteMessage);
 	const invitePendingDiv = document.createElement('div');
 	invitePendingDiv.classList.add('invite-pending');
@@ -296,6 +297,7 @@ async function sendGameInvite(user, game) {
 	cancelButton.id = 'cancelButton';
 	cancelButton.classList.add('btn', 'btn-danger');
 	cancelButton.textContent = 'Cancel';
+	navigateTo(`/user/${username}/chat-playing`);
 	cancelButton.addEventListener('click', () => {
 		handleCancelInvite(user);
 		invitePendingDiv.remove();
@@ -304,4 +306,4 @@ async function sendGameInvite(user, game) {
 	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
-export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }
+export { selectedUser, invitedUser, handleCancelInvite, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }

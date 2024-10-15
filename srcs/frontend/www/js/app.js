@@ -7,6 +7,7 @@ import { changeChatLoaded } from "./home/home.js";
 import { homeLogin } from "./home/home.js";
 import { matchmakingSocketPong } from "./games/pong-pages.js";
 import { matchmakingSocketSnake } from "./games/snake-pages.js";
+import { handleCancelInvite , invitedUser } from "./chat/utils_chat.js";
 
 const baseURL = `https://${window.location.host}/api`;
 
@@ -63,12 +64,15 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 	const matchedRoute = matchRoute(url);
 	console.log('matchedRoute',matchedRoute);
 
+	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/chat-playing`)) {
+		//handleCancelInvite(invitedUser);
+	}
+
 	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/pong-game-remote`)) {
 		console.log('desligar socket matchmaking pong - navigate, por rota errada');
 		if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
 			matchmakingSocketPong.close();
 		}
-		
 	}
 
 	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/snake-game-remote`)) {
