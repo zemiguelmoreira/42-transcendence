@@ -174,9 +174,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             current_time = time.time()
             delta_time = current_time - last_time
             last_time = current_time
-            logger.info('update')
-            logger.info(f'players in room: {room["players"]}')
-
             
             await self.update_game_state(room, delta_time)
             await asyncio.sleep(0.008)  # Increase update frequency for smoother ball movement
