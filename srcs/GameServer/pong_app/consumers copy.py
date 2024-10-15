@@ -55,7 +55,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	# event handlers
 	async def assign_index(self, event):
 		await self.send(json.dumps({
-			'action':
+			'action': 
 		}))
 
 

@@ -77,6 +77,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	#cancel inviter invite
 	async def handle_cancel_invite(self, data):
+		if self.inviting is False:
+			return
 		self.inviting = False
 		recipient = data.get("recipient", None)
 		if not recipient:

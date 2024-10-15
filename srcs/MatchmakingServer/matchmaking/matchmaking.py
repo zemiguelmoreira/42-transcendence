@@ -16,7 +16,6 @@ class MatchmakingManager:
 
 
 	async def start_matchmaking(self, username, game, rank):
-		task = asyncio.current_task()
 		try:
 			match = await self.find_match(username, game, rank)
 			if match:
@@ -39,7 +38,7 @@ class MatchmakingManager:
 		await self.cancel_matchmaking(username, game)
 		await redis_client.rpush(queue_key, player_data)
 		MatchmakingManager.matchmaking_tasks[username] = asyncio.create_task(self.start_matchmaking(username, game, rank))
-		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank} task_id: {id(task)}")
+		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank}")
 
 
 	async def find_match(self, username, game, rank, tolerance=0):

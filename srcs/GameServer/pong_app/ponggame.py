@@ -46,14 +46,14 @@ class PongGame:
 		else:
 			player_index = 1
 		if PongGame.rooms[room_code]['players'] > 1:
-			logging.error{f"PongGame: addToRoom: Invalid number of players in room: {room_code}"}
+			logging.error(f"PongGame: addToRoom: Invalid number of players in room: {room_code}")
 			return
 		PongGame.rooms[room_code]['players'].append(username)
 		user_game_group_name = f"user_game_{username}"
 		await channel_layer.group_send(
 			user_game_group_name, {
 				"type": "assign.index",
-				
+
 			})
 
 

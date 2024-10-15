@@ -119,12 +119,12 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 	async def disconnect(self, close_code):
 		try:
 			room = SnakeConsumer.rooms[self.room.code]
-			
+
 			# Sinalizar o fim do jogo
 			room['end_game'] = True
 			room['disconnect'] = self.user.username
 			logger.info(f"Room {self.room.code}: Game ended by disconnection from {self.user.username}")
-			
+
 		except KeyError:
 			logger.error(f"Room {self.room.code} not found in SnakeConsumer.rooms")
 			return
@@ -149,7 +149,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			if data['action'] == 'move':
 				player_index = data['player_index']
 				new_direction = data['direction']
-				
+
 				# Verificar se a nova direção é válida
 				current_direction = SnakeConsumer.rooms[self.room.code]['snakes'][player_index]['direction']
 				if self.is_valid_direction(current_direction, new_direction):
@@ -163,10 +163,10 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			# current_time = time.time()
 			# delta_time = current_time - last_time
 			# last_time = current_time
-			
+
 			await self.update_game_state(room )
 			await asyncio.sleep(0.08)  # Increase update frequency for smoother ball movement
-		
+
 
 	async def update_game_state(self, room):
 		alive_snakes = [snake for snake in room['snakes'] if snake['alive']]
@@ -187,16 +187,16 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			'score': room['score'],
 			'food': room['food'],
 		}
-		
+
 		for player in room['players']:
 			asyncio.create_task(player.send(json.dumps(response)))
 
 			# Verificar se o jogo terminou por desconexão
 
-		if room.get('end_game'): 
+		if room.get('end_game'):
 			logger.info('Game identified as ending due to disconnection')
 			loser = room['disconnect']
-			
+
 			# Definir o vencedor com base no jogador que não desconectou
 			if room['players'][0].user.username == loser:
 				winner = room['players'][1].user.username
@@ -322,13 +322,13 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 		winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
 		loser_score = room['score'][1] if room['players'][0].user.username == winner else room['score'][0]
-		
+
 		logger.info(f'winner: {winner}')
 		logger.info(f'loser: {loser}')
 
 		timestamp = int(time.time())
 		formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
-		
+
 		to_save = {
 			'winner': winner,
 			'loser': loser,
