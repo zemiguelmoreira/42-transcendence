@@ -321,7 +321,21 @@ function snakeGameRemote(username) {
 	matchmakingSocket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
+
 		if (data.match === "match_created") {
+			// Close the matchmaking socket if the user navigates away from the matchmaking page
+			if (window.location.pathname !== `/user/${username}/snake-game-remote`) {
+				const data = JSON.stringify({
+					type: "cancel"
+				});
+
+				matchmakingSocket.send(data);
+				if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
+					matchmakingSocket.close();
+					console.log('Matchmaking WebSocket connection closed.');
+				}
+			}
+
 			console.log("Match created!", data.roomCode);
 
 			if (document.getElementById('status')) {

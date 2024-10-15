@@ -63,6 +63,8 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	snake_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
 
+		
+
 		if (data.action === 'unauthorized') {
 			snake_socket.close();
 
