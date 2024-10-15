@@ -71,6 +71,7 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 
 	pong_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
+		console.log('data: ', data);
 
 		if (data.action === 'unauthorized') {
 			console.log('Unauthorized to join the game!');
@@ -120,7 +121,7 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 			}
 
 		} else {
-
+			console.log('entoru aqui');
 			if (!stopFlag) {
 				player1Score = data.score[0];
 				player2Score = data.score[1];
