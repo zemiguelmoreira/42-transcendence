@@ -57,10 +57,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		logger.info('Consumer: Disconnected Called\n')
+		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+		await self.channel_layer.group_discard(self.user_game_groupS_name, self.channel_name)
 		if self.is_player:
 			await pong_game.user_disconnect(self.room.code, self.user.username)
-		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-		await self.channel_layer.group_discard(self.user_game_group_name, self.channel_name)
 
 
 	async def receive(self, text_data):
@@ -98,6 +98,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 			'paddle_positions': event['paddle_positions'],
 			'score': event['score']
 		}))
+		if self.player_index == 1:
+			await pong_game.start_game(self.room.code)
 
 
 
