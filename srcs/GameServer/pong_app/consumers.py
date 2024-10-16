@@ -47,9 +47,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 		# channels room
 		self.room_group_name = f'room_{self.room.code}'
+		self.user_game_group_name = f'user_game_{self.user.username}'
 		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-		self.user_game_group_game = f'user_game_{self.user.username}'
-		await self.channel_layer.group_add(self.user_game_group_game, self.channel_name)
+		await self.channel_layer.group_add(self.user_game_group_name, self.channel_name)
 		# add to room
 		logger.info('Consumer: Callign add to room\n')
 		await pong_game.addToRoom(self.room.code, self.user.username)
@@ -60,11 +60,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 		if self.is_player:
 			await pong_game.user_disconnect(self.room.code, self.user.username)
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-		await self.channel_layer.group_discard(self.user_game_group_game, self.channel_name)
+		await self.channel_layer.group_discard(self.user_game_group_name, self.channel_name)
 
 
 	async def receive(self, text_data):
-		logger.info('Consumer: Receive Called\n')
+		# logger.info('Consumer: Receive Called\n')
 		data = json.loads(text_data)
 		if self.is_player and 'action' in data:
 			if data['action'] == 'move':
@@ -75,7 +75,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	# event handlers
 	async def assign_index(self, event):
-		logger.info('Consumer: Assign Index Called\n')
+		logger.info(f'Consumer: Assign Index Called {self.user.username}\n')
 		self.is_player = True
 		self.player_index = event['player_index']
 		await self.send(json.dumps({
@@ -85,10 +85,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 			'paddle_positions': event['paddle_positions'],
 			'score': event['score']
 		}))
+		await pong_game.check_start_game(self.room.code, self.player_index, self.user.username)
 
 
 	async def start_game(self, event):
-		logger.info('Consumer: Start Game Called\n')
+		logger.info(f'Consumer: Start Game Called {self.user.username}\n')
 		await self.send(json.dumps({
 			'action': 'start_game',
 			'player_index': self.player_index,
@@ -99,8 +100,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 		}))
 
 
+
 	async def wait_forplayer(self, event):
-		logger.info('Consumer: Wait For Player Called\n')
+		logger.info(f'Consumer: Wait For Player Called {self.user.username}\n')
 		await self.send(json.dumps({
 			'action': 'wait_for_player',
 			'player_index': self.player_index,
@@ -120,6 +122,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
 	async def game_over(self, event):
+		self.is_player = False
 		logger.info('Consumer: Game Over Called\n')
 		result  = {
 			'action': 'game_over',
@@ -141,7 +144,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 		}
 		await self.save_match_history(to_save)
 		await self.send(json.dumps(result))
-		self.is_player = False
 		await self.close()
 
 

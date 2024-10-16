@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-channel_layer = get_channel_layer()
 # redis_client = aioredis.from_url("redis://redis:6379", decode_responses=True)
 
 canvasHeight = 560
@@ -40,6 +39,7 @@ def is_collision_paddle2(ball_x, ball_y, paddle_y):
 	return (ball_x + BALL_SIZE >= canvasWidth - PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
 
 class PongGame:
+	channel_layer = get_channel_layer()
 	tasks = {}
 	rooms = {}
 	lock = asyncio.Lock()
@@ -47,7 +47,7 @@ class PongGame:
 	# adiciona ao room
 	async def addToRoom(self, room_code, username):
 		logger.info(f"PongGame: addToRoom: Adding {username} to room {room_code}")
-		async with self.lock:
+		async with PongGame.lock:
 			if room_code not in PongGame.rooms:
 				PongGame.rooms[room_code] = {
 					'players': [],
@@ -61,42 +61,52 @@ class PongGame:
 					'disconnect': None,
 					'wall_collision': False,
 				}
-				player_index = 0
-			else:
-				player_index = 1
 			room = PongGame.rooms[room_code]
-			if len(room['players']) > 1:
+			if len(room['players']) == 0:
+				player_index = 0
+			elif len(room['players']) == 1:
+				player_index = 1
+			else:
 				logging.error(f"PongGame: addToRoom: Invalid number of players in room: {room_code}")
 				return
 			room['players'].append(username)
-		user_game_group_name = f"user_game_{username}"
-		room_group_name = f"room_{room_code}"
-		await channel_layer.group_send(
-			user_game_group_name, {
-				'type': 'assign.index',
-				'player_index': player_index,
-				'ball_position': room['ball_position'],
-				'paddle_positions': room['paddle_positions'],
-				'score': room['score'],
-			})
-		if len(room['players']) == 2:
-			await channel_layer.group_send(
-				room_group_name, {
-					'type': 'start.game',
-					'player_names': [room['players'][0], room['players'][1]],
-					'ball_position': room['ball_position'],
-					'paddle_positions': room['paddle_positions'],
-					'score': room['score'],
-				})
-			await self.start_game(room_code, room)
-		else:
-			await channel_layer.group_send(
+			user_game_group_name = f'user_game_{username}'
+			room_group_name = f'room_{room_code}'
+			logger.info(f"user game group name: {user_game_group_name}")
+			await PongGame.channel_layer.group_send(
 				user_game_group_name, {
-					'type': 'wait.forplayer',
+					'type': 'assign.index',
+					'player_index': player_index,
 					'ball_position': room['ball_position'],
 					'paddle_positions': room['paddle_positions'],
 					'score': room['score'],
 				})
+
+
+	async def check_start_game(self, room_code, player_index, username):
+		user_game_group_name = f'user_game_{username}'
+		room_group_name = f'room_{room_code}'
+		room = PongGame.rooms[room_code]
+		async with PongGame.lock:
+			if len(room['players']) == 2:
+				await PongGame.channel_layer.group_send(
+					room_group_name, {
+						'type': 'start.game',
+						'player_names': [room['players'][0], room['players'][1]],
+						'ball_position': room['ball_position'],
+						'paddle_positions': room['paddle_positions'],
+						'score': room['score'],
+					})
+				logger.info(f"PongGame: addToRoom: starting game for room {room_code} {username}")
+				await self.start_game(room_code, room)
+			else:
+				await PongGame.channel_layer.group_send(
+					user_game_group_name, {
+						'type': 'wait.forplayer',
+						'ball_position': room['ball_position'],
+						'paddle_positions': room['paddle_positions'],
+						'score': room['score'],
+					})
 
 
 	# cria thread p game e gravas tasks por room
@@ -148,26 +158,26 @@ class PongGame:
 			room['score'][0] += 1
 			room['ball_position'] = [ball_init_x, ball_init_y]
 			room['ball_velocity'][0] *= -1
-			logger.info("Gol do paddle 1")
+			# logger.info("Gol do paddle 1")
 		if is_goal_paddle2(room['ball_position'][0]):
 			room['score'][1] += 1
 			room['ball_position'] = [ball_init_x, ball_init_y]
 			room['ball_velocity'][0] *= -1
-			logger.info("Gol do paddle 2")
+			# logger.info("Gol do paddle 2")
 		# paddle colision
 		if room['ball_velocity'][0] < 0 and is_collision_paddle1(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][0][1]):
 			room['ball_velocity'][0] *= -1
-			logger.info("Colidiu paddle 1")
+			# logger.info("Colidiu paddle 1")
 		if room['ball_velocity'][0] > 0 and is_collision_paddle2(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][1][1]):
 			room['ball_velocity'][0] *= -1
-			logger.info("colidiu paddle 2")
+			# logger.info("colidiu paddle 2")
 		for i in range(len(room['paddle_positions'])):
 			direction = room['current_directions'][i]
 			if direction == 'up':
 				room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
 			elif direction == 'down':
 				room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
-		await channel_layer.group_send(
+		await PongGame.channel_layer.group_send(
 			f"room_{room_code}", {
 				'type': 'update.gamestate',
 				'ball_position': room['ball_position'],
@@ -196,7 +206,7 @@ class PongGame:
 		formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
 		winner_score = room['score'][0] if room['players'][0] == winner else room['score'][1]
 		loser_score = room['score'][0] if room['players'][0] == loser else room['score'][1]
-		await channel_layer.group_send(
+		await PongGame.channel_layer.group_send(
 			f"room_{room_code}", {
 				'type': 'game.over',
 				'winner': winner,
