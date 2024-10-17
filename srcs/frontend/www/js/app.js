@@ -64,8 +64,19 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 	const matchedRoute = matchRoute(url);
 	console.log('matchedRoute',matchedRoute);
 
+	//Não deverá fazer esta parte porque a barra de navegação não está diponivel nesta rota
 	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/chat-playing`)) {
-		//handleCancelInvite(invitedUser);
+		if (invitedUser) {
+			const cancelMessage = {
+				"type": "cancel_invite",
+				"recipient": invitedUser,
+			};
+			chatSocketInstance.send(cancelMessage);
+			const removeDivInvite = document.getElementById('invitePending');
+			console.log('elemento a remover: '. removeDivInvite);
+			if (removeDivInvite)
+				removeDivInvite.remove();
+		}
 	}
 
 	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/pong-game-remote`)) {
@@ -140,6 +151,22 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 			// console.log('state page: ', e.state.page);
 			console.log('matchedroute history: ', matchedRoute); // para teste
 
+			// Retirar o invite - histórico
+			if (matchedRoute && (e.state.page !== `/user/${matchedRoute.params.username}/chat-playing`)) {
+				if (invitedUser) {
+					const cancelMessage = {
+						"type": "cancel_invite",
+						"recipient": invitedUser,
+					};
+					chatSocketInstance.send(cancelMessage);
+					const removeDivInvite = document.getElementById('invitePending');
+					console.log('elemento a remover: '. removeDivInvite);
+					if (removeDivInvite) {
+						console.log('existe o removeDivInvite: ', removeDivInvite);
+						removeDivInvite.remove();
+					}
+				}
+			}
 
 			if (matchedRoute && (e.state.page !== `/user/${matchedRoute.params.username}/pong-game-remote`)) {
 				console.log('desligar socket matchmaking pong - history, por rota errada');
@@ -396,12 +423,39 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				const payload = testToken(accessToken);
 				if (!payload) {
 					navigateTo('/', true);
+					localStorage.removeItem('access_token');
+					localStorage.removeItem('refresh_token');
+					sessionStorage.removeItem('access_token');
 					return;
 				}
 				let username = await getNamebyId(payload.user_id);
+				if (username !== matchedRoute.params.username) {
+					const status = 404;
+					const message = "Page not found.";
+					navigateTo(`/error/${status}/${message}`);
+					return;
+				}
 				if (username) {
 					console.log('teste refresh');
 					console.log('page to replace: ', window.location.pathname);
+
+					// Retirar o invite - refresh
+					if (matchedRoute && (window.location.pathname !== `/user/${matchedRoute.params.username}/chat-playing`)) {
+						if (invitedUser) {
+							const cancelMessage = {
+								"type": "cancel_invite",
+								"recipient": invitedUser,
+							};
+							chatSocketInstance.send(cancelMessage);
+							const removeDivInvite = document.getElementById('invitePending');
+							console.log('elemento a remover: '. removeDivInvite);
+							if (removeDivInvite) {
+								console.log('existe o removeDivInvite: ', removeDivInvite);
+								removeDivInvite.remove();
+							}
+						}
+					}
+
 					const pathState = { 'page': window.location.pathname};
 					// history.replaceState(pathState, '', window.location.pathname);
 					history.replaceState(pathState, '', window.location.pathname);
