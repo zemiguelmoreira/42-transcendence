@@ -10,7 +10,7 @@ import { makeHomePage, makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 // import WebSocketInstance from "../socket/websocket.js";
-import { handleInput, handleInputBlur } from "../utils/utils1.js";
+import { handleInput, handleInputBlur, showPassword } from "../utils/utils1.js";
 import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
 import { makeNavbar } from "./homepage.js";
@@ -36,6 +36,8 @@ function home() {
 	const limitChar = document.querySelector('#limitChar');
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
+
+	showPassword();
 
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);

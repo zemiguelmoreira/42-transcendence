@@ -189,4 +189,22 @@ function clearCookies() {
 	}
 }
 
-export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur, clearSlidingMessage };
+
+
+function showPassword() {
+
+	const togglePassword = document.querySelector("#togglePassword");
+	const password = document.querySelector("#form1Example3");
+
+	togglePassword.addEventListener("click", function () {
+		// Alternar o tipo de entrada entre 'password' e 'text'
+		const type = password.getAttribute("type") === "password" ? "text" : "password";
+		password.setAttribute("type", type);
+
+		// Alternar o ícone entre 'olho' aberto e fechado
+		this.classList.toggle("bi-eye");
+		this.classList.toggle("bi-eye-slash");
+	});
+}
+
+export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur, clearSlidingMessage, showPassword };

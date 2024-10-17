@@ -65,9 +65,9 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 	console.log('matchedRoute',matchedRoute);
 
 	//Não deverá fazer esta parte porque a barra de navegação não está diponivel nesta rota
+	//Não deverá fazer esta parte porque a barra de navegação não está diponivel nesta rota
 	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/chat-playing`)) {
 		if (invitedUser) {
-			console.log('invitedUser dtected: ', invitedUser);
 			const cancelMessage = {
 				"type": "cancel_invite",
 				"recipient": invitedUser,
