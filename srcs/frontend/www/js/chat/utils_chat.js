@@ -106,6 +106,8 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 		buttonContainer.querySelector('.accept-button').disabled = true;
 		buttonContainer.querySelector('.reject-button').disabled = true;
 
+		navigateTo(`/user/${username}/chat-playing`);
+
 		if (!accepted) {
 			displaySlidingMessage(`Invite from ${sender} has been declined.`);
 		}
@@ -134,13 +136,13 @@ function getRoomCode(username, data) {
 	invitePending.id = 'invitePending';
 	document.getElementById('root').appendChild(invitePending);
 	if (game === 'Pong') {
-		navigateTo(`/user/${username}/pong-playing`);
+		// navigateTo(`/user/${username}/chat-playing`);
 		joinPongRoom(roomCode, username);
 	} else {
 		const runSnakeRemote = document.getElementById('invitePending');
 		runSnakeRemote.innerHTML = snakeGameRemotePage();
 		document.getElementById('root').appendChild(runSnakeRemote);
-		navigateTo(`/user/${username}/snake-playing`);
+		// navigateTo(`/user/${username}/chat-playing`);
 		joinSnakeRoom(roomCode, username);
 	}
 }
@@ -264,11 +266,24 @@ function createDropdownItem(text, href, onClick) {
 	if (onClick) {
 		item.addEventListener('click', function (e) {
 			e.preventDefault();
+			e.stopPropagation();
 			onClick();
 		});
 	}
 	return item;
 }
+
+function closeAllDropdowns() {
+	const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+	openDropdowns.forEach(dropdown => {
+		dropdown.classList.remove('show');
+	});
+
+	const dropdownToggle = document.querySelector('.dropdown-toggle');
+	dropdownToggle.classList.remove('show');
+}
+
+
 
 // inviter cancels invite
 function handleCancelInvite(recipient) {
@@ -298,9 +313,11 @@ async function sendGameInvite(username, user, game) {
 	cancelButton.classList.add('btn', 'btn-danger');
 	cancelButton.textContent = 'Cancel';
 	navigateTo(`/user/${username}/chat-playing`);
-	cancelButton.addEventListener('click', () => {
+	closeAllDropdowns();
+	cancelButton.addEventListener('click', (event) => {
 		handleCancelInvite(user);
 		invitePendingDiv.remove();
+		event.preventDefault();
 	});
 	invitePendingDiv.appendChild(cancelButton);
 	document.getElementById('root').appendChild(invitePendingDiv);
