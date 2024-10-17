@@ -208,7 +208,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# getting token from query string
 		token = self.scope['query_string'].decode().split('=')[1]
 		if not token:
-			logging.error("Matchmaking: valide_token: No token provided.")
+			logging.error("Matchmaking: validate_token: No token provided.")
 			return None
 		try:
 			access_token = AccessToken(token)

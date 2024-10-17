@@ -42,61 +42,36 @@ class PongGame:
 	channel_layer = get_channel_layer()
 	tasks = {}
 	rooms = {}
-	lock = asyncio.Lock()
+	locks ={}
 
 	# adiciona ao room
 	async def addToRoom(self, room_code, username):
 		logger.info(f"PongGame: addToRoom: Adding {username} to room {room_code}")
-		if room_code not in PongGame.rooms:
-			PongGame.rooms[room_code] = {
-				'players': [],
-				'ball_position': [ball_init_x, ball_init_y],
-				'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
-				'ball_velocity': [500, 500],
-				'current_directions': ['idle', 'idle'],
-				'score': [0, 0],
-				'paddle_speed': 800,
-				'end_game': False,
-				'disconnect': None,
-				'wall_collision': False,
-			}
-		room = PongGame.rooms[room_code]
-		room['players'].append(username)
-		player_index = room['players'].index(username)
-		user_game_group_name = f'user_game_{username}'
-		# room_group_name = f'room_{room_code}'
-		await PongGame.channel_layer.group_send(
-			user_game_group_name, {
-				'type': 'assign.index',
-				'player_index': player_index,
-				'ball_position': room['ball_position'],
-				'paddle_positions': room['paddle_positions'],
-				'score': room['score'],
-			})
-
-
-	async def check_start_game(self, room_code, player_index, username):
-		user_game_group_name = f'user_game_{username}'
-		room_group_name = f'room_{room_code}'
-		room = PongGame.rooms[room_code]
-		if len(room['players']) == 2 and player_index == 1:
-			await PongGame.channel_layer.group_send(
-				room_group_name, {
-					'type': 'start.game',
-					'player_names': [room['players'][0], room['players'][1]],
-					'ball_position': room['ball_position'],
-					'paddle_positions': room['paddle_positions'],
-					'score': room['score'],
-				})
-			# await self.start_game(room_code)
-		else:
-			await PongGame.channel_layer.group_send(
-				user_game_group_name, {
-					'type': 'wait.forplayer',
-					'ball_position': room['ball_position'],
-					'paddle_positions': room['paddle_positions'],
-					'score': room['score'],
-				})
+		PongGame.locks[room_code] = asyncio.Lock()
+		async with PongGame.locks[room_code]:
+			if room_code not in PongGame.rooms:
+				PongGame.rooms[room_code] = {
+					'players': [],
+					'ball_position': [ball_init_x, ball_init_y],
+					'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
+					'ball_velocity': [500, 500],
+					'current_directions': ['idle', 'idle'],
+					'score': [0, 0],
+					'paddle_speed': 800,
+					'end_game': False,
+					'disconnect': None,
+					'wall_collision': False,
+				}
+			room = PongGame.rooms[room_code]
+			room['players'].append(username)
+			player_index = room['players'].index(username)
+		return {
+			'type': 'assign.index',
+			'player_index': player_index,
+			'ball_position': room['ball_position'],
+			'paddle_positions': room['paddle_positions'],
+			'score': room['score'],
+		}
 
 
 	# cria thread p game e gravas tasks por room
@@ -104,7 +79,7 @@ class PongGame:
 		# logger.info(f"PongGame: start_game: Starting game for room {room_code}")
 		if room_code not in PongGame.tasks:
 			room = PongGame.rooms[room_code]
-			PongGame.tasks[room_code] = asyncio.create_task(await self.game_loop(room_code, room))
+			PongGame.tasks[room_code] = asyncio.create_task(self.game_loop(room_code, room))
 			logging.info(f"PongGame: start_game: task created for room {room_code}")
 		else:
 			logging.error(f"PongGame: start_game: Task already exists for room {room_code}")
@@ -114,11 +89,22 @@ class PongGame:
 		logger.info(f"PongGame: game_loop: Starting game loop for room {room_code}")
 		last_time = time.time()
 		while not room['end_game'] and not room['disconnect']:
-			current_time = time.time()
-			delta_time = current_time - last_time
-			last_time = current_time
+			PongGame.current_time = time.time()
+			delta_time = PongGame.current_time - last_time
+			last_time = PongGame.current_time
 			await self.update_game_state(room_code, room, delta_time)
-			await asyncio.sleep(0.008)
+			async with PongGame.locks[room_code]:
+				game_state = {
+					'ball_position': room['ball_position'],
+					'paddle_positions': room['paddle_positions'],
+					'score': room['score'],
+				}
+			await PongGame.channel_layer.group_send(
+				f"room_{room_code}", {
+					'type': 'game.update',
+					'game_state': game_state,
+				})
+			await asyncio.sleep(1/20)
 		await self.game_over(room_code, room)
 
 
@@ -168,13 +154,6 @@ class PongGame:
 				room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
 			elif direction == 'down':
 				room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
-		await PongGame.channel_layer.group_send(
-			f"room_{room_code}", {
-				'type': 'update.gamestate',
-				'ball_position': room['ball_position'],
-				'paddle_positions': room['paddle_positions'],
-				'score': room['score'],
-			})
 		if room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
 			room['end_game'] = True
 
@@ -212,20 +191,13 @@ class PongGame:
 	async def end_game(self, room_code, room):
 		logging.info(f"PongGame: end_game: Ending game for room {room_code}")
 		if room_code in PongGame.tasks:
-			PongGame.tasks[room_code].cancel()
+			if not PongGame.tasks[room_code].done():
+				PongGame.tasks[room_code].cancel()
 			del PongGame.tasks[room_code]
 			logging.info(f"PongGame: end_game: task canceled for room {room_code}")
 		if room_code in PongGame.rooms:
 			del PongGame.rooms[room_code]
 			logging.info(f"PongGame: end_game: room {room_code} deleted")
 
-
-	async def move_paddle(self, room_code, player_index, direction):
-		# logging.info(f"PongGame: move_paddle: Moving paddle {player_index} in room {room_code}")
-		if room_code not in PongGame.rooms:
-			logging.error(f"PongGame: move_paddle: Invalid room code {room_code}")
-			return
-		room = PongGame.rooms[room_code]
-		room['current_directions'][player_index] = direction
 
 pong_game = PongGame()
