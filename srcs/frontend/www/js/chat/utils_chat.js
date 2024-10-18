@@ -138,13 +138,16 @@ function getRoomCode(username, data) {
 	if (game === 'Pong') {
 		// navigateTo(`/user/${username}/chat-playing`);
 		joinPongRoom(roomCode, username);
+		invitedUser = null;
 	} else {
 		const runSnakeRemote = document.getElementById('invitePending');
 		runSnakeRemote.innerHTML = snakeGameRemotePage();
 		document.getElementById('root').appendChild(runSnakeRemote);
 		// navigateTo(`/user/${username}/chat-playing`);
 		joinSnakeRoom(roomCode, username);
+		invitedUser = null;
 	}
+
 }
 
 // inviter getting response from invitee
@@ -159,12 +162,14 @@ function handleInviteResponse(username, data, chatLog) {
 		if (data.game == 'Pong') {
 			// navigateTo(`/user/${username}/pong-playing`);
 			joinPongRoom(roomCode, username);
+			invitedUser = null;
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 			// navigateTo(`/user/${username}/snake-playing`);
 			joinSnakeRoom(roomCode, username);
+			invitedUser = null;
 		}
 		responseMessage = `${invitee} has accepted your invite!`;
 		inviteResponseElement.classList.add('message-selfdm');
@@ -323,4 +328,4 @@ async function sendGameInvite(username, user, game) {
 	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
-export { selectedUser, invitedUser, handleCancelInvite, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }
+export { selectedUser, invitedUser, chatSocketInstance, handleCancelInvite, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }
