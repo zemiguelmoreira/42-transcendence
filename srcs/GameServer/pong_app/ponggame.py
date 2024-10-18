@@ -88,10 +88,11 @@ class PongGame:
 	async def game_loop(self, room_code, room):
 		logger.info(f"PongGame: game_loop: Starting game loop for room {room_code}")
 		last_time = time.time()
-		while not room['end_game'] and not room['disconnect']:
-			PongGame.current_time = time.time()
-			delta_time = PongGame.current_time - last_time
-			last_time = PongGame.current_time
+		while not room['end_game']:
+			current_time = time.time()
+			delta_time = current_time - last_time
+			last_time = current_time
+			room['formatted_time'] = datetime.fromtimestamp(int(current_time), tz=timezone.utc).isoformat()
 			await self.update_game_state(room_code, room, delta_time)
 			async with PongGame.locks[room_code]:
 				game_state = {
@@ -118,6 +119,7 @@ class PongGame:
 			logging.error(f"PongGame: user_disconnect: Invalid player {username} in room {room_code}")
 			return
 		room['disconnect'] = username
+		room['end_game'] = True
 
 
 	async def update_game_state(self, room_code, room, delta_time):
@@ -172,8 +174,6 @@ class PongGame:
 			winner = room['players'][0] if room['players'][0] != room['disconnect'] else room['players'][1]
 			loser = room['disconnect']
 		logger.info(f"Game result by score: Winner: {winner}, Loser: {loser}")
-		timestamp = int(time.time())
-		formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
 		winner_score = room['score'][0] if room['players'][0] == winner else room['score'][1]
 		loser_score = room['score'][0] if room['players'][0] == loser else room['score'][1]
 		await PongGame.channel_layer.group_send(
@@ -183,7 +183,7 @@ class PongGame:
 				'loser': loser,
 				'winner_score': winner_score,
 				'loser_score': loser_score,
-				'timestamp': formatted_time,
+				'timestamp': room['formatted_time'],
 			})
 		await self.end_game(room_code, room)
 

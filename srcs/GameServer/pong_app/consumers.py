@@ -139,10 +139,56 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
 	async def cleanup_connection(self):
-		if self.is_player:
-			pass
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+		if self.is_player:
+			await self.handle_game_disconnect()
+			await pong_game.user_disconnect(self.room_code, self.user.username)
 
+
+
+	async def handle_game_disconnect(self):
+		self.room['disconnect'] = self.user.username
+		self.room['end_game'] = True
+		winner = self.room['players'][0] if self.room['players'][0] != self.user.username else self.room['players'][1]
+		loser = self.user.username
+		winner_score = self.room['score'][0] if self.room['players'][0] == winner else self.room['score'][1]
+		loser_score = self.room['score'][0] if self.room['players'][0] == loser else self.room['score'][1]
+		to_save = {
+			'winner': winner,
+			'loser': loser,
+			'winner_score': winner_score,
+			'loser_score': loser_score,
+			'timestamp': self.room['formatted_time'],
+			'game_type': 'pong',
+			'ranked': True,
+		}
+		await self.save_match_history(to_save)
+
+
+	async def game_over(self, event):
+		self.is_player = False
+		logger.info('Consumer: Game Over Called\n')
+		result  = {
+			'action': 'game_over',
+			'winner': event['winner'],
+			'loser': event['loser'],
+			'winner_score': event['winner_score'],
+			'loser_score': event['loser_score'],
+			'timestamp': event['timestamp'],
+			'game_type': 'pong',
+		}
+		to_save = {
+			'winner': event['winner'],
+			'loser': event['loser'],
+			'winner_score': event['winner_score'],
+			'loser_score': event['loser_score'],
+			'timestamp': event['timestamp'],
+			'game_type': 'pong',
+			'ranked': True,
+		}
+		await self.save_match_history(to_save)
+		await self.send(json.dumps(result))
+		await self.close()
 
 	# others
 	async def save_match_history(self, match_data):
