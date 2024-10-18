@@ -81,14 +81,11 @@ function createInviteElement(inviteMessage, sender, game, username) {
 	return inviteElement;
 }
 
-// invitee invite creation
 function createInviteResponseButton(text, accepted, sender, game, username) {
 	const button = document.createElement("button");
 	button.textContent = text;
 	button.classList.add(`${text.toLowerCase()}-button`);
-
 	button.onclick = function () {
-		// Criar a resposta ao convite
 		const response = {
 			"accepted": accepted,
 			"inviter": sender,
@@ -96,29 +93,20 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 			"game": game,
 		};
 
-		// Enviar a resposta via WebSocket
 		chatSocketInstance.send(response);
 
-		// Usando `this` para acessar o botão clicado e o contêiner de botões
 		const buttonContainer = this.closest('.button-container');
-
-		// Desativar os botões dentro do mesmo contêiner de botões
 		buttonContainer.querySelector('.accept-button').disabled = true;
 		buttonContainer.querySelector('.reject-button').disabled = true;
-
 		navigateTo(`/user/${username}/chat-playing`);
-
 		if (!accepted) {
 			displaySlidingMessage(`Invite from ${sender} has been declined.`);
 		}
 	};
-
 	return button;
 }
 
-// handle cancel the invite for invitee after inviter cancelled
 function handleInviteCancelled(username, data, chatLog) {
-	// document.getElementById('invitePending').remove();
 	const inviteCancelledElement = document.createElement("div");
 	inviteCancelledElement.classList.add('message-error');
 	inviteCancelledElement.textContent = `${data.sender} has cancelled the invite.`;
@@ -127,7 +115,6 @@ function handleInviteCancelled(username, data, chatLog) {
 	displaySlidingMessage(`${data.sender} has cancelled the invite.`);
 }
 
-// get room code and join game for invitee
 function getRoomCode(username, data) {
 	const roomCode = data.roomCode;
 	const game = data.game;
@@ -136,22 +123,15 @@ function getRoomCode(username, data) {
 	invitePending.id = 'invitePending';
 	document.getElementById('root').appendChild(invitePending);
 	if (game === 'Pong') {
-		// navigateTo(`/user/${username}/chat-playing`);
 		joinPongRoom(roomCode, username);
-		invitedUser = null;
 	} else {
 		const runSnakeRemote = document.getElementById('invitePending');
 		runSnakeRemote.innerHTML = snakeGameRemotePage();
 		document.getElementById('root').appendChild(runSnakeRemote);
-		// navigateTo(`/user/${username}/chat-playing`);
 		joinSnakeRoom(roomCode, username);
-		invitedUser = null;
 	}
-
 }
 
-// inviter getting response from invitee
-// get room code and join game for inviter if accepted
 function handleInviteResponse(username, data, chatLog) {
 	const roomCode = data.roomCode;
 	const invitee = data.invitee;
@@ -160,14 +140,12 @@ function handleInviteResponse(username, data, chatLog) {
 	const inviteResponseElement = document.createElement("div");
 	if (accepted) {
 		if (data.game == 'Pong') {
-			// navigateTo(`/user/${username}/pong-playing`);
 			joinPongRoom(roomCode, username);
 			invitedUser = null;
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
-			// navigateTo(`/user/${username}/snake-playing`);
 			joinSnakeRoom(roomCode, username);
 			invitedUser = null;
 		}
@@ -283,14 +261,8 @@ function closeAllDropdowns() {
 	openDropdowns.forEach(dropdown => {
 		dropdown.classList.remove('show');
 	});
-
-	const dropdownToggle = document.querySelector('.dropdown-toggle');
-	dropdownToggle.classList.remove('show');
 }
 
-
-
-// inviter cancels invite
 function handleCancelInvite(recipient) {
 	const cancelMessage = {
 		"type": "cancel_invite",
@@ -300,8 +272,6 @@ function handleCancelInvite(recipient) {
 	displaySlidingMessage(`Invite to ${recipient} has been cancelled.`);
 }
 
-
-// inviter sends invite
 async function sendGameInvite(username, user, game) {
 	const inviteMessage = {
 		"type": "invite",
