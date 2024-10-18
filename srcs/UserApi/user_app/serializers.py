@@ -100,7 +100,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             
             # Construir a nova URL
             # Alterar o esquema para 'https' e adicionar a porta ':8443' ao netloc
-            new_netloc = f'{parsed_url.hostname}:8443'
+            new_netloc = f"{parsed_url.hostname}:{os.getenv('PORT')}"
             new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
             
             logger.info(f'formatted url: {new_url}')

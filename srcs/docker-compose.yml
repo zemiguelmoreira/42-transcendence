@@ -46,8 +46,8 @@ services:
     # volumes:
       # - user-app:/usr/src/app
     init: true
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       redis:
         condition: service_healthy
@@ -71,8 +71,8 @@ services:
     # volumes:
       # - game-app:/usr/src/app
     init: true
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     depends_on:
       user_management:
         condition: service_healthy
@@ -90,8 +90,8 @@ services:
     # volumes:
       # - chat-app:/usr/src/app
     init: true
-    ports:
-      - "8002:8002"
+    expose:
+      - "8002"
     depends_on:
       user_management:
         condition: service_healthy
@@ -108,8 +108,8 @@ services:
       # volumes:
       #   - matchmaking-app:/usr/src/app
       init: true
-      ports:
-        - "8003:8003"
+      expose:
+        - "8003"
       depends_on:
         user_management:
           condition: service_healthy
