@@ -54,7 +54,7 @@ class PongGame:
 					'players': [],
 					'ball_position': [ball_init_x, ball_init_y],
 					'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
-					'ball_velocity': [500, 500],
+					'ball_velocity': [6, 6],
 					'current_directions': ['idle', 'idle'],
 					'score': [0, 0],
 					'paddle_speed': 800,
@@ -105,7 +105,7 @@ class PongGame:
 					'type': 'game.update',
 					'game_state': game_state,
 				})
-			await asyncio.sleep(1/20)
+			await asyncio.sleep(1/60)
 		await self.game_over(room_code, room)
 
 
@@ -124,8 +124,8 @@ class PongGame:
 
 	async def update_game_state(self, room_code, room, delta_time):
 		# logger.info(f"PongGame: update_game_state: Updating game state")
-		room['ball_position'][0] += room['ball_velocity'][0] * delta_time
-		room['ball_position'][1] += room['ball_velocity'][1] * delta_time
+		room['ball_position'][0] += room['ball_velocity'][0]# * delta_time
+		room['ball_position'][1] += room['ball_velocity'][1]# * delta_time
 		# wall collision
 		if not room['wall_collision'] and (room['ball_position'][1] <= 0  or room['ball_position'][1] + BALL_SIZE >= canvasHeight):
 			room['ball_velocity'][1] *= -1

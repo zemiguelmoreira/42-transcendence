@@ -347,8 +347,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	# utility methods
 	async def add_online_user(self):
 		ChatConsumer.online_users[self.user.username] = ChatConsumer.online_users.get(self.user.username, 0) + 1
-		if ChatConsumer.online_users[self.user.username] == 1:
-			await self.update_user_status(True)
+		# if ChatConsumer.online_users[self.user.username] == 1:
+		await self.update_user_status(True)
 
 
 	async def remove_online_user(self):
