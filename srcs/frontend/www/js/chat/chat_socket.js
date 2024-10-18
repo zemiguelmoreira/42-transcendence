@@ -63,6 +63,7 @@ class WebSocketService {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {
 				updateOnlineUsersList(username, data.online_users);
+				console.log(data.online_users);
 				console.log('location: ', window.location.pathname);
 				if (window.location.pathname === `/user/${username}/profile`) {
 					displayProfileFriendsList(username);
