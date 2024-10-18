@@ -1,61 +1,53 @@
-#healthchecks for djangos missing
+# version: "3.8"
+
 services:
   frontend:
     build: ./frontend
     container_name: frontend
     image: frontend:42
-    volumes:
-      - frontend-data:/usr/share/nginx/html:ro
-      - frontend-conf:/etc/nginx/conf.d:ro
+    # volumes:
+      # - frontend-data:/usr/share/nginx/html:ro
+      # - frontend-conf:/etc/nginx/conf.d:ro
     init: true
     expose:
       - "80"
     depends_on:
       user_management:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "http://localhost"]
-    #   interval: 5s
-    #   timeout: 10s
-    #   retries: 5
-    #   start_period: 30s
     restart: always
     networks:
       - transcendence-net
+
 
   nginx:
     build: ./nginx
     container_name: nginx
     image: nginx:42
-    volumes:
-      - nginx-conf:/etc/nginx/conf.d:ro
+    # volumes:
+      # - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
-      - "443:443"
+      - "8443:8443"
     expose:
       - "80"
     depends_on:
       frontend:
         condition: service_started
-    # healthcheck:
-    #   test: ["CMD", "curl", "http://localhost"]
-    #   interval: 5s
-    #   timeout: 4s
-    #   retries: 5
-    #   start_period: 5s
     restart: always
     networks:
       - transcendence-net
+
+
 
   user_management:
     build: ./UserApi
     container_name: userapi
     image: userapi:42
-    volumes:
-      - user-app:/usr/src/app
+    # volumes:
+      # - user-app:/usr/src/app
     init: true
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     depends_on:
       redis:
         condition: service_healthy
@@ -70,17 +62,17 @@ services:
     restart: always
     networks:
       - transcendence-net
-      - backend-net
+
 
   game_server:
     build: ./GameServer
     container_name: gameserver
     image: gameserver:42
-    volumes:
-      - game-app:/usr/src/app
+    # volumes:
+      # - game-app:/usr/src/app
     init: true
-    expose:
-      - "8001"
+    ports:
+      - "8001:8001"
     depends_on:
       user_management:
         condition: service_healthy
@@ -89,17 +81,17 @@ services:
     restart: always
     networks:
       - transcendence-net
-      - backend-net
+
 
   chat_server:
     build: ./ChatServer
     container_name: chatserver
     image: chatserver:42
-    volumes:
-      - chat-app:/usr/src/app
+    # volumes:
+      # - chat-app:/usr/src/app
     init: true
-    expose:
-      - "8002"
+    ports:
+      - "8002:8002"
     depends_on:
       user_management:
         condition: service_healthy
@@ -108,33 +100,32 @@ services:
     restart: always
     networks:
       - transcendence-net
-      - backend-net
 
   matchmaking_server:
-    build: ./MatchmakingServer
-    container_name: matchmakingserver
-    image: matchmakingserver:42
-    volumes:
-      - matchmaking-app:/usr/src/app
-    init: true
-    expose:
-      - "8003"
-    depends_on:
-      user_management:
-        condition: service_healthy
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - transcendence-net
-      - backend-net
+      build: ./MatchmakingServer
+      container_name: matchmakingserver
+      image: matchmakingserver:42
+      # volumes:
+      #   - matchmaking-app:/usr/src/app
+      init: true
+      ports:
+        - "8003:8003"
+      depends_on:
+        user_management:
+          condition: service_healthy
+      env_file:
+        - .env
+      restart: always
+      networks:
+        - transcendence-net
+
 
   postgres:
     build: ./postgres
     container_name: postgres
     image: postgres:42
-    volumes:
-      - postgres-data:/var/lib/postgresql/data/:rw
+    # volumes:
+      # - postgres-data:/var/lib/postgresql/data/:rw
     init: true
     expose:
       - "5432"
@@ -148,14 +139,15 @@ services:
       - .env
     restart: always
     networks:
-      - backend-net
+      - transcendence-net
+
 
   redis:
     image: redis:7
     container_name: redis
     init: true
-    expose:
-      - "6379"
+    ports:
+      - "6378:6379"
     depends_on:
       postgres:
         condition: service_healthy
@@ -167,71 +159,22 @@ services:
       start_period: 30s
     restart: always
     networks:
-      - backend-net
+      - transcendence-net
+
 
 volumes:
   nginx-conf:
-    name: nginx-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./nginx/conf
-      o: bind
   frontend-data:
-    name: frontend-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend/www
-      o: bind
   frontend-conf:
-    name: frontend-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend/conf
-      o: bind
   user-app:
-    name: user-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./UserApi
-      o: bind
   chat-app:
-    name: chat-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./ChatServer
-      o: bind
-  matchmaking-app:
-    name: matchmaking-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./MatchmakingServer
-      o: bind
   game-app:
-    name: game-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./GameServer
-      o: bind
   postgres-data:
-    name: postgres-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ${SQL_PATH}
-      o: bind
+  matchmaking-data:
 
 networks:
   transcendence-net:
-    name: transcendence-net
     driver: bridge
-  backend-net:
-    name: backend-net
-    driver: bridge
-    internal: true
+  # backend-net:
+  #   driver: bridge
+  #   internal: true
