@@ -158,12 +158,14 @@ function handleInviteResponse(username, data, chatLog) {
 	if (accepted) {
 		if (data.game == 'Pong') {
 			// navigateTo(`/user/${username}/pong-playing`);
+			invitedUser = null;
 			joinPongRoom(roomCode, username);
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 			// navigateTo(`/user/${username}/snake-playing`);
+			invitedUser = null;
 			joinSnakeRoom(roomCode, username);
 		}
 		responseMessage = `${invitee} has accepted your invite!`;

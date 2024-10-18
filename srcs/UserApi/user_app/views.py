@@ -80,7 +80,8 @@ class FortyTwoConnectView(APIView):
 
     def post(self, request):
         # client_secret = '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'
-        client_secret = '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'
+        # client_secret = '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'
+        client_secret = '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'
         # Extrai o código e o state do corpo da requisição
         code = request.data.get('code')
         state = request.data.get('state')

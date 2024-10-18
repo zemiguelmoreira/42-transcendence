@@ -8,6 +8,7 @@ import { homeLogin } from "./home/home.js";
 import { matchmakingSocketPong } from "./games/pong-pages.js";
 import { matchmakingSocketSnake } from "./games/snake-pages.js";
 import { handleCancelInvite , invitedUser } from "./chat/utils_chat.js";
+import chatSocketInstance from "./chat/chat_socket.js";
 
 const baseURL = `https://${window.location.host}/api`;
 
@@ -488,6 +489,21 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 		}
 
 	  } else {
+
+		if (invitedUser) {
+			const cancelMessage = {
+				"type": "cancel_invite",
+				"recipient": invitedUser,
+			};
+			chatSocketInstance.send(cancelMessage);
+			const removeDivInvite = document.getElementById('invitePending');
+			console.log('elemento a remover: '. removeDivInvite);
+			if (removeDivInvite) {
+				console.log('existe o removeDivInvite: ', removeDivInvite);
+				removeDivInvite.remove();
+			}
+		}
+		
 		// Se a rota não for válida, navega para uma página padrão (por exemplo, home ou 404)
 	  //   navigateTo('/');
 		  const status = 404;
