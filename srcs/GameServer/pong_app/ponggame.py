@@ -54,10 +54,10 @@ class PongGame:
 					'players': [],
 					'ball_position': [ball_init_x, ball_init_y],
 					'paddle_positions': [[paddle1_init_x, paddles_init_y], [paddle2_init_x, paddles_init_y]],
-					'ball_velocity': [6, 6],
+					'ball_velocity': [10, 10],
 					'current_directions': ['idle', 'idle'],
 					'score': [0, 0],
-					'paddle_speed': 800,
+					'paddle_speed': 16,
 					'end_game': False,
 					'disconnect': None,
 					'wall_collision': False,
@@ -89,11 +89,12 @@ class PongGame:
 		logger.info(f"PongGame: game_loop: Starting game loop for room {room_code}")
 		last_time = time.time()
 		while not room['end_game']:
-			current_time = time.time()
-			delta_time = current_time - last_time
-			last_time = current_time
-			room['formatted_time'] = datetime.fromtimestamp(int(current_time), tz=timezone.utc).isoformat()
-			await self.update_game_state(room_code, room, delta_time)
+			# current_time = time.time()
+			# delta_time = current_time - last_time
+			# last_time = current_time
+			room['formatted_time'] = datetime.fromtimestamp(int(time.time()), tz=timezone.utc).isoformat()
+			await self.update_game_state(room_code, room)
+			# await self.update_game_state(room_code, room, delta_time)
 			async with PongGame.locks[room_code]:
 				game_state = {
 					'ball_position': room['ball_position'],
@@ -122,7 +123,8 @@ class PongGame:
 		room['end_game'] = True
 
 
-	async def update_game_state(self, room_code, room, delta_time):
+	async def update_game_state(self, room_code, room):
+	# async def update_game_state(self, room_code, room, delta_time):
 		# logger.info(f"PongGame: update_game_state: Updating game state")
 		room['ball_position'][0] += room['ball_velocity'][0] #* delta_time
 		room['ball_position'][1] += room['ball_velocity'][1] #* delta_time
@@ -153,9 +155,11 @@ class PongGame:
 		for i in range(len(room['paddle_positions'])):
 			direction = room['current_directions'][i]
 			if direction == 'up':
-				room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
+				room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'], 0)
+				# room['paddle_positions'][i][1] = max(room['paddle_positions'][i][1] - room['paddle_speed'] * delta_time, 0)
 			elif direction == 'down':
-				room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
+				room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'], canvasHeight - PADDLE_HEIGHT)
+				# room['paddle_positions'][i][1] = min(room['paddle_positions'][i][1] + room['paddle_speed'] * delta_time, canvasHeight - PADDLE_HEIGHT)
 		if room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
 			room['end_game'] = True
 
