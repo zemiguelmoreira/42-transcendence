@@ -27,8 +27,8 @@ class MatchmakingManager:
 			logging.info(f"MatchmakingManager: start_matchmaking: Matchmaking task for {username} was cancelled.")
 		except Exception as e:
 			logging.error(f"MatchmakingManager: start_matchmaking: An error occurred in the matchmaking task for {username}: {e}")
-		finally:
-			await self.cancel_matchmaking(username, game)
+		# finally:
+		# 	await self.cancel_matchmaking(username, game)
 
 
 	async def add_player(self, username, game, rank):
@@ -94,7 +94,7 @@ class MatchmakingManager:
 			if not task.done():  # check if the task is still running
 				task.cancel()
 			del MatchmakingManager.matchmaking_tasks[username]  # remove from tracking
-		await self.remove_player(username, game)
+		# await self.remove_player(username, game)
 
 
 	# needs to iterate through the list because of json format

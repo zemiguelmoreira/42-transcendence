@@ -188,7 +188,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		}
 		await self.save_match_history(to_save)
 		await self.send(json.dumps(result))
-		await self.close()
+		# await self.close()
 
 	# others
 	async def save_match_history(self, match_data):

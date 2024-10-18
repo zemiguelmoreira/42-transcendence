@@ -75,6 +75,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		game = data.get("game", None)
 		logging.info(f"Matchmaking: cancel_matchmaking: User {self.user.username} left {game} matchmaking.")
 		await matchmaking_manager.cancel_matchmaking(self.user.username, game)
+		await matchmaking_manager.remove_player(self.user.username, game)
+		self.game = None
 
 
 	# event handlers
@@ -100,12 +102,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			}
 		)
 		# chat warning for self
-		await self.channel_layer.group_send(
-			self.user_group_name, {
-				"type": "system.message",
-				"message": f"Match found! Starting a game of {self.game} against {opponent}"
-			}
-		)
+		# await self.channel_layer.group_send(
+		# 	self.user_group_name, {
+		# 		"type": "system.message",
+		# 		"message": f"Match found! Starting a game of {self.game} against {opponent}"
+		# 	}
+		# )
 		# send match data to client
 		await self.send(text_data=json.dumps({
 			"match": "match_created",
@@ -113,7 +115,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			"game": game,
 			"roomCode": roomCode,
 		}))
-		await self.close()
+		self.game = None
+		# await self.close()
 
 
 
@@ -125,11 +128,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await matchmaking_manager.cancel_matchmaking(self.user.username, game)
 		logging.info(f"Matchmaking: match_details: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
 		# chat warning for self
-		await self.channel_layer.group_send(
-			self.user_group_name, {
-				"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"
-			}
-		)
+		# await self.channel_layer.group_send(
+		# 	self.user_group_name, {
+		# 		"type": "system.message", "message": f"Match found! Starting a game of {game} against {opponent}"
+		# 	}
+		# )
 		# send match data to client
 		await self.send(text_data=json.dumps({
 			"match": "match_created",
@@ -137,7 +140,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			"game": game,
 			"roomCode": roomCode,
 		}))
-		await self.close()
+		self.game = None
+		# await self.close()
 
 
 	# utility methods
@@ -232,10 +236,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def cleanup_connection(self):
+		await self.channel_layer.group_discard(self.user_mm_group_name, self.channel_name)
 		if self.game:
 			logging.info(f"Matchmaking: cleanup_connection: Cleaning up player {self.user.username} from game {self.game}.")
+			await matchmaking_manager.remove_player(self.user.username, self.game)
 			await matchmaking_manager.cancel_matchmaking(self.user.username, self.game)
-		await self.channel_layer.group_discard(self.user_mm_group_name, self.channel_name)
 
 
 	async def create_room(self, game_accessToken, authorized_user):
