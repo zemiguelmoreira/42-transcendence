@@ -98,7 +98,8 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 		const buttonContainer = this.closest('.button-container');
 		buttonContainer.querySelector('.accept-button').disabled = true;
 		buttonContainer.querySelector('.reject-button').disabled = true;
-		navigateTo(`/user/${username}/chat-playing`);
+		if (window.location.pathname !== `/user/${username}/chat-playing`)
+			navigateTo(`/user/${username}/chat-playing`);
 		if (!accepted) {
 			displaySlidingMessage(`Invite from ${sender} has been declined.`);
 		}
@@ -155,7 +156,7 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.classList.add('message-error');
 		document.getElementById('invitePending').remove();
-		navigateTo(`/user/${username}`);
+		// navigateTo(`/user/${username}`);
 	}
 	inviteResponseElement.innerHTML = responseMessage;
 	chatLog.appendChild(inviteResponseElement);
@@ -270,6 +271,7 @@ function handleCancelInvite(recipient) {
 		"recipient": recipient,
 	};
 	chatSocketInstance.send(cancelMessage);
+	invitedUser = null;
 	displaySlidingMessage(`Invite to ${recipient} has been cancelled.`);
 }
 
@@ -288,7 +290,8 @@ async function sendGameInvite(username, user, game) {
 	cancelButton.id = 'cancelButton';
 	cancelButton.classList.add('btn', 'btn-danger');
 	cancelButton.textContent = 'Cancel';
-	navigateTo(`/user/${username}/chat-playing`);
+	if (window.location.pathname !== `/user/${username}/chat-playing`)
+		navigateTo(`/user/${username}/chat-playing`);
 	closeAllDropdowns();
 	cancelButton.addEventListener('click', (event) => {
 		handleCancelInvite(user);
