@@ -48,7 +48,6 @@ function startLocalSnakePopup(alias_name) {
 }
 
 function startRemoteSnakePopup() {
-function startRemoteSnakePopup() {
 	return `
 	<div class="local-pending" id="snakePopup">
 		<div class="local-box">
@@ -269,7 +268,6 @@ function snakeGameLocal(username, dataUsername) {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
 		navigateTo(`/user/${username}/snake`);
-		navigateTo(`/user/${username}/snake`);
 	});
 
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
@@ -279,21 +277,17 @@ function snakeGameLocal(username, dataUsername) {
 
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
 			event.preventDefault();
-			event.preventDefault();
 			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
 			inputField.classList.add('input-error');
-			return;
 			return;
 		} else {
 			inputField.classList.remove('input-error');
 		}
 
 		guest = userInput;
-		guest = userInput;
 		const runSnakeLocal = document.createElement('div');
 		runSnakeLocal.classList.add('invite-pending');
 		runSnakeLocal.id = 'runSnake';
-		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
 		loadSnakeLocalScript(username, dataUsername);
@@ -339,7 +333,6 @@ function snakeGameRemote(username) {
 			runSnakeRemote.classList.add('invite-pending');
 			runSnakeRemote.id = 'invitePending';
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
-			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 
 			console.log("Joining room...", data.roomCode);
@@ -372,8 +365,6 @@ function snakeGameRemote(username) {
 		const data = JSON.stringify({
 			type: "join",
 			game: "snake"
-			type: "join",
-			game: "snake"
 		});
 		matchmakingSocketSnake.send(data);
 		document.getElementById('status').innerText = "MATCHMAKING...";
@@ -391,10 +382,7 @@ function snakeGameRemote(username) {
 		}
 
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
-		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
-			document.getElementById('snakePopup').remove();
-			navigateTo(`/user/${username}/snake`);
 			document.getElementById('snakePopup').remove();
 			navigateTo(`/user/${username}/snake`);
 		}, 1000);
@@ -447,7 +435,6 @@ function snakeGameMultiplayer(username, dataUsername) {
 
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', (event) => {
-		event.preventDefault();
 		event.preventDefault();
 		const allFieldsValid = validateNames();
 
