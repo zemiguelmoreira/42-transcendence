@@ -154,26 +154,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 room['paddles'][player_index]['alive'] = False
                 logger.info(f"Player {self.user.username}'s paddle is now dead due to disconnection.")
 
-        
-        if self.room.code in PongConsumer.rooms:
-            room = PongConsumer.rooms[self.room.code]
-
-            if self in room['players']:
-                room['end_game'] = True
-                loser = self.user.username
-                winner = room['players'][0].user.username if room['players'][0].user.username != loser else room['players'][1].user.username
-                
-                logger.info(f'Calling end game')
-
-                if 'game_loop_task' in room:
-                    room['game_loop_task'].cancel()
-
-                await self.end_game(room, winner, loser)
-
-            # del PongConsumer.rooms[self.room.code]
-
         await self.close()
-
 
 
     async def receive(self, text_data):
@@ -264,7 +245,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             asyncio.create_task(player.send(json.dumps(response)))
             
         # Verificar se o jogo terminou pelo placar
-        if room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
         if room['score'][0] == FINAL_SCORE or room['score'][1] == FINAL_SCORE:
             logger.info(f"Game finished by reaching final score: {room['score'][0]} - {room['score'][1]}")
             if room['score'][0] == FINAL_SCORE:
