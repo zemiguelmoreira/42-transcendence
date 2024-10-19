@@ -271,6 +271,8 @@ function snakeGameLocal(username, dataUsername) {
 	});
 
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
+		event.preventDefault();
+		event.stopPropagation();
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
@@ -411,11 +413,11 @@ function snakeGameMultiplayer(username, dataUsername) {
 		let allFieldsValid = true;
 		let playerNames = [];
 
-		inputs.forEach(input => {
+		inputs.forEach((input, index) => {
 			const name = input.value.trim();
-			guest1 = input.value.trim();
-			guest2 = input.value.trim();
-			guest3 = input.value.trim();
+			if (index === 0) guest1 = name;
+			if (index === 1) guest2 = name;
+			if (index === 2) guest3 = name;
 			if (name.length === 0 || !validNamePattern.test(name)) {
 				input.classList.add('input-error');
 				displaySlidingMessage('Error: Name must be 1-10 characters long and contain only letters or numbers.');

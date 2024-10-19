@@ -293,6 +293,13 @@ function initializeTournament(playersObj, username, dataUsername) {
 				document.querySelector("#final-winner").innerText = winners[0];
 				document.querySelector("#startMatchBtn").style.display = "none";
 				document.getElementById("canvas-confetti").style.display = "block";
+				displaySlidingMessage(`Congratulations to the winner ${winners[0]}!`);
+				let message = `Congratulations to the winner ${winners[0]}!`;
+				const messageData = {
+					"type": "sys_message",
+					"message": message
+				};
+				chatSocketInstance.send(messageData);
 				confetti();
 			}
 		} else {
@@ -319,7 +326,7 @@ function initializeTournament(playersObj, username, dataUsername) {
 				"type": "sys_message",
 				"message": message
 			};
-			chatSocketInstance.sendWithToken(messageData);
+			chatSocketInstance.send(messageData);
 
 
 		}

@@ -155,6 +155,7 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.classList.add('message-error');
 		document.getElementById('invitePending').remove();
+		navigateTo(`/user/${username}`);
 	}
 	inviteResponseElement.innerHTML = responseMessage;
 	chatLog.appendChild(inviteResponseElement);

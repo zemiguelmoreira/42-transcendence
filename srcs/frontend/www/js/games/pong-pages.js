@@ -103,6 +103,8 @@ function pongGameLocal(username, dataUsername) {
 	});
 
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
+		event.preventDefault();
+		event.stopPropagation();
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
 		const validNamePattern = /^[a-zA-Z0-9]+$/;

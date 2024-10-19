@@ -74,7 +74,7 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 
 	pong_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
-		console.log('data: ', data);
+		// console.log('data: ', data);
 
 		if (data.action === 'unauthorized') {
 			console.log('Unauthorized to join the game!');

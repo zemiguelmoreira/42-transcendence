@@ -46,7 +46,7 @@ class WebSocketService {
 	}
 	setupSocketHandlers(username) {
 		this.socketRef.onopen = () => {
-			// console.log('WebSocket connection established');
+			console.log('WebSocket connection established');
 		};
 		this.socketRef.onmessage = e => {
 			let data;
@@ -80,7 +80,7 @@ class WebSocketService {
 			console.error('WebSocket error:', error);
 		};
 		this.socketRef.onclose = e => {
-			// console.log('WebSocket connection closed:', e);
+			console.log('WebSocket connection closed:', e);
 		};
 	}
 	close() {
