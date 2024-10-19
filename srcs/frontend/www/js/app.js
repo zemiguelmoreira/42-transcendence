@@ -7,7 +7,8 @@ import { changeChatLoaded } from "./home/home.js";
 import { homeLogin } from "./home/home.js";
 import { matchmakingSocketPong } from "./games/pong-pages.js";
 import { matchmakingSocketSnake } from "./games/snake-pages.js";
-import { handleCancelInvite, invitedUser, chatSocketInstance } from "./chat/utils_chat.js";
+import { handleCancelInvite , invitedUser } from "./chat/utils_chat.js";
+import chatSocketInstance from "./chat/chat_socket.js";
 
 const baseURL = `https://${window.location.host}/api`;
 
@@ -64,7 +65,6 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 	const matchedRoute = matchRoute(url);
 	console.log('matchedRoute',matchedRoute);
 
-	//Não deverá fazer esta parte porque a barra de navegação não está diponivel nesta rota
 	//Não deverá fazer esta parte porque a barra de navegação não está diponivel nesta rota
 	if (matchedRoute && (url !== `/user/${matchedRoute.params.username}/chat-playing`)) {
 		if (invitedUser) {
@@ -442,7 +442,6 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 					// Retirar o invite - refresh
 					if (matchedRoute && (window.location.pathname !== `/user/${matchedRoute.params.username}/chat-playing`)) {
 						if (invitedUser) {
-							console.log('invitedUser dtected: ', invitedUser);
 							const cancelMessage = {
 								"type": "cancel_invite",
 								"recipient": invitedUser,
