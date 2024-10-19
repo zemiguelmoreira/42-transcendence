@@ -48,7 +48,6 @@ function startLocalSnakePopup(username) {
 }
 
 function startRemoteSnakePopup() {
-function startRemoteSnakePopup() {
 	return `
 	<div class="local-pending" id="snakePopup">
 		<div class="local-box">
@@ -269,7 +268,6 @@ function snakeGameLocal(username) {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
 		navigateTo(`/user/${username}/snake`);
-		navigateTo(`/user/${username}/snake`);
 	});
 
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
@@ -279,24 +277,19 @@ function snakeGameLocal(username) {
 
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
 			event.preventDefault();
-			event.preventDefault();
 			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
 			inputField.classList.add('input-error');
-			return;
 			return;
 		} else {
 			inputField.classList.remove('input-error');
 		}
 
 		guest = userInput;
-		guest = userInput;
 		const runSnakeLocal = document.createElement('div');
 		runSnakeLocal.classList.add('invite-pending');
 		runSnakeLocal.id = 'runSnake';
 		runSnakeLocal.innerHTML = snakeGameLocalPage();
-		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		loadSnakeLocalScript(username);
 		loadSnakeLocalScript(username);
 	});
 }
@@ -323,11 +316,9 @@ function snakeGameRemote(username) {
 			console.log('Matchmaking Socket Closed on error');
 		}
 		matchmakingSocket = null;
-		matchmakingSocket = null;
 	};
 
 	matchmakingSocket.onmessage = async (event) => {
-		const data = JSON.parse(event.data);
 		const data = JSON.parse(event.data);
 
 		if (data.match === "match_created") {
@@ -342,7 +333,6 @@ function snakeGameRemote(username) {
 			const runSnakeRemote = document.createElement('div');
 			runSnakeRemote.classList.add('invite-pending');
 			runSnakeRemote.id = 'invitePending';
-			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 
@@ -370,18 +360,13 @@ function snakeGameRemote(username) {
 
 	matchmakingSocket.onclose = () => {
 		matchmakingSocket = null;
-		matchmakingSocket = null;
 	};
 
 	document.getElementById('joinMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
 			type: "join",
 			game: "snake"
-			type: "join",
-			game: "snake"
 		});
-		matchmakingSocket.send(data);
-		document.getElementById('status').innerText = "MATCHMAKING...";
 		matchmakingSocket.send(data);
 		document.getElementById('status').innerText = "MATCHMAKING...";
 	});
@@ -389,10 +374,8 @@ function snakeGameRemote(username) {
 	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
 			type: "cancel"
-			type: "cancel"
 		});
 
-		matchmakingSocket.send(data);
 		matchmakingSocket.send(data);
 		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
 			matchmakingSocket.close();
@@ -400,10 +383,7 @@ function snakeGameRemote(username) {
 		}
 
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
-		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
-			document.getElementById('snakePopup').remove();
-			navigateTo(`/user/${username}/snake`);
 			document.getElementById('snakePopup').remove();
 			navigateTo(`/user/${username}/snake`);
 		}, 1000);
@@ -458,7 +438,6 @@ function snakeGameMultiplayer(username) {
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', (event) => {
 		event.preventDefault();
-		event.preventDefault();
 		const allFieldsValid = validateNames();
 
 		if (allFieldsValid) {
@@ -472,5 +451,4 @@ function snakeGameMultiplayer(username) {
 	});
 }
 
-export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage };
 export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage };
