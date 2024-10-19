@@ -7,7 +7,7 @@ import { displaySlidingMessage } from "../utils/utils1.js";
 let guest, guest1, guest2, guest3;
 let matchmakingSocketSnake = null;
 
-function startLocalSnakePopup(username) {
+function startLocalSnakePopup(alias_name) {
 	return `
 		<div class="local-pending" id="snakePopup">
 			<div class="local-box">
@@ -21,7 +21,7 @@ function startLocalSnakePopup(username) {
 					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 				<div class="local-instructions-container">
 					<div class="local-instructions-column">
-						<div class="local-instructions-custom myFont-title">${username}</div>
+						<div class="local-instructions-custom myFont-title">${alias_name}</div>
 						<div class="local-instructions-custom myFont">W</div>
 						<div class="local-instructions-custom myFont">S</div>
 						<div class="local-instructions-custom myFont">A</div>
@@ -47,7 +47,7 @@ function startLocalSnakePopup(username) {
 	`;
 }
 
-function startRemoteSnakePopup(username) {
+function startRemoteSnakePopup() {
 	console.log("startRemoteSnakePopup Loaded!");
 	return `
 	<div class="local-pending" id="snakePopup">
@@ -83,7 +83,7 @@ function startRemoteSnakePopup(username) {
 	`;
 }
 
-function startMultiplayerSnakePopup(username) {
+function startMultiplayerSnakePopup(alias_name) {
 	return `
 		<div class="local-pending" id="snakePopup">
 			<div class="local-box-container-custom">
@@ -100,7 +100,7 @@ function startMultiplayerSnakePopup(username) {
 					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 					<div class="local-instructions-container-custom myFont">
 						<div class="local-instructions-column-custom">
-							<div class="local-instructions myFont-title">${username}</div>
+							<div class="local-instructions myFont-title">${alias_name}</div>
 							<div class="local-instructions-custom">W</div>
 							<div class="local-instructions-custom">S</div>
 							<div class="local-instructions-custom">A</div>
@@ -213,160 +213,135 @@ function snakeGameMultiplayerPage() {
 	`;
 }
 
-function loadSnakeLocalScript(username) {
+function loadSnakeLocalScript(username, dataUsername) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
 			const snakePopupDiv = document.getElementById('snakePopup');
 			if (snakePopupDiv && typeof initializeSnakeGameLocal === 'function') {
 				snakePopupDiv.remove();
-				document.getElementById('snakeName1').textContent = username;
+				document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 				document.getElementById('snakeName2').textContent = guest;
-				initializeSnakeGameLocal(username, guest);
+				initializeSnakeGameLocal(username, guest, dataUsername);
 			}
 		});
 	} else {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		if (snakePopupDiv && typeof initializeSnakeGameLocal === 'function') {
 			snakePopupDiv.remove();
-			document.getElementById('snakeName1').textContent = username;
+			document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 			document.getElementById('snakeName2').textContent = guest;
-			initializeSnakeGameLocal(username, guest);
+			initializeSnakeGameLocal(username, guest, dataUsername);
 		}
 	}
 }
 
-function loadSnakeMultiplayerScript(username) {
+function loadSnakeMultiplayerScript(username, dataUsername) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
 			const snakePopupDiv = document.getElementById('snakePopup');
 			if (snakePopupDiv && typeof initializeSnakeGameFreeForAll === 'function') {
 				snakePopupDiv.remove();
-				document.getElementById('snakeName1').textContent = username;
+				document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 				document.getElementById('snakeName2').textContent = guest1;
 				document.getElementById('snakeName3').textContent = guest2;
 				document.getElementById('snakeName4').textContent = guest3;
-				initializeSnakeGameFreeForAll(username, guest1, guest2, guest3);
+				initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUsername);
 			}
 		});
 	} else {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		if (snakePopupDiv && typeof initializeSnakeGameFreeForAll === 'function') {
 			snakePopupDiv.remove();
-			document.getElementById('snakeName1').textContent = username;
+			document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 			document.getElementById('snakeName2').textContent = guest1;
 			document.getElementById('snakeName3').textContent = guest2;
 			document.getElementById('snakeName4').textContent = guest3;
-			initializeSnakeGameFreeForAll(username, guest1, guest2, guest3);
+			initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUsername);
 		}
 	}
 }
 
-function snakeGameLocal(username) {
-	// Insere o popup no DOM
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
-
-	// Define foco inicial no campo de input
+function snakeGameLocal(username, dataUsername) {
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput').focus();
 
-	// Função para remover o popup ao clicar no botão "CANCEL"
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		snakePopupDiv.remove();
-		navigateTo(`/user/${username}/snake`); // Navegação para outra página
+		navigateTo(`/user/${username}/snake`);
 	});
 
-	// Validação do formulário e controle do início do jogo
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
-
-		// Expressão regular para garantir que o nome só contenha letras e números
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
 
-		// Validação do input
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
-			event.preventDefault(); // Impede o envio do formulário se a validação falhar
+			event.preventDefault();
 			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
 			inputField.classList.add('input-error');
-			return; // Para evitar prosseguir se a validação falhar
+			return;
 		} else {
 			inputField.classList.remove('input-error');
 		}
 
-		// Se a validação passar, insere o jogo no DOM
-		guest = userInput; // Define o nome do guest
+		guest = userInput;
 		const runSnakeLocal = document.createElement('div');
 		runSnakeLocal.classList.add('invite-pending');
 		runSnakeLocal.id = 'runSnake';
-		runSnakeLocal.innerHTML = snakeGameLocalPage(); // Insere a página do jogo
+		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		loadSnakeLocalScript(username); // Carrega o script do jogo
+		loadSnakeLocalScript(username, dataUsername);
 	});
 }
 
 function snakeGameRemote(username) {
-	// Insere um popup de início de jogo na página
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup(username));
-
-	// Recupera o token de acesso armazenado no localStorage
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup());
 	let token = localStorage.getItem('access_token');
 
-	// Fecha qualquer conexão WebSocket de matchmaking existente antes de criar uma nova
 	if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 		matchmakingSocketSnake.close();
 		matchmakingSocketSnake = null;
 	}
 
-	// Cria uma nova conexão WebSocket para matchmaking
 	matchmakingSocketSnake = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
-
-	// Evento chamado quando a conexão WebSocket é aberta
 	matchmakingSocketSnake.onopen = () => {
 		console.log("Matchmaking WebSocket connection opened.");
 	};
 
-	// Evento chamado quando ocorre um erro na conexão WebSocket
 	matchmakingSocketSnake.onerror = function (event) {
 		console.error('Matchmaking WebSocket error observed:', event);
-		// Fecha a conexão WebSocket se estiver aberta
 		if (matchmakingSocketSnake.readyState === WebSocket.OPEN) {
 			matchmakingSocketSnake.close();
 			console.log('Matchmaking Socket Closed on error');
 		}
-		matchmakingSocketSnake = null; // Reseta a referência do socket
+		matchmakingSocketSnake = null;
 	};
 
-	// Evento chamado quando uma mensagem é recebida do servidor
 	matchmakingSocketSnake.onmessage = async (event) => {
-		const data = JSON.parse(event.data); // Faz o parse da mensagem recebida
+		const data = JSON.parse(event.data);
 
-		// Verifica se um match foi criado
 		if (data.match === "match_created") {
 			console.log("Match created!", data.roomCode);
 
-			// Atualiza o status na interface do usuário
 			if (document.getElementById('status')) {
 				document.getElementById('status').innerText = `Match found!\nOpponent: ${data.opponent}`;
 
-				// Remove o popup de matchmaking
 				const popupWindow = document.getElementById('snakePopup');
 				popupWindow.remove();
 			}
 
-			// Cria um novo elemento para a tela do jogo
 			const runSnakeRemote = document.createElement('div');
 			runSnakeRemote.classList.add('invite-pending');
 			runSnakeRemote.id = 'invitePending';
-			runSnakeRemote.innerHTML = snakeGameRemotePage(); // Insere a página do jogo
+			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
 
 			console.log("Joining room...", data.roomCode);
-			// Verifica se o jogo é 'snake' e tenta entrar na sala
 			if (data.game === 'snake') {
 				await joinSnakeRoom(data.roomCode, username, matchmakingSocketSnake);
 				setTimeout(() => {
-					// Fecha o socket de matchmaking após entrar na sala
 					if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 						matchmakingSocketSnake.close();
 						console.log('Matchmaking WebSocket connection closed after joining the room.');
@@ -375,56 +350,50 @@ function snakeGameRemote(username) {
 			}
 
 		} else if (data.system) {
-			// Atualiza o status com mensagens do sistema
 			document.getElementById('status').innerText = data.message;
 
 		} else if (data.error) {
-			// Atualiza o status com mensagens de erro
 			document.getElementById('status').innerText = `Error: ${data.message}`;
 
 		} else {
-			// Exibe mensagem padrão enquanto aguarda um match
 			document.getElementById('status').innerText = "READY TO PLAY?";
 		}
 	};
 
-	// Evento chamado quando a conexão WebSocket é fechada
 	matchmakingSocketSnake.onclose = () => {
-		matchmakingSocketSnake = null; // Reseta a referência do socket
+		matchmakingSocketSnake = null;
 	};
 
-	// Adiciona evento para o botão de entrar no matchmaking
 	document.getElementById('joinMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
-			type: "join", // Tipo da ação
-			game: "snake" // Nome do jogo
+			type: "join",
+			game: "snake"
 		});
-		matchmakingSocketSnake.send(data); // Envia a solicitação para entrar no matchmaking
-		document.getElementById('status').innerText = "MATCHMAKING..."; // Atualiza o status
+		matchmakingSocketSnake.send(data);
+		document.getElementById('status').innerText = "MATCHMAKING...";
 	});
 
-	// Adiciona evento para o botão de cancelar o matchmaking
 	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
-			type: "cancel" // Tipo da ação para cancelar
+			type: "cancel" 
 		});
 
-		matchmakingSocketSnake.send(data); // Envia a solicitação para cancelar o matchmaking
+		matchmakingSocketSnake.send(data);
 		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 			matchmakingSocketSnake.close();
 			console.log('Matchmaking WebSocket connection closed.');
 		}
 
-		document.getElementById('status').innerText = "CANCELLING MATCHMAKING..."; // Atualiza o status
+		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
-			document.getElementById('snakePopup').remove(); // Remove o popup após um segundo
-			navigateTo(`/user/${username}/snake`); // Navega de volta para a página do usuário
+			document.getElementById('snakePopup').remove();
+			navigateTo(`/user/${username}/snake`);
 		}, 1000);
 	});
 }
 
-function snakeGameMultiplayer(username) {
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
+function snakeGameMultiplayer(username, dataUsername) {
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput1').focus();
 
 	const cancelButton = document.getElementById('cancelButton');
@@ -434,13 +403,11 @@ function snakeGameMultiplayer(username) {
 		navigateTo(`/user/${username}/snake`);
 	});
 
-	// Função para verificar duplicação de nomes
 	function checkForDuplicates(names) {
 		const lowerCaseNames = names.map(name => name.toLowerCase());
 		return new Set(lowerCaseNames).size !== lowerCaseNames.length;
 	}
 
-	// Função de validação de nomes
 	function validateNames() {
 		const inputs = document.querySelectorAll('.local-input-custom');
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
@@ -452,7 +419,6 @@ function snakeGameMultiplayer(username) {
 			guest1 = input.value.trim();
 			guest2 = input.value.trim();
 			guest3 = input.value.trim();
-			// Verifica se o campo está vazio ou se o nome contém caracteres inválidos
 			if (name.length === 0 || !validNamePattern.test(name)) {
 				input.classList.add('input-error');
 				displaySlidingMessage('Error: Name must be 1-10 characters long and contain only letters or numbers.');
@@ -463,30 +429,27 @@ function snakeGameMultiplayer(username) {
 			}
 		});
 
-		// Verifica duplicados
 		if (allFieldsValid && checkForDuplicates(playerNames)) {
 			displaySlidingMessage('Error: Player names must be unique!');
 			allFieldsValid = false;
 		}
-
 		return allFieldsValid;
 	}
 
 	const playButton = document.getElementById('playButton');
 	playButton.addEventListener('click', (event) => {
-		event.preventDefault(); // Previne o envio do formulário
+		event.preventDefault();
 		const allFieldsValid = validateNames();
 
 		if (allFieldsValid) {
-			// Proceder ao início do jogo
 			const runSnakeLocal = document.createElement('div');
 			runSnakeLocal.classList.add('invite-pending');
 			runSnakeLocal.id = 'runSnake';
 			runSnakeLocal.innerHTML = snakeGameMultiplayerPage();
 			document.getElementById('root').appendChild(runSnakeLocal);
-			loadSnakeMultiplayerScript(username);
+			loadSnakeMultiplayerScript(username, dataUsername);
 		}
 	});
 }
 
-export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, /* loadSnakeRemoteScript , */	loadSnakeMultiplayerScript, snakeGameRemotePage, matchmakingSocketSnake };
+export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage, matchmakingSocketSnake };

@@ -144,8 +144,8 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 	async def game_loop(self, room):
 		while room['players']:
-			logger.info('update')
-			logger.info(f'players in room: {room["players"]}')
+			# logger.info('update')
+			# logger.info(f'players in room: {room["players"]}')
 			await self.update_game_state(room)
 			await asyncio.sleep(0.08)
 

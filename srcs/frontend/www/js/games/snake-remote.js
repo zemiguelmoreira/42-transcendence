@@ -1,4 +1,5 @@
 import { navigateTo } from "../app.js";
+import { getUserProfileByUsername } from "../profile/myprofile.js";
 
 let snake_socket = null;
 let playerIndex = null;
@@ -8,9 +9,10 @@ let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], dir
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
-let winner = null;
 let selfUsername = null;
 let matchSocket = null;
+let dataPlayer1 = null;
+let dataPlayer2 = null;
 const gridSize = 20;
 
 function setupSnake() {
@@ -20,7 +22,6 @@ function setupSnake() {
 	snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 	foodColor = "#FF0000";
 	food = { 'x': 0, 'y': 0 };
-	winner = null;
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	ctx = canvas.getContext('2d');
 	canvasWidth = document.getElementById("gameCanvasSnakeRemote").width;
@@ -31,9 +32,6 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	selfUsername = username;
 	if (matchmakingSocket !== false)
 		matchSocket = matchmakingSocket;
-
-	console.log('selfUsername:', selfUsername);
-	console.log('username:', username);
 
 	const snake_accessToken = localStorage.getItem('access_token');
 	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
@@ -69,9 +67,13 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 			playerIndex = data.player_index;
 
 		} else if (data.action === 'start_game') {
-			console.log(`Game started. Player 1: ${data.player_names[0]}, Player 2: ${data.player_names[1]}`);
-			document.getElementById('snakeName1').innerText = data.player_names[0];
-			document.getElementById('snakeName2').innerText = data.player_names[1];
+			dataPlayer1 = await getUserProfileByUsername(data.player_names[0]);
+			dataPlayer2 = await getUserProfileByUsername(data.player_names[1]);
+			console.log('Player1:', dataPlayer1);
+			console.log('Player2:', dataPlayer2);
+
+			document.getElementById('snakeName1').innerText = data.player_names[0] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
+			document.getElementById('snakeName2').innerText = data.player_names[1] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			startGame();
 
 		} else if (data.action === 'countdown') {
@@ -81,11 +83,10 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 			console.log('Waiting for another player to join...');
 
 		} else if (data.action === 'game_over' && !stopFlag) {
-			console.log(`Game over. Winner: ${data.winner}, Loser: ${data.loser}`);
 
-			winner = data.winner;
 			stopFlag = true;
-			const loser = data.loser;
+			const winner = data.winner === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
+			const loser = data.loser === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			const winnerScore = data.winner_score;
 			const loserScore = data.loser_score;
 			const gameType = 'snake';
@@ -126,11 +127,10 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 		snake_socket = null;
 	};
 
-
 }
 
 function sendMoveCommand(direction) {
-	if (playerIndex !== null) {
+	if (snake_socket && playerIndex !== null) {
 		snake_socket.send(JSON.stringify({
 			action: 'move',
 			player_index: playerIndex,
@@ -140,10 +140,9 @@ function sendMoveCommand(direction) {
 }
 
 function drawGrid() {
-	ctx.strokeStyle = '#345678'; // Cor das linhas da grelha
-	ctx.lineWidth = 1; // Espessura das linhas
+	ctx.strokeStyle = '#345678'; 
+	ctx.lineWidth = 1; 
 
-	// Desenha as linhas verticais
 	for (let x = 0; x <= canvasWidth; x += gridSize) {
 		ctx.beginPath();
 		ctx.moveTo(x, 0);
@@ -151,7 +150,6 @@ function drawGrid() {
 		ctx.stroke();
 	}
 
-	// Desenha as linhas horizontais
 	for (let y = 0; y <= canvasHeight; y += gridSize) {
 		ctx.beginPath();
 		ctx.moveTo(0, y);
@@ -161,7 +159,7 @@ function drawGrid() {
 }
 
 function drawFood() {
-	ctx.fillStyle = foodColor; // Usa a cor armazenada
+	ctx.fillStyle = foodColor;
 	ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
 }
 
@@ -171,19 +169,19 @@ function drawSnakes() {
 
 	for (let i = 0; i < segmentCount1; i++) {
 		const segment = snake1.segments[i];
-		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5; // Calcula o valor alfa baseado na posição do segmento
+		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5; 
 		const color = snake1.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; // Ajusta a cor com opacidade
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 
 	for (let i = 0; i < segmentCount2; i++) {
 		const segment = snake2.segments[i];
-		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5; // Calcula o valor alfa baseado na posição do segmento
+		const alpha = 1 - (i / (segmentCount2 - 1)) * 0.5;
 		const color = snake2.color;
 
-		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`; // Ajusta a cor com opacidade
+		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
 		ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
 	}
 }
@@ -191,13 +189,11 @@ function drawSnakes() {
 function hexToRgb(hex) {
 	let r = 0, g = 0, b = 0;
 
-	// 3 dígitos
 	if (hex.length === 4) {
 		r = parseInt(hex[1] + hex[1], 16);
 		g = parseInt(hex[2] + hex[2], 16);
 		b = parseInt(hex[3] + hex[3], 16);
 	}
-	// 6 dígitos
 	else if (hex.length === 7) {
 		r = parseInt(hex[1] + hex[2], 16);
 		g = parseInt(hex[3] + hex[4], 16);
@@ -209,7 +205,7 @@ function hexToRgb(hex) {
 
 function drawGame() {
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	ctx.fillStyle = '#000'; // Preto
+	ctx.fillStyle = '#000';
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 	drawGrid();
@@ -219,7 +215,6 @@ function drawGame() {
 
 document.addEventListener('keydown', function (event) {
 	if (playerIndex === null) return;
-	// console.log(event.key);
 	switch (event.key) {
 		case 'ArrowUp':
 			sendMoveCommand('UP');
@@ -293,54 +288,46 @@ function startGame() {
 	countdown(gameLoop);
 }
 
-function showEndScreen(score = null) {
+function showEndScreen(score, dataPlayer1, dataPlayer2) {
 	if (!ctx) {
 		const canvas = document.getElementById('gameCanvasSnakeRemote');
 		ctx = canvas.getContext('2d');
 	}
 
-	// Limpa o canvas e define fundo semitransparente
+	console.log('Score:', score);
+	console.log('DataPlayer1:', dataPlayer1);
+	console.log('DataPlayer2:', dataPlayer2);
+
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-	// Ajuste da altura total disponível para o conteúdo
-	const totalHeight = canvasHeight * 0.7; // Usamos 70% da altura do canvas para os textos
-	const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+	const totalHeight = canvasHeight * 0.7;
+	const partHeight = totalHeight / 4;
+	const startY = (canvasHeight - totalHeight) / 2;
 
-	// Define a posição de início para centrar os textos verticalmente
-	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
-
-	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight); // Elevar um pouco mais o texto
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 
-	// Desenhar "WINNER" em vermelho deslocado
 	ctx.fillStyle = "red";
 	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight + 4);
 
-	// Nome e pontuação do vencedor
-	ctx.fillStyle = "#fff"; // Texto em branco
-	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60);
 
-	// Texto para "LOSER" na terceira parte do canvas
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3); // Elevar o texto
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 
-	// Desenhar "LOSER" em vermelho deslocado
 	ctx.fillStyle = "red";
 	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 3 + 4);
 
-	// Nome e pontuação do perdedor
-	ctx.fillStyle = "#fff"; // Texto em branco
-	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
-
-	// Remover o elemento 'invitePending' após 3 segundos
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60);
 	setTimeout(() => {
 		document.getElementById('invitePending').remove();
 		navigateTo(`/user/${selfUsername}/snake`);

@@ -13,10 +13,10 @@ function userProfilePage(userData, user) {
 	const profilePageData = makeProfilePage(userData);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
 
-	console.log('PRINT PONG: ', userData.profile.pong_match_history);
+	// console.log('PRINT PONG: ', userData.profile.pong_match_history);
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
 
-	console.log('PRINT SNAKE: ', userData.profile.snake_match_history);
+	// console.log('PRINT SNAKE: ', userData.profile.snake_match_history);
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
 
 	displayProfileFriendsList(userData.user.username);

@@ -1,4 +1,5 @@
 import { navigateTo } from "../app.js";
+import { getUserProfileByUsername } from "../profile/myprofile.js";
 
 const paddleWidth = 10;
 const paddleHeight = 90;
@@ -20,6 +21,8 @@ let player1Name = "";
 let player2Name = "";
 let selfUsername = null;
 let matchSocket = null;
+let dataPlayer1 = null;
+let dataPlayer2 = null;
 
 function setupPong() {
 	paddlePositions = "";
@@ -71,7 +74,6 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 
 	pong_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
-		console.log('data: ', data);
 
 		if (data.action === 'unauthorized') {
 			console.log('Unauthorized to join the game!');
@@ -84,8 +86,13 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 			paddlePositions = data.paddle_positions;
 
 		} else if (data.action === 'start_game') {
-			player1Name = data.player_names[0];
-			player2Name = data.player_names[1];
+			dataPlayer1 = await getUserProfileByUsername(data.player_names[0]);
+			dataPlayer2 = await getUserProfileByUsername(data.player_names[1]);
+			console.log('Player1:', dataPlayer1);
+			console.log('Player2:', dataPlayer2);
+
+			player1Name = data.player_names[0] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
+			player2Name = data.player_names[1] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			startGame();
 
 		} else if (data.action === 'countdown') {
@@ -93,10 +100,10 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 
 
 		} else if (data.action === 'game_over' && !stopFlag) {
-
 			stopFlag = true;
-			const winner = data.winner;
-			const loser = data.loser;
+
+			const winner = data.winner === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
+			const loser = data.loser === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			const winnerScore = data.winner_score;
 			const loserScore = data.loser_score;
 			const gameType = 'pong';
@@ -121,7 +128,6 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 			}
 
 		} else {
-			console.log('entoru aqui');
 			if (!stopFlag) {
 				player1Score = data.score[0];
 				player2Score = data.score[1];
@@ -242,7 +248,7 @@ function drawScores() {
 
 	drawDashedLine();
 
-	const digitWidth = 3 * (20 + 0); // 3 segmentos + 0 margens
+	const digitWidth = 3 * (20 + 0);
 	const digitHeight = 5 * (20 + 0);
 	const scoreSpacing = 10;
 
@@ -342,46 +348,37 @@ function showEndScreen(score) {
 		ctx = canvas.getContext('2d');
 	}
 
-	// Limpa o canvas e define fundo semitransparente
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-	// Ajuste da altura total disponível para o conteúdo
-	const totalHeight = canvasHeight * 0.7; // Usamos 70% da altura do canvas para os textos
-	const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+	const totalHeight = canvasHeight * 0.7;
+	const partHeight = totalHeight / 4;
 
-	// Define a posição de início para centrar os textos verticalmente
-	const startY = (canvasHeight - totalHeight) / 2; // Centraliza o conteúdo no canvas
+	const startY = (canvasHeight - totalHeight) / 2;
 
-	// Texto para "WINNER" na segunda parte do canvas
 	ctx.textAlign = "center";
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight); // Elevar um pouco mais o texto
+	ctx.fillText("WINNER", canvasWidth / 2, startY + partHeight);
 
-	// Desenhar "WINNER" em vermelho deslocado
 	ctx.fillStyle = "red";
 	ctx.fillText("WINNER", canvasWidth / 2 + 4, startY + partHeight + 4);
 
-	// Nome e pontuação do vencedor
-	ctx.fillStyle = "#fff"; // Texto em branco
-	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60); // Ajustar a posição do nome
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60);
 
-	// Texto para "LOSER" na terceira parte do canvas
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
-	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3); // Elevar o texto
+	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
 
-	// Desenhar "LOSER" em vermelho deslocado
 	ctx.fillStyle = "red";
 	ctx.fillText("LOSER", canvasWidth / 2 + 4, startY + partHeight * 3 + 4);
 
-	// Nome e pontuação do perdedor
-	ctx.fillStyle = "#fff"; // Texto em branco
-	ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60); // Ajustar a posição do nome
+	ctx.fillStyle = "#fff";
+	ctx.font = "40px CustomFont";
+	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60);
 
 	setTimeout(() => {
 		if (document.getElementById('invitePending'))
