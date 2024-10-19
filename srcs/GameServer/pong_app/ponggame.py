@@ -1,5 +1,4 @@
 import asyncio
-# import aioredis
 import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -9,7 +8,6 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-# redis_client = aioredis.from_url("redis://redis:6379", decode_responses=True)
 
 canvasHeight = 560
 canvasWidth = 960
@@ -24,19 +22,6 @@ paddle2_init_x = canvasWidth - PADDLE_WIDTH
 
 ball_init_x = canvasWidth / 2 - BALL_SIZE / 2
 ball_init_y = canvasHeight / 2 - BALL_SIZE / 2
-
-def is_goal_paddle1(ball_x):
-	return ball_x + BALL_SIZE >= canvasWidth
-
-def is_goal_paddle2(ball_x):
-	return ball_x <= 0
-
-def is_collision_paddle1(ball_x, ball_y, paddle_y):
-	return (ball_x <= PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
-
-
-def is_collision_paddle2(ball_x, ball_y, paddle_y):
-	return (ball_x + BALL_SIZE >= canvasWidth - PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
 
 class PongGame:
 	channel_layer = get_channel_layer()
@@ -66,7 +51,7 @@ class PongGame:
 			room['players'].append(username)
 			player_index = room['players'].index(username)
 		return {
-			'type': 'assign.index',
+			'action': 'assign_index',
 			'player_index': player_index,
 			'ball_position': room['ball_position'],
 			'paddle_positions': room['paddle_positions'],
@@ -135,21 +120,21 @@ class PongGame:
 		# reset collision flag
 		if room['ball_position'][1] > BALL_SIZE + 1 and room['ball_position'][1] < canvasHeight - BALL_SIZE - 1:
 			room['wall_collision'] == False
-		if is_goal_paddle1(room['ball_position'][0]):
+		if self.is_goal_paddle1(room['ball_position'][0]):
 			room['score'][0] += 1
 			room['ball_position'] = [ball_init_x, ball_init_y]
 			room['ball_velocity'][0] *= -1
 			# logger.info("Gol do paddle 1")
-		if is_goal_paddle2(room['ball_position'][0]):
+		if self.is_goal_paddle2(room['ball_position'][0]):
 			room['score'][1] += 1
 			room['ball_position'] = [ball_init_x, ball_init_y]
 			room['ball_velocity'][0] *= -1
 			# logger.info("Gol do paddle 2")
 		# paddle colision
-		if room['ball_velocity'][0] < 0 and is_collision_paddle1(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][0][1]):
+		if room['ball_velocity'][0] < 0 and self.is_collision_paddle1(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][0][1]):
 			room['ball_velocity'][0] *= -1
 			# logger.info("Colidiu paddle 1")
-		if room['ball_velocity'][0] > 0 and is_collision_paddle2(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][1][1]):
+		if room['ball_velocity'][0] > 0 and self.is_collision_paddle2(room['ball_position'][0], room['ball_position'][1], room['paddle_positions'][1][1]):
 			room['ball_velocity'][0] *= -1
 			# logger.info("colidiu paddle 2")
 		for i in range(len(room['paddle_positions'])):
@@ -203,5 +188,17 @@ class PongGame:
 			del PongGame.rooms[room_code]
 			logging.info(f"PongGame: end_game: room {room_code} deleted")
 
+	def is_goal_paddle1(ball_x):
+		return ball_x + BALL_SIZE >= canvasWidth
+
+	def is_goal_paddle2(ball_x):
+		return ball_x <= 0
+
+	def is_collision_paddle1(ball_x, ball_y, paddle_y):
+		return (ball_x <= PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
+
+
+	def is_collision_paddle2(ball_x, ball_y, paddle_y):
+		return (ball_x + BALL_SIZE >= canvasWidth - PADDLE_WIDTH and ball_y + BALL_SIZE >= paddle_y and ball_y <= paddle_y + PADDLE_HEIGHT)
 
 pong_game = PongGame()

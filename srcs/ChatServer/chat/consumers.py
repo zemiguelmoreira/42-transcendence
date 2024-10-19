@@ -347,8 +347,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	# utility methods
 	async def add_online_user(self):
 		ChatConsumer.online_users[self.user.username] = ChatConsumer.online_users.get(self.user.username, 0) + 1
-		# if ChatConsumer.online_users[self.user.username] == 1:
-		await self.update_user_status(True)
+		if ChatConsumer.online_users[self.user.username] == 1:
+			await self.update_user_status(True)
+		else:
+			# update online status for self only (new tab)
+			await self.channel_layer.group_send(
+				self.user_group_name,
+				{
+					'type': 'update.status',
+					'online_users': sorted(list(ChatConsumer.online_users))
+				}
+			)
 
 
 	async def remove_online_user(self):
@@ -360,12 +369,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	async def update_user_status(self, is_logged_in):
-		online_users_sorted = sorted(list(ChatConsumer.online_users))
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'update.status',
-				'online_users': online_users_sorted
+				'online_users': sorted(list(ChatConsumer.online_users))
 			}
 		)
 		await self.post_user_status(is_logged_in)
