@@ -62,13 +62,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		self.room = pong_game.rooms[self.room_code]
 		self.player_index = data['player_index']
 		self.is_player = True
-		await self.send(json.dumps({
-			'action': 'assign_index',
-			'player_index': self.player_index,
-			'ball_position': self.room['ball_position'],
-			'paddle_positions': self.room['paddle_positions'],
-			'score': self.room['score']
-		}))
+		await self.send(json.dumps(data))
 		if len(self.room['players']) < 2:
 			logger.info(f'Consumer: Wait for Player Called user {self.user.username}\n')
 			await self.send(json.dumps({
@@ -201,7 +195,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		try:
 			async with httpx.AsyncClient() as client:
 				response = await client.post(url, json=match_data, headers=headers)
-				response.raise_for_status()  # Levanta exceções para códigos de status de erro
+				response.raise_for_status()
 				logger.info(f"Match history saved successfully: {response.json()}")
 		except httpx.HTTPStatusError as http_err:
 			logger.error(f"HTTP error occurred: {http_err}")
