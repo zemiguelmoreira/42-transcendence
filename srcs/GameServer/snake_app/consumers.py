@@ -39,30 +39,12 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 
 
 	async def disconnect(self, close_code):
-		try:
-			room = SnakeConsumer.rooms[self.room.code]
-
-			# Sinalizar o fim do jogo
-			room['end_game'] = True
-			room['disconnect'] = self.user.username
-			logger.info(f"Room {self.room.code}: Game ended by disconnection from {self.user.username}")
-
-		except KeyError:
-			logger.error(f"Room {self.room.code} not found in SnakeConsumer.rooms")
+		if not self.authenticated:
+			logging.info("Snake: disconnect: Not authenticated user disconnected.")
 			return
-		# room = SnakeConsumer.rooms.get(self.room.code, None)
+		await self.cleanup_connection()
+		return
 
-		# if room:
-		# 	# Se o jogador desconectar, removê-lo da lista de jogadores ativos
-		# 	if hasattr(self, 'is_player') and self.is_player and self in room['players']:
-		# 		room['players'].remove(self)
-
-		# 	# Não cancelar o loop do jogo mesmo que um jogador saia
-		# 	if not room['players']:
-		# 		# Se não houver jogadores, podemos deixar o jogo ativo e aguardando reconexão.
-		# 		room['game_loop_task'] = None
-
-		# await self.close()
 
 	async def receive(self, text_data):
 		data = json.loads(text_data)
@@ -74,180 +56,92 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 					async with snake_game.locks[self.room_code]:
 							self.room['snakes'][self.player_index]['newDirection'] = new_direction
 
-	async def game_loop(self, room):
-		# logger.info('game loop in back')
-		# last_time = time.time()
 
-		while room['players']:
-			# current_time = time.time()
-			# delta_time = current_time - last_time
-			# last_time = current_time
-
-			await self.update_game_state(room )
-			await asyncio.sleep(0.08)  # Increase update frequency for smoother ball movement
-
-
-	async def update_game_state(self, room):
-		alive_snakes = [snake for snake in room['snakes'] if snake['alive']]
-
-		if len(alive_snakes) <= 1:
-			if len(alive_snakes) == 1:
-				for player in room['players']:
-					await player.end_game(room, alive_snakes[0]['username'])
+	async def add_to_room(self):
+		data = await snake_game.addToRoom(self.room_code, self.user.username)
+		if data is None:
+			await self.close()
 			return
-
-		for i, snake in enumerate(room['snakes']):
-			# if snake['alive']:
-			self.move_snake(snake, room)
-			self.check_collisions(snake, room, i)
-
-		response = {
-			'snakes': room['snakes'],
-			'score': room['score'],
-			'food': room['food'],
-		}
-
-		for player in room['players']:
-			asyncio.create_task(player.send(json.dumps(response)))
-
-			# Verificar se o jogo terminou por desconexão
-
-		if room.get('end_game'):
-			logger.info('Game identified as ending due to disconnection')
-			loser = room['disconnect']
-
-			# Definir o vencedor com base no jogador que não desconectou
-			if room['players'][0].user.username == loser:
-				winner = room['players'][1].user.username
-			else:
-				winner = room['players'][0].user.username
-
-			logger.info(f"Game result due to disconnection: Winner: {winner}, Loser: {loser}")
-
-			# Notificar ambos os jogadores e encerrar o jogo
-			for player in room['players']:
-				await player.end_game(room, winner)
-
-			logger.info(f"Game result by score: Winner: {winner}, Loser: {loser}")
-
-			# Notificar ambos os jogadores e encerrar o jogo
-			for player in room['players']:
-				await player.end_game(room, winner)
-
-			# # Remover o jogador da sala e encerrar a partida
-			# room['players'].remove(self)
-			# logger.info('Player removed from room')
-
-		# Se não houver mais jogadores, cancelar o loop do jogo
-		if len(room['players']) == 0 or room['save_count'] == 2:
-			room['game_loop_task'].cancel()
-			room['game_loop_task'] = None
-			del SnakeConsumer.rooms[self.room.code]
+		self.room = snake_game.rooms[self.room_code]
+		self.player_index = data['player_index']
+		self.is_player = True
+		await self.send(json.dumps(data))
+		if len(self.room['players']) < 2:
+			logger.info(f'Consumer: Wait for Player Called user {self.user.username}\n')
+			await self.send(json.dumps({
+				'action': 'wait_for_player',
+			}))
+		while len(self.room['players']) < 2:
+			await asyncio.sleep(1/10)
+		await self.send(json.dumps({
+					'action': 'start_game',
+					'player_names': [self.room['players'][0], self.room['players'][1]],
+				}))
+		if self.player_index == 1:
+			await snake_game.start_game(self.room_code)
 
 
-	def move_snake(self, snake, room):
-		# logger.info(f'inside move func: {snake}')
-		# Atualiza a direção da cobra
-		snake['direction'] = snake['newDirection']
-		head = {**snake['segments'][0]}
-
-		# Mover a cabeça da cobra de acordo com a direção
-		if snake['direction'] == 'RIGHT':
-			head['x'] += 1
-		elif snake['direction'] == 'LEFT':
-			head['x'] -= 1
-		elif snake['direction'] == 'UP':
-			head['y'] -= 1
-		elif snake['direction'] == 'DOWN':
-			head['y'] += 1
-
-		# logger.info(snake['direction'])
-		# Envolver as bordas (wrap around)
-		head['x'] %= cols
-		head['y'] %= rows
-
-		# Verificar se a cobra comeu a comida
-		if head['x'] == room['food']['x'] and head['y'] == room['food']['y']:
-			snake['segments'].insert(0, head)  # Cresce a cobra
-			room['food'] = self.generate_food_position()  # Gera nova posição de comida
-			room['score'][room['snakes'].index(snake)] += 1
-		else:
-			snake['segments'].insert(0, head)
-			snake['segments'].pop()  # Remove o último segmento para mover a cobra
-
-	def check_collisions(self, snake, room, snake_index):
-		head = snake['segments'][0]
-
-		# Check self-collision (colisão com o próprio corpo)
-		if any(segment == head for segment in snake['segments'][1:]):
-			logger.info('colisao com proprio corpo')
-			snake['alive'] = False
-
-		# Check collision with other snakes (colisão com outras cobras)
-		for i, other_snake in enumerate(room['snakes']):
-			if i != snake_index and other_snake['alive']:
-				# Colisão de cabeça com cabeça
-				if head == other_snake['segments'][0]:
-					logger.info('colisao com outra head cobra')
-					score_self = room['score'][snake_index]
-					score_other = room['score'][i]
-
-					# Comparar pontuações
-					if score_self > score_other:
-						other_snake['alive'] = False  # Cobra com menos pontos perde
-					elif score_self < score_other:
-						snake['alive'] = False  # Cobra com menos pontos perde
-					else:
-						# Se as pontuações forem iguais, escolhe aleatoriamente a vencedora
-						logger.info('colisao com outra head cobra pontuacao iguais')
-						if random.choice([True, False]):
-							snake['alive'] = False
-						else:
-							other_snake['alive'] = False
-
-				# Verificar colisão com o corpo da outra cobra
-				elif any(segment == head for segment in other_snake['segments'][1:]):
-					logger.info('colisao com outra body cobra')
-					snake['alive'] = False
-
-		# Verificar se sobrou apenas uma cobra viva
-		alive_snakes = [s for s in room['snakes'] if s['alive']]
-		if len(alive_snakes) == 1 and not room['end_game']:
-			logger.info('sobrou apenas uma')
-			for player in room['players']:
-				player.end_game(room, alive_snakes[0]['username'])
+	async def game_update(self, event):
+		game_state = event['game_state']
+		await self.send(json.dumps(game_state))
 
 
-	def generate_food_position(self):
-		return {'x': random.randint(0, cols - 1), 'y': random.randint(0, rows - 1)}
+	# connection methods
+	@database_sync_to_async
+	def get_user_from_token(self, access_token):
+		try:
+			user_id = access_token['user_id']
+			user = User.objects.get(id=user_id)
+			return user
+		except (User.DoesNotExist):
+			return None
 
-	def random_color(self):
-		return f'rgb({random.randint(0, 255)}, {random.randint(0, 255)}, {random.randint(0, 255)})'
 
-	def is_valid_direction(self, current_direction, new_direction):
-		opposite_directions = {
-			'UP': 'DOWN',
-			'DOWN': 'UP',
-			'LEFT': 'RIGHT',
-			'RIGHT': 'LEFT'
-		}
-		return opposite_directions[current_direction] != new_direction
+	async def validate_token(self):
+		query_params = parse_qs(self.scope['query_string'].decode())
+		self.room_code = self.scope['url_route']['kwargs'].get('room_name', None)
+		token = query_params.get('token', [None])[0]
+		if not token:
+			logging.error("Snake: validate_token: No token provided.")
+			return None
+		try:
+			access_token = AccessToken(token)
+			return access_token
+		except (InvalidToken, TokenError):
+			logging.error("Snake: validate_token: Invalid token.")
+			return None
+
+
+	async def initialize_connection(self):
+		self.authenticated = True
+		self.is_player = False
+		room = await get_room(self.room_code)
+		if not room or not check_user_access(room, self.user):
+			await self.close()
+			return
+		# accepting the websocket connection
+		logging.info(f"Snake: initialize_connection: User {self.user.username} connected.")
+		await self.accept()
+		self.room_group_name = f'room_{self.room_code}'
+		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
 
 
-	async def end_game(self, room, winner=None):
-		logger.info('function end_game called')
-		loser = room['players'][1].user.username if room['players'][1].user.username != winner else room['players'][0].user.username
+	async def cleanup_connection(self):
+		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+		if self.is_player:
+			await self.handle_game_disconnect()
+			await snake_game.user_disconnect(self.room_code, self.user.username)
 
-		winner_score = room['score'][0] if room['players'][0].user.username == winner else room['score'][1]
-		loser_score = room['score'][1] if room['players'][0].user.username == winner else room['score'][0]
 
-		logger.info(f'winner: {winner}')
-		logger.info(f'loser: {loser}')
 
-		timestamp = int(time.time())
-		formatted_time = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
-
+	async def handle_game_disconnect(self):
+		self.room['disconnect'] = self.user.username
+		self.room['end_game'] = True
+		winner = self.room['players'][0] if self.room['players'][0] != self.user.username else self.room['players'][1]
+		loser = self.user.username
+		winner_score = self.room['score'][0] if self.room['players'][0] == winner else self.room['score'][1]
+		loser_score = self.room['score'][0] if self.room['players'][0] == loser else self.room['score'][1]
 		to_save = {
 			'winner': winner,
 			'loser': loser,
@@ -283,7 +177,6 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 		}
 		await self.save_match_history(to_save)
 		await self.send(json.dumps(result))
-		# await self.close()
 
 	# others
 	async def save_match_history(self, match_data):
