@@ -9,8 +9,12 @@ function makeSignInPage() {
 							<label class="font-custom --bs-green" for="form1Example1">USERNAME</label>
 							<input type="text" class="form-control button-size" id="form1Example1" name="username" placeholder="username or email" maxlength="8">
 							<small id="limitChar2" class="form-text text-white mt-0" style="display: none; text-align: left;">Maximum of 8 characters.</small>
-							<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
-							<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="password">
+							<!-- Password input -->
+							<div class="mb-3 position-relative">
+								<label class="font-custom --bs-green" for="form1Example3">PASSWORD</label>
+								<input type="password" class="form-control button-size" id="form1Example3" name="password" placeholder="password">
+								<i class="bi bi-eye position-absolute" id="togglePassword" style="right: 10px; top: 50%; transform: translateY(40%); cursor: pointer; color: black"></i>
+							</div>
 							<button type="submit" id="signInUser" class="btn btn-outline-success button-size">SIGN IN</button>
 							<a href="" id="signInUser42" class="btn btn-outline-custom button-size">SIGNIN WITH 42</a>
 							<a href="" id="recover" class="btn btn-outline-custom button-size">RECOVER PASSWORD</a>

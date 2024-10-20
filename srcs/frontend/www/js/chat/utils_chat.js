@@ -15,6 +15,7 @@ function displayChatMessage(data, chatLog) {
 	console.log("chatLog: ", chatLog);
 
 	const messageElement = document.createElement("div");
+	// messageElement.style.overflowWrap = "break-word";
 	if (data.private) {
 		messageElement.classList.add('message-private');
 	} else if (data.system) {
@@ -35,6 +36,8 @@ function displayChatMessage(data, chatLog) {
 	senderElement.textContent = `${data.sender}: `;
 	const contentElement = document.createElement("div");
 	contentElement.classList.add('message-content');
+	contentElement.style.overflowWrap = "break-word";
+	contentElement.style.wordBreak = "break-word"; 
 	contentElement.innerHTML = data.message.replace(/\n/g, '<br>');
 	messageElement.appendChild(senderElement);
 	messageElement.appendChild(contentElement);
@@ -282,7 +285,8 @@ async function sendGameInvite(username, user, game) {
 		"game": game,
 	};
 	invitedUser = user;
-	chatSocketInstance.send(inviteMessage);
+	chatSocketInstance.send(inviteMessage);//
+	// chatSocketInstance.sendWithToken(inviteMessage);
 	const invitePendingDiv = document.createElement('div');
 	invitePendingDiv.classList.add('invite-pending');
 	invitePendingDiv.id = 'invitePending';

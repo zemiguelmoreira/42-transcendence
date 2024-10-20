@@ -29,19 +29,49 @@ function fetchRegister(user, email, password, password2, registerForm) {
 	registerForm.elements.password2.value = "";
 }
 
+// function handleSignUp(e) {
+//     e.preventDefault();
+//     const registerForm = document.querySelector('#userRegisterForm');
+//     const user = registerForm.elements.username.value.toLowerCase().trim();
+// 	console.log('username: ', user);
+//     const email = registerForm.elements.email.value;
+//     const password = registerForm.elements.password.value;
+//     const password2 = registerForm.elements.password2.value;
+//     if (user && email && password && password2) {
+//         fetchRegister(user, email, password, password2, registerForm);
+//     } else {
+//         insertInputValidation(registerForm);
+//     }
+// }
+
+
 function handleSignUp(e) {
     e.preventDefault();
-    const registerForm = document.querySelector('#userRegisterForm');
-    const user = registerForm.elements.username.value;
-    const email = registerForm.elements.email.value;
-    const password = registerForm.elements.password.value;
-    const password2 = registerForm.elements.password2.value;
-    if (user && email && password && password2) {
-        fetchRegister(user, email, password, password2, registerForm);
-    } else {
-        insertInputValidation(registerForm);
-    }
+	try {
+		const registerForm = document.querySelector('#userRegisterForm');
+		const user = registerForm.elements.username.value.toLowerCase().trim();
+		console.log('username: ', user);
+		if (user.includes(" ")) {
+			const errorObject = {
+				message: "Invalid username - spaces",
+				status: 400,
+			}
+			// console.log(errorObject.message, errorObject.status, errorObject.status_msn);
+			throw errorObject;
+		}
+		const email = registerForm.elements.email.value;
+		const password = registerForm.elements.password.value;
+		const password2 = registerForm.elements.password2.value;
+		if (user && email && password && password2) {
+			fetchRegister(user, email, password, password2, registerForm);
+		} else {
+			insertInputValidation(registerForm);
+		}
+	} catch (e) {
+		displayError(e.message);
+	}
 }
+
 
 async function registerUser(user, email, password, password2) {
 	const userInfo = {

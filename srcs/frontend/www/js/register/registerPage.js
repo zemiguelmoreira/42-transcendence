@@ -54,9 +54,12 @@ function makeRegisterPage() {
 						<i class="bi bi-eye position-absolute" id="togglePassword" style="right: 10px; top: 50%; transform: translateY(40%); cursor: pointer; color: black"></i>
 					</div>
 							<!-- Confirm Password input -->
-							<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
-							<input type="password" class="form-control button-size" id="form1Example4" maxlength="20"
+					<div class="mb-3 position-relative">
+								<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
+								<input type="password" class="form-control button-size" id="form1Example4" maxlength="20"
 								name="password2" placeholder="Confirm password">
+						<i class="bi bi-eye position-absolute" id="togglePassword1" style="right: 10px; top: 50%; transform: translateY(40%); cursor: pointer; color: black"></i>
+					</div>
 							<!-- Submit button -->
 							<button type="submit" id="signUp" class="btn btn-outline-custom button-size">SIGN
 								UP</button>
