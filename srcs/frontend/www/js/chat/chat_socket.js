@@ -50,6 +50,7 @@ class WebSocketService {
 		};
 		this.socketRef.onmessage = e => {
 			let data;
+			
 			try {
 				data = JSON.parse(e.data);
 			} catch (error) {
@@ -63,12 +64,14 @@ class WebSocketService {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {
 				updateOnlineUsersList(username, data.online_users);
-				console.log(data.online_users);
+				console.log('data.online_users: ', data.online_users);
 				console.log('location: ', window.location.pathname);
 				if (window.location.pathname === `/user/${username}/profile`) {
+					console.log('Detetou profile');
 					displayProfileFriendsList(username);
 				}
 				else if (window.location.pathname === `/user/${username}/settings`) {
+					console.log('Detetou settings');
 					displayFriendsList(username, true);
 				}
 			} else if (data.room) {
