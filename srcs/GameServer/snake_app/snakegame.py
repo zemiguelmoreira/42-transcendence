@@ -10,14 +10,13 @@ import random
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-canvasHeight = 500
-canvasWidth = 980
-gridSize = 20
-
-cols = canvasWidth // gridSize
-rows = canvasHeight // gridSize
 
 class SnakeGame:
+	canvasHeight = 500
+	canvasWidth = 980
+	gridSize = 20
+	cols = canvasWidth // gridSize
+	rows = canvasHeight // gridSize
 	channel_layer = get_channel_layer()
 	tasks = {}
 	rooms = {}
@@ -80,7 +79,7 @@ class SnakeGame:
 					'type': 'game.update',
 					'game_state': game_state,
 				})
-			await asyncio.sleep(1/20)
+			await asyncio.sleep(1/12)
 		await self.game_over(room_code, room)
 
 
@@ -147,8 +146,6 @@ class SnakeGame:
 
 
 	def move_snake(self, snake, room):
-		# logger.info(f'inside move func: {snake}')
-		# Atualiza a direção da cobra
 		snake['direction'] = snake['newDirection']
 		head = {**snake['segments'][0]}
 		# Mover a cabeça da cobra de acordo com a direção
@@ -160,10 +157,9 @@ class SnakeGame:
 			head['y'] -= 1
 		elif snake['direction'] == 'DOWN':
 			head['y'] += 1
-		# logger.info(snake['direction'])
 		# Envolver as bordas (wrap around)
-		head['x'] %= cols
-		head['y'] %= rows
+		head['x'] %= SnakeGame.cols
+		head['y'] %= SnakeGame.rows
 		# Verificar se a cobra comeu a comida
 		if head['x'] == room['food']['x'] and head['y'] == room['food']['y']:
 			snake['segments'].insert(0, head)  # Cresce a cobra
@@ -212,7 +208,7 @@ class SnakeGame:
 
 
 	def generate_food_position(self):
-		return {'x': random.randint(0, cols - 1), 'y': random.randint(0, rows - 1)}
+		return {'x': random.randint(0, SnakeGame.cols - 1), 'y': random.randint(0, SnakeGame.rows - 1)}
 
 	def random_color(self):
 		return f'rgb({random.randint(0, 255)}, {random.randint(0, 255)}, {random.randint(0, 255)})'
