@@ -820,6 +820,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
                     # Calculate rank difference between the winner and loser
+                    points_earned = 0
                     differece = winner_profile.pong_rank - loser_profile.pong_rank
                     if differece > 1000:
                         differece = 1000
