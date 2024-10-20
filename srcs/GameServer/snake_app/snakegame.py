@@ -55,7 +55,6 @@ class SnakeGame:
 
 	# cria thread p game e gravas tasks por room
 	async def start_game(self, room_code):
-		# logger.info(f"SnakeGame: start_game: Starting game for room {room_code}")
 		if room_code not in SnakeGame.tasks:
 			room = SnakeGame.rooms[room_code]
 			SnakeGame.tasks[room_code] = asyncio.create_task(self.game_loop(room_code, room))
