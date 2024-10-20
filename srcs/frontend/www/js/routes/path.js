@@ -12,6 +12,7 @@ import { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer } from "../games/
 import { pongGameLocal, pongGameRemote, pongGameTournament } from "../games/pong-pages.js";
 import { noResults } from "../search/search_user.js";
 import { displayChangePassword } from "../profile/userProfile.js";
+import  { leaderboard } from "../games/leaderboard.js";
 
 const pages = {
 	'/': {
@@ -138,6 +139,13 @@ const pages = {
 			else {
 				fetchUserProfile(params.username, `/user/${params.username}/settings`);
 			}
+		},
+		access: () => !!localStorage.getItem('access_token'),
+		redirect: '/'
+	},
+	'/user/:username/leaderboard': {
+		loadContent: function (params) {
+			leaderboard(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

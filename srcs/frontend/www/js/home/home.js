@@ -18,7 +18,7 @@ import { makeNavbar } from "./homepage.js";
 let chatLoaded = false;
 
 function changeChatLoaded() {
-	console.log('chatLoaded: ', chatLoaded); // para teste
+	console.log('chatLoaded: ', chatLoaded);
 	if (chatLoaded)
 		chatLoaded = false;
 }
@@ -82,6 +82,16 @@ function initButtonListeners(username) {
 			e.preventDefault();
 			closeSlidingWindow();
 			navigateTo(`/user/${username}`);
+		});
+	}
+
+	const leaderboardNavbar = document.getElementById('leaderboard-navbar');
+	if (leaderboardNavbar && !leaderboardNavbar.hasListener) {
+		leaderboardNavbar.hasListener = true;
+		leaderboardNavbar.addEventListener('click', (e) => {
+			e.preventDefault();
+			closeSlidingWindow();
+			navigateTo(`/user/${username}/leaderboard`);
 		});
 	}
 
