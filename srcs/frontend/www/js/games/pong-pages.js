@@ -111,7 +111,7 @@ function pongGameLocal(username, dataUsername) {
 
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
 			event.preventDefault();
-			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
+			displaySlidingMessage("Invalid input: Name must be 1-8 characters long and contain only letters or numbers.");
 			inputField.classList.add('input-error');
 			return;
 		} else {

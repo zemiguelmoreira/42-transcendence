@@ -51,7 +51,6 @@ function clearSlidingMessage() {
 	slidingMessageDiv.addEventListener('animationiteration', handleAnimationIteration);
 }
 
-
 function limparDivAll(divId) {
 	var div = document.getElementById(divId);
 	if (div) {

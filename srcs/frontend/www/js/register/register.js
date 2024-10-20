@@ -23,8 +23,8 @@ function insertInputValidation(registerForm) {
 
 function fetchRegister(user, email, password, password2, registerForm) {
 	registerUser(user, email, password, password2);
-	registerForm.elements.username.value = "";
-	registerForm.elements.email.value = "";
+	// registerForm.elements.username.value = "";
+	// registerForm.elements.email.value = "";
 	registerForm.elements.password.value = "";
 	registerForm.elements.password2.value = "";
 }
@@ -51,12 +51,12 @@ function handleSignUp(e) {
 		const registerForm = document.querySelector('#userRegisterForm');
 		const user = registerForm.elements.username.value.toLowerCase().trim();
 		console.log('username: ', user);
-		if (user.includes(" ")) {
+		const validNamePattern = /^[a-zA-Z0-9]+$/;
+		if (!validNamePattern.test(user)) {
 			const errorObject = {
-				message: "Invalid username - spaces",
+				message: "Invalid input: Name must be 1-8 characters long and contain only letters or numbers.",
 				status: 400,
 			}
-			// console.log(errorObject.message, errorObject.status, errorObject.status_msn);
 			throw errorObject;
 		}
 		const email = registerForm.elements.email.value;
