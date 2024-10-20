@@ -10,7 +10,7 @@ import { makeHomePage, makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 // import WebSocketInstance from "../socket/websocket.js";
-import { handleInput, handleInputBlur } from "../utils/utils1.js";
+import { handleInput, handleInputBlur, showPassword } from "../utils/utils1.js";
 import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
 import { makeNavbar } from "./homepage.js";
@@ -18,7 +18,7 @@ import { makeNavbar } from "./homepage.js";
 let chatLoaded = false;
 
 function changeChatLoaded() {
-	console.log('chatLoaded: ', chatLoaded); // para teste
+	console.log('chatLoaded: ', chatLoaded);
 	if (chatLoaded)
 		chatLoaded = false;
 }
@@ -45,11 +45,16 @@ function home() {
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar');
 	
+	
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
 
+	showPassword("togglePassword", "form1Example3");
+	showPassword("togglePassword1", "form1Example4");
+
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
+
 
 }
 
@@ -78,6 +83,16 @@ function initButtonListeners(username) {
 			e.preventDefault();
 			closeSlidingWindow();
 			navigateTo(`/user/${username}`);
+		});
+	}
+
+	const leaderboardNavbar = document.getElementById('leaderboard-navbar');
+	if (leaderboardNavbar && !leaderboardNavbar.hasListener) {
+		leaderboardNavbar.hasListener = true;
+		leaderboardNavbar.addEventListener('click', (e) => {
+			e.preventDefault();
+			closeSlidingWindow();
+			navigateTo(`/user/${username}/leaderboard`);
 		});
 	}
 
@@ -189,6 +204,7 @@ function initButtonListeners(username) {
 async function homeLogin(username) {
 
 	let dataUser = await getUserProfileByUsername(username);
+	console.log('dataUser: ', dataUser);
 	let home_page;
 
 	if (!dataUser.status) {

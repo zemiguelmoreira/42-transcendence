@@ -23,25 +23,55 @@ function insertInputValidation(registerForm) {
 
 function fetchRegister(user, email, password, password2, registerForm) {
 	registerUser(user, email, password, password2);
-	registerForm.elements.username.value = "";
-	registerForm.elements.email.value = "";
+	// registerForm.elements.username.value = "";
+	// registerForm.elements.email.value = "";
 	registerForm.elements.password.value = "";
 	registerForm.elements.password2.value = "";
 }
 
+// function handleSignUp(e) {
+//     e.preventDefault();
+//     const registerForm = document.querySelector('#userRegisterForm');
+//     const user = registerForm.elements.username.value.toLowerCase().trim();
+// 	console.log('username: ', user);
+//     const email = registerForm.elements.email.value;
+//     const password = registerForm.elements.password.value;
+//     const password2 = registerForm.elements.password2.value;
+//     if (user && email && password && password2) {
+//         fetchRegister(user, email, password, password2, registerForm);
+//     } else {
+//         insertInputValidation(registerForm);
+//     }
+// }
+
+
 function handleSignUp(e) {
     e.preventDefault();
-    const registerForm = document.querySelector('#userRegisterForm');
-    const user = registerForm.elements.username.value;
-    const email = registerForm.elements.email.value;
-    const password = registerForm.elements.password.value;
-    const password2 = registerForm.elements.password2.value;
-    if (user && email && password && password2) {
-        fetchRegister(user, email, password, password2, registerForm);
-    } else {
-        insertInputValidation(registerForm);
-    }
+	try {
+		const registerForm = document.querySelector('#userRegisterForm');
+		const user = registerForm.elements.username.value.toLowerCase().trim();
+		console.log('username: ', user);
+		const validNamePattern = /^[a-zA-Z0-9]+$/;
+		if (!validNamePattern.test(user)) {
+			const errorObject = {
+				message: "Invalid input: Name must be 1-8 characters long and contain only letters or numbers.",
+				status: 400,
+			}
+			throw errorObject;
+		}
+		const email = registerForm.elements.email.value;
+		const password = registerForm.elements.password.value;
+		const password2 = registerForm.elements.password2.value;
+		if (user && email && password && password2) {
+			fetchRegister(user, email, password, password2, registerForm);
+		} else {
+			insertInputValidation(registerForm);
+		}
+	} catch (e) {
+		displayError(e.message);
+	}
 }
+
 
 async function registerUser(user, email, password, password2) {
 	const userInfo = {

@@ -5,9 +5,9 @@ import { joinPongRoom } from './pong-remote.js';
 import { displaySlidingMessage } from '../utils/utils1.js';
 
 let guest;
-let matchmakingSocket = null;
+let matchmakingSocketPong = null;
 
-function startLocalPongPopup(username) {
+function startLocalPongPopup(alias_name) {
 	return `
 		<div class="local-pending" id="localPending">
 			<div class="local-box">
@@ -21,7 +21,7 @@ function startLocalPongPopup(username) {
 					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 				<div class="local-instructions-container">
 					<div class="local-instructions-column">
-						<div class="local-instructions-custom myFont-title">${username}</div>
+						<div class="local-instructions-custom myFont-title">${alias_name}</div>
 						<div class="local-instructions-custom myFont">W</div>
 						<div class="local-instructions-custom myFont">S</div>
 					</div>
@@ -41,7 +41,7 @@ function startLocalPongPopup(username) {
 	`;
 }
 
-function startRemotePongPopup(username) {
+function startRemotePongPopup() {
 	return `
 	<div class="local-pending" id="pongPopup">
 		<div class="local-box">
@@ -79,33 +79,21 @@ function pongCanvasPage() {
 	`;
 }
 
-function loadPongLocalScript(username, guest) {
+function loadPongLocalScript(username, guest, dataUsername) {
 	const path = window.location.pathname;
 	if (path === '/user/' + username + '/pong-game-local') {
 		const localPendingDiv = document.getElementById('localPending');
 		if (localPendingDiv && typeof initializePongGameLocal === 'function') {
 			localPendingDiv.remove();
-			initializePongGameLocal(username, guest);
+			initializePongGameLocal(username, guest, dataUsername);
 		}
 	} else {
 		navigateTo(`/user/${username}/pong`);
 	}
 }
 
-function loadPongScript(username) {
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', () => {
-			loadPongLocalScript(username, guest);
-		});
-	} else {
-		loadPongLocalScript(username, guest);
-	}
-}
-
-function pongGameLocal(username) {
-	// document.getElementById('root').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalPongPopup(username));
-
+function pongGameLocal(username, dataUsername) {
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalPongPopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
 	cancelButton.addEventListener('click', () => {
@@ -114,20 +102,18 @@ function pongGameLocal(username) {
 		navigateTo(`/user/${username}/pong`);
 	});
 
-	// Validação do formulário e controle do início do jogo
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
+		event.preventDefault();
+		event.stopPropagation();
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
-
-		// Expressão regular para garantir que o nome só contenha letras e números
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
 
-		// Validação do input
 		if (userInput.length === 0 || userInput.length > 10 || !validNamePattern.test(userInput)) {
-			event.preventDefault(); // Impede o envio do formulário se a validação falhar
-			displaySlidingMessage("Invalid input: Name must be 1-10 characters long and contain only letters or numbers.");
+			event.preventDefault();
+			displaySlidingMessage("Invalid input: Name must be 1-8 characters long and contain only letters or numbers.");
 			inputField.classList.add('input-error');
-			return; // Para evitar prosseguir se a validação falhar
+			return;
 		} else {
 			inputField.classList.remove('input-error');
 		}
@@ -138,26 +124,26 @@ function pongGameLocal(username) {
 		runPongLocal.id = 'runPong';
 		runPongLocal.innerHTML = pongCanvasPage();
 		document.getElementById('root').appendChild(runPongLocal);
-		loadPongLocalScript(username, guest);
+		loadPongLocalScript(username, guest, dataUsername);
 	});
 }
 
 function pongGameRemote(username) {
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemotePongPopup(username));
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemotePongPopup());
 
 	let token = localStorage.getItem('access_token');
 
-	if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-		matchmakingSocket.close();
-		matchmakingSocket = null;
+	if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+		matchmakingSocketPong.close();
+		matchmakingSocketPong = null;
 	}
-	matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
-
-	matchmakingSocket.onopen = () => {
+	
+	matchmakingSocketPong = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
+	matchmakingSocketPong.onopen = () => {
 		console.log("Matchmaking socket opened.");
 	};
 
-	matchmakingSocket.onmessage = (event) => {
+	matchmakingSocketPong.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
 		if (data.match == "match_created") {
@@ -173,14 +159,13 @@ function pongGameRemote(username) {
 			document.getElementById('root').appendChild(runPongRemote);
 
 			console.log("Joining room: ", data.roomCode);
-			if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED)
-				console.log("Joining... ", matchmakingSocket);
-			joinPongRoom(data.roomCode, username, matchmakingSocket);
+			if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED)
+				console.log("Joining... ", matchmakingSocketPong);
+			joinPongRoom(data.roomCode, username, matchmakingSocketPong);
 
 			setTimeout(() => {
-				// Fecha o socket de matchmaking após entrar na sala
-				if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-					matchmakingSocket.close();
+				if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+					matchmakingSocketPong.close();
 					console.log('Matchmaking WebSocket connection closed after joining the room.');
 				}
 			}, 1000);
@@ -196,8 +181,7 @@ function pongGameRemote(username) {
 		}
 	};
 
-	matchmakingSocket.onclose = () => {
-		// console.log("Matchmaking Socket Closed.");
+	matchmakingSocketPong.onclose = () => {
 	};
 
 	document.getElementById('joinMatchmaking').addEventListener('click', () => {
@@ -205,7 +189,7 @@ function pongGameRemote(username) {
 			type: "join",
 			game: "pong"
 		});
-		matchmakingSocket.send(data);
+		matchmakingSocketPong.send(data);
 		document.getElementById('status').innerText = "MATCHMAKING...";
 	});
 
@@ -214,10 +198,10 @@ function pongGameRemote(username) {
 			type: "cancel"
 		});
 
-		matchmakingSocket.send(data);
-		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-			matchmakingSocket.close();
-			matchmakingSocket = null;
+		matchmakingSocketPong.send(data);
+		if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+			matchmakingSocketPong.close();
+			matchmakingSocketPong = null;
 			console.log("Matchmaking socket closed.");
 		}
 
@@ -229,7 +213,7 @@ function pongGameRemote(username) {
 	});
 }
 
-function pongGameTournament(username) {
+function pongGameTournament(username, dataUsername) {
 	try {
 		document.getElementById('mainContent').innerHTML = `
 		<div id="loadTournament" class="tournament-gradient-box">
@@ -247,7 +231,7 @@ function pongGameTournament(username) {
 				<div class="player-inputs">
 					<div id="player-inputs-left" class="input-column">
 						<div class="box">
-							<input type="text" id="player1" placeholder="${username}" value="${username}"/>
+							<input type="text" id="player1" placeholder="${dataUsername.profile.alias_name}" value="${dataUsername.profile.alias_name}"/>
 						</div>
 						<div class="box">
 							<input type="text" id="player2" placeholder="Player 2 Name" value=""/>
@@ -359,7 +343,7 @@ function pongGameTournament(username) {
 				displayTournamentBracket();
 				document.getElementById('canvas-confetti').style.display = "none";
 				displaySlidingMessage('Welcome to the Ultimate Pong Tournament!');
-				initializeTournament(players, username);
+				initializeTournament(players, username, dataUsername);
 			} else if (!allFieldsFilled) {
 				displaySlidingMessage('Error: Please fill in all player names!');
 			}
@@ -377,7 +361,6 @@ function pongGameTournament(username) {
 			togglePlayerInputs(8);
 		});
 
-		// Função para habilitar/desabilitar inputs de acordo com a quantidade de jogadores
 		function togglePlayerInputs(count) {
 			const allInputs = document.querySelectorAll('.player-inputs .box input');
 			allInputs.forEach((input, index) => {
@@ -385,7 +368,6 @@ function pongGameTournament(username) {
 			});
 		}
 
-		// Inicializa com 4 jogadores
 		togglePlayerInputs(4);
 
 	} catch (error) {
@@ -411,4 +393,4 @@ function displayTournamentBracket() {
 	`;
 }
 
-export { pongGameLocal, pongGameRemote, pongGameTournament, pongCanvasPage, loadPongScript }
+export { pongGameLocal, pongGameRemote, pongGameTournament, pongCanvasPage, matchmakingSocketPong }

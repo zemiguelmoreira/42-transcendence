@@ -47,13 +47,19 @@ function makeRegisterPage() {
 							<input type="email" class="form-control button-size" id="form1Example2" name="email"
 								placeholder="Email">
 							<!-- Password input -->
-							<label class="font-custom" for="form1Example3">PASSWORD</label>
-							<input type="password" class="form-control button-size" id="form1Example3" maxlength="20"
-								name="password" placeholder="Password">
+							<div class="mb-3 position-relative">
+						<label class="font-custom" for="form1Example3">PASSWORD</label>
+								<input type="password" class="form-control button-size" id="form1Example3" maxlength="20"
+								name="password" placeholder="Password" style="padding-right: 40px;">
+						<i class="bi bi-eye position-absolute" id="togglePassword" style="right: 10px; top: 50%; transform: translateY(40%); cursor: pointer; color: black"></i>
+					</div>
 							<!-- Confirm Password input -->
-							<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
-							<input type="password" class="form-control button-size" id="form1Example4" maxlength="20"
+					<div class="mb-3 position-relative">
+								<label class="font-custom" for="form1Example4">CONFIRM PASSWORD</label>
+								<input type="password" class="form-control button-size" id="form1Example4" maxlength="20"
 								name="password2" placeholder="Confirm password">
+						<i class="bi bi-eye position-absolute" id="togglePassword1" style="right: 10px; top: 50%; transform: translateY(40%); cursor: pointer; color: black"></i>
+					</div>
 							<!-- Submit button -->
 							<button type="submit" id="signUp" class="btn btn-outline-custom button-size">SIGN
 								UP</button>

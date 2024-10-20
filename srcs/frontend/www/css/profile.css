@@ -76,6 +76,18 @@
 	overflow-y: scroll;
 }
 
+.profile-full {
+	background: linear-gradient(to bottom, #00000080 20%, #0051ff80 40%);
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	border-radius: 10px;
+	margin: 10px;
+	padding-right: 20px;
+	padding-left: 20px;
+	overflow-y: scroll;
+}
+
 .profile-title {
 	color: #fff;
 	background: linear-gradient(to right, #d6338491, #d6338491);
@@ -441,11 +453,8 @@ th:last-child {
 
 .custom-table-container {
 	max-height: 300px;
-	/* Define a altura máxima da secção */
 	overflow-y: auto;
-	/* Ativa o scroll vertical */
 	border: 1px solid #ccc;
-	/* Adiciona uma borda para melhor visualização */
 	padding: 10px;
 }
 
@@ -467,4 +476,49 @@ th:last-child {
 
 .custom-table tr:hover {
 	background-color: #f1f1f1;
+}
+	
+.leaderboard-trophy {
+	width: 100px;
+	height: 100px;
+}
+
+.leaderboard-table {
+	width: 100%;
+	display: block;
+	text-align: center;
+	padding-top: 25px;
+}
+
+.leaderboard-results-column {
+	width: 35%;
+}
+
+.leaderboard-title {
+	color: #0056b3;
+	font-family: 'CustomFont';
+	font-size: 40px;
+	text-align: center;
+}
+
+.leaderboard-results {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: start;
+}
+
+.leaderboard-table-row {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+}
+
+.leaderboard-row {
+	width: 90%;
+	padding: 5px;
+	font-family: 'CustomFont';
+	font-size: 10px;
+	color: yellowgreen;
 }

@@ -1,6 +1,6 @@
 import { displaySlidingMessage } from '../utils/utils1.js';
 
-function initializePongGameLocal(username, guest) {
+async function initializePongGameLocal(username, guest, dataUsername) {
 	const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
 	const backgroundCtx = backgroundCanvas.getContext("2d");
 	const canvas = document.getElementById("pongCanvas");
@@ -26,11 +26,7 @@ function initializePongGameLocal(username, guest) {
 	let downPressed = false;
 	let player1Score = 0;
 	let player2Score = 0;
-	// let leftPaddleSound = new Audio('../../files/pong-assets/ping.wav');
-	// let rightPaddleSound = new Audio('../../files/pong-assets/pong.wav');
-	// let wallSound = new Audio('../../files/pong-assets/wall.wav');
-	let goalSound = new Audio('../../files/pong-assets/goal.wav');
-	let player1Name = username;
+	let player1Name = dataUsername.profile.alias_name;
 	let player2Name = guest;
 	let gameOver = false;
 
@@ -147,19 +143,15 @@ function initializePongGameLocal(username, guest) {
 		ballY += ballDirY;
 		if (ballY <= 0 || ballY + ballSize >= canvasHeight) {
 			ballDirY *= -1;
-			// wallSound.play();
 		}
 		if (ballX <= paddleWidth && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
 			ballDirX *= -1;
-			// leftPaddleSound.play();
 		}
 		if (ballX + ballSize >= canvasWidth - paddleWidth && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
 			ballDirX *= -1;
-			// rightPaddleSound.play();
 		}
 		if (ballX <= 0) {
 			player2Score++;
-			// goalSound.play();
 			resetBall();
 			if (player2Score >= winningScore) {
 				endGame();
@@ -167,7 +159,6 @@ function initializePongGameLocal(username, guest) {
 		}
 		if (ballX + ballSize >= canvasWidth) {
 			player1Score++;
-			// goalSound.play();
 			resetBall();
 			if (player1Score >= winningScore) {
 				endGame();
@@ -269,44 +260,28 @@ function initializePongGameLocal(username, guest) {
 	});
 
 	function showEndScreen(winnerName) {
-		// Limpa o canvas antes de desenhar a mensagem de fim de jogo
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-		// Desenha o fundo para a mensagem de fim de jogo
 		ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-		// Ajuste da altura total disponível para o conteúdo
-		const totalHeight = canvas.height * 0.7; // Usamos 70% da altura do canvas para os textos
-		const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
-
-		// Define a posição de início para centrar os textos verticalmente
-		const startY = (canvas.height - totalHeight) / 2; // Centraliza o conteúdo no canvas
-
-		// Texto para "WINNER" na segunda parte do canvas
+		const totalHeight = canvas.height * 0.7;
+		const partHeight = totalHeight / 4;
+		const startY = (canvas.height - totalHeight) / 2;
 		ctx.textAlign = "center";
 		ctx.fillStyle = "#fff";
 		ctx.font = "50px CustomFont";
-		ctx.fillText("WINNER", canvas.width / 2, startY + partHeight); // Elevar um pouco mais o texto
-
-		// Desenhar "WINNER" em vermelho deslocado
+		ctx.fillText("WINNER", canvas.width / 2, startY + partHeight);
 		ctx.fillStyle = "red";
 		ctx.fillText("WINNER", canvas.width / 2 + 4, startY + partHeight + 4);
-
-		// Nome e pontuação do vencedor
-		ctx.fillStyle = "#fff"; // Texto em branco
-		ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-		ctx.fillText(`${winnerName}`, canvas.width / 2, startY + partHeight + 60); // Ajustar a posição do nome
-
+		ctx.fillStyle = "#fff";
+		ctx.font = "40px CustomFont";
+		ctx.fillText(`${winnerName}`, canvas.width / 2, startY + partHeight + 60);
 		setTimeout(() => {
 			const closeGame = document.getElementById('runPong');
 			closeGame.remove();
 			displaySlidingMessage('What a challenge! What about another match?');
 		}, 3000);
 	}
-
 	updateGame();
 }
-
 
 export { initializePongGameLocal }

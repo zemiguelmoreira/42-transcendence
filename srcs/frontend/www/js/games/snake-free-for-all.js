@@ -1,18 +1,13 @@
 import { navigateTo } from '../app.js';
 
-function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
+function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUsername) {
     const canvas = document.getElementById('gameCanvasSnakeFreeForAll');
-    if (!canvas) {
-        console.error("Canvas not found!");
-        return;
-    }
-    
 	const ctx = canvas.getContext('2d');
     const gridSize = 20;
     const cols = canvas.width / gridSize;
     const rows = canvas.height / gridSize;
     const snakes = [
-        { color: '#0000FF', segments: [{ x: 5, y: 10 }, { x: 4, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: username },
+        { color: '#0000FF', segments: [{ x: 5, y: 10 }, { x: 4, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: dataUsername.profile.alias_name },
         { color: '#00FF00', segments: [{ x: 10, y: 5 }, { x: 10, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest1 },
         { color: '#FFFF00', segments: [{ x: 15, y: 10 }, { x: 14, y: 10 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest2 },
         { color: '#FF0000', segments: [{ x: 20, y: 5 }, { x: 20, y: 6 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true, name: guest3 }
@@ -223,7 +218,7 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3) {
 			snake.segments.unshift(head);
 			food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; // Gera nova comida
 			foodColor = randomColor();
-			if (snake.name === username) {
+			if (snake.name === dataUsername.profile.alias_name) {
 				snakeScore1 = snake.segments.length - 2;
 				document.getElementById('snakeScore1').innerText = snakeScore1;
 			} else if (snake.name === guest1) {

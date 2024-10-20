@@ -34,18 +34,15 @@ function snakeOptions(username) {
 	}
 	document.getElementById('snakeGameLocal').addEventListener('click', (e) => {
 		e.preventDefault();
-		// snakeGameLocal(username);
 		navigateTo(`/user/${username}/snake-game-local`);
 	});
 	document.getElementById('snakeGameRemote').addEventListener('click', (e) => {
 		e.preventDefault();
-		// snakeGameRemote(username);
 		navigateTo(`/user/${username}/snake-game-remote`);
 
 	});
 	document.getElementById('snakeGameMultiplayer').addEventListener('click', (e) => {
 		e.preventDefault();
-		// snakeGameMultiplayer(username);
 		navigateTo(`/user/${username}/snake-game-free-for-all`);
 	});
 }

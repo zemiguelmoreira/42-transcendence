@@ -5,9 +5,9 @@ import { joinSnakeRoom } from "../games/snake-remote.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 
 let guest, guest1, guest2, guest3;
-let matchmakingSocket = null;
+let matchmakingSocketSnake = null;
 
-function startLocalSnakePopup(username) {
+function startLocalSnakePopup(alias_name) {
 	return `
 		<div class="local-pending" id="snakePopup">
 			<div class="local-box">
@@ -21,7 +21,7 @@ function startLocalSnakePopup(username) {
 					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 				<div class="local-instructions-container">
 					<div class="local-instructions-column">
-						<div class="local-instructions-custom myFont-title">${username}</div>
+						<div class="local-instructions-custom myFont-title">${alias_name}</div>
 						<div class="local-instructions-custom myFont">W</div>
 						<div class="local-instructions-custom myFont">S</div>
 						<div class="local-instructions-custom myFont">A</div>
@@ -82,7 +82,7 @@ function startRemoteSnakePopup() {
 	`;
 }
 
-function startMultiplayerSnakePopup(username) {
+function startMultiplayerSnakePopup(alias_name) {
 	return `
 		<div class="local-pending" id="snakePopup">
 			<div class="local-box-container-custom">
@@ -99,7 +99,7 @@ function startMultiplayerSnakePopup(username) {
 					<div class="local-instructions-title-custom myFont-title">GAME INSTRUCTIONS</div>
 					<div class="local-instructions-container-custom myFont">
 						<div class="local-instructions-column-custom">
-							<div class="local-instructions myFont-title">${username}</div>
+							<div class="local-instructions myFont-title">${alias_name}</div>
 							<div class="local-instructions-custom">W</div>
 							<div class="local-instructions-custom">S</div>
 							<div class="local-instructions-custom">A</div>
@@ -211,56 +211,56 @@ function snakeGameMultiplayerPage() {
 	`;
 }
 
-function loadSnakeLocalScript(username) {
+function loadSnakeLocalScript(username, dataUsername) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
 			const snakePopupDiv = document.getElementById('snakePopup');
 			if (snakePopupDiv && typeof initializeSnakeGameLocal === 'function') {
 				snakePopupDiv.remove();
-				document.getElementById('snakeName1').textContent = username;
+				document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 				document.getElementById('snakeName2').textContent = guest;
-				initializeSnakeGameLocal(username, guest);
+				initializeSnakeGameLocal(username, guest, dataUsername);
 			}
 		});
 	} else {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		if (snakePopupDiv && typeof initializeSnakeGameLocal === 'function') {
 			snakePopupDiv.remove();
-			document.getElementById('snakeName1').textContent = username;
+			document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 			document.getElementById('snakeName2').textContent = guest;
-			initializeSnakeGameLocal(username, guest);
+			initializeSnakeGameLocal(username, guest, dataUsername);
 		}
 	}
 }
 
-function loadSnakeMultiplayerScript(username) {
+function loadSnakeMultiplayerScript(username, dataUsername) {
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', () => {
 			const snakePopupDiv = document.getElementById('snakePopup');
 			if (snakePopupDiv && typeof initializeSnakeGameFreeForAll === 'function') {
 				snakePopupDiv.remove();
-				document.getElementById('snakeName1').textContent = username;
+				document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 				document.getElementById('snakeName2').textContent = guest1;
 				document.getElementById('snakeName3').textContent = guest2;
 				document.getElementById('snakeName4').textContent = guest3;
-				initializeSnakeGameFreeForAll(username, guest1, guest2, guest3);
+				initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUsername);
 			}
 		});
 	} else {
 		const snakePopupDiv = document.getElementById('snakePopup');
 		if (snakePopupDiv && typeof initializeSnakeGameFreeForAll === 'function') {
 			snakePopupDiv.remove();
-			document.getElementById('snakeName1').textContent = username;
+			document.getElementById('snakeName1').textContent = dataUsername.profile.alias_name;
 			document.getElementById('snakeName2').textContent = guest1;
 			document.getElementById('snakeName3').textContent = guest2;
 			document.getElementById('snakeName4').textContent = guest3;
-			initializeSnakeGameFreeForAll(username, guest1, guest2, guest3);
+			initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUsername);
 		}
 	}
 }
 
-function snakeGameLocal(username) {
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(username));
+function snakeGameLocal(username, dataUsername) {
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput').focus();
 
 	const cancelButton = document.getElementById('cancelButton');
@@ -271,6 +271,8 @@ function snakeGameLocal(username) {
 	});
 
 	document.getElementById("gameForm").addEventListener("submit", function (event) {
+		event.preventDefault();
+		event.stopPropagation();
 		const inputField = document.getElementById("guestInput");
 		const userInput = inputField.value.trim();
 		const validNamePattern = /^[a-zA-Z0-9]+$/;
@@ -290,35 +292,34 @@ function snakeGameLocal(username) {
 		runSnakeLocal.id = 'runSnake';
 		runSnakeLocal.innerHTML = snakeGameLocalPage();
 		document.getElementById('root').appendChild(runSnakeLocal);
-		loadSnakeLocalScript(username);
+		loadSnakeLocalScript(username, dataUsername);
 	});
 }
 
 function snakeGameRemote(username) {
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup());
-
 	let token = localStorage.getItem('access_token');
 
-	if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-		matchmakingSocket.close();
-		matchmakingSocket = null;
+	if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
+		matchmakingSocketSnake.close();
+		matchmakingSocketSnake = null;
 	}
 
-	matchmakingSocket = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
-	matchmakingSocket.onopen = (event) => {
+	matchmakingSocketSnake = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
+	matchmakingSocketSnake.onopen = () => {
 		console.log("Matchmaking WebSocket connection opened.");
 	};
 
-	matchmakingSocket.onerror = function (event) {
+	matchmakingSocketSnake.onerror = function (event) {
 		console.error('Matchmaking WebSocket error observed:', event);
-		if (matchmakingSocket.readyState === WebSocket.OPEN) {
-			matchmakingSocket.close();
+		if (matchmakingSocketSnake.readyState === WebSocket.OPEN) {
+			matchmakingSocketSnake.close();
 			console.log('Matchmaking Socket Closed on error');
 		}
-		matchmakingSocket = null;
+		matchmakingSocketSnake = null;
 	};
 
-	matchmakingSocket.onmessage = async (event) => {
+	matchmakingSocketSnake.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
 		if (data.match === "match_created") {
@@ -338,10 +339,10 @@ function snakeGameRemote(username) {
 
 			console.log("Joining room...", data.roomCode);
 			if (data.game === 'snake') {
-				await joinSnakeRoom(data.roomCode, username, matchmakingSocket);
+				await joinSnakeRoom(data.roomCode, username, matchmakingSocketSnake);
 				setTimeout(() => {
-					if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-						matchmakingSocket.close();
+					if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
+						matchmakingSocketSnake.close();
 						console.log('Matchmaking WebSocket connection closed after joining the room.');
 					}
 				}, 1000);
@@ -358,8 +359,8 @@ function snakeGameRemote(username) {
 		}
 	};
 
-	matchmakingSocket.onclose = () => {
-		matchmakingSocket = null;
+	matchmakingSocketSnake.onclose = () => {
+		matchmakingSocketSnake = null;
 	};
 
 	document.getElementById('joinMatchmaking').addEventListener('click', () => {
@@ -367,7 +368,7 @@ function snakeGameRemote(username) {
 			type: "join",
 			game: "snake"
 		});
-		matchmakingSocket.send(data);
+		matchmakingSocketSnake.send(data);
 		document.getElementById('status').innerText = "MATCHMAKING...";
 	});
 
@@ -376,9 +377,9 @@ function snakeGameRemote(username) {
 			type: "cancel"
 		});
 
-		matchmakingSocket.send(data);
-		if (matchmakingSocket && matchmakingSocket.readyState !== WebSocket.CLOSED) {
-			matchmakingSocket.close();
+		matchmakingSocketSnake.send(data);
+		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
+			matchmakingSocketSnake.close();
 			console.log('Matchmaking WebSocket connection closed.');
 		}
 
@@ -390,8 +391,8 @@ function snakeGameRemote(username) {
 	});
 }
 
-function snakeGameMultiplayer(username) {
-	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(username));
+function snakeGameMultiplayer(username, dataUsername) {
+	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput1').focus();
 
 	const cancelButton = document.getElementById('cancelButton');
@@ -412,11 +413,11 @@ function snakeGameMultiplayer(username) {
 		let allFieldsValid = true;
 		let playerNames = [];
 
-		inputs.forEach(input => {
+		inputs.forEach((input, index) => {
 			const name = input.value.trim();
-			guest1 = input.value.trim();
-			guest2 = input.value.trim();
-			guest3 = input.value.trim();
+			if (index === 0) guest1 = name;
+			if (index === 1) guest2 = name;
+			if (index === 2) guest3 = name;
 			if (name.length === 0 || !validNamePattern.test(name)) {
 				input.classList.add('input-error');
 				displaySlidingMessage('Error: Name must be 1-10 characters long and contain only letters or numbers.');
@@ -431,7 +432,6 @@ function snakeGameMultiplayer(username) {
 			displaySlidingMessage('Error: Player names must be unique!');
 			allFieldsValid = false;
 		}
-
 		return allFieldsValid;
 	}
 
@@ -446,9 +446,9 @@ function snakeGameMultiplayer(username) {
 			runSnakeLocal.id = 'runSnake';
 			runSnakeLocal.innerHTML = snakeGameMultiplayerPage();
 			document.getElementById('root').appendChild(runSnakeLocal);
-			loadSnakeMultiplayerScript(username);
+			loadSnakeMultiplayerScript(username, dataUsername);
 		}
 	});
 }
 
-export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage };
+export { snakeGameLocal, snakeGameRemote, snakeGameMultiplayer, loadSnakeLocalScript, loadSnakeMultiplayerScript, snakeGameRemotePage, matchmakingSocketSnake };

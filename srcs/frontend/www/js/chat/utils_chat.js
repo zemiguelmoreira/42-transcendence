@@ -8,13 +8,14 @@ import { closeSlidingWindow } from "../home/home.js";
 import { snakeGameRemotePage } from "../games/snake-pages.js";
 import { navigateTo } from "../app.js";
 
-let selectedUser = null;
+let selectedUser = null, invitedUser = null;
 
 function displayChatMessage(data, chatLog) {
 	console.log("Chat data: ", data);
 	console.log("chatLog: ", chatLog);
 
 	const messageElement = document.createElement("div");
+	// messageElement.style.overflowWrap = "break-word";
 	if (data.private) {
 		messageElement.classList.add('message-private');
 	} else if (data.system) {
@@ -35,6 +36,8 @@ function displayChatMessage(data, chatLog) {
 	senderElement.textContent = `${data.sender}: `;
 	const contentElement = document.createElement("div");
 	contentElement.classList.add('message-content');
+	contentElement.style.overflowWrap = "break-word";
+	contentElement.style.wordBreak = "break-word"; 
 	contentElement.innerHTML = data.message.replace(/\n/g, '<br>');
 	messageElement.appendChild(senderElement);
 	messageElement.appendChild(contentElement);
@@ -48,7 +51,7 @@ function displayChatMessage(data, chatLog) {
 		if (data.private) {
 			slide = "New private message from " + data.sender.substring(5);
 		} else if (data.public) {
-				slide = "New public message from " + data.sender;
+			slide = "New public message from " + data.sender;
 		}
 		displaySlidingMessage(slide);
 	}
@@ -81,42 +84,33 @@ function createInviteElement(inviteMessage, sender, game, username) {
 	return inviteElement;
 }
 
-// invitee invite creation
 function createInviteResponseButton(text, accepted, sender, game, username) {
-    const button = document.createElement("button");
-    button.textContent = text;
-    button.classList.add(`${text.toLowerCase()}-button`);
+	const button = document.createElement("button");
+	button.textContent = text;
+	button.classList.add(`${text.toLowerCase()}-button`);
+	button.onclick = function () {
+		const response = {
+			"accepted": accepted,
+			"inviter": sender,
+			"type": "invite_response",
+			"game": game,
+		};
 
-    button.onclick = function () {
-        // Criar a resposta ao convite
-        const response = {
-            "accepted": accepted,
-            "inviter": sender,
-            "type": "invite_response",
-            "game": game,
-        };
+		chatSocketInstance.send(response);
 
-        // Enviar a resposta via WebSocket
-        chatSocketInstance.send(response);
-
-        // Usando `this` para acessar o botão clicado e o contêiner de botões
-        const buttonContainer = this.closest('.button-container');
-
-        // Desativar os botões dentro do mesmo contêiner de botões
-        buttonContainer.querySelector('.accept-button').disabled = true;
-        buttonContainer.querySelector('.reject-button').disabled = true;
-
-        if (!accepted) {
-            displaySlidingMessage(`Invite from ${sender} has been declined.`);
-        }
-    };
-
-    return button;
+		const buttonContainer = this.closest('.button-container');
+		buttonContainer.querySelector('.accept-button').disabled = true;
+		buttonContainer.querySelector('.reject-button').disabled = true;
+		if (window.location.pathname !== `/user/${username}/chat-playing`)
+			navigateTo(`/user/${username}/chat-playing`);
+		if (!accepted) {
+			displaySlidingMessage(`Invite from ${sender} has been declined.`);
+		}
+	};
+	return button;
 }
 
-// handle cancel the invite for invitee after inviter cancelled
 function handleInviteCancelled(username, data, chatLog) {
-	// document.getElementById('invitePending').remove();
 	const inviteCancelledElement = document.createElement("div");
 	inviteCancelledElement.classList.add('message-error');
 	inviteCancelledElement.textContent = `${data.sender} has cancelled the invite.`;
@@ -125,7 +119,6 @@ function handleInviteCancelled(username, data, chatLog) {
 	displaySlidingMessage(`${data.sender} has cancelled the invite.`);
 }
 
-// get room code and join game for invitee
 function getRoomCode(username, data) {
 	const roomCode = data.roomCode;
 	const game = data.game;
@@ -134,19 +127,15 @@ function getRoomCode(username, data) {
 	invitePending.id = 'invitePending';
 	document.getElementById('root').appendChild(invitePending);
 	if (game === 'Pong') {
-		navigateTo(`/user/${username}/pong-playing`);
 		joinPongRoom(roomCode, username);
 	} else {
 		const runSnakeRemote = document.getElementById('invitePending');
 		runSnakeRemote.innerHTML = snakeGameRemotePage();
 		document.getElementById('root').appendChild(runSnakeRemote);
-		navigateTo(`/user/${username}/snake-playing`);
 		joinSnakeRoom(roomCode, username);
 	}
 }
 
-// inviter getting response from invitee
-// get room code and join game for inviter if accepted
 function handleInviteResponse(username, data, chatLog) {
 	const roomCode = data.roomCode;
 	const invitee = data.invitee;
@@ -155,14 +144,14 @@ function handleInviteResponse(username, data, chatLog) {
 	const inviteResponseElement = document.createElement("div");
 	if (accepted) {
 		if (data.game == 'Pong') {
-			navigateTo(`/user/${username}/pong-playing`);
 			joinPongRoom(roomCode, username);
+			invitedUser = null;
 		} else {
 			const runSnakeRemote = document.getElementById('invitePending');
 			runSnakeRemote.innerHTML = snakeGameRemotePage();
 			document.getElementById('root').appendChild(runSnakeRemote);
-			navigateTo(`/user/${username}/snake-playing`);
 			joinSnakeRoom(roomCode, username);
+			invitedUser = null;
 		}
 		responseMessage = `${invitee} has accepted your invite!`;
 		inviteResponseElement.classList.add('message-selfdm');
@@ -170,6 +159,7 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.classList.add('message-error');
 		document.getElementById('invitePending').remove();
+		// navigateTo(`/user/${username}`);
 	}
 	inviteResponseElement.innerHTML = responseMessage;
 	chatLog.appendChild(inviteResponseElement);
@@ -245,8 +235,8 @@ function createDropdownMenu(username, user) {
 	});
 	const action3 = document.createElement("hr");
 	action3.classList.add("dropdown-divider");
-	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(user, "Pong"));
-	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(user, "Snake"));
+	const action4 = createDropdownItem("Invite to play Pong", "#", () => sendGameInvite(username, user, "Pong"));
+	const action5 = createDropdownItem("Invite to play Snake", "#", () => sendGameInvite(username, user, "Snake"));
 	dropdownMenu.appendChild(action1);
 	dropdownMenu.appendChild(action0);
 	dropdownMenu.appendChild(action2);
@@ -264,31 +254,39 @@ function createDropdownItem(text, href, onClick) {
 	if (onClick) {
 		item.addEventListener('click', function (e) {
 			e.preventDefault();
+			e.stopPropagation();
 			onClick();
 		});
 	}
 	return item;
 }
 
-// inviter cancels invite
+function closeAllDropdowns() {
+	const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+	openDropdowns.forEach(dropdown => {
+		dropdown.classList.remove('show');
+	});
+}
+
 function handleCancelInvite(recipient) {
 	const cancelMessage = {
 		"type": "cancel_invite",
 		"recipient": recipient,
 	};
 	chatSocketInstance.send(cancelMessage);
+	invitedUser = null;
 	displaySlidingMessage(`Invite to ${recipient} has been cancelled.`);
 }
 
-
-// inviter sends invite
-async function sendGameInvite(user, game) {
+async function sendGameInvite(username, user, game) {
 	const inviteMessage = {
 		"type": "invite",
 		"recipient": user,
 		"game": game,
 	};
-	chatSocketInstance.send(inviteMessage);
+	invitedUser = user;
+	chatSocketInstance.send(inviteMessage);//
+	// chatSocketInstance.sendWithToken(inviteMessage);
 	const invitePendingDiv = document.createElement('div');
 	invitePendingDiv.classList.add('invite-pending');
 	invitePendingDiv.id = 'invitePending';
@@ -296,12 +294,16 @@ async function sendGameInvite(user, game) {
 	cancelButton.id = 'cancelButton';
 	cancelButton.classList.add('btn', 'btn-danger');
 	cancelButton.textContent = 'Cancel';
-	cancelButton.addEventListener('click', () => {
+	if (window.location.pathname !== `/user/${username}/chat-playing`)
+		navigateTo(`/user/${username}/chat-playing`);
+	closeAllDropdowns();
+	cancelButton.addEventListener('click', (event) => {
 		handleCancelInvite(user);
 		invitePendingDiv.remove();
+		event.preventDefault();
 	});
 	invitePendingDiv.appendChild(cancelButton);
 	document.getElementById('root').appendChild(invitePendingDiv);
 }
 
-export { selectedUser, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }
+export { selectedUser, invitedUser, chatSocketInstance, handleCancelInvite, displayChatMessage, displayGameInvite, handleInviteResponse, updateOnlineUsersList, getRoomCode, handleInviteCancelled }

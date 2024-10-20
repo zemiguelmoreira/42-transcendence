@@ -1,4 +1,5 @@
 import { navigateTo } from "../app.js";
+import { getUserProfileByUsername } from "../profile/myprofile.js";
 
 let snake_socket = null;
 let playerIndex = null;
@@ -8,9 +9,10 @@ let snake1 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], dir
 let snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 let foodColor = "#FF0000";
 let food = { 'x': 0, 'y': 0 };
-let winner = null;
 let selfUsername = null;
 let matchSocket = null;
+let dataPlayer1 = null;
+let dataPlayer2 = null;
 const gridSize = 20;
 
 function setupSnake() {
@@ -20,7 +22,6 @@ function setupSnake() {
 	snake2 = { color: '#000000', segments: [{ x: 0, y: 0 }, { x: 0, y: 0 }], direction: 'RIGHT', newDirection: 'RIGHT', alive: true };
 	foodColor = "#FF0000";
 	food = { 'x': 0, 'y': 0 };
-	winner = null;
 	const canvas = document.getElementById('gameCanvasSnakeRemote');
 	ctx = canvas.getContext('2d');
 	canvasWidth = document.getElementById("gameCanvasSnakeRemote").width;
@@ -32,9 +33,6 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 
 	if (matchmakingSocket !== false)
 		matchSocket = matchmakingSocket;
-
-	console.log('selfUsername:', selfUsername);
-	console.log('username:', username);
 
 	const snake_accessToken = localStorage.getItem('access_token');
 	if (snake_socket && snake_socket.readyState !== WebSocket.CLOSED) {
@@ -70,9 +68,13 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 			playerIndex = data.player_index;
 
 		} else if (data.action === 'start_game') {
-			console.log(`Game started. Player 1: ${data.player_names[0]}, Player 2: ${data.player_names[1]}`);
-			document.getElementById('snakeName1').innerText = data.player_names[0];
-			document.getElementById('snakeName2').innerText = data.player_names[1];
+			dataPlayer1 = await getUserProfileByUsername(data.player_names[0]);
+			dataPlayer2 = await getUserProfileByUsername(data.player_names[1]);
+			console.log('Player1:', dataPlayer1);
+			console.log('Player2:', dataPlayer2);
+
+			document.getElementById('snakeName1').innerText = data.player_names[0] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
+			document.getElementById('snakeName2').innerText = data.player_names[1] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			startGame();
 
 		} else if (data.action === 'countdown') {
@@ -82,11 +84,10 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 			console.log('Waiting for another player to join...');
 
 		} else if (data.action === 'game_over' && !stopFlag) {
-			console.log(`Game over. Winner: ${data.winner}, Loser: ${data.loser}`);
 
-			winner = data.winner;
 			stopFlag = true;
-			const loser = data.loser;
+			const winner = data.winner === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
+			const loser = data.loser === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			const winnerScore = data.winner_score;
 			const loserScore = data.loser_score;
 			const gameType = 'snake';
@@ -125,10 +126,11 @@ async function joinSnakeRoom(roomCode, username, matchmakingSocket) {
 	snake_socket.onclose = function () {
 		snake_socket = null;
 	};
+
 }
 
 function sendMoveCommand(direction) {
-	if (playerIndex !== null) {
+	if (snake_socket && playerIndex !== null) {
 		snake_socket.send(JSON.stringify({
 			action: 'move',
 			player_index: playerIndex,
@@ -138,8 +140,8 @@ function sendMoveCommand(direction) {
 }
 
 function drawGrid() {
-	ctx.strokeStyle = '#345678';
-	ctx.lineWidth = 1;
+	ctx.strokeStyle = '#345678'; 
+	ctx.lineWidth = 1; 
 
 	for (let x = 0; x <= canvasWidth; x += gridSize) {
 		ctx.beginPath();
@@ -167,7 +169,7 @@ function drawSnakes() {
 
 	for (let i = 0; i < segmentCount1; i++) {
 		const segment = snake1.segments[i];
-		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5;
+		const alpha = 1 - (i / (segmentCount1 - 1)) * 0.5; 
 		const color = snake1.color;
 
 		ctx.fillStyle = `rgba(${hexToRgb(color)}, ${alpha})`;
@@ -192,7 +194,6 @@ function hexToRgb(hex) {
 		g = parseInt(hex[2] + hex[2], 16);
 		b = parseInt(hex[3] + hex[3], 16);
 	}
-
 	else if (hex.length === 7) {
 		r = parseInt(hex[1] + hex[2], 16);
 		g = parseInt(hex[3] + hex[4], 16);
@@ -233,7 +234,7 @@ document.addEventListener('keydown', function (event) {
 function gameLoop() {
 
 	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/snake-game-remote` && !stopFlag)
-		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/snake-playing` && !stopFlag)) {
+		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/chat-playing` && !stopFlag)) {
 		console.log('User left the game!');
 
 		if (document.getElementById('invitePending')) {
@@ -262,7 +263,7 @@ function startGame() {
 	gameLoop();
 }
 
-function showEndScreen(score = null) {
+function showEndScreen(score, dataPlayer1, dataPlayer2) {
 	if (!ctx) {
 		const canvas = document.getElementById('gameCanvasSnakeRemote');
 		ctx = canvas.getContext('2d');
@@ -287,6 +288,7 @@ function showEndScreen(score = null) {
 	ctx.fillStyle = "#fff";
 	ctx.font = "40px CustomFont";
 	ctx.fillText(`${score.winner}`, canvasWidth / 2, startY + partHeight + 60);
+
 	ctx.fillStyle = "#fff";
 	ctx.font = "50px CustomFont";
 	ctx.fillText("LOSER", canvasWidth / 2, startY + partHeight * 3);
@@ -297,7 +299,6 @@ function showEndScreen(score = null) {
 	ctx.fillStyle = "#fff";
 	ctx.font = "40px CustomFont";
 	ctx.fillText(`${score.loser}`, canvasWidth / 2, startY + partHeight * 3 + 60);
-
 	setTimeout(() => {
 		document.getElementById('invitePending').remove();
 		navigateTo(`/user/${selfUsername}/snake`);

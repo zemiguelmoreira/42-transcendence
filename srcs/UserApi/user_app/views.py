@@ -80,7 +80,8 @@ class FortyTwoConnectView(APIView):
 
     def post(self, request):
         # client_secret = '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'
-        client_secret = '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'
+        # client_secret = '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'
+        client_secret = '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'
         # Extrai o código e o state do corpo da requisição
         code = request.data.get('code')
         state = request.data.get('state')
@@ -785,6 +786,8 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 try:
                     winner_profile = UserProfile.objects.get(user__username=winner)
                     loser_profile = UserProfile.objects.get(user__username=loser)
+                    winner_profile = UserProfile.objects.get(user__username=winner)
+                    loser_profile = UserProfile.objects.get(user__username=loser)
                 except UserProfile.DoesNotExist:
                     # If one of the profiles does not exist, return an error for ranked games
                     return Response({'error': 'Ranked game requires both users to be registered.'}, status=status.HTTP_404_NOT_FOUND)
@@ -793,7 +796,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             match_data = {
                 'timestamp': data.get('timestamp'),
                 'winner': winner,
+                'winner': winner,
                 'winner_score': user1_score,
+                'loser': loser,
                 'loser': loser,
                 'loser_score': user2_score,
             }
@@ -833,6 +838,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
             # If the game type is "snake"
             else:
+               # Update the winner's profile
+                if current_user.username == winner:
+                    current_profile.snake_wins += 1
+                    current_profile.wins += 1
                # Update the winner's profile
                 if current_user.username == winner:
                     current_profile.snake_wins += 1

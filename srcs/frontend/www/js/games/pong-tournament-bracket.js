@@ -94,7 +94,7 @@ function isPowerOfTwo(num) {
 	return (num > 0) && (num & (num - 1)) === 0;
 }
 
-function initializeTournament(playersObj, username) {
+function initializeTournament(playersObj, username, dataUsername) {
 	if (typeof playersObj !== 'object' || Object.keys(playersObj).length === 0) {
 		console.error("Erro: A variável 'players' deve ser um objeto válido com jogadores.");
 		return;
@@ -293,6 +293,13 @@ function initializeTournament(playersObj, username) {
 				document.querySelector("#final-winner").innerText = winners[0];
 				document.querySelector("#startMatchBtn").style.display = "none";
 				document.getElementById("canvas-confetti").style.display = "block";
+				displaySlidingMessage(`Congratulations to the winner ${winners[0]}!`);
+				let message = `Congratulations to the winner ${winners[0]}!`;
+				const messageData = {
+					"type": "sys_message",
+					"message": message
+				};
+				chatSocketInstance.send(messageData);
 				confetti();
 			}
 		} else {
@@ -319,7 +326,7 @@ function initializeTournament(playersObj, username) {
 				"type": "sys_message",
 				"message": message
 			};
-			chatSocketInstance.sendWithToken(messageData);
+			chatSocketInstance.send(messageData);
 
 
 		}

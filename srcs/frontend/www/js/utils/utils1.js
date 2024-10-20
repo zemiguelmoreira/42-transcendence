@@ -51,7 +51,6 @@ function clearSlidingMessage() {
 	slidingMessageDiv.addEventListener('animationiteration', handleAnimationIteration);
 }
 
-
 function limparDivAll(divId) {
 	var div = document.getElementById(divId);
 	if (div) {
@@ -189,4 +188,22 @@ function clearCookies() {
 	}
 }
 
-export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur, clearSlidingMessage };
+
+
+function showPassword(idToggle, idInput) {
+
+	const togglePassword = document.querySelector(`#${idToggle}`);
+	const password = document.querySelector(`#${idInput}`);
+
+	togglePassword.addEventListener("click", function () {
+		// Alternar o tipo de entrada entre 'password' e 'text'
+		const type = password.getAttribute("type") === "password" ? "text" : "password";
+		password.setAttribute("type", type);
+
+		// Alternar o ícone entre 'olho' aberto e fechado
+		this.classList.toggle("bi-eye");
+		this.classList.toggle("bi-eye-slash");
+	});
+}
+
+export { displaySlidingMessage, limparDivAll, displayError, displayErrorSignIn, successContainer, logoutContainer, successContainerRegister, messageContainerToken, handleInput, handleInputBlur, clearSlidingMessage, showPassword };
