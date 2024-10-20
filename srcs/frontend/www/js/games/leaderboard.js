@@ -65,8 +65,9 @@ async function fetchPongRankings() {
 				img.alt = `${player.username}'s profile image`;
 				img.width = 50;
 				img.height = 50;
+				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${counter++}º - ${player.username} ${player.pong_rank} XP`));
+				li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} XP`));
 				pongRankingsElement.appendChild(li);
 			}
 		});
@@ -107,8 +108,9 @@ async function fetchSnakeRankings() {
 				img.alt = `${player.username}'s profile image`;
 				img.width = 50;
 				img.height = 50;
+				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${counter++}º - ${player.username} ${player.snake_rank} XP`));
+				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} XP`));
 				snakeRankingsElement.appendChild(li);
 			}
 		});
