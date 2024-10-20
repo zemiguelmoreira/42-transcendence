@@ -23,7 +23,7 @@ function makeLeaderboardPage() {
 	`;
 }
 
-function leaderboard(username) {
+function leaderboard() {
 	document.getElementById('mainContent').innerHTML = '';
 	const leaderboardPage = makeLeaderboardPage();
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', leaderboardPage);
@@ -56,17 +56,19 @@ async function fetchPongRankings() {
 		pongRankingsElement.innerHTML = '';
 		let counter = 1;
 		data.pong_rankings.forEach(player => {
-			const li = document.createElement('li');
-			li.className = 'leaderboard-row';
-			const img = document.createElement('img');
-			img.src = `https://${window.location.host}${player.profile_image_url}` || 'default.jpg';
-			console.log(img.src);
-			img.alt = `${player.username}'s profile image`;
-			img.width = 50;
-			img.height = 50;
-			li.appendChild(img);
-			li.appendChild(document.createTextNode(` ${counter++}º - ${player.username} ${player.pong_rank} XP`));
-			pongRankingsElement.appendChild(li);
+			if (player.pong_rank !== 0) {
+				const li = document.createElement('li');
+				li.className = 'leaderboard-row';
+				const img = document.createElement('img');
+				img.src = `https://${window.location.host}${player.profile_image_url}` || 'default.jpg';
+				console.log(img.src);
+				img.alt = `${player.username}'s profile image`;
+				img.width = 50;
+				img.height = 50;
+				li.appendChild(img);
+				li.appendChild(document.createTextNode(` ${counter++}º - ${player.username} ${player.pong_rank} XP`));
+				pongRankingsElement.appendChild(li);
+			}
 		});
 
 	} catch (error) {
@@ -97,16 +99,18 @@ async function fetchSnakeRankings() {
 		snakeRankingsElement.innerHTML = '';
 		let counter = 1;
 		data.snake_rankings.forEach(player => {
-			const li = document.createElement('li');
-			li.className = 'leaderboard-row';
-			const img = document.createElement('img');
-			img.src = player.profile_image_url ? `https://${window.location.host}${player.profile_image_url}` : 'default.jpg'; // Exibe uma imagem padrão se o profile_image for null
-			img.alt = `${player.username}'s profile image`;
-			img.width = 50;
-			img.height = 50;
-			li.appendChild(img);
-			li.appendChild(document.createTextNode(` ${counter++}º - ${player.username} ${player.snake_rank} XP`));
-			snakeRankingsElement.appendChild(li);
+			if (player.snake_rank !== 0) {
+				const li = document.createElement('li');
+				li.className = 'leaderboard-row';
+				const img = document.createElement('img');
+				img.src = player.profile_image_url ? `https://${window.location.host}${player.profile_image_url}` : 'default.jpg'; // Exibe uma imagem padrão se o profile_image for null
+				img.alt = `${player.username}'s profile image`;
+				img.width = 50;
+				img.height = 50;
+				li.appendChild(img);
+				li.appendChild(document.createTextNode(` ${counter++}º - ${player.username} ${player.snake_rank} XP`));
+				snakeRankingsElement.appendChild(li);
+			}
 		});
 
 	} catch (error) {

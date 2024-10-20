@@ -204,6 +204,7 @@ function initButtonListeners(username) {
 async function homeLogin(username) {
 
 	let dataUser = await getUserProfileByUsername(username);
+	console.log('dataUser: ', dataUser);
 	let home_page;
 
 	if (!dataUser.status) {

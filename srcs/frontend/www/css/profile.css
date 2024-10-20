@@ -505,7 +505,7 @@ th:last-child {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
-	align-items: center;
+	align-items: start;
 }
 
 .leaderboard-table-row {
