@@ -80,7 +80,7 @@ class WebSocketService {
 			console.error('WebSocket error:', error);
 		};
 		this.socketRef.onclose = e => {
-			// console.log('WebSocket connection closed:', e);
+			console.log('WebSocket connection closed:', e);
 		};
 	}
 	close() {
@@ -106,6 +106,10 @@ class WebSocketService {
                 // chatMessageInput.value = '';
             } else {
                 navigateTo('/');
+				localStorage.removeItem('access_token');
+				localStorage.removeItem('refresh_token');
+				sessionStorage.removeItem('access_token');
+				this.close();
             }
         } else {
             this.send(data);

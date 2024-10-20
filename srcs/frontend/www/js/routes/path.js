@@ -73,6 +73,9 @@ const pages = {
 			home_error.addEventListener('click', (e) => {
 				e.preventDefault();
 				navigateTo('/');
+				localStorage.removeItem('access_token');
+				localStorage.removeItem('refresh_token');
+				sessionStorage.removeItem('access_token');
 			});
 
 		},

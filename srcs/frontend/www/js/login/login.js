@@ -5,7 +5,7 @@ import { navigateTo } from "../app.js";
 import { viewToken, testToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
-import { handleInput, handleInputBlur, displayError } from "../utils/utils1.js";
+import { handleInput, handleInputBlur, showPassword, displayError } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
 // import WebSocketInstance from "../socket/websocket.js";
 
@@ -31,7 +31,8 @@ function insertInputValidation1(qrForm) {
 function userSignIn(e) {
 	e.preventDefault();
 	const userSignInForm = document.querySelector('#userSignInForm');
-	const userOrEmail1 = userSignInForm.elements.username.value;
+	const userOrEmail1 = userSignInForm.elements.username.value.toLowerCase().trim();
+	console.log('username no signIn: ', userOrEmail1);
 	const password1 = userSignInForm.elements.password.value;
 	if (userOrEmail1 && password1) {
 		sendIUser(userOrEmail1, password1);
@@ -59,6 +60,8 @@ function signIn() {
 	document.getElementById('form1Example1').focus();
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar2');
+
+	showPassword("togglePassword", "form1Example3");
 
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);

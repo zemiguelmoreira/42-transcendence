@@ -191,10 +191,10 @@ function clearCookies() {
 
 
 
-function showPassword() {
+function showPassword(idToggle, idInput) {
 
-	const togglePassword = document.querySelector("#togglePassword");
-	const password = document.querySelector("#form1Example3");
+	const togglePassword = document.querySelector(`#${idToggle}`);
+	const password = document.querySelector(`#${idInput}`);
 
 	togglePassword.addEventListener("click", function () {
 		// Alternar o tipo de entrada entre 'password' e 'text'

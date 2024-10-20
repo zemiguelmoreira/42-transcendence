@@ -37,7 +37,8 @@ function home() {
 	handleInput(inputField, limitChar);
 	handleInputBlur(inputField, limitChar);
 
-	showPassword();
+	showPassword("togglePassword", "form1Example3");
+	showPassword("togglePassword1", "form1Example4");
 
 	const signUp = document.querySelector('#signUp');
 	signUp.addEventListener('click', handleSignUp);
