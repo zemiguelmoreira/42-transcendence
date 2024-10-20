@@ -69,24 +69,29 @@ class PongGame:
 
 
 	async def game_loop(self, room_code, room):
-		logger.info(f"PongGame: game_loop: Starting game loop for room {room_code}")
-		last_time = time.time()
-		while not room['end_game']:
-			room['formatted_time'] = datetime.fromtimestamp(int(time.time()), tz=timezone.utc).isoformat()
-			await self.update_game_state(room_code, room)
-			async with PongGame.locks[room_code]:
-				game_state = {
-					'ball_position': room['ball_position'],
-					'paddle_positions': room['paddle_positions'],
-					'score': room['score'],
-				}
-			await PongGame.channel_layer.group_send(
-				f"room_{room_code}", {
-					'type': 'game.update',
-					'game_state': game_state,
-				})
-			await asyncio.sleep(1/60)
-		await self.game_over(room_code, room)
+		try:
+			logger.info(f"PongGame: game_loop: Starting game loop for room {room_code}")
+			while not room['end_game']:
+				room['formatted_time'] = datetime.fromtimestamp(int(time.time()), tz=timezone.utc).isoformat()
+				await self.update_game_state(room_code, room)
+				async with PongGame.locks[room_code]:
+					game_state = {
+						'ball_position': room['ball_position'],
+						'paddle_positions': room['paddle_positions'],
+						'score': room['score'],
+					}
+				await PongGame.channel_layer.group_send(
+					f"room_{room_code}", {
+						'type': 'game.update',
+						'game_state': game_state,
+					})
+				await asyncio.sleep(1/60)
+			await self.game_over(room_code, room)
+		except asyncio.CancelledError:
+			logging.info(f"GameServer: PongGame for room {room_code} was cancelled.")
+		except Exception as e:
+			logging.error(f"GameServer: Error in PongGame task for room {room_code}: {e}")
+
 
 
 	async def user_disconnect(self, room_code, username):

@@ -65,22 +65,28 @@ class SnakeGame:
 
 
 	async def game_loop(self, room_code, room):
-		while not room['end_game']:
-			room['formatted_time'] = datetime.fromtimestamp(int(time.time()), tz=timezone.utc).isoformat()
-			await self.update_game_state(room_code, room)
-			async with SnakeGame.locks[room_code]:
-				game_state = {
-					'snakes': room['snakes'],
-					'score': room['score'],
-					'food': room['food'],
-				}
-			await SnakeGame.channel_layer.group_send(
-				f"room_{room_code}", {
-					'type': 'game.update',
-					'game_state': game_state,
-				})
-			await asyncio.sleep(1/12)
-		await self.game_over(room_code, room)
+		try:
+			logger.info(f"SnakeGame: game_loop: Starting game loop for room {room_code}")
+			while not room['end_game']:
+				room['formatted_time'] = datetime.fromtimestamp(int(time.time()), tz=timezone.utc).isoformat()
+				await self.update_game_state(room_code, room)
+				async with SnakeGame.locks[room_code]:
+					game_state = {
+						'snakes': room['snakes'],
+						'score': room['score'],
+						'food': room['food'],
+					}
+				await SnakeGame.channel_layer.group_send(
+					f"room_{room_code}", {
+						'type': 'game.update',
+						'game_state': game_state,
+					})
+				await asyncio.sleep(1/12)
+			await self.game_over(room_code, room)
+		except asyncio.CancelledError:
+			logging.info(f"GameServer: SnakeGame for room {room_code} was cancelled.")
+		except Exception as e:
+			logging.error(f"GameServer: Error in SnakeGame task for room {room_code}: {e}")
 
 
 	async def user_disconnect(self, room_code, username):
