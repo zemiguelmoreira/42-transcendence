@@ -221,6 +221,7 @@
 	border-collapse: collapse;
 	width: 100%;
 	table-layout: fixed;
+	/*z-index: 0;*/
 }
 
 .games-statistics th,
@@ -521,4 +522,11 @@ th:last-child {
 	font-family: 'CustomFont';
 	font-size: 10px;
 	color: yellowgreen;
+}
+
+.leaderboard-img {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	object-fit: cover;
 }

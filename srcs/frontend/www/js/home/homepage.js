@@ -16,8 +16,10 @@ function makeNavbar(data) {
 							<ul class="dropdown-menu">
 								<li><a id="pong-navbar" class="dropdown-item" href="">Pong</a></li>
 								<li><a id="snake-navbar" class="dropdown-item" href="">Snake</a></li>
-								<li><a id="leaderboard-navbar" class="dropdown-item" href="">Leaderboard</a></li>
 							</ul>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="leaderboard-navbar" href="">LEADERBOARD</a>
 						</li>
 					</ul>
 					<form id="search-form" class="d-flex" role="search">

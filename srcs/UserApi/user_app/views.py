@@ -904,7 +904,7 @@ class PongRankingListView(APIView):
             {
                 'username': profile.user.username,  # Acessando o username diretamente do relacionamento
                 'pong_rank': profile.pong_rank,
-                'profile_image_url': profile.profile_image.url if profile.profile_image else None  # Acessando a URL da imagem diretamente
+                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url# Acessando a URL da imagem diretamente
             }
             for profile in pong_rankings
         ]
@@ -924,11 +924,12 @@ class SnakeRankingListView(APIView):
         snake_rankings = UserProfile.objects.order_by('-snake_rank').select_related('user')
 
         # Construindo a resposta com base nos dados
+        
         response_data = [
             {
                 'username': profile.user.username,  # Acessando o username diretamente do relacionamento
                 'snake_rank': profile.snake_rank,
-                'profile_image_url': profile.profile_image.url if profile.profile_image else None  # Acessando a URL da imagem diretamente
+                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url  # Acessando a URL da imagem diretamente
             }
             for profile in snake_rankings
         ]

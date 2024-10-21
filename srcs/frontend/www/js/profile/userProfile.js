@@ -9,8 +9,8 @@ import { resetPassword } from "../login/login.js";
 
 
 function userProfilePage(userData, user) {
-	document.getElementById('mainContent').innerHTML = '';
 	const profilePageData = makeProfilePage(userData);
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
 
 	// console.log('PRINT PONG: ', userData.profile.pong_match_history);
