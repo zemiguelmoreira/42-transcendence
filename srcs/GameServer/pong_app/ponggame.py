@@ -93,7 +93,6 @@ class PongGame:
 			logging.error(f"GameServer: Error in PongGame task for room {room_code}: {e}")
 
 
-
 	async def user_disconnect(self, room_code, username):
 		logging.info(f"PongGame: user_disconnect: {username} disconnected from room {room_code}")
 		if room_code not in PongGame.rooms:

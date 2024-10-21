@@ -164,10 +164,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		xp = await self.get_user_xp()
 		# logger.info(f"Matchmaking: get_user_rank: User {self.user.username} has xp {xp}")
 		if xp is None:
-			logging.error("Matchmaking: get_user_rank: Failed to get user xp.")
 			return None
-		max_rank = 50
-		xp_max = 10_000  # xp required for max rank
+		max_rank = 25
+		xp_max = await self.get_rankone()  # xp required for max rank
+		if xp_max is None:
+			return None
+		elif xp_max < 5000:
+			xp_max = 5000
 		xpByRank = [0] * max_rank
 		# xp required for each rank
 		for rank in range(1, max_rank):
@@ -182,6 +185,51 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				return rank - 1
 		return max_rank
 
+
+	async def get_rankone(self):
+		url = f'http://userapi:8000/profile/{self.game}_rankings/'
+		headers = {
+			'Authorization': f'Bearer {self.token}',
+		}
+		try:
+			async with httpx.AsyncClient() as client:
+				response = await client.get(url, headers=headers)
+				if response.status_code == 200:
+					data = response.json()
+					try:
+						rankone = data[f'{self.game}_rankings'][0].get(f'{self.game}_rank', 5000)
+						return rankone
+					except (KeyError, IndexError) as e:
+						logger.error(f"Matchmaking: get_rankone: Error parsing rank data: {e}")
+						return None
+				else:
+					logging.error(f"Matchmaking: get_rankone: Failed to get rank 1: {response.status_code} {response.text}")
+					return None
+		except httpx.RequestError as e:
+			logging.error(f"Matchmaking: get_rankone: An error occurred while requesting rank 1: {e}")
+			return None
+
+	async def get_user_xp(self):
+		url = f'http://userapi:8000/profile/get_user_profile/?username={self.user.username}'
+		headers = {
+			'Authorization': f'Bearer {self.token}',
+		}
+		try:
+			async with httpx.AsyncClient() as client:
+				response = await client.get(url, headers=headers)
+				if response.status_code == 200:
+					data = response.json()
+					if data and 'profile' in data:
+						return data['profile'].get(f'{self.game}_rank', 0)
+					else:
+						logging.error(f"Matchmaking: get_user_xp: Invalid data received: {data}")
+						return None
+				else:
+					logging.error(f"Matchmaking: get_user_xp: Failed to get rank: {response.status_code} {response.text}")
+					return None
+		except httpx.RequestError as e:
+			logging.error(f"Matchmaking: get_user_xp: An error occurred while requesting user xp: {e}")
+			return None
 
 	async def get_user_xp(self):
 		url = f'http://userapi:8000/profile/get_user_profile/?username={self.user.username}'

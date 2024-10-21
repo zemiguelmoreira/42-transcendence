@@ -92,13 +92,16 @@ function navigateTo(url, replace = false, redirectsCount = 0) {
 		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 			matchmakingSocketSnake.close();
 		}
-		
+
 	}
 
 	if (matchedRoute) {
 		const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
 		if (!accessAllowed) {
 			navigateTo(matchedRoute.page.redirect, true, redirectsCount + 1);
+			localStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
+			sessionStorage.removeItem('access_token');
 			//changeChatLoaded(); // alterar o valor do chatLoaded quando chega ao home através do redirect que foi para '/'
 			return;
 		}
@@ -365,13 +368,13 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 	// 	}
 	// }
 
-	
+
 	if (matchedRoute && (window.location.pathname !== `/user/${matchedRoute.params.username}/pong-game-remote`)) {
 		console.log('desligar socket matchmaking pong - refresh, por rota errada');
 		if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
 			matchmakingSocketPong.close();
 		}
-		
+
 	}
 
 	if (matchedRoute && (window.location.pathname !== `/user/${matchedRoute.params.username}/snake-game-remote`)) {
@@ -379,7 +382,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 			matchmakingSocketSnake.close();
 		}
-		
+
 	}
 
 
@@ -502,7 +505,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				removeDivInvite.remove();
 			}
 		}
-		
+
 		// Se a rota não for válida, navega para uma página padrão (por exemplo, home ou 404)
 	  //   navigateTo('/');
 		  const status = 404;
@@ -614,7 +617,7 @@ export { baseURL, navigateTo, goTo, matchRoute }
 // 		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 // 			matchmakingSocketSnake.close();
 // 		}
-		
+
 // 	}
 
 // 	if (matchedRoute) {
@@ -680,7 +683,7 @@ export { baseURL, navigateTo, goTo, matchRoute }
 // 				if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
 // 					matchmakingSocketPong.close();
 // 				}
-				
+
 // 			}
 
 // 			if (matchedRoute && (e.state.page !== `/user/${matchedRoute.params.username}/snake-game-remote`)) {
@@ -688,7 +691,7 @@ export { baseURL, navigateTo, goTo, matchRoute }
 // 				if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 // 					matchmakingSocketSnake.close();
 // 				}
-				
+
 // 			}
 
 // 			const accessAllowed = typeof matchedRoute.page.access === 'function' ? matchedRoute.page.access() : matchedRoute.page.access;
@@ -878,7 +881,7 @@ export { baseURL, navigateTo, goTo, matchRoute }
 // 		if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
 // 			matchmakingSocketPong.close();
 // 		}
-		
+
 // 	}
 
 // 	if (matchedRoute && (window.location.pathname !== `/user/${matchedRoute.params.username}/snake-game-remote`)) {
@@ -886,7 +889,7 @@ export { baseURL, navigateTo, goTo, matchRoute }
 // 		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
 // 			matchmakingSocketSnake.close();
 // 		}
-		
+
 // 	}
 
 
