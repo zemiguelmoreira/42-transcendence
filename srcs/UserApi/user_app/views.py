@@ -760,8 +760,8 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
           - Only the authenticated user's profile will be updated (winner or loser).
         """
         data = request.data
-        logger.info(f'Request data: {data}')    
-        
+        logger.info(f'Request data: {data}')
+
         try:
             # Get the current authenticated user and their profile
             current_user = self.request.user
@@ -774,9 +774,9 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
             ranked = data.get('ranked')  # True or False
-            
+
             current_is_winner = True if current_user.username == winner else False
-            points_earned = 0
+            points = 0
             # Initialize winner and loser profiles as None
             winner_profile = None
             loser_profile = None
@@ -814,36 +814,41 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 else:
                     current_profile.pong_losses += 1
                     current_profile.losses += 1
-                
+
                 current_profile.pong_match_history.append(match_data)
-            
+
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
-                    # Calculate rank difference between the winner and loser
-                    points_earned = 0
-                    differece = winner_profile.pong_rank - loser_profile.pong_rank
-                    if differece > 1000:
-                        differece = 1000
-
-                    # Update rank for the current user based on whether they won or lost
-                    logger.info(f'current is winner = {current_is_winner}')
-                    if current_is_winner:
-                        if differece > 0:
-                            points_earned = 100 + differece / 10
-                        elif differece == 0:
-                            points_earned = 100
+                    points = 0
+                    ratio = 1
+                    if winner_profile.pong_rank > 0 and loser_profile.pong_rank > 0:
+                        if current_is_winner:
+                            ratio = winner_profile.pong_rank / loser_profile.pong_rank
+                        else:
+                            ratio = loser_profile.pong_rank / winner_profile.pong_rank
+                        if ratio > 2:
+                            ratio = 2
+                        elif ratio < 0.5:
+                            ratio = 0.5
                     else:
-                        points_earned = 100 - differece / 20
-                    
-                    current_profile.pong_rank += points_earned
+                        ratio = 1
+
+                    if current_is_winner:
+                        points = 100 * ratio
+                    else:
+                        points = -100 * ratio
+                    if not current_is_winner and loser_profile.pong_rank <= points * (-1):
+                        current_profile.pong_rank = 1
+                    else:
+                        current_profile.pong_rank += points
 
             # If the game type is "snake"
             else:
-               # Update the winner's profile
+                # Update the winner's profile
                 if current_user.username == winner:
                     current_profile.snake_wins += 1
                     current_profile.wins += 1
-               # Update the winner's profile
+                # Update the winner's profile
                 if current_user.username == winner:
                     current_profile.snake_wins += 1
                     current_profile.wins += 1
@@ -852,27 +857,34 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 else:
                     current_profile.snake_losses += 1
                     current_profile.losses += 1
-                
+
                 current_profile.snake_match_history.append(match_data)
-            
+
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
-                    # Calculate rank difference between the winner and loser
-                    differece = winner_profile.snake_rank - loser_profile.snake_rank
-                    if differece > 1000:
-                        differece = 1000
-
-                    # Update rank for the current user based on whether they won or lost
-                    if current_is_winner:
-                        if differece > 0:
-                            points_earned = 100 + differece / 10
-                        elif differece == 0:
-                            points_earned = 100
+                    points = 0
+                    ratio = 1
+                    if winner_profile.snake_rank > 0 and loser_profile.snake_rank > 0:
+                        if current_is_winner:
+                            ratio = winner_profile.snake_rank / loser_profile.snake_rank
+                        else:
+                            ratio = loser_profile.snake_rank / winner_profile.snake_rank
+                        if ratio > 2:
+                            ratio = 2
+                        elif ratio < 0.5:
+                            ratio = 0.5
                     else:
-                        points_earned = 100 - differece / 20
-                    
-                    current_profile.snake_rank += points_earned
-            
+                        ratio = 1
+
+                    if current_is_winner:
+                        points = 100 * ratio
+                    else:
+                        points = -100 * ratio
+                    if not current_is_winner and loser_profile.snake_rank <= points * (-1):
+                        current_profile.snake_rank = 1
+                    else:
+                        current_profile.snake_rank += points
+
             current_profile.save()
 
             # Return success response

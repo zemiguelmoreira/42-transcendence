@@ -167,7 +167,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			logging.error("Matchmaking: get_user_rank: Failed to get user xp.")
 			return None
 		max_rank = 50
-		xp_max = 100_000  # xp required for max rank
+		xp_max = 10_000  # xp required for max rank
 		xpByRank = [0] * max_rank
 		# xp required for each rank
 		for rank in range(1, max_rank):
