@@ -374,7 +374,8 @@ function snakeGameRemote(username) {
 
 	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
-			type: "cancel"
+			type: "cancel",
+			game: "snake"
 		});
 
 		matchmakingSocketSnake.send(data);

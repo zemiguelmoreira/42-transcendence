@@ -121,7 +121,6 @@ class PongGame:
 			room['score'][0] += 1
 			room['ball_position'] = [PongGame.ball_init_x, PongGame.ball_init_y]
 			room['ball_velocity'][0] *= -1
-		logger.info(f"asdasdasd-------------------------")
 		if self.is_goal_paddle2(room['ball_position'][0]):
 			room['score'][1] += 1
 			room['ball_position'] = [PongGame.ball_init_x, PongGame.ball_init_y]

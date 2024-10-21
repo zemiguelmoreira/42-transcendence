@@ -35,7 +35,9 @@ class MatchmakingManager:
 		player_data = json.dumps({"username": username, "rank": rank})
 		queue_key = f"queue:{game}"
 		# if user is already in the queue, remove them
-		await self.cancel_matchmaking(username, game)
+		await self.cancel_matchmaking(username)
+		await self.remove_player(username, 'pong')
+		await self.remove_player(username, 'snake')
 		await redis_client.rpush(queue_key, player_data)
 		MatchmakingManager.matchmaking_tasks[username] = asyncio.create_task(self.start_matchmaking(username, game, rank))
 		logging.info(f"MatchmakingManager: add_player: Created task for {username} in {game} queue with rank {rank}")
@@ -88,7 +90,7 @@ class MatchmakingManager:
 			}
 		)
 
-	async def cancel_matchmaking(self, username, game):
+	async def cancel_matchmaking(self, username):
 		if username in MatchmakingManager.matchmaking_tasks:
 			task = MatchmakingManager.matchmaking_tasks[username]
 			if not task.done():  # check if the task is still running
@@ -99,7 +101,7 @@ class MatchmakingManager:
 
 	# needs to iterate through the list because of json format
 	async def remove_player(self, username, game):
-		logging.info(f"Matchmaking: remove_player: Removing {username} from {game} queue")
+		# logging.info(f"Matchmaking: remove_player: Removing {username} from {game} queue")
 		queue_key = f"queue:{game}"
 		# get the full list of players in the queue
 		queue_length = await redis_client.llen(queue_key)

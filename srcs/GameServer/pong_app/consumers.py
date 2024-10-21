@@ -87,7 +87,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
 	async def game_update(self, event):
-		logger.info('Consumer: Game Update Called\n')
 		await self.send(json.dumps(event['game_state']))
 
 

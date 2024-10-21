@@ -20,7 +20,6 @@ User = get_user_model()
 
 class MatchmakingConsumer(AsyncWebsocketConsumer):
 
-
 	async def connect(self):
 		self.authenticated = False
 		self.token = await self.validate_token()
@@ -55,6 +54,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def join_matchmaking(self, data):
+		if self.game:
+			logging.error("Matchmaking: join_matchmaking: User already in matchmaking.")
+			return
 		self.game = await self.get_game_from_data(data)
 		if self.game is None:
 			logging.error("Matchmaking: join_matchmaking: Invalid game.")
@@ -72,9 +74,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def cancel_matchmaking(self, data):
-		game = data.get("game", None)
+		game = data.get("game", self.game)
 		logging.info(f"Matchmaking: cancel_matchmaking: User {self.user.username} left {game} matchmaking.")
-		await matchmaking_manager.cancel_matchmaking(self.user.username, game)
+		await matchmaking_manager.cancel_matchmaking(self.user.username)
 		await matchmaking_manager.remove_player(self.user.username, game)
 		self.game = None
 
@@ -119,13 +121,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# await self.close()
 
 
-
 	# match info from host
 	async def match_details(self, event):
 		game = event["game"]
 		roomCode = event["roomCode"]
 		opponent = event["opponent"]
-		await matchmaking_manager.cancel_matchmaking(self.user.username, game)
+		await matchmaking_manager.cancel_matchmaking(self.user.username)
 		logging.info(f"Matchmaking: match_details: Match found for {self.user.username} in {game} against {opponent} in room {roomCode}.")
 		# chat warning for self
 		# await self.channel_layer.group_send(
@@ -161,11 +162,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 	async def get_user_rank(self):
 		xp = await self.get_user_xp()
+		# logger.info(f"Matchmaking: get_user_rank: User {self.user.username} has xp {xp}")
 		if xp is None:
 			logging.error("Matchmaking: get_user_rank: Failed to get user xp.")
 			return None
 		max_rank = 50
-		xp_max = 10_000  # xp required for max rank
+		xp_max = 100_000  # xp required for max rank
 		xpByRank = [0] * max_rank
 		# xp required for each rank
 		for rank in range(1, max_rank):
@@ -174,6 +176,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# rank based on xp
 		for rank, xp_required in enumerate(xpByRank):
 			if xp < xp_required:
+				# logger.info(f"Matchmaking: get_user_rank: User {self.user.username} has rank {rank}")
+				if rank == 0:
+					return 0
 				return rank - 1
 		return max_rank
 
@@ -188,7 +193,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				response = await client.get(url, headers=headers)
 				if response.status_code == 200:
 					data = response.json()
-					return data.get(f'{self.game}_rank', 0)
+					# logger.info(f"Matchmaking: get_user_xp: User {self.user.username} has xp {data}")
+					return data['profile'].get(f'{self.game}_rank', 0)
 				else:
 					logging.error(f"Matchmaking: get_user_xp: Failed to get rank: {response.status_code} {response.text}")
 					return None
@@ -240,15 +246,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		if self.game:
 			logging.info(f"Matchmaking: cleanup_connection: Cleaning up player {self.user.username} from game {self.game}.")
 			await matchmaking_manager.remove_player(self.user.username, self.game)
-			await matchmaking_manager.cancel_matchmaking(self.user.username, self.game)
+			await matchmaking_manager.cancel_matchmaking(self.user.username)
 
 
 	async def create_room(self, game_accessToken, authorized_user):
 		data = None
-
-		logger.info(f"Matchmaking: create_room: Creating room for {authorized_user}")
-		logger.info(f"Matchmaking: create_room: Game Access Token: {game_accessToken}")
-
+		# logger.info(f"Matchmaking: create_room: Creating room for {authorized_user}")
+		# logger.info(f"Matchmaking: create_room: Game Access Token: {game_accessToken}")
 		try:
 			async with httpx.AsyncClient() as client:
 				response = await client.post(
@@ -263,11 +267,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 				)
 				data = response.json()
 				logger.info(f"CreateRoom: {data}")
-
 				if response.status_code != 200:
 					logger.error(f"Matchmaking: create_room: Error: {data}")
-
 		except Exception as e:
 			logger.info(f'Matchmaking: create_room: Error creating room: {e}')
-
 		return data.get('code') if data else None

@@ -137,7 +137,7 @@ function pongGameRemote(username) {
 		matchmakingSocketPong.close();
 		matchmakingSocketPong = null;
 	}
-	
+
 	matchmakingSocketPong = new WebSocket(`wss://${window.location.host}/mm/ws/?token=${token}`);
 	matchmakingSocketPong.onopen = () => {
 		console.log("Matchmaking socket opened.");
@@ -195,7 +195,8 @@ function pongGameRemote(username) {
 
 	document.getElementById('cancelMatchmaking').addEventListener('click', () => {
 		const data = JSON.stringify({
-			type: "cancel"
+			type: "cancel",
+			game: "pong"
 		});
 
 		matchmakingSocketPong.send(data);
