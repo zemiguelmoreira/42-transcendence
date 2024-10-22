@@ -37,6 +37,7 @@ function setupPong() {
 	rightPaddleY = 0;
 	player1Name = "";
 	player2Name = "";
+
 	backgroundCanvas = document.getElementById("pongBackgroundCanvas");
 	backgroundCtx = backgroundCanvas.getContext("2d");
 	canvas = document.querySelector("canvas");
@@ -47,6 +48,22 @@ function setupPong() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
 }
+
+// let lastFpsUpdateTime = performance.now();
+// let frameCount = 0;
+// let fps = 0;
+
+// function updateFPS() {
+// 	frameCount++;
+// 	const currentTime = performance.now();
+// 	const deltaTime = currentTime - lastFpsUpdateTime;
+
+// 	if (deltaTime >= 1000) {
+// 		fps = frameCount;
+// 		frameCount = 0;
+// 		lastFpsUpdateTime = currentTime;
+// 	}
+// }
 
 function joinPongRoom(roomCode, username, matchmakingSocket) {
 	selfUsername = username;
@@ -71,10 +88,8 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 	setupPong();
 
 	pong_socket = new WebSocket(`wss://${window.location.host}/game/ws/pong/${roomCode}/?token=${pong_accessToken}`);
-
 	pong_socket.onmessage = async function (event) {
 		const data = JSON.parse(event.data);
-		// console.log('data: ', data);
 
 		if (data.action === 'unauthorized') {
 			console.log('Unauthorized to join the game!');
@@ -95,10 +110,6 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 			player1Name = data.player_names[0] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			player2Name = data.player_names[1] === dataPlayer1.user.username ? dataPlayer1.profile.alias_name : dataPlayer2.profile.alias_name;
 			startGame();
-
-		} else if (data.action === 'countdown') {
-			countdownDisplay(data.time);
-
 
 		} else if (data.action === 'game_over' && !stopFlag) {
 			stopFlag = true;
@@ -139,20 +150,21 @@ function joinPongRoom(roomCode, username, matchmakingSocket) {
 			}
 		};
 
-		pong_socket.onopen = function () {
-			pong_socket.send(JSON.stringify({
-				action: 'join'
-			}));
-		};
-
-		pong_socket.onclose = function (event) {
-			console.log('Pong Socket Closed: onclose():', event);
-		};
 	}
+
+	pong_socket.onopen = function () {
+		pong_socket.send(JSON.stringify({
+			action: 'join'
+		}));
+	};
+
+	pong_socket.onclose = function (event) {
+		console.log('Pong Socket Closed: onclose():', event);
+	};
 }
 
 function sendMoveCommand(direction) {
-	if (playerIndex !== null) {
+	if (pong_socket && playerIndex !== null) {
 		pong_socket.send(JSON.stringify({
 			action: 'move',
 			player_index: playerIndex,
@@ -162,28 +174,25 @@ function sendMoveCommand(direction) {
 }
 
 function drawPlayerNames() {
-	backgroundCtx.font = "30px PongFont"; // Defina o tamanho e a fonte do texto
-	backgroundCtx.fillStyle = "gray"; // Defina a cor do texto
+	backgroundCtx.font = "30px PongFont";
+	backgroundCtx.fillStyle = "gray";
 
 	const centerLineX = canvasWidth / 2;
-
 	const player1NameWidth = backgroundCtx.measureText(player1Name).width;
-
 	const player1X = centerLineX - player1NameWidth - 20;
 
 	backgroundCtx.textAlign = "left";
 
 	const player2X = centerLineX + 20;
+	const nameY = 170;
 
-	const nameY = 170; // Ajuste o valor conforme necessário para posicionar o nome abaixo dos dígitos
-
-	backgroundCtx.fillText(player1Name, player1X, nameY); // Nome do Jogador 1
-	backgroundCtx.fillText(player2Name, player2X, nameY); // Nome do Jogador 2
+	backgroundCtx.fillText(player1Name, player1X, nameY);
+	backgroundCtx.fillText(player2Name, player2X, nameY);
 }
 
 function drawDigit(ctx, n, x, y) {
-	const segmentSize = 20; // Tamanho de cada segmento (20x20 pixels)
-	const segmentMargin = 0; // Espaçamento entre segmentos
+	const segmentSize = 20;
+	const segmentMargin = 0;
 	if (n >= 10) { n = 9; }
 
 	const digits = [
@@ -217,72 +226,101 @@ function drawDigit(ctx, n, x, y) {
 }
 
 function drawPONG(letterSpacing = -5) {
-	ctx.font = "100px PongFont";  // Escolha a fonte e o tamanho desejado
-	ctx.fillStyle = "#69696950";  // Cor do texto (branco)
+	backgroundCtx.font = "100px PongFont";
+	backgroundCtx.fillStyle = "#69696950";
 
 	const text = "PONG";
-
-	const totalTextWidth = ctx.measureText(text).width + (text.length - 1) * letterSpacing - 15;
+	const totalTextWidth = backgroundCtx.measureText(text).width + (text.length - 1) * letterSpacing - 15;
 	let xPosition = (canvasWidth - totalTextWidth) / 2;
-
-	const yPosition = canvasHeight - 20;  // Afastar 20px da borda inferior
+	const yPosition = canvasHeight - 20;
 
 	for (let i = 0; i < text.length; i++) {
-		ctx.fillText(text[i], xPosition, yPosition);
-		xPosition += ctx.measureText(text[i]).width + letterSpacing;  // Avançar a posição X, adicionando o espaçamento
+		backgroundCtx.fillText(text[i], xPosition, yPosition);
+		xPosition += backgroundCtx.measureText(text[i]).width + letterSpacing;
 	}
 }
 
 function drawDashedLine() {
 	backgroundCtx.beginPath();
-	backgroundCtx.setLineDash([20, 20]);  // Dash length and space between dashes
-	backgroundCtx.moveTo(canvasWidth / 2, 0);  // Start at the top middle
-	backgroundCtx.lineTo(canvasWidth / 2, canvasHeight);  // Draw to the bottom middle
-	backgroundCtx.strokeStyle = "#fff";  // White color for the line
-	backgroundCtx.lineWidth = 10;  // Line width
-	backgroundCtx.stroke();  // Render the line
-	backgroundCtx.setLineDash([]);  // Reset the dash settings
+	backgroundCtx.setLineDash([20, 20]);
+	backgroundCtx.moveTo(canvasWidth / 2, 0);
+	backgroundCtx.lineTo(canvasWidth / 2, canvasHeight);
+	backgroundCtx.strokeStyle = "#fff";
+	backgroundCtx.lineWidth = 10;
+	backgroundCtx.stroke();
+	backgroundCtx.setLineDash([]);
 }
 
 function drawScores() {
-	backgroundCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-	drawDashedLine();
-
 	const digitWidth = 3 * (20 + 0);
-	const digitHeight = 5 * (20 + 0);
 	const scoreSpacing = 10;
-
 	const player1X = canvasWidth / 2 - digitWidth - scoreSpacing - (digitWidth / 3);
 	const player2X = canvasWidth / 2 + scoreSpacing + (digitWidth / 3);
 
-	drawDigit(backgroundCtx, player1Score, player1X, 30); // Pontuação do Jogador 1
-	drawDigit(backgroundCtx, player2Score, player2X, 30); // Pontuação do Jogador 2
+	backgroundCtx.clearRect(player1X, 30, digitWidth, 5 * 20);
+	backgroundCtx.clearRect(player2X, 30, digitWidth, 5 * 20);
+
+	drawDigit(backgroundCtx, player1Score, player1X, 30);
+	drawDigit(backgroundCtx, player2Score, player2X, 30);
+}
+
+function clearRect(x, y, width, height, ctx) {
+    ctx.clearRect(x, y, width, height);
 }
 
 function drawRect(x, y, width, height, color, ctx) {
-	ctx.fillStyle = color;
-	ctx.fillRect(x, y, width, height);
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
 }
 
 function drawBall() {
-	drawRect(ballX, ballY, ballSize, ballSize, "#fff", ctx);
+    drawRect(ballX, ballY, ballSize, ballSize, "#fff", ctx);
 }
 
 function drawPaddles() {
-	drawRect(0, leftPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
-	drawRect(canvasWidth - paddleWidth, rightPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
+    drawRect(0, leftPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
+    drawRect(canvasWidth - paddleWidth, rightPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
 }
 
 function drawGame() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-
 	drawScores();
-	drawPONG();
+	drawDashedLine();
 	drawPlayerNames();
-	drawPaddles();
-	drawBall();
+	drawPONG();
+
+    drawPaddles();
+    drawBall();
 }
+
+
+function gameLoop() {
+    // updateFPS(); 
+    // console.log(fps);
+
+    if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
+        || (!matchSocket && window.location.pathname !== `/user/${selfUsername}/chat-playing` && !stopFlag)) {
+        
+        const invitePending = document.getElementById('invitePending');
+        if (invitePending) {
+            invitePending.remove();
+        }
+
+        if (pong_socket.readyState === WebSocket.OPEN) {
+            pong_socket.close();
+            console.log('Pong Socket Closed on gameLoop');
+        }
+        
+        stopFlag = true;
+        return;
+    }
+
+    if (stopFlag) return;
+
+    clearRect(0, 0, canvasWidth, canvasHeight, ctx);
+    drawGame();
+    requestAnimationFrame(gameLoop);
+}
+
 
 document.addEventListener('keydown', function (event) {
 	if (playerIndex === null) return;
@@ -305,39 +343,6 @@ document.addEventListener('keyup', function (event) {
 			break;
 	}
 });
-
-function gameLoop() {
-	if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
-		|| (!matchSocket && window.location.pathname !== `/user/${selfUsername}/chat-playing` && !stopFlag)) {
-
-		if (document.getElementById('invitePending')) {
-			document.getElementById('invitePending').remove();
-		}
-
-		if (pong_socket.readyState === WebSocket.OPEN) {
-			pong_socket.close();
-			console.log('Pong Socket Closed on gameLoop');
-		}
-
-		stopFlag = true;
-		return;
-	}
-
-	if (stopFlag == true)
-		return;
-
-	drawGame(ballPosition, paddlePositions);
-	requestAnimationFrame(gameLoop);
-}
-
-function countdownDisplay(time) {
-	console.log('time: ', time);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.font = '48px Arial';
-	ctx.fillStyle = 'white';
-	ctx.textAlign = 'center';
-	ctx.fillText(time.toString(), canvas.width / 2, canvas.height / 2);
-}
 
 function startGame() {
 	gameLoop();

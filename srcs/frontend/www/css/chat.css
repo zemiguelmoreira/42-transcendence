@@ -200,6 +200,7 @@ ul {
 	--bs-btn-disabled-color: #fff;
 	--bs-btn-disabled-bg: #05fe2260;
 	--bs-btn-disabled-border-color: #00000000;
+	border-radius: 5px !important;
 }
 
 .dropdown-menu {
@@ -255,6 +256,13 @@ ul {
 	top: 1px;
 }
 
+.reject-button:disabled {
+	box-shadow: inset 0px 1px 0px 0px #fff;
+    background: #b0b0b0;
+    color: #fff;
+    border-color: #000;
+}
+
 .accept-button {
 	box-shadow: inset 0px 1px 0px 0px #9acc85;
 	background: linear-gradient(to bottom, #74ad5a 5%, #68a54b 100%);
@@ -279,6 +287,13 @@ ul {
 .accept-button:active {
 	position: relative;
 	top: 1px;
+}
+
+.accept-button:disabled {
+	box-shadow: inset 0px 1px 0px 0px #fff;
+    background: #b0b0b0;
+    color: #fff;
+    border-color: #000;
 }
 
 .invite-pending,

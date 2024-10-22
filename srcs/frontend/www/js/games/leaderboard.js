@@ -63,7 +63,6 @@ async function fetchPongRankings() {
 				const img = document.createElement('img');
 				img.src = `${player.profile_image_url}` || 'default.jpg';
 				// img.src = `https://${window.location.host}${player.profile_image_url}` || 'default.jpg';
-				console.log(img.src);
 				img.alt = `${player.username}'s profile image`;
 				img.className = "leaderboard-img"
 				li.appendChild(document.createTextNode(`${counter++} `));
@@ -105,10 +104,10 @@ async function fetchSnakeRankings() {
 				const li = document.createElement('li');
 				li.className = 'leaderboard-row';
 				const img = document.createElement('img');
-				img.src = player.profile_image_url ? `https://${window.location.host}${player.profile_image_url}` : 'default.jpg'; // Exibe uma imagem padrão se o profile_image for null
+				img.src = `${player.profile_image_url}` || 'default.jpg';
+				// img.src = player.profile_image_url ? `https://${window.location.host}${player.profile_image_url}` : 'default.jpg';
 				img.alt = `${player.username}'s profile image`;
-				img.width = 50;
-				img.height = 50;
+				img.className = "leaderboard-img"
 				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
 				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} XP`));
