@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 							}
 						}
 					}
-					if (matchedRoute && (window.location.pathname === `/user/$matchedRoute.params.username/chat-playing`)) {
+					if (matchedRoute && (window.location.pathname === `/user/${matchedRoute.params.username}/chat-playing`)) {
 						changeChatLoaded();
 						navigateTo(`/user/${matchRoute.params.username}`);
 						return;
