@@ -4,7 +4,6 @@ import { fetchUserProfile } from "./myprofile.js";
 import { fetchWithAuth } from "../utils/fetchWithToken.js";
 import { messageContainerToken } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
-import { deleteUser } from "../login/login.js";
 import { getUserProfileByUsername } from "./myprofile.js";
 
 function edit(data, username) {
@@ -34,24 +33,15 @@ function edit(data, username) {
 		});
 	});
 
-	document.getElementById("changePassword").addEventListener("click", function () {
-		navigateTo(`/user/${username}/profile/update-password`);
-	});
-
+	
 	document.getElementById('updateProfile').addEventListener('click', (e) => {
 		e.preventDefault();
 		updateUserProfile(data, username, selectedProfileImage);
 	});
 
-	document.getElementById("deleteAccount").addEventListener("click", function () {
-		deleteUser();
-	});
-
 	document.getElementById("backButton").addEventListener("click", function () {
 		window.history.back();
 	});
-
-
 
 }
 

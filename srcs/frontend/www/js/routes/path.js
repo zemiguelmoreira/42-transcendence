@@ -109,8 +109,8 @@ const pages = {
 		redirect: '/'
 	},
 	'/user/:username/profile/update-password': {
-		loadContent: function () {
-			displayChangePassword();
+		loadContent: function (params) {
+			displayChangePassword(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

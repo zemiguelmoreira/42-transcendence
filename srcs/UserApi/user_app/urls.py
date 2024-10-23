@@ -14,10 +14,13 @@ urlpatterns = [
     path('user/request-password-reset/', views.RequestPasswordResetView.as_view(), name='request-password-reset'),
     path('user/reset-password/', views.ResetPasswordView.as_view(), name='reset-password'),
     path('token/', views.CustomTokenObtainPairView.as_view(), name="get_token"),
+    path('token/no-2fa/', views.CustomTokenObtainPairViewWithout2FA.as_view(), name='token-no-2fa'),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('token/verify-2fa/', views.Verify2FACodeView.as_view(), name='verify_2fa_code'),
     path('profile/get_qr_code/', views.GetQRCodeView.as_view(), name='get_qr_code'),
-
+    path('toggle-2fa/', views.Toggle2FAView.as_view(), name='toggle-2fa'),
+    path('check-2fa-status/<str:username>/', views.Check2FAStatusView.as_view(), name='check-2fa-status'),
+    
     path('profile/', views.UserProfileDetailView.as_view(), name='user_profile'),
     path('profile/get_user_profile/',views.GetUserProfileView.as_view(), name='get_user_profile'),
     path('profile/all_users/', views.ListAllUsersView.as_view(), name='list_all_users'),

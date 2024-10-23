@@ -699,6 +699,37 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             'access': access_token,
         }, status=status.HTTP_200_OK)
 
+class CustomTokenObtainPairViewWithout2FA(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = TokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception:
+            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = serializer.user
+        
+        # Verifica se o perfil do usuário existe e se 2FA está desabilitado
+        try:
+            profile = user.profile
+            if profile.two_factor_enabled:
+                return Response({"detail": "2FA is enabled, use the 2FA login."}, status=status.HTTP_403_FORBIDDEN)
+        except UserProfile.DoesNotExist:
+            profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
+
+        # Gerar tokens JWT
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': access_token,
+        }, status=status.HTTP_200_OK)
+
 class GetQRCodeView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -740,6 +771,35 @@ class Verify2FACodeView(APIView):
             })
         else:
             return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
+
+class Check2FAStatusView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, username, *args, **kwargs):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        profile = user.profile
+        return Response({"two_factor_enabled": profile.two_factor_enabled}, status=status.HTTP_200_OK)
+
+
+class Toggle2FAView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        profile = user.profile
+        enable_2fa = request.data.get('enable_2fa', None)
+
+        if enable_2fa is None:
+            return Response({"detail": "Please provide a valid value for enable_2fa"}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile.two_factor_enabled = enable_2fa
+        profile.save()
+
+        return Response({"detail": f"2FA {'enabled' if enable_2fa else 'disabled'} successfully"}, status=status.HTTP_200_OK)
 
 class UpdateMatchHistoryView(generics.GenericAPIView):
     """

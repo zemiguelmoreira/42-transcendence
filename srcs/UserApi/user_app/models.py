@@ -18,6 +18,7 @@ class UserProfile(models.Model):
     two_factor_code = models.CharField(max_length=255, blank=True, null=True)
     two_factor_expiry = models.DateTimeField(blank=True, null=True)
     two_factor_secret = models.CharField(max_length=255, blank=True, null=True)  # Adicione este campo
+    two_factor_enabled = models.BooleanField(default=False)
 
     # Estatísticas gerais
     wins = models.IntegerField(default=0)
