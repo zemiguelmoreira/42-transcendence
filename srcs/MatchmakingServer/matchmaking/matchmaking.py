@@ -90,13 +90,14 @@ class MatchmakingManager:
 			}
 		)
 
+
 	async def cancel_matchmaking(self, username):
 		if username in MatchmakingManager.matchmaking_tasks:
 			task = MatchmakingManager.matchmaking_tasks[username]
 			if not task.done():  # check if the task is still running
 				task.cancel()
 			del MatchmakingManager.matchmaking_tasks[username]  # remove from tracking
-		# await self.remove_player(username, game)
+		# await self.remove_player(username, game) handled on consumer side
 
 
 	# needs to iterate through the list because of json format
