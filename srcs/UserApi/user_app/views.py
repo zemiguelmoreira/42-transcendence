@@ -839,10 +839,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                             ratio = higher_rank / lower_rank * (-1)
                         elif loser_rank == lower_rank:
                             ratio = lower_rank / higher_rank * (-1)
-                    if ratio > 2:
-                        ratio  = 2
-                    elif ratio < -2:
-                        ratio = -2
+                    if ratio > 1.5:
+                        ratio  = 1.5
+                    elif ratio < -1.5:
+                        ratio = -1.5
                     points = 100 * ratio
                     if not current_is_winner and loser_rank <= points:
                         current_profile.pong_rank = 1
