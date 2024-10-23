@@ -155,7 +155,7 @@ const pages = {
 	},
 	'/user/:username/chat-playing': {
 		loadContent: function (params) {
-			snakeOptions(params.username);
+			// snakeOptions(params.username); cancel voltava sempre ao snake
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

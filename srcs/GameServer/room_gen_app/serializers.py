@@ -12,9 +12,6 @@ class MatchSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def validate(self, data):
-        """
-        Verifica se o vencedor e o perdedor são diferentes.
-        """
         if data['winner'] == data['loser']:
-            raise serializers.ValidationError("O vencedor não pode ser o mesmo que o perdedor.")
+            raise serializers.ValidationError("Winner can't be the same as loser.")
         return data

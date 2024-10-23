@@ -250,6 +250,9 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	font-family: "CustomFont";
+	font-size: 14px;
+	color: #dfe4fc;
 	flex-grow: 1;
 }
 
@@ -279,6 +282,7 @@
 .sm-start-button {
     width: 100%;
     padding: 10px;
+	font-family: "CustomFont";
     background-color: #ff5e5e;
     color: white;
     font-size: 18px;
@@ -547,3 +551,5 @@
 	margin-block: 3px;
 	border-radius: 10px;
 }
+
+

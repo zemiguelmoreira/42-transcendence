@@ -236,7 +236,7 @@ function initializeTournament(playersObj, username, dataUsername) {
 		const winner = document.createElement('div');
 		winner.className = 'player btn btn-warning';
 		winner.id = 'final-winner';
-		winner.innerText = "Vencedor";
+		winner.innerText = "Winner";
 		winnerMatchDiv.appendChild(winner);
 		winnerDivisionDiv.appendChild(winnerMatchDiv);
 		winnerRoundDiv.appendChild(winnerDivisionDiv);
@@ -289,7 +289,7 @@ function initializeTournament(playersObj, username, dataUsername) {
 			if (winners.length > 1) {
 				generateNextRound();
 			} else {
-				document.getElementById("sm-match-box").innerText = "Vencedor final:\n" + winners[0];
+				document.getElementById("sm-match-box").innerText = "Final winner:\n" + winners[0];
 				document.querySelector("#final-winner").innerText = winners[0];
 				document.querySelector("#startMatchBtn").style.display = "none";
 				document.getElementById("canvas-confetti").style.display = "block";
