@@ -144,7 +144,7 @@ function initializeTournament(playersObj, username, dataUsername) {
 				const matchDiv = document.createElement('div');
 				matchDiv.className = 'match';
 				const canvas = document.createElement('canvas');
-				canvas.id = "canvas-Tournament";
+				canvas.id = "canvastournament";
 				canvas.width = columnWidth;
 				canvas.height = totalHeight / numMatches;
 				extraDivisionDiv.appendChild(canvas);
