@@ -79,8 +79,6 @@ class FortyTwoConnectView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        # client_secret = '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'
-        # client_secret = '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'
         client_secret = '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'
         # Extrai o código e o state do corpo da requisição
         code = request.data.get('code')
@@ -676,21 +674,31 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         try:
             serializer.is_valid(raise_exception=True)
-        except Exception as e:
+        except Exception:
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = serializer.user
+
+        # Verificar se o perfil do usuário existe
         try:
             profile = user.profile
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
 
-        # Aqui você deve gerar um código TOTP secreto para o usuário, se ainda não existir
-        if not profile.two_factor_code:
-            profile.two_factor_code = pyotp.random_base32()
-            profile.save()
+        # Se o 2FA estiver habilitado, exigir o código TOTP
+        if profile.two_factor_enabled:
+            # Verificar se o código de 2FA foi enviado na requisição
+            two_factor_code = request.data.get('2fa_code')
 
-        # Gerar tokens JWT
+            if not two_factor_code:
+                return Response({"detail": "2FA code required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Validar o código TOTP
+            totp = pyotp.TOTP(profile.two_factor_secret)
+            if not totp.verify(two_factor_code):
+                return Response({"detail": "Invalid 2FA code"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Se o 2FA estiver desabilitado ou se o código foi validado corretamente, gerar tokens JWT
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
@@ -740,6 +748,35 @@ class Verify2FACodeView(APIView):
             })
         else:
             return Response({"detail": "Invalid or expired 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
+
+class Check2FAStatusView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, username, *args, **kwargs):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        profile = user.profile
+        return Response({"two_factor_enabled": profile.two_factor_enabled}, status=status.HTTP_200_OK)
+
+
+class Toggle2FAView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        profile = user.profile
+        enable_2fa = request.data.get('enable_2fa', None)
+
+        if enable_2fa is None:
+            return Response({"detail": "Please provide a valid value for enable_2fa"}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile.two_factor_enabled = enable_2fa
+        profile.save()
+
+        return Response({"detail": f"2FA {'enabled' if enable_2fa else 'disabled'} successfully"}, status=status.HTTP_200_OK)
 
 class UpdateMatchHistoryView(generics.GenericAPIView):
     """
@@ -817,7 +854,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 
                 current_profile.pong_match_history.append(match_data)
             
-                # If the game is ranked, calculate and update points
+                # If the game is ranked, calculate and update poinzts
                 if ranked and winner_profile and loser_profile:
                     # Calculate rank difference between the winner and loser
                     points_earned = 0

@@ -287,10 +287,10 @@ function drawGame() {
 document.addEventListener('keydown', function (event) {
 	if (playerIndex === null) return;
 	switch (event.key) {
-		case 'w':
+		case 'ArrowUp':
 			sendMoveCommand('up');
 			break;
-		case 's':
+		case 'ArrowDown':
 			sendMoveCommand('down');
 			break;
 	}
@@ -299,8 +299,8 @@ document.addEventListener('keydown', function (event) {
 document.addEventListener('keyup', function (event) {
 	if (playerIndex === null) return;
 	switch (event.key) {
-		case 'w':
-		case 's':
+		case 'ArrowUp':
+		case 'ArrowDown':
 			sendMoveCommand('idle');
 			break;
 	}

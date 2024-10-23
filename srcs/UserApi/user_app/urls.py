@@ -16,6 +16,8 @@ urlpatterns = [
     path('token/', views.CustomTokenObtainPairView.as_view(), name="get_token"),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('token/verify-2fa/', views.Verify2FACodeView.as_view(), name='verify_2fa_code'),
+    path('toggle-2fa/', views.Toggle2FAView.as_view(), name='toggle-2fa'),
+    path('check-2fa-status/<str:username>/', views.Check2FAStatusView.as_view(), name='check-2fa-status'),
     path('profile/get_qr_code/', views.GetQRCodeView.as_view(), name='get_qr_code'),
 
     path('profile/', views.UserProfileDetailView.as_view(), name='user_profile'),
