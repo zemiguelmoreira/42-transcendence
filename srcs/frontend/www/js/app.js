@@ -251,6 +251,12 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 				return;
 			}
 			if (matchedRoute && accessAllowed) {
+				if (e.state.page === `/user/${matchedRoute.params.username}/chat-playing`) {
+					const newState = { page: `/user/${matchedRoute.params.username}` };
+					history.replaceState(newState, '', `/user/${matchedRoute.params.username}`);
+					homeLogin(matchedRoute.params.username);
+					return;
+				}
 				console.log('teste history not navigate');
 				matchedRoute.page.loadContent(matchedRoute.params);
 			} else {
@@ -458,7 +464,11 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 							}
 						}
 					}
-
+					if (matchedRoute && (window.location.pathname === `/user/$matchedRoute.params.username/chat-playing`)) {
+						changeChatLoaded();
+						navigateTo(`/user/${matchRoute.params.username}`);
+						return;
+					}
 					const pathState = { 'page': window.location.pathname};
 					// history.replaceState(pathState, '', window.location.pathname);
 					history.replaceState(pathState, '', window.location.pathname);

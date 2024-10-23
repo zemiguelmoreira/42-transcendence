@@ -63,9 +63,21 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 	const formData = new FormData();
 	formData.append('bio', bio);
 	formData.append('alias_name', alias_name);
+	const maxSize = 5 * 1024 * 1024;
+	const allowedImageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
 	if (profileImage) {
-		formData.append('profile_image', profileImage);
+		if (profileImage.size > maxSize) {
+			displaySlidingMessage('Image size must be less than 5MB');
+			document.getElementById('choosePicture').value = '';
+			return;
+		} else if (!allowedImageTypes.includes(profileImage.type)) {
+			displaySlidingMessage('Image must be of type jpg or png');
+			document.getElementById('choosePicture').value = '';
+			return
+		} else {
+			formData.append('profile_image', profileImage);
+		}
 	} else if (selectedProfileImage) {
 		const response = await fetch(selectedProfileImage);
 		const blob = await response.blob();
@@ -89,7 +101,7 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 		if (response.ok) {
 			// await homeLogin(username); // Não funciona porque tem a flag para actualizar a foto da navbar fazer refresh
 			await fetchUserProfile(username);
-		
+
 			let newData = await getUserProfileByUsername(username);
 			document.getElementById('miniPhoto').src = newData.profile.profile_image_url;
 			console.log('newData: ', newData);
@@ -103,9 +115,7 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 			}
 		}
 	} catch (error) {
-
 		if (error.status === 401) {
-
 			const messageDiv = messageContainerToken();
 			document.getElementById('root').innerHTML = "";
 			document.getElementById('root').insertAdjacentHTML('afterbegin', messageDiv);
@@ -115,12 +125,11 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 				messageContainer.style.display = 'none';
 				navigateTo(`/signIn`);
 			}, 2000);
+			document.getElementById('choosePicture').value = '';
 			return;
-
 		} else {
-
 			displaySlidingMessage('Failed to update profile! Please try again.');
-
+			document.getElementById('choosePicture').value = '';
 		}
 	}
 }
