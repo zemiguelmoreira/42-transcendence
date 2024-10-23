@@ -77,9 +77,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	#cancel inviter invite
 	async def handle_cancel_invite(self, data):
-		if self.inviting is False:
+		if self.inviting is None:
 			return
-		self.inviting = False
+		self.inviting = None
 		recipient = data.get("recipient", None)
 		if not recipient:
 			await self.channel_layer.group_send(
@@ -124,7 +124,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"game": game,
 				}
 			)
-			self.inviting = True
+			self.inviting = recipient
 			logging.info(f"Chat: handle_invite: Invite sent to {recipient} by {self.user.username}.")
 
 
@@ -262,14 +262,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	# inviter letting frontend know of invite response
 	async def invite_response(self, event):
-		if self.inviting is False:
+		if self.inviting is None:
 			logging.error("Chat: invite_response: This invite was cancelled previously, not doing anything")
 			return
 		invitee = event["invitee"]
 		accepted = event["accepted"]
 		game = event.get("game", "a game")
 		roomCode = event.get("roomCode", None)
-		self.inviting = False
+		self.inviting = None
 		await self.send(text_data=json.dumps({
 			"invite_response": True,
 			"invitee": invitee,
@@ -329,7 +329,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 		logging.info(f"Chat: initialize_connection: User {self.user.username} connected.")
 		self.authenticated = True
-		self.inviting = False # inviting status
+		self.inviting = None# inviting status
 		self.pending = [] # pending invites
 		# adding user to channel groups and online list
 		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -341,8 +341,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 		await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 		await self.remove_online_user()
+		await self.invites_cleanup()
 		logging.info(f"Chat: cleanup_connection: User {self.user.username} disconnected.")
 
+	async def invites_cleanup(self):
+		if self.inviting:
+			invitee_group_name = "user_%s" % self.inviting
+			await self.channel_layer.group_send(
+				invitee_group_name, {"type": "cancel_invite.message", "sender": self.user.username}
+			)
+		if self.pending:
+			for user in self.pending:
+				inviter_group_name = "user_%s" % user
+				await self.channel_layer.group_send(
+					inviter_group_name, {"type": "invite.response",
+						"invitee": self.user.username,
+						"accepted": False,
+						# "game": "a game",
+						# "roomCode": None
+					}
+				)
 
 	# utility methods
 	async def add_online_user(self):

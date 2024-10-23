@@ -821,23 +821,30 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 if ranked and winner_profile and loser_profile:
                     points = 0
                     ratio = 1
-                    if winner_profile.pong_rank > 0 and loser_profile.pong_rank > 0:
-                        if current_is_winner:
-                            ratio = winner_profile.pong_rank / loser_profile.pong_rank
-                        else:
-                            ratio = loser_profile.pong_rank / winner_profile.pong_rank
-                        if ratio > 2:
-                            ratio = 2
-                        elif ratio < 0.5:
-                            ratio = 0.5
-                    else:
-                        ratio = 1
-
+                    winner_rank = winner_profile.pong_rank
+                    loser_rank = loser_profile.pong_rank
+                    if winner_rank == 0:
+                        winner_rank = 1
+                    if loser_rank == 0:
+                        loser_rank = 1
+                    higher_rank = max(winner_rank, loser_rank)
+                    lower_rank = min(winner_rank, loser_rank)
                     if current_is_winner:
-                        points = 100 * ratio
+                        if winner_rank == higher_rank:
+                            ratio = lower_rank / higher_rank
+                        elif winner_rank == lower_rank:
+                            ratio = higher_rank / lower_rank
                     else:
-                        points = -100 * ratio
-                    if not current_is_winner and loser_profile.pong_rank <= points * (-1):
+                        if loser_rank == higher_rank:
+                            ratio = higher_rank / lower_rank * (-1)
+                        elif loser_rank == lower_rank:
+                            ratio = lower_rank / higher_rank * (-1)
+                    if ratio > 2:
+                        ratio  = 2
+                    elif ratio < -2:
+                        ratio = -2
+                    points = 100 * ratio
+                    if not current_is_winner and loser_rank <= points:
                         current_profile.pong_rank = 1
                     else:
                         current_profile.pong_rank += points
@@ -864,23 +871,30 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                 if ranked and winner_profile and loser_profile:
                     points = 0
                     ratio = 1
-                    if winner_profile.snake_rank > 0 and loser_profile.snake_rank > 0:
-                        if current_is_winner:
-                            ratio = winner_profile.snake_rank / loser_profile.snake_rank
-                        else:
-                            ratio = loser_profile.snake_rank / winner_profile.snake_rank
-                        if ratio > 2:
-                            ratio = 2
-                        elif ratio < 0.5:
-                            ratio = 0.5
-                    else:
-                        ratio = 1
-
+                    winner_rank = winner_profile.snake_rank
+                    loser_rank = loser_profile.snake_rank
+                    if winner_rank == 0:
+                        winner_rank = 1
+                    if loser_rank == 0:
+                        loser_rank = 1
+                    higher_rank = max(winner_rank, loser_rank)
+                    lower_rank = min(winner_rank, loser_rank)
                     if current_is_winner:
-                        points = 100 * ratio
+                        if winner_rank == higher_rank:
+                            ratio = lower_rank / higher_rank
+                        elif winner_rank == lower_rank:
+                            ratio = higher_rank / lower_rank
                     else:
-                        points = -100 * ratio
-                    if not current_is_winner and loser_profile.snake_rank <= points * (-1):
+                        if loser_rank == higher_rank:
+                            ratio = higher_rank / lower_rank * (-1)
+                        elif loser_rank == lower_rank:
+                            ratio = lower_rank / higher_rank * (-1)
+                    if ratio > 1.5:
+                        ratio  = 1.5
+                    elif ratio < -1.5:
+                        ratio = -1.5
+                    points = 1.5 * ratio
+                    if not current_is_winner and loser_rank <= points:
                         current_profile.snake_rank = 1
                     else:
                         current_profile.snake_rank += points
