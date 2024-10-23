@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 					}
 					if (matchedRoute && (window.location.pathname === `/user/${matchedRoute.params.username}/chat-playing`)) {
 						changeChatLoaded();
-						navigateTo(`/user/${matchRoute.params.username}`);
+						navigateTo(`/user/${matchedRoute.params.username}`);
 						return;
 					}
 					const pathState = { 'page': window.location.pathname};
