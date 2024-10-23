@@ -844,7 +844,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                     elif ratio < -1.5:
                         ratio = -1.5
                     points = 100 * ratio
-                    if not current_is_winner and loser_rank <= points:
+                    if current_profile + points <= 0:
                         current_profile.pong_rank = 1
                     else:
                         current_profile.pong_rank += points
@@ -894,7 +894,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                     elif ratio < -1.5:
                         ratio = -1.5
                     points = 1.5 * ratio
-                    if not current_is_winner and loser_rank <= points:
+                    if current_profile + points <= 0:
                         current_profile.snake_rank = 1
                     else:
                         current_profile.snake_rank += points
