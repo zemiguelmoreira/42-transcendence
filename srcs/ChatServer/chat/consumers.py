@@ -269,6 +269,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		accepted = event["accepted"]
 		game = event.get("game", "a game")
 		roomCode = event.get("roomCode", None)
+		# if accepted: (handled from url change on frontend)
+		# 	self.channel_layer.group_send(
+		# 		"user_mm_%s" % self.user.username, {
+		# 			"type": "chat.cancel"
+		# 		}
+		# 	)
+		# 	self.channel_layer.group_send(
+		# 		"user_mm_%s" % invitee, {
+		# 			"type": "chat.cancel"
+		# 		}
+		# 	)
 		self.inviting = None
 		await self.send(text_data=json.dumps({
 			"invite_response": True,

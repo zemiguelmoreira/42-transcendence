@@ -82,6 +82,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	# event handlers
+	# cancel if started game from chat (handled from url change on frontend)
+	# async def chat_cancel(self, event):
+		# logging.info(f"Matchmaking: chat_cancel: User {self.user.username} started a game from chat. Cancelling matchmaking for {self.game}.")
+		# await self.cancel_matchmaking()
+
+
 	async def match_notFound(self, event):
 		logging.info(f"Matchmaking: match_notFound: Match not found for {self.user.username} in {self.game}. Rejoining matchmaking.")
 		await self.matchmake()
