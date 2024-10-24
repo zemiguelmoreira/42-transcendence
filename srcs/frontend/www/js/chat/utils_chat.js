@@ -15,7 +15,6 @@ function displayChatMessage(data, chatLog) {
 	console.log("chatLog: ", chatLog);
 
 	const messageElement = document.createElement("div");
-	// messageElement.style.overflowWrap = "break-word";
 	if (data.private) {
 		messageElement.classList.add('message-private');
 	} else if (data.system) {
@@ -74,6 +73,7 @@ function createInviteElement(inviteMessage, sender, game, username) {
 	const messageText = document.createElement("span");
 	messageText.textContent = inviteMessage;
 	const buttonContainer = document.createElement("div");
+	buttonContainer.id = sender;
 	buttonContainer.classList.add('button-container');
 	const acceptButton = createInviteResponseButton("Accept", true, sender, game, username);
 	const rejectButton = createInviteResponseButton("Reject", false, sender, game, username);
@@ -98,9 +98,10 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 
 		chatSocketInstance.send(response);
 
-		const buttonContainer = this.closest('.button-container');
+		const buttonContainer = document.getElementById(data.sender);
 		buttonContainer.querySelector('.accept-button').disabled = true;
 		buttonContainer.querySelector('.reject-button').disabled = true;
+
 		if (window.location.pathname !== `/user/${username}/chat-playing`)
 			navigateTo(`/user/${username}/chat-playing`);
 		if (!accepted) {
@@ -110,13 +111,17 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 	return button;
 }
 
-function handleInviteCancelled(username, data, chatLog) {
+function handleInviteCancelled(data, chatLog) {
 	const inviteCancelledElement = document.createElement("div");
 	inviteCancelledElement.classList.add('message-error');
 	inviteCancelledElement.textContent = `${data.sender} has cancelled the invite.`;
 	chatLog.appendChild(inviteCancelledElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
 	displaySlidingMessage(`${data.sender} has cancelled the invite.`);
+	console.log(data.sender);
+	const buttonContainer = document.getElementById(`${data.sender}`);
+	buttonContainer.querySelector('.accept-button').disabled = true;
+	buttonContainer.querySelector('.reject-button').disabled = true;
 }
 
 function getRoomCode(username, data) {
@@ -159,7 +164,6 @@ function handleInviteResponse(username, data, chatLog) {
 		responseMessage = `${invitee} has declined your invite!`;
 		inviteResponseElement.classList.add('message-error');
 		document.getElementById('invitePending').remove();
-		// navigateTo(`/user/${username}`);
 	}
 	inviteResponseElement.innerHTML = responseMessage;
 	chatLog.appendChild(inviteResponseElement);
@@ -218,13 +222,7 @@ function createDropdownToggle() {
 function createDropdownMenu(username, user) {
 	const dropdownMenu = document.createElement("div");
 	dropdownMenu.classList.add("dropdown-menu");
-	// if (username === user) {
-	// 	const disabledItem = document.createElement("span");
-	// 	disabledItem.classList.add("dropdown-item", "disabled");
-	// 	disabledItem.textContent = "Hi " + username + "!";
-	// 	dropdownMenu.appendChild(disabledItem);
-	// 	return dropdownMenu;
-	// }
+
 	const action0 = createDropdownItem("Block User", "#", async (e) => {
 		await blockUser(user, displaySlidingMessage);
 	});
@@ -287,8 +285,7 @@ async function sendGameInvite(username, user, game) {
 		"game": game,
 	};
 	invitedUser = user;
-	chatSocketInstance.send(inviteMessage);//
-	// chatSocketInstance.sendWithToken(inviteMessage);
+	chatSocketInstance.send(inviteMessage);
 	const invitePendingDiv = document.createElement('div');
 	invitePendingDiv.classList.add('invite-pending');
 	invitePendingDiv.id = 'invitePending';

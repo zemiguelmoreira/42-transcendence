@@ -57,18 +57,16 @@ async function fetchPongRankings() {
 		pongRankingsElement.innerHTML = '';
 		let counter = 1;
 		data.pong_rankings.forEach(player => {
-			if (player.pong_rank !== 0) {
-				const li = document.createElement('li');
-				li.className = 'leaderboard-row';
-				const img = document.createElement('img');
-				img.src = `${player.profile_image_url}` || 'default.jpg';
-				img.alt = `${player.username}'s profile image`;
-				img.className = "leaderboard-img"
-				li.appendChild(document.createTextNode(`${counter++} `));
-				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} Points`));
-				pongRankingsElement.appendChild(li);
-			}
+			const li = document.createElement('li');
+			li.className = 'leaderboard-row';
+			const img = document.createElement('img');
+			img.src = `${player.profile_image_url}` || 'default.jpg';
+			img.alt = `${player.username}'s profile image`;
+			img.className = "leaderboard-img"
+			li.appendChild(document.createTextNode(`${counter++} `));
+			li.appendChild(img);
+			li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} Points`));
+			pongRankingsElement.appendChild(li);
 		});
 
 	} catch (error) {
@@ -99,18 +97,16 @@ async function fetchSnakeRankings() {
 		snakeRankingsElement.innerHTML = '';
 		let counter = 1;
 		data.snake_rankings.forEach(player => {
-			if (player.snake_rank !== 0) {
-				const li = document.createElement('li');
-				li.className = 'leaderboard-row';
-				const img = document.createElement('img');
-				img.src = `${player.profile_image_url}` || 'default.jpg';
-				img.alt = `${player.username}'s profile image`;
-				img.className = "leaderboard-img"
-				li.appendChild(document.createTextNode(`${counter++} `));
-				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} Points`));
-				snakeRankingsElement.appendChild(li);
-			}
+			const li = document.createElement('li');
+			li.className = 'leaderboard-row';
+			const img = document.createElement('img');
+			img.src = `${player.profile_image_url}` || 'default.jpg';
+			img.alt = `${player.username}'s profile image`;
+			img.className = "leaderboard-img"
+			li.appendChild(document.createTextNode(`${counter++} `));
+			li.appendChild(img);
+			li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} Points`));
+			snakeRankingsElement.appendChild(li);
 		});
 
 	} catch (error) {

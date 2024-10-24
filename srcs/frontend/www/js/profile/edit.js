@@ -80,7 +80,6 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 	const conf = {
 		method: 'PUT',
 		headers: {
-			// 'Authorization': `Bearer ${accessToken}`,
 		},
 		body: formData,
 	};
@@ -89,7 +88,6 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 		response = await fetchWithAuth('/api/profile/update_profile/', conf);
 
 		if (response.ok) {
-			// await homeLogin(username); // Não funciona porque tem a flag para actualizar a foto da navbar fazer refresh
 			await fetchUserProfile(username);
 
 			let newData = await getUserProfileByUsername(username);
@@ -98,7 +96,6 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 
 			displaySlidingMessage('Profile updated successfully!');
 		} else {
-			// throw new Error('Failed to update profile');
 			throw {
 				status: response.status,
 				message: response.statusText

@@ -1,4 +1,4 @@
-import { makeProfilePage, makeProfilePageSearchOther, makeSettingsPage } from "./profilePages.js";
+import { makeProfilePage, makeSettingsPage } from "./profilePages.js";
 import { navigateTo } from "../app.js";
 import { removeFriend, unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
@@ -14,10 +14,8 @@ function userProfilePage(userData, user) {
 	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
 
-	// console.log('PRINT PONG: ', userData.profile.pong_match_history);
 	displayMatchHistory(userData.profile.pong_match_history, "pongTableContainer");
 
-	// console.log('PRINT SNAKE: ', userData.profile.snake_match_history);
 	displayMatchHistory(userData.profile.snake_match_history, "snakeTableContainer");
 
 	displayProfileFriendsList(userData.user.username);
@@ -69,7 +67,7 @@ async function displayProfileFriendsList(myUsername) {
 		`;
 		for (const friend of friends) {
 			let dataUser = await getUserProfileByUsername(friend.username);
-			const uniqueId = `link-${friend.username}`;  // ID único baseado no nome de usuário
+			const uniqueId = `link-${friend.username}`;
 			table += `
 			<tr>
 				<td class="">
@@ -279,15 +277,17 @@ function profileSettings(dataUser) {
 		navigateTo(`/user/${dataUser.user.username}/profile/update-password`);
 	});
 
-	document.getElementById("deleteAccount").addEventListener("click", function () {
-		deleteUser();
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('refresh_token');
-		changeChatLoaded();
-		navigateTo(`/`);
-		chatSocketInstance.close();
+	document.getElementById("deleteAccount").addEventListener("click", async function (e) {
+		e.preventDefault();
+		const check = await deleteUser();
+		if (check) {
+			localStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
+			changeChatLoaded();
+			navigateTo(`/`);
+			chatSocketInstance.close();
+		}
 	});
-
 }
 
 function displayChangePassword(username) {

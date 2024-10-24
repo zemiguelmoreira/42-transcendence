@@ -18,14 +18,14 @@ const pages = {
 	'/': {
 		loadContent: function () {
 			console.log('home page loaded');
-			changeChatLoaded(); // para conseguir carregar a página da home totalmente
+			changeChatLoaded();
 			home();
 		},
 		access: true
 	},
 	'/signIn': {
 		loadContent: function () {
-			changeChatLoaded(); // para conseguir carregar a página da home totalmente
+			changeChatLoaded();
 			signIn();
 		},
 		access: true
@@ -48,7 +48,7 @@ const pages = {
 	},
 	'/user/:username': {
 		loadContent: function (params) {
-			sessionStorage.removeItem('access_token'); // saiu da função de signIn e passou para aqui
+			sessionStorage.removeItem('access_token');
 			homeLogin(params.username);
 		},
 		access: () => !!localStorage.getItem('access_token'),
@@ -155,7 +155,6 @@ const pages = {
 	},
 	'/user/:username/chat-playing': {
 		loadContent: function (params) {
-			// snakeOptions(params.username); cancel voltava sempre ao snake
 		},
 		access: () => !!localStorage.getItem('access_token'),
 		redirect: '/'

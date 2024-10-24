@@ -14,7 +14,6 @@ async function getUserProfileByUsername(username) {
 	try {
 		response = await fetchWithAuth(`/api/profile/get_user_profile/?username=${username}`, conf);
 		if (!response.ok) {
-			// const data = await response.json();
 			throw {
 				message: 'not possible to fetch user profile',
 				status: 401,
@@ -38,7 +37,6 @@ async function getNamebyId(id) {
 	try {
 		const response = await fetchWithAuth(`${baseURL}/profile/get_user_username/?id=${id}`, conf);
 		if (!response.ok) {
-			// throw new Error('Failed to fetch user profile');
 			throw {
 				message: response.statusText,
 				status: response.status,
@@ -47,7 +45,6 @@ async function getNamebyId(id) {
 		const data = await response.json();
 		return data.username;
 	} catch (error) {
-		// console.error('Error:', error);
 		console.log('response no getNamebyID: ', error);
 		return error;
 	};
@@ -62,7 +59,6 @@ async function fetchUserProfile(username, url = `/user/${username}/profile`) {
 	}
 	try {
 		const response = await fetchWithAuth(`${baseURL}/profile/`, conf);
-		// console.log('response: ', response);
 		if (!response.ok) {
 
 			throw {
@@ -78,8 +74,6 @@ async function fetchUserProfile(username, url = `/user/${username}/profile`) {
 		makeNavbar(data);
 
 	} catch (e) {
-		// navigateTo(`/error/${e.status}/${e.message}`);
-		// a alterar especificar a situação status = 401
 		if (e.status === 401) {
 			const messageDiv = messageContainerToken();
 			document.getElementById('root').innerHTML = "";
@@ -121,8 +115,6 @@ async function fetchUserProfileSettings(username) {
 
 	} catch (e) {
 
-		// navigateTo(`/error/${e.status}/${e.message}`);
-		// o mesmo do que a função de cima
 		if (e.status === 401) {
 			const messageDiv = messageContainerToken();
 			document.getElementById('root').innerHTML = "";

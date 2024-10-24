@@ -1,4 +1,3 @@
-import { snakeGameLocal , snakeGameRemote , snakeGameMultiplayer } from "./snake-pages.js";
 import { navigateTo } from "../app.js";
 
 function snakeOptions(username) {

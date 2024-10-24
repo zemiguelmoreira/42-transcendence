@@ -11,7 +11,7 @@ function displayEmailCode(text) {
     emailCodeText.innerHTML = "";
 	emailCodeText.textContent = `${text}`;
 	document.getElementById('emailCodeForm').style.display = 'block';
-    document.getElementById('emailCode').focus(); // colocar focus no campo de colocação do código
+    document.getElementById('emailCode').focus();
     const inputField = document.querySelector('#emailCode');
 	const limitChar = document.querySelector('#limitChar1');
 	handleInput(inputField, limitChar);
@@ -58,7 +58,7 @@ async function submitEmailCode(email) {
 		try {
 			const result = await verifyEmailCode(email, code);
 			console.log('result: ', result);
-			console.log('result status: ', result.status); // se não validar o result será um erro
+			console.log('result status: ', result.status);
 
 			if (result.status) {
 				if (result.status === 400)
@@ -71,7 +71,7 @@ async function submitEmailCode(email) {
 			document.getElementById('emailCodeForm').style.display = 'none';
 			document.getElementById('userRegisterForm').style.display = "block";
 			document.getElementById('root').innerHTML = "";
-			const successDiv = successContainerRegister(result.username); //tem de devolver o user no result
+			const successDiv = successContainerRegister(result.username);
 			document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 			showSuccessMessageRegister();
 
@@ -132,7 +132,7 @@ async function verifyEmailCode(email, emailCode) {
     } 
 
 	const dataCodeUser = await response.json();
-	return dataCodeUser;  // se o resultado for validado trazo user
+	return dataCodeUser; 
     
 }
 

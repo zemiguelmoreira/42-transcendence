@@ -19,10 +19,9 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 	let snakeScore3 = 0;
 	let snakeScore4 = 0;
 
-	// Desenha a grelha
 	function drawGrid() {
-		ctx.strokeStyle = '#345678'; // Cor das linhas da grelha
-		ctx.lineWidth = 1; // Espessura das linhas
+		ctx.strokeStyle = '#345678';
+		ctx.lineWidth = 1;
 		
 		for (let x = 0; x <= canvas.width; x += gridSize) {
 			ctx.beginPath();
@@ -38,7 +37,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 		}
 	}
 
-	// Mapeia cores para controles
     const controls = {
         '#0000FF': { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD' },
         '#00FF00': { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' },
@@ -46,7 +44,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
         '#FF0000': { up: 'Numpad8', down: 'Numpad5', left: 'Numpad4', right: 'Numpad6' }
     };
     
-    // Mapeia teclas para direções
     const keyMap = {
         'KeyW': 'UP', 'KeyS': 'DOWN', 'KeyA': 'LEFT', 'KeyD': 'RIGHT',
         'ArrowUp': 'UP', 'ArrowDown': 'DOWN', 'ArrowLeft': 'LEFT', 'ArrowRight': 'RIGHT',
@@ -54,7 +51,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
         'Numpad8': 'UP', 'Numpad5': 'DOWN', 'Numpad4': 'LEFT', 'Numpad6': 'RIGHT'
     };
     
-    // Função para gerar uma cor aleatória
     const randomColor = () => {
         const red = Math.floor(Math.random() * 256);
         const green = Math.floor(Math.random() * 256);
@@ -62,11 +58,9 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
         return `rgb(${red}, ${green}, ${blue})`;
     };
     
-    // Variáveis para a comida
     let food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) };
-    let foodColor = randomColor(); // Gera a cor inicial da comida
+    let foodColor = randomColor(); 
     
-    // Função para lidar com eventos de tecla pressionada
     document.addEventListener('keydown', (event) => {
         const key = event.code;
         snakes.forEach(snake => {
@@ -92,7 +86,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
             'LEFT': 'RIGHT',
             'RIGHT': 'LEFT'
         };
-        // Previne que a cobrinha se mova na direção oposta à sua direção atual
         return oppositeDirections[newDirection] !== snake.direction;
     }
     
@@ -114,17 +107,14 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
         }
     }
     
-    // Função para converter hexadecimal para RGB
     function hexToRgb(hex) {
         let r = 0, g = 0, b = 0;
         
-        // 3 dígitos
         if (hex.length === 4) {
             r = parseInt(hex[1] + hex[1], 16);
             g = parseInt(hex[2] + hex[2], 16);
             b = parseInt(hex[3] + hex[3], 16);
         }
-        // 6 dígitos
         else if (hex.length === 7) {
             r = parseInt(hex[1] + hex[2], 16);
             g = parseInt(hex[3] + hex[4], 16);
@@ -134,7 +124,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
         return `${r},${g},${b}`;
     }
     
-    // Função para checar colisão da cobrinha com ela mesma
     function checkCollision(head, snake) {
         for (let i = 1; i < snake.segments.length; i++) {
             if (head.x === snake.segments[i].x && head.y === snake.segments[i].y) {
@@ -147,12 +136,10 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
     function moveSnake(snake) {
         if (!snake.alive) return;
     
-        // Atualiza a direção da cobrinha se a nova direção for válida
         snake.direction = snake.newDirection;
     
         const head = { ...snake.segments[0] };
     
-        // Atualiza a posição do cabeça da cobrinha baseado na direção
         switch (snake.direction) {
             case 'RIGHT':
                 head.x += 1;
@@ -168,32 +155,26 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
                 break;
         }
     
-        // Verifica colisão com as bordas do canvas (sem colisão)
         if (head.x < 0) head.x = cols - 1;
         if (head.x >= cols) head.x = 0;
         if (head.y < 0) head.y = rows - 1;
         if (head.y >= rows) head.y = 0;
     
-        // Verifica colisão com o próprio corpo
         if (checkCollision(head, snake)) {
             snake.alive = false;
             return;
         }
     
-        // Verifica colisão com outras cobrinhas
-		// Verifica colisão com outras cobrinhas
 		for (const otherSnake of snakes) {
 			if (otherSnake !== snake && otherSnake.alive) {
 				const otherHead = otherSnake.segments[0];
 
-				// Colisão cabeça com cabeça
 				if (head.x === otherHead.x && head.y === otherHead.y) {
 					if (snake.segments.length > otherSnake.segments.length) {
 						otherSnake.alive = false;
 					} else if (snake.segments.length < otherSnake.segments.length) {
 						snake.alive = false;
 					} else {
-						// Ambas cobras têm o mesmo tamanho, decide aleatoriamente quem morre
 						const randomDeath = Math.random() < 0.5;
 						if (randomDeath) {
 							snake.alive = false;
@@ -204,7 +185,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 					return;
 				}
 
-				// Verifica colisão da cabeça de uma cobra com o corpo da outra
 				for (const segment of otherSnake.segments) {
 					if (head.x === segment.x && head.y === segment.y) {
 						snake.alive = false;
@@ -213,10 +193,9 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 			}
 		}
     
-		// Verifica se a cabeça da cobrinha colidiu com a comida
 		if (head.x === food.x && head.y === food.y) {
 			snake.segments.unshift(head);
-			food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; // Gera nova comida
+			food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) };
 			foodColor = randomColor();
 			if (snake.name === dataUsername.profile.alias_name) {
 				snakeScore1 = snake.segments.length - 2;
@@ -232,27 +211,22 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 				document.getElementById('snakeScore4').innerText = snakeScore4;
 			}
 		} else {
-			// Move a cobrinha: adiciona o novo segmento na frente e remove o último
 			snake.segments.unshift(head);
 			snake.segments.pop();
 		}
     }
     
     function update() {
-		// Limpa o canvas antes de desenhar o próximo frame
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		// Verifica se o usuário ainda está na página do jogo
 		if (window.location.pathname !== `/user/${username}/snake-game-free-for-all`) {
 			document.getElementById('runSnake').remove();
 			clearInterval(gameInterval);
 			return;
 		}
 
-		// Desenha a grelha
 		drawGrid();
 
-		// Atualiza e desenha cada cobrinha
 		snakes.forEach(snake => {
 			if (snake.alive)
 				moveSnake(snake);
@@ -260,56 +234,45 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 				drawSnake(snake);
 		});
 
-		// Verifica se restou apenas uma cobrinha viva ou nenhuma
 		const aliveSnakes = snakes.filter(snake => snake.alive);
 		if (aliveSnakes.length === 1) {
 			clearInterval(gameInterval);
 			endGame(aliveSnakes[0].name);
 		}
 
-		// Desenha a comida
 		drawFood();
     }
 
 	async function endGame(snake_winner) {
-		// Aguarda um segundo antes de exibir a tela de fim de
 		setTimeout(() => {
 			showEndScreen(snake_winner);
 		}, 1000)
 	}
 
 	function showEndScreen(winnerName) {
-		// Limpa o canvas antes de desenhar a mensagem de fim de jogo
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		// Desenha o fundo para a mensagem de fim de jogo
 		ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		// Ajuste da altura total disponível para o conteúdo
-		const totalHeight = canvas.height * 0.7; // Usamos 70% da altura do canvas para os textos
-		const partHeight = totalHeight / 4; // Divide essa altura em 4 partes
+		const totalHeight = canvas.height * 0.7;
+		const partHeight = totalHeight / 4; 
 
-		// Define a posição de início para centrar os textos verticalmente
-		const startY = (canvas.height - totalHeight) / 2; // Centraliza o conteúdo no canvas
+		const startY = (canvas.height - totalHeight) / 2;
 
-		// Texto para "WINNER" na segunda parte do canvas
 		ctx.textAlign = "center";
 		ctx.fillStyle = "#fff";
 		ctx.font = "50px CustomFont";
-		ctx.fillText("WINNER", canvas.width / 2, startY + partHeight); // Elevar um pouco mais o texto
+		ctx.fillText("WINNER", canvas.width / 2, startY + partHeight);
 
-		// Desenhar "WINNER" em vermelho deslocado
 		ctx.fillStyle = "red";
 		ctx.fillText("WINNER", canvas.width / 2 + 4, startY + partHeight + 4);
 
-		// Nome e pontuação do vencedor
-		ctx.fillStyle = "#fff"; // Texto em branco
-		ctx.font = "40px CustomFont"; // Tamanho do texto para o nome
-		ctx.fillText(`${winnerName}`, canvas.width / 2, startY + partHeight + 60); // Ajustar a posição do nome
+		ctx.fillStyle = "#fff";
+		ctx.font = "40px CustomFont";
+		ctx.fillText(`${winnerName}`, canvas.width / 2, startY + partHeight + 60);
 
 
-		// Após um atraso de 3 segundos, remove o jogo da tela
 		setTimeout(() => {
 			const closeGame = document.getElementById('runSnake');
 			if (closeGame) {
@@ -319,7 +282,6 @@ function initializeSnakeGameFreeForAll(username, guest1, guest2, guest3, dataUse
 		}, 3000);
 	}
     
-    // Inicializa o loop do jogo com base na velocidade definida
     const gameInterval = setInterval(update, gameSpeed);
 }
 

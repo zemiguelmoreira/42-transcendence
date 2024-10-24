@@ -1,6 +1,6 @@
-async function runPongMatch(player1Name, player2Name, username) {
+function runPongMatch(player1Name, player2Name, username) {
 
-	return new Promise((resolve) => {
+	return new Promise(async (resolve) => {
 		const backgroundCanvas = document.getElementById("pongBackgroundCanvas");
 		const backgroundCtx = backgroundCanvas.getContext("2d");
 		const canvas = document.getElementById("pongCanvas");
@@ -31,23 +31,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 		let lastScore2 = 0;
 		let gameOver = false;
 		
-		
-		let lastFpsUpdateTime = performance.now();  // Inicializa com o valor atual
-		let frameCount = 0;
-		let fps = 0;
-		
-		function updateFPS() {
-			frameCount++;
-			const currentTime = performance.now();  // Obtém o tempo atual
-			const deltaTime = currentTime - lastFpsUpdateTime;
-		
-			if (deltaTime >= 1000) {  // Atualiza a cada segundo
-				fps = frameCount;
-				frameCount = 0;
-				lastFpsUpdateTime = currentTime;
-			}
-		}
-
 		function drawPONG(letterSpacing = -5) {
 			backgroundCtx.font = "100px PongFont";
 			backgroundCtx.fillStyle = "#69696950";
@@ -63,7 +46,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 			}
 		}
 		
-		// Desenhado no backgroundCanvas
 		function drawPlayerNames() {
 			backgroundCtx.font = "20px CustomFont";
 			backgroundCtx.fillStyle = "gray";
@@ -138,7 +120,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 			drawRect(canvasWidth - paddleWidth, rightPaddleY, paddleWidth, paddleHeight, "#fff", ctx);
 		}
 
-		// Desenhado no backgroundCanvas
 		function drawDashedLine() {
 			backgroundCtx.beginPath();
 			backgroundCtx.setLineDash([20, 20]);
@@ -206,15 +187,11 @@ async function runPongMatch(player1Name, player2Name, username) {
 			if (player1Score > player2Score) {
 				winner = player1Name;
 				loser = player2Name;
-				winnerScore = player1Score;
-				loserScore = player2Score;
 			} else {
 				winner = player2Name;
 				loser = player1Name;
-				winnerScore = player2Score;
-				loserScore = player1Score;
 			}
-			await showEndScreen(winner);
+			
 			resolve(winner);
 		}
 
@@ -224,8 +201,6 @@ async function runPongMatch(player1Name, player2Name, username) {
 		drawPONG();	
 
 		function updateGame() {
-			updateFPS(); 
-			console.log(fps);
 
 			ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -277,30 +252,7 @@ async function runPongMatch(player1Name, player2Name, username) {
 			}
 		});
 
-		function showEndScreen(winnerName) {
-			const rectWidth = 400;
-			const rectHeight = 200;
-			const rectX = (canvasWidth - rectWidth) / 2;
-			const rectY = (canvasHeight - rectHeight) / 2;
-			ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-			ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
-			ctx.fillStyle = "#fff";
-			ctx.font = "50px CustomFont";
-			ctx.textAlign = "center";
-			ctx.fillText(`WINNER: ${winnerName}`, canvasWidth / 2, canvasHeight / 2 + 20);
-			return new Promise((resolve) => {
-				setTimeout(() => {
-					const closeGame = document.getElementById('runPong');
-					if (closeGame) {
-						closeGame.remove();
-					}
-					resolve();
-				}, 3000);
-			});
-		}
-
 		updateGame();
-
 	});
 }
 

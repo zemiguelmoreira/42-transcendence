@@ -1,33 +1,6 @@
 import { baseURL, navigateTo } from "../app.js";
 import { testToken } from "./tokens.js";
 
-async function fetchProtectedData() {
-    try {
-		const conf = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }
-        const response = await fetchWithAuth(`${baseURL}/protected/`, conf);
-        if (!response.ok) {
-            throw new Error(`Error fetching protected data: ${response.statusText}`);
-        }
-        const data = await response.json();
-    } catch (error) {
-        console.error(error.message);
-    }
-}
-
-function showMessageToken() {
-	let messageDiv = document.getElementById('tokenMessage');
-	messageDiv.style.display = 'block';
-	setTimeout(function() {
-		messageDiv.style.display = 'none';
-		navigateTo(`/`);
-	}, 5000);
-}
-
 async function fetchWithAuth(url, options = {}) {
     let accessToken = localStorage.getItem('access_token');
     if(!accessToken) {
@@ -77,11 +50,9 @@ async function refreshAccessToken() {
 			return true;
         } else {
             const errorData = await response.json();
-            // console.error('Erro de autenticação:', errorData.detail);
 			return false;
         }
     } catch (error) {
-        // console.error('Erro:', error);
 		return false;
     }
 }

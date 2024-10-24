@@ -9,7 +9,6 @@ import { getUserProfileByUsername } from "../profile/myprofile.js";
 import { makeHomePage, makeSimpleHomePage } from "./homepage.js";
 import { goTo } from "../app.js";
 import chatSocketInstance from "../chat/chat_socket.js";
-// import WebSocketInstance from "../socket/websocket.js";
 import { handleInput, handleInputBlur, showPassword } from "../utils/utils1.js";
 import { makeChatWindow } from "../chat/chat_html.js";
 import { initializeChat } from '../chat/chat.js';
@@ -161,9 +160,8 @@ function initButtonListeners(username) {
 		logOutButton.addEventListener('click', (e) => {
 			e.preventDefault();
 			removeToken(username);
-			chatLoaded = false; // introduzido para carregar de novo toda a página home
+			chatLoaded = false;
 			chatSocketInstance.close();
-			// WebSocketInstance.close();
 			setTimeout(function () {
 				navigateTo('/');
 			}, 2000);
@@ -213,15 +211,12 @@ async function homeLogin(username) {
 	} else {
 		console.log('error: ', dataUser);
 		const url_error = `/error/${dataUser.status}/${dataUser.statusText}`;
-		// navigateTo(`/error/${e.status}/${e.message}`);
 		history.replaceState({page: url_error}, '', url_error);
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('refresh_token');
-		// WebSocketInstance.close();
 		navigateTo(url_error);
 		return false;
 	}
-	// const home_page_simple = makeSimpleHomePage(dataUser);
 	const home_page_simple = makeSimpleHomePage();
 	const chat_window = makeChatWindow(username);
 
@@ -249,13 +244,8 @@ async function homeLogin(username) {
 	}
 	console.log('function homelogin');
 	initButtonListeners(username);
-	// let message = `Welcome to the chat room! You are now connected.\nSelect a user if you wish to chat in private, or make sure none is selected to chat with everyone.`;
-	// const messageData = {
-	// 	"type": "sys_message",
-	// 	"message": message
-	// };
-	// chatSocketInstance.sendWithToken(messageData);
-	return true; //
+
+	return true;
 }
 
 export { home, homeLogin, closeSlidingWindow , changeChatLoaded }

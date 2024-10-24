@@ -3,7 +3,6 @@ import { displayError } from "../utils/utils1.js";
 import { viewToken, saveToken } from "../utils/tokens.js";
 import { navigateTo } from "../app.js";
 import { successContainer } from "../utils/utils1.js";
-// import WebSocketInstance from "../socket/websocket.js";
 
 const clientId = 'u-s4t2ud-159130180b55795d9366f64e165fe220ae4cb2c8b5e412a3424d938148c1f337';
 const uri = encodeURIComponent(`https://${window.location.host}/callback`);
@@ -54,21 +53,18 @@ async function getParams(code) {
                 const successDiv = successContainer(data.user.username);
                 document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
                 let messageDiv = document.getElementById('successMessage');
-                messageDiv.style.display = 'block'; // Exibe a mensagem
+                messageDiv.style.display = 'block';
                 setTimeout(async function () {
                     messageDiv.style.display = 'none';
-                    // await WebSocketInstance.connect();
                     navigateTo(`/user/${data.user.username}`);
                 }, 1000);
             } else {
                 throw { message: `User ${data.user.username} not validated - bad request`, status: 401 };
             }
-            // navigateTo(`/user/${data.user.username}`);
         } catch (e) {
             if (e.status === 400) {
                 displayError(e.message);
             } else {
-                // navigateTo('/');
                 navigateTo(`/error/${e.status}/${e.message}`);
                 localStorage.removeItem('access_token');
                 sessionStorage.removeItem('access_token');

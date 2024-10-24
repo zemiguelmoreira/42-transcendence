@@ -49,22 +49,6 @@ function setupPong() {
 	backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
 }
 
-// let lastFpsUpdateTime = performance.now();
-// let frameCount = 0;
-// let fps = 0;
-
-// function updateFPS() {
-// 	frameCount++;
-// 	const currentTime = performance.now();
-// 	const deltaTime = currentTime - lastFpsUpdateTime;
-
-// 	if (deltaTime >= 1000) {
-// 		fps = frameCount;
-// 		frameCount = 0;
-// 		lastFpsUpdateTime = currentTime;
-// 	}
-// }
-
 function joinPongRoom(roomCode, username, matchmakingSocket) {
 	selfUsername = username;
 	if (matchmakingSocket !== false)
@@ -208,7 +192,7 @@ function drawDigit(ctx, n, x, y) {
 		[[1, 1, 1], [1, 0, 1], [1, 1, 1], [0, 0, 1], [0, 0, 1]], //9
 	];
 
-	ctx.fillStyle = "white"; // Branco
+	ctx.fillStyle = "white";
 
 	const digitMatrix = digits[n];
 	digitMatrix.forEach((row, i) => {
@@ -294,8 +278,6 @@ function drawGame() {
 
 
 function gameLoop() {
-    // updateFPS(); 
-    // console.log(fps);
 
     if ((matchSocket && window.location.pathname !== `/user/${selfUsername}/pong-game-remote` && !stopFlag)
         || (!matchSocket && window.location.pathname !== `/user/${selfUsername}/chat-playing` && !stopFlag)) {
