@@ -10,14 +10,12 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 import logging
 import httpx
-# import aioredis
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ChatServer.settings')
 django.setup()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 User = get_user_model()
-# redis_client = aioredis.from_url("redis://redis:6379", decode_responses=True)
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -299,6 +297,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			# "message": f"Invite from {sender} has been cancelled."
 		}))
 		self.pending.remove(sender)
+
 
 	async def update_status(self, event):
 		await self.send(text_data=json.dumps({

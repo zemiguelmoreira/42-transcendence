@@ -747,10 +747,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         points = 100 * ratio
                     else:
                         points = 100 * ratio * (-1)
-                    if current_profile + points <= 0:
-                        current_profile.pong_rank = 1
+                    if current_profile.pong_rank + points <= 0:
+                        current_profile.pong_rank = 0
                     else:
-                        current_profile.pong_rank += points
+                        current_profile.pong_rank += round(points)
 
             # If the game type is "snake"
             else:
@@ -794,10 +794,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         points = 100 * ratio
                     else:
                         points = 100 * ratio * (-1)
-                    if current_profile + points <= 0:
-                        current_profile.snake_rank = 1
+                    if current_profile.snake_rank + points <= 0:
+                        current_profile.snake_rank = 0
                     else:
-                        current_profile.snake_rank += points
+                        current_profile.snake_rank += round(points)
 
             current_profile.save()
 

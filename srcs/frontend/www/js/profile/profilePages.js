@@ -25,7 +25,7 @@ function makeProfilePage(data) {
 			</div>
 			<div class="profile-info">
 				<label class="profile-label" class="profile-label" for="bio">Biography:</label>
-				<span class="profile-description bio" id="bio">${data.profile.bio}</span>
+				<span class="profile-description bio" id="bio" style="overflow-wrap: break-word; word-break: break-word">${data.profile.bio}</span>
 			</div>
 			<div class="profile-title">Games Statistics</div>
 			<table class="games-statistics">
@@ -331,7 +331,7 @@ async function toggleTwoFactorAuth(isEnabled) {
             const errorData = await response.json();
             throw new Error(errorData.detail || 'Something went wrong');
         }
-		
+
         const data = await response.json();
 		console.log(data);
 	} catch (error) {
