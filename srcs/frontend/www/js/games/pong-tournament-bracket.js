@@ -319,8 +319,8 @@ function initializeTournament(playersObj, username, dataUsername) {
 			if (player2Div) player2Div.innerText = player2;
 			const smPlayer1 = document.querySelector("#sm-player1");
 			const smPlayer2 = document.querySelector("#sm-player2");
-			if (smPlayer1) smPlayer1.innerText = `Player 1: ${player1}`;
-			if (smPlayer2) smPlayer2.innerText = `Player 2: ${player2}`;
+			if (smPlayer1) smPlayer1.innerText = `${player1}`;
+			if (smPlayer2) smPlayer2.innerText = `${player2}`;
 			let message = `The next match will be ${ player1 } vs ${ player2 }. Be ready!`;
 			displaySlidingMessage(message);
 			const messageData = {
