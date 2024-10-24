@@ -39,7 +39,8 @@ async function checkTwoFactorStatus(username) {
         const data = await response.json();
         return data.two_factor_enabled;
     } catch (error) {
-        console.error(error);
+        // console.error(error);
+		
         return false;
     }
 }
@@ -61,11 +62,9 @@ function userSignIn(e) {
 
 function showSuccessMessageSignIn(username) {
 	let messageDiv = document.getElementById('successMessage');
-	// var messageDiv = document.getElementById('successMessage');
 	messageDiv.style.display = 'block';
 	setTimeout(function () {
 		messageDiv.style.display = 'none';
-		// WebSocketInstance.connect();
 		navigateTo(`/user/${username}`);
 	}, 1000);
 }
@@ -101,13 +100,11 @@ function signIn() {
 	const passwordResetForm = document.getElementById("requestPasswordResetForm");
 
 	document.getElementById("recover").addEventListener("click", function (e) {
-		e.preventDefault(); // Evita o comportamento padrão do link
+		e.preventDefault();
 
-		// Ocultar outros formulários
 		if (signInForm) signInForm.style.display = "none";
 		if (qrCodeForm) qrCodeForm.style.display = "none";
 
-		// Exibir o formulário de recuperação de senha
 		if (passwordResetForm)
 			passwordResetForm.style.display = "block";
 
@@ -116,8 +113,6 @@ function signIn() {
 		document.getElementById('sendPassword').addEventListener('click', function (e) {
 			e.preventDefault();
 			requestPasswordReset();
-			// console.log('click1');
-			// navigateTo('/');
 		});
 
 	});
@@ -144,7 +139,7 @@ function handleError(e) {
 }
 
 async function sendIUser(userOrEmail, password) {
-	const isTwoFactorEnabled = await checkTwoFactorStatus(userOrEmail); // Nova função para verificar 2FA
+	const isTwoFactorEnabled = await checkTwoFactorStatus(userOrEmail);
 	console.log(isTwoFactorEnabled);
 	const info = { username: userOrEmail, password: password };
 	console.log(info);
@@ -153,7 +148,6 @@ async function sendIUser(userOrEmail, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(info),
     };
-	// Aqui você pode fazer uma chamada para verificar se o 2FA está habilitado
 	
 	if (isTwoFactorEnabled)
 	{
@@ -186,7 +180,6 @@ async function sendIUser(userOrEmail, password) {
 			const payload = testToken(data.access);
 			let username = await getNamebyId(payload.user_id);
 			if (username.status) {
-				// throw { message: username.message, status: username.status }
 				navigateTo(`/error/${username.status}/${username.message}`);
 				return;
 			}
@@ -222,7 +215,6 @@ async function sendIUser(userOrEmail, password) {
 						const successDiv = successContainer(username);
 						document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 						if (viewToken()) {
-							// sessionStorage.removeItem('access_token'); passou para a path - /user/username
 							showSuccessMessageSignIn(username);
 						} else {
 							sessionStorage.removeItem('access_token');
@@ -275,16 +267,12 @@ async function sendIUser(userOrEmail, password) {
 			}
 
 			const data = await response.json();
-			// Armazenar os tokens em localStorage ou sessionStorage
-			// localStorage.setItem('refresh_token', data.refresh);
-			// sessionStorage.setItem('access_token', data.access);
 			saveToken(data.access, data.refresh);
 
 			const successDiv = successContainer(userOrEmail);
 			document.getElementById('root').innerHTML = "";
 			document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
 			if (viewToken()) {
-				// sessionStorage.removeItem('access_token'); passou para a path - /user/userOrEmail
 				showSuccessMessageSignIn(userOrEmail);
 			} else {
 				sessionStorage.removeItem('access_token');
@@ -293,23 +281,21 @@ async function sendIUser(userOrEmail, password) {
 				throw { message: `User ${userOrEmail} not validated - bad request`, status: 404 };
 			}
 			console.log('Login successful:', data);
-			return data; // Retorna os tokens para uso posterior
+			return data;
 
 		} catch (error) {
 			console.error('Error during login:', error);
-			throw error; // Lança o erro para que possa ser tratado externamente
+			throw error;
 		}													
 	}
 
 }
 
-// Função para trocar a senha (senha atual + nova senha)
 async function resetPassword(username) {
 	const currentPassword = document.getElementById('currentPassword');
 	const newPassword = document.getElementById('newPassword');
 	const confirmNewPassword = document.getElementById('confirmNewPassword');
 
-	// Verifica se os campos estão vazios e aplica a classe de erro
 	let hasError = false;
 
 	if (!currentPassword.value) {
@@ -333,18 +319,15 @@ async function resetPassword(username) {
 		confirmNewPassword.classList.remove('input-error');
 	}
 
-	// Se houve erro, não prosseguir
 	if (hasError) {
 		return;
 	}
 
-	// Verifica se as senhas coincidem
 	if (newPassword.value !== confirmNewPassword.value) {
 		displaySlidingMessage("Passwords don't match.");
 		return;
 	}
 
-	// Prossegue com o envio da solicitação para mudar a senha
 	try {
 		const response = await fetch('/api/user/reset-password/', {
 			method: 'POST',
@@ -399,10 +382,6 @@ async function requestPasswordReset() {
 	const email = document.getElementById('resetEmail').value;
 	const passwordResetForm = document.getElementById("requestPasswordResetForm");
 	document.getElementById('resetEmail').value = '';
-		// requestPasswordReset();
-		// navigateTo('/');
-		// console.log('click');
-		// console.log('email: ', email);
 
 		if (email) {
 			try {
@@ -423,10 +402,8 @@ async function requestPasswordReset() {
 					if (response.ok) {
 						data = await response.json();
 						console.log('data no recup password: ', data);
-						// alert('Email de recuperação de senha enviado com sucesso!');
 						navigateTo('/signIn');
 					} else {
-						// console.log('error2: ', data.error);
 						if (response.status === 400) {
 							data = await response.json();
 							errorObject = {
@@ -443,7 +420,6 @@ async function requestPasswordReset() {
 					}
 			} catch (e) {
 				console.log('Erro ao solicitar recuperação de senha:', e.message);
-				// alert('Ocorreu um erro. Verifique seu email e tente novamente.');
 				if (e.status === 400){
 					console.log('teste passei aqui');
 					displayErrorReqPassword(e.message);
@@ -482,9 +458,8 @@ async function deleteUser() {
 
 		if (response.status === 204) {
 			alert('User deleted successfully');
-			localStorage.removeItem('access_token');  // Remove token from local storage
-			localStorage.removeItem('refresh_token'); // Remove refresh token from local storage
-			// window.location.href = '/login';  // Redirect to login page
+			localStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
 		} else {
 			const data = await response.json();
 			alert(data.error || 'Failed to delete user');
@@ -495,5 +470,4 @@ async function deleteUser() {
 	}
 }
 
-export { signIn, userSignIn, resetPassword, deleteUser , checkTwoFactorStatus , checkTwoFactorStatus }
-
+export { signIn, userSignIn, resetPassword, deleteUser , checkTwoFactorStatus }

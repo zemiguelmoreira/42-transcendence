@@ -93,7 +93,7 @@ function loadPongLocalScript(username, guest, dataUsername) {
 }
 
 function pongGameLocal(username, dataUsername) {
-	document.getElementById('mainContent').innerHTML = '';
+	// document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalPongPopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
