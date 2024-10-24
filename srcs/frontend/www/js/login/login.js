@@ -40,7 +40,7 @@ async function checkTwoFactorStatus(username) {
         return data.two_factor_enabled;
     } catch (error) {
         // console.error(error);
-		
+
         return false;
     }
 }
@@ -125,17 +125,6 @@ function signIn() {
 		else
 			displayErrorSignIn("To login with another user, you have to logout.");
 	});
-}
-
-function handleError(e) {
-    if (e.status === 400) {
-        displayErrorCode(e.message);
-    } else {
-        navigateTo(`/error/${e.status}/${e.message}`);
-        localStorage.removeItem('access_token');
-        sessionStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-    }
 }
 
 async function sendIUser(userOrEmail, password) {
