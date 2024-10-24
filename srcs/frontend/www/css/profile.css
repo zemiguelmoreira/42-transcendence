@@ -110,6 +110,8 @@
 
 .profile-label {
 	font-weight: bold;
+	font-family: 'CustomFont';
+	font-size: 14px;
 }
 
 .bio {
@@ -532,5 +534,10 @@ th:last-child {
 }
 
 .authenticBox {
+	text-align: left;
+}
 
+.toggleAuthentic {
+	font-family: 'CustomFont';
+	font-size: 12px;
 }

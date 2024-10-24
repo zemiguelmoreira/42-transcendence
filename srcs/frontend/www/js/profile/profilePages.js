@@ -32,7 +32,7 @@ function makeProfilePage(data) {
 				<thead>
 					<tr>
 						<th>Game</th>
-						<th>XP</th>
+						<th>Points</th>
 						<th>Wins</th>
 						<th>Loses</th>
 					</tr>
@@ -295,12 +295,12 @@ function makeSettingsPage(data) {
 			<div class="profile-left">
 				<img id="profile-img" src="${data.profile.profile_image_url}" alt="${data.user.username}">
 				<h3 id="username">${data.profile.alias_name}</h3>
-				<div class="profile-title">Security Profile</div>
+				<div class="profile-title">Account Settings</div>
 				<div id="securityBox">
-					<div class="profile-label">2FAuthentication</div>
+					<div class="profile-label">2FA</div>
 					<div class="form-check form-switch authenticBox">
 						<input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-						<label id="mfaStatus" class="form-check-label" for="flexSwitchCheckDefault">Activated</label>
+						<label id="mfaStatus" class="form-check-label toggleAuthentic" for="flexSwitchCheckDefault">Activated</label>
 					</div>
 				</div>
 				<button type="button" class="btn btn-primary btn-sm security-btn" id="changePassword">Change Password</button>

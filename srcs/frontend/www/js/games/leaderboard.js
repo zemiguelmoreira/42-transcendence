@@ -62,12 +62,11 @@ async function fetchPongRankings() {
 				li.className = 'leaderboard-row';
 				const img = document.createElement('img');
 				img.src = `${player.profile_image_url}` || 'default.jpg';
-				// img.src = `https://${window.location.host}${player.profile_image_url}` || 'default.jpg';
 				img.alt = `${player.username}'s profile image`;
 				img.className = "leaderboard-img"
 				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} XP`));
+				li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} Points`));
 				pongRankingsElement.appendChild(li);
 			}
 		});
@@ -105,12 +104,11 @@ async function fetchSnakeRankings() {
 				li.className = 'leaderboard-row';
 				const img = document.createElement('img');
 				img.src = `${player.profile_image_url}` || 'default.jpg';
-				// img.src = player.profile_image_url ? `https://${window.location.host}${player.profile_image_url}` : 'default.jpg';
 				img.alt = `${player.username}'s profile image`;
 				img.className = "leaderboard-img"
 				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} XP`));
+				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} Points`));
 				snakeRankingsElement.appendChild(li);
 			}
 		});
