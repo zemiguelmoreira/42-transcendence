@@ -260,6 +260,7 @@ function loadSnakeMultiplayerScript(username, dataUsername) {
 }
 
 function snakeGameLocal(username, dataUsername) {
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalSnakePopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput').focus();
 
@@ -297,6 +298,7 @@ function snakeGameLocal(username, dataUsername) {
 }
 
 function snakeGameRemote(username) {
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemoteSnakePopup());
 	let token = localStorage.getItem('access_token');
 
@@ -393,6 +395,7 @@ function snakeGameRemote(username) {
 }
 
 function snakeGameMultiplayer(username, dataUsername) {
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startMultiplayerSnakePopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput1').focus();
 

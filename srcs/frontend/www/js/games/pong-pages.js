@@ -93,6 +93,7 @@ function loadPongLocalScript(username, guest, dataUsername) {
 }
 
 function pongGameLocal(username, dataUsername) {
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startLocalPongPopup(dataUsername.profile.alias_name));
 	document.getElementById('guestInput').focus();
 	const cancelButton = document.getElementById('cancelButton');
@@ -129,6 +130,7 @@ function pongGameLocal(username, dataUsername) {
 }
 
 function pongGameRemote(username) {
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', startRemotePongPopup());
 
 	let token = localStorage.getItem('access_token');
@@ -216,6 +218,7 @@ function pongGameRemote(username) {
 
 function pongGameTournament(username, dataUsername) {
 	try {
+		document.getElementById('mainContent').innerHTML = '';
 		document.getElementById('mainContent').innerHTML = `
 		<div id="loadTournament" class="tournament-gradient-box">
 			<div class="tournament-setup">

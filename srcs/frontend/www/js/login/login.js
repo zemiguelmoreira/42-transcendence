@@ -2,12 +2,12 @@ import { baseURL } from "../app.js";
 import { signIn_page } from "./loginPage.js";
 import { displayErrorSignIn, displaySlidingMessage, successContainer } from "../utils/utils1.js";
 import { navigateTo } from "../app.js";
-import { viewToken, testToken } from "../utils/tokens.js";
+import { viewToken, testToken, saveToken } from "../utils/tokens.js";
 import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import { handleInput, handleInputBlur, showPassword, displayError } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
-// import WebSocketInstance from "../socket/websocket.js";
+import { fetchWithAuth } from "../utils/fetchWithToken.js";
 
 function insertInputValidation1(qrForm) {
 	for (let element of qrForm.elements) {
@@ -26,6 +26,22 @@ function insertInputValidation1(qrForm) {
 			});
 		}
 	}
+}
+
+async function checkTwoFactorStatus(username) {
+    const url = `/api/check-2fa-status/${username}/`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("User not found");
+        }
+        const data = await response.json();
+        return data.two_factor_enabled;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
 }
 
 function userSignIn(e) {
@@ -58,6 +74,7 @@ function signIn() {
 	document.getElementById('root').innerHTML = "";
 	document.getElementById('root').insertAdjacentHTML('afterbegin', signIn_page);
 	document.getElementById('form1Example1').focus();
+
 	const inputField = document.querySelector('#form1Example1');
 	const limitChar = document.querySelector('#limitChar2');
 
@@ -78,29 +95,6 @@ function signIn() {
 		e.preventDefault();
 		navigateTo('/signIn');
 	});
-
-	// document.getElementById('sendPassword').addEventListener('click', function (e) {
-	// 	e.preventDefault();
-	// 	const emailField = document.getElementById('resetEmail');
-
-	// 	// Verifica se o campo de email está vazio
-	// 	if (!emailField.value) {
-	// 		emailField.classList.add('input-error'); // Adiciona a classe de erro se estiver vazio
-	// 		// e.preventDefault(); // Impede o envio do formulário
-	// 	} else {
-	// 		emailField.classList.remove('input-error'); // Remove a classe de erro se o campo estiver preenchido
-	// 		// Aqui pode seguir com o envio do formulário
-	// 		requestPasswordReset();
-	// 		// navigateTo('/');
-	// 	}
-	// });
-
-	// document.getElementById('sendPassword').addEventListener('click', function (e) {
-	// 	e.preventDefault();
-	// 	requestPasswordReset();
-	// 	// navigateTo('/');
-
-	// });
 
 	const signInForm = document.getElementById("userSignInForm");
 	const qrCodeForm = document.getElementById("qrCodeForm");
@@ -138,109 +132,179 @@ function signIn() {
 	});
 }
 
+function handleError(e) {
+    if (e.status === 400) {
+        displayErrorCode(e.message);
+    } else {
+        navigateTo(`/error/${e.status}/${e.message}`);
+        localStorage.removeItem('access_token');
+        sessionStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+    }
+}
+
 async function sendIUser(userOrEmail, password) {
+	const isTwoFactorEnabled = await checkTwoFactorStatus(userOrEmail); // Nova função para verificar 2FA
+	console.log(isTwoFactorEnabled);
 	const info = { username: userOrEmail, password: password };
-	const conf = {
+	console.log(info);
+    const conf = {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(info),
-	};
-	try {
-
-		const response = await fetch(`${baseURL}/token/`, conf);
-		let errorObject;
-		if (!response.ok) {
-			if (response.status === 401) {
-				const errorData = await response.json();
-				console.log('errorData login: ', errorData);
-				console.log('errorData login: ', errorData.detail);
-				errorObject = {
-					message: errorData.detail,
-					status: response.status,
-				};
-			} else {
-				errorObject = {
-					message: response.statusText,
-					status: response.status,
-				};
-			}
-			throw errorObject;
-		}
-
-		const data = await response.json();
-		sessionStorage.setItem('access_token', data.access);
-		localStorage.setItem('refresh_token', data.refresh);
-
-		const payload = testToken(data.access);
-		let username = await getNamebyId(payload.user_id);
-		if (username.status) {
-			// throw { message: username.message, status: username.status }
-			navigateTo(`/error/${username.status}/${username.message}`);
-			return;
-		}
-
-		const qr_code = await fetchQrCode();
-		if (qr_code) {
-			displayQrCode(qr_code);
-		} else {
-			throw { message: 'Something went wrong - qrCode not found', status: 404 };
-		}
-
-		const submitCode = document.querySelector('#verifyQrCode');
-		const qrForm = document.querySelector('#qrCodeForm');
-		submitCode.addEventListener('click', async function (e) {
-			e.preventDefault();
-			const code = qrForm.elements.qrCode.value;
-			if (code) {
-				try {
-
-					const result = await verifyCode(userOrEmail, code);
-					if (result.status) {
-						if (result.status === 400)
-							throw { message: 'Invalid or expired 2FA code', status: 400 };
-						else
-							throw { message: result.message, status: result.status };
-					}
-
-					qrForm.elements.qrCode.value = "";
-					document.querySelector('#qr-code').innerHTML = "";
-					document.getElementById('qrCodeForm').style.display = 'none';
-					document.getElementById('userSignInForm').style.display = "block";
-					document.getElementById('root').innerHTML = "";
-					const successDiv = successContainer(username);
-					document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
-					if (viewToken()) {
-						// sessionStorage.removeItem('access_token'); passou para a path - /user/username
-						showSuccessMessageSignIn(username);
-					} else {
-						sessionStorage.removeItem('access_token');
-						throw { message: `User ${username} not validated - bad request`, status: 404 };
-					}
-				} catch (e) {
-					if (e.status === 400) {
-						displayErrorCode(e.message);
-					} else {
-						navigateTo(`/error/${e.status}/${e.message}`);
-						localStorage.removeItem('access_token');
-						sessionStorage.removeItem('access_token');
-						localStorage.removeItem('refresh_token');
-					}
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(info),
+    };
+	// Aqui você pode fazer uma chamada para verificar se o 2FA está habilitado
+	
+	if (isTwoFactorEnabled)
+	{
+		try {
+	
+			const response = await fetch(`${baseURL}/token/`, conf);
+			let errorObject;
+			if (!response.ok) {
+				if (response.status === 401) {
+					const errorData = await response.json();
+					console.log('errorData login: ', errorData);
+					console.log('errorData login: ', errorData.detail);
+					errorObject = {
+						message: errorData.detail,
+						status: response.status,
+					};
+				} else {
+					errorObject = {
+						message: response.statusText,
+						status: response.status,
+					};
 				}
-			} else {
-				insertInputValidation1(qrForm);
+				throw errorObject;
 			}
-		});
-	} catch (e) {
-		if (e.status === 401) {
-			displayErrorSignIn(e.message);
-		} else {
-			navigateTo(`/error/${e.status}/${e.message}`);
+	
+			const data = await response.json();
+			sessionStorage.setItem('access_token', data.access);
+			localStorage.setItem('refresh_token', data.refresh);
+	
+			const payload = testToken(data.access);
+			let username = await getNamebyId(payload.user_id);
+			if (username.status) {
+				// throw { message: username.message, status: username.status }
+				navigateTo(`/error/${username.status}/${username.message}`);
+				return;
+			}
+	
+			const qr_code = await fetchQrCode();
+			if (qr_code) {
+				displayQrCode(qr_code);
+			} else {
+				throw { message: 'Something went wrong - qrCode not found', status: 404 };
+			}
+	
+			const submitCode = document.querySelector('#verifyQrCode');
+			const qrForm = document.querySelector('#qrCodeForm');
+			submitCode.addEventListener('click', async function (e) {
+				e.preventDefault();
+				const code = qrForm.elements.qrCode.value;
+				if (code) {
+					try {
+	
+						const result = await verifyCode(userOrEmail, code);
+						if (result.status) {
+							if (result.status === 400)
+								throw { message: 'Invalid or expired 2FA code', status: 400 };
+							else
+								throw { message: result.message, status: result.status };
+						}
+	
+						qrForm.elements.qrCode.value = "";
+						document.querySelector('#qr-code').innerHTML = "";
+						document.getElementById('qrCodeForm').style.display = 'none';
+						document.getElementById('userSignInForm').style.display = "block";
+						document.getElementById('root').innerHTML = "";
+						const successDiv = successContainer(username);
+						document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
+						if (viewToken()) {
+							// sessionStorage.removeItem('access_token'); passou para a path - /user/username
+							showSuccessMessageSignIn(username);
+						} else {
+							sessionStorage.removeItem('access_token');
+							throw { message: `User ${username} not validated - bad request`, status: 404 };
+						}
+					} catch (e) {
+						if (e.status === 400) {
+							displayErrorCode(e.message);
+						} else {
+							navigateTo(`/error/${e.status}/${e.message}`);
+							localStorage.removeItem('access_token');
+							sessionStorage.removeItem('access_token');
+							localStorage.removeItem('refresh_token');
+						}
+					}
+				} else {
+					insertInputValidation1(qrForm);
+				}
+			});
+
+		} catch (e) {
+			if (e.status === 401) {
+				displayErrorSignIn(e.message);
+			} else {
+				navigateTo(`/error/${e.status}/${e.message}`);
+			}
 		}
+	} else {
+		const url = `${baseURL}/token/no-2fa/`;
+		const credentials = {
+			username: userOrEmail,
+			password: password,
+		};
+
+		const config = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(credentials),
+		};
+
+		try {
+			const response = await fetch(url, config);
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				console.error('Login failed:', errorData);
+				throw new Error(errorData.detail || 'Login failed');
+			}
+
+			const data = await response.json();
+			// Armazenar os tokens em localStorage ou sessionStorage
+			// localStorage.setItem('refresh_token', data.refresh);
+			// sessionStorage.setItem('access_token', data.access);
+			saveToken(data.access, data.refresh);
+
+			const successDiv = successContainer(userOrEmail);
+			document.getElementById('root').innerHTML = "";
+			document.getElementById('root').insertAdjacentHTML('afterbegin', successDiv);
+			if (viewToken()) {
+				// sessionStorage.removeItem('access_token'); passou para a path - /user/userOrEmail
+				showSuccessMessageSignIn(userOrEmail);
+			} else {
+				sessionStorage.removeItem('access_token');
+				localStorage.removeItem('access_token');
+				localStorage.removeItem('refresh_token');
+				throw { message: `User ${userOrEmail} not validated - bad request`, status: 404 };
+			}
+			console.log('Login successful:', data);
+			return data; // Retorna os tokens para uso posterior
+
+		} catch (error) {
+			console.error('Error during login:', error);
+			throw error; // Lança o erro para que possa ser tratado externamente
+		}													
 	}
+
 }
 
 // Função para trocar a senha (senha atual + nova senha)
-async function resetPassword() {
+async function resetPassword(username) {
 	const currentPassword = document.getElementById('currentPassword');
 	const newPassword = document.getElementById('newPassword');
 	const confirmNewPassword = document.getElementById('confirmNewPassword');
@@ -298,6 +362,7 @@ async function resetPassword() {
 		const data = await response.json();
 		if (response.ok) {
 			displaySlidingMessage('Password updated with success!');
+			navigateTo(`/user/${username}/settings`);
 		} else {
 			if (data.error) {
 				console.error(data.error.message);
@@ -308,10 +373,8 @@ async function resetPassword() {
 		}
 	} catch (error) {
 		console.error('Error updating password:', error.message);
-		alert('An error occurred. Please try again later.');
 	}
 }
-
 
 function displayErrorReqPassword(errorMessage) {
 	const errorDiv = document.getElementById('error-message-password');
@@ -330,7 +393,6 @@ function displayErrorReqPassword(errorMessage) {
 		}
 	}
 }
-
 
 async function requestPasswordReset() {
 
@@ -403,7 +465,7 @@ async function deleteUser() {
 		return;
 	}
 
-	const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+	const confirmed = confirm('Are you sure you want to delete your account? \nThis action cannot be undone.');
 
 	if (!confirmed) {
 		return;
@@ -433,4 +495,5 @@ async function deleteUser() {
 	}
 }
 
-export { signIn, userSignIn, resetPassword, deleteUser }
+export { signIn, userSignIn, resetPassword, deleteUser , checkTwoFactorStatus , checkTwoFactorStatus }
+

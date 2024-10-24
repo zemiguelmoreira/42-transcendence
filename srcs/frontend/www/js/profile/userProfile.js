@@ -4,13 +4,14 @@ import { removeFriend, unblockUser } from "../utils/manageUsers.js";
 import { displaySlidingMessage } from "../utils/utils1.js";
 import { viewUserProfile } from "../search/search_user.js";
 import { getUserProfileByUsername } from "../profile/myprofile.js";
-import { makePasswordProfilePage } from "./profilePages.js";
-import { resetPassword } from "../login/login.js";
-
+import { makePasswordProfilePage , toggleTwoFactorAuth } from "./profilePages.js";
+import { resetPassword , checkTwoFactorStatus , deleteUser } from "../login/login.js";
+import chatSocketInstance from "../chat/chat_socket.js";
+import { changeChatLoaded } from "../home/home.js";
 
 function userProfilePage(userData, user) {
-	document.getElementById('mainContent').innerHTML = '';
 	const profilePageData = makeProfilePage(userData);
+	document.getElementById('mainContent').innerHTML = '';
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePageData);
 
 	// console.log('PRINT PONG: ', userData.profile.pong_match_history);
@@ -239,24 +240,67 @@ async function displayBlockedList(myUsername) {
 }
 
 function profileSettings(dataUser) {
+	console.log("SETTINGS", dataUser);
+
 	document.getElementById('mainContent').innerHTML = '';
 	const profileSettings = makeSettingsPage(dataUser);
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profileSettings);
 	displayFriendsList(dataUser.user.username, true);
 	displayBlockedList(dataUser.user.username);
+
+
+	if (dataUser.profile.userApi42)
+		document.getElementById('securityBox').style.display = 'none';
+
+	async function setCheckboxState() {
+		const checkbox = document.getElementById('flexSwitchCheckDefault');
+		const isEnabled = await checkTwoFactorStatus(dataUser.user.username);
+		if (isEnabled) {
+			document.getElementById('mfaStatus').innerHTML = "Active";
+		} else {
+			document.getElementById('mfaStatus').innerHTML = "Inactive";
+		}
+		checkbox.checked = isEnabled;
+	}
+
+	setCheckboxState();
+
+	document.getElementById("flexSwitchCheckDefault").addEventListener("change", function (event) {
+		event.preventDefault();
+		toggleTwoFactorAuth(event.target.checked);
+		if (event.target.checked == true) {
+			document.getElementById('mfaStatus').innerHTML = "Active";
+		} else {
+			document.getElementById('mfaStatus').innerHTML = "Inactive";
+		}
+	});
+	
+	document.getElementById("changePassword").addEventListener("click", function () {
+		navigateTo(`/user/${dataUser.user.username}/profile/update-password`);
+	});
+
+	document.getElementById("deleteAccount").addEventListener("click", function () {
+		deleteUser();
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('refresh_token');
+		changeChatLoaded();
+		navigateTo(`/`);
+		chatSocketInstance.close();
+	});
+
 }
 
-function displayChangePassword() {
+function displayChangePassword(username) {
 	document.getElementById('mainContent').innerHTML = '';
 	const profilePassword = makePasswordProfilePage();
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePassword);
 
 	document.getElementById("resetPasswordBtn").addEventListener("click", function () {
-		resetPassword();
+		resetPassword(username);
 	});
 
 	document.getElementById("cancelChangePassword").addEventListener("click", function () {
-		navigateTo('/user/:username/profile/edit');
+		navigateTo(`/user/${username}/settings`);
 	});
 }
 

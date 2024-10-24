@@ -187,7 +187,9 @@ function createUserButtonGroup(username, user, chatSocket) {
 	const btnGroup = document.createElement("div");
 	btnGroup.classList.add("btn-group");
 	btnGroup.appendChild(userButton);
-	btnGroup.appendChild(dropdownToggle);
+	if (username !== user) {
+		btnGroup.appendChild(dropdownToggle);
+	}
 	btnGroup.appendChild(dropdownMenu);
 	return btnGroup;
 }
@@ -216,13 +218,13 @@ function createDropdownToggle() {
 function createDropdownMenu(username, user) {
 	const dropdownMenu = document.createElement("div");
 	dropdownMenu.classList.add("dropdown-menu");
-	if (username === user) {
-		const disabledItem = document.createElement("span");
-		disabledItem.classList.add("dropdown-item", "disabled");
-		disabledItem.textContent = "Hi " + username + "!";
-		dropdownMenu.appendChild(disabledItem);
-		return dropdownMenu;
-	}
+	// if (username === user) {
+	// 	const disabledItem = document.createElement("span");
+	// 	disabledItem.classList.add("dropdown-item", "disabled");
+	// 	disabledItem.textContent = "Hi " + username + "!";
+	// 	dropdownMenu.appendChild(disabledItem);
+	// 	return dropdownMenu;
+	// }
 	const action0 = createDropdownItem("Block User", "#", async (e) => {
 		await blockUser(user, displaySlidingMessage);
 	});

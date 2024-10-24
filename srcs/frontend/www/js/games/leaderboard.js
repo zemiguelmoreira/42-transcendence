@@ -50,6 +50,7 @@ async function fetchPongRankings() {
 		}
 
 		const data = await response.json();
+		console.log("data: ", data);
 		console.log('Pong Rankings:', data.pong_rankings);
 
 		const pongRankingsElement = document.getElementById('pongRankings');
@@ -60,14 +61,12 @@ async function fetchPongRankings() {
 				const li = document.createElement('li');
 				li.className = 'leaderboard-row';
 				const img = document.createElement('img');
-				img.src = `https://${window.location.host}${player.profile_image_url}` || 'default.jpg';
-				console.log(img.src);
+				img.src = `${player.profile_image_url}` || 'default.jpg';
 				img.alt = `${player.username}'s profile image`;
-				img.width = 50;
-				img.height = 50;
+				img.className = "leaderboard-img"
 				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} XP`));
+				li.appendChild(document.createTextNode(` ${player.username} ${player.pong_rank} Points`));
 				pongRankingsElement.appendChild(li);
 			}
 		});
@@ -104,13 +103,12 @@ async function fetchSnakeRankings() {
 				const li = document.createElement('li');
 				li.className = 'leaderboard-row';
 				const img = document.createElement('img');
-				img.src = player.profile_image_url ? `https://${window.location.host}${player.profile_image_url}` : 'default.jpg'; // Exibe uma imagem padrão se o profile_image for null
+				img.src = `${player.profile_image_url}` || 'default.jpg';
 				img.alt = `${player.username}'s profile image`;
-				img.width = 50;
-				img.height = 50;
+				img.className = "leaderboard-img"
 				li.appendChild(document.createTextNode(`${counter++} `));
 				li.appendChild(img);
-				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} XP`));
+				li.appendChild(document.createTextNode(` ${player.username} ${player.snake_rank} Points`));
 				snakeRankingsElement.appendChild(li);
 			}
 		});
