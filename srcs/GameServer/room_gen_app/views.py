@@ -1,5 +1,3 @@
-# Create your views here.
-
 import string
 import random
 from django.http import JsonResponse
@@ -26,16 +24,12 @@ def generate_unique_code():
 
 class CreateRoomView(View):
     def post(self, request, *args, **kwargs):
-        # Extrair o token do cabeçalho
+
         token = request.headers.get('Authorization', None)
         if token and token.startswith('Bearer '):
-            token = token[7:]  # Remove 'Bearer ' do início
+            token = token[7:]
 
-        logger.info(token)
-
-        # Verificar se o usuário está autenticado
         user = async_to_sync(is_authenticated)(token)
-        logger.info(f'user: {user}')
         if not user:
             return JsonResponse({'error': 'Unauthorized'}, status=401)
 

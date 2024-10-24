@@ -22,7 +22,6 @@ class SnakeGame:
 	rooms = {}
 	locks ={}
 
-	# adiciona ao room
 	async def addToRoom(self, room_code, username):
 		logger.info(f"SnakeGame: addToRoom: Adding {username} to room {room_code}")
 		SnakeGame.locks[room_code] = asyncio.Lock()
@@ -52,8 +51,6 @@ class SnakeGame:
 				'score': room['score']
 			}
 
-
-	# cria thread p game e gravas tasks por room
 	async def start_game(self, room_code):
 		if room_code not in SnakeGame.tasks:
 			room = SnakeGame.rooms[room_code]
@@ -109,7 +106,6 @@ class SnakeGame:
 				room['end_game'] = True
 			return
 		for i, snake in enumerate(room['snakes']):
-			# if snake['alive']:
 			self.move_snake(snake, room)
 			self.check_collisions(snake, room, i)
 
@@ -124,8 +120,6 @@ class SnakeGame:
 			winner = room['players'][1] if room['players'][1] != loser else room['players'][0]
 		winner_score = room['score'][0] if room['players'][0] == winner else room['score'][1]
 		loser_score = room['score'][1] if room['players'][0] == winner else room['score'][0]
-		logger.info(f'winner: {winner}')
-		logger.info(f'loser: {loser}')
 		await SnakeGame.channel_layer.group_send(
 			f"room_{room_code}", {
 				'type': 'game.over',
@@ -153,7 +147,7 @@ class SnakeGame:
 	def move_snake(self, snake, room):
 		snake['direction'] = snake['newDirection']
 		head = {**snake['segments'][0]}
-		# Mover a cabeça da cobra de acordo com a direção
+
 		if snake['direction'] == 'RIGHT':
 			head['x'] += 1
 		elif snake['direction'] == 'LEFT':
@@ -162,50 +156,44 @@ class SnakeGame:
 			head['y'] -= 1
 		elif snake['direction'] == 'DOWN':
 			head['y'] += 1
-		# Envolver as bordas (wrap around)
+
 		head['x'] %= SnakeGame.cols
 		head['y'] %= SnakeGame.rows
-		# Verificar se a cobra comeu a comida
+
 		if head['x'] == room['food']['x'] and head['y'] == room['food']['y']:
-			snake['segments'].insert(0, head)  # Cresce a cobra
-			room['food'] = self.generate_food_position()  # Gera nova posição de comida
+			snake['segments'].insert(0, head)
+			room['food'] = self.generate_food_position()
 			room['score'][room['snakes'].index(snake)] += 1
 		else:
 			snake['segments'].insert(0, head)
-			snake['segments'].pop()  # Remove o último segmento para mover a cobra
-
+			snake['segments'].pop()
 
 	def check_collisions(self, snake, room, snake_index):
 		head = snake['segments'][0]
-		# Check self-collision (colisão com o próprio corpo)
+		# Check self-collision
 		if any(segment == head for segment in snake['segments'][1:]):
-			logger.info('colisao com proprio corpo')
 			snake['alive'] = False
-		# Check collision with other snakes (colisão com outras cobras)
+		# Check collision with other snakes
 		for i, other_snake in enumerate(room['snakes']):
 			if i != snake_index and other_snake['alive']:
-				# Colisão de cabeça com cabeça
+				# Collision head to head
 				if head == other_snake['segments'][0]:
-					logger.info('colisao com outra head cobra')
 					score_self = room['score'][snake_index]
 					score_other = room['score'][i]
-					# Comparar pontuações
+
 					if score_self > score_other:
-						other_snake['alive'] = False  # Cobra com menos pontos perde
+						other_snake['alive'] = False
 					elif score_self < score_other:
-						snake['alive'] = False  # Cobra com menos pontos perde
+						snake['alive'] = False
 					else:
-						# Se as pontuações forem iguais, escolhe aleatoriamente a vencedora
-						logger.info('colisao com outra head cobra pontuacao iguais')
 						if random.choice([True, False]):
 							snake['alive'] = False
 						else:
 							other_snake['alive'] = False
-				# Verificar colisão com o corpo da outra cobra
+
 				elif any(segment == head for segment in other_snake['segments'][1:]):
-					logger.info('colisao com outra body cobra')
 					snake['alive'] = False
-		# Verificar se sobrou apenas uma cobra viva
+
 		alive_snakes = [s for s in room['snakes'] if s['alive']]
 		if len(alive_snakes) == 1:
 			room['alive_snake'] = alive_snakes[0]['username']

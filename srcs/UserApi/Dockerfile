@@ -6,18 +6,15 @@ ENV DJANGO_SETTINGS_MODULE=UserApi.settings
 RUN pip3 install --upgrade pip
 RUN pip3 install psycopg2-binary
 
-# Instalação do Rust
+
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Configuração do ambiente
 ENV RUSTUP_HOME="/root/.rustup"
 ENV CARGO_HOME="/root/.cargo"
 
-
 COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip3 install -r requirements.txt
-# COPY . /usr/src/app/
 
 COPY ./docker-entrypoint.sh /scripts/
 RUN chmod +x /scripts/docker-entrypoint.sh

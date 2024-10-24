@@ -8,7 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
-from requests import post, get # para a a Api da 42
+from requests import post, get
 from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext as _
 from django.core.exceptions import ValidationError
@@ -26,72 +26,23 @@ import string
 from django.core.mail import send_mail
 from smtplib import SMTPException
 
-# import cairosvg
 from django.core.cache import cache
 from io import BytesIO
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-### 2FA helpers
-
-# def generate_random_code(length=6):
-#     return ''.join(random.choices(string.digits, k=length))
-
-# def send_2fa_code(user):
-#     code = generate_random_code()
-#     user.profile.two_factor_code = code
-#     user.profile.two_factor_expiry = timezone.now() + timedelta(minutes=10)
-#     user.profile.save()
-#     send_mail(
-#         'Your 2FA code',
-#         f'Your 2FA code is {code}',
-#         'transcendence42@gmx.com',
-#         [user.email],
-#         fail_silently=False,
-#     )
-
-### Views de Criação e Atualização de Usuário
-
-# class CreateUserView(generics.CreateAPIView):
-#     permission_classes = [AllowAny]
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-#     def perform_create(self, serializer):
-#         user = serializer.save()
-#         UserProfile.objects.create(user=user).generate_2fa_secret()
-
-#     def create(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=False)
-
-#         if not serializer.is_valid():
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#         self.perform_create(serializer)
-#         headers = self.get_success_headers(serializer.data)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-# SignIn Api da 42
 class FortyTwoConnectView(APIView):
 
     permission_classes = [AllowAny]
 
     def post(self, request):
-        # client_secret = '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'
-        # client_secret = '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'
         client_secret = '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'
-        # Extrai o código e o state do corpo da requisição
+
         code = request.data.get('code')
         state = request.data.get('state')
         clientId = request.data.get('clientId')
 
-        logger.info(f'valor do code: {code}')
-        logger.info(f'valor do state: {state}')
-        logger.info(f'valor do clientId: {clientId}')
-
-        # Faz a requisição para trocar o código pelo token de acesso
         response = post('https://api.intra.42.fr/oauth/token', data={
             'grant_type': 'authorization_code',
             'client_id': clientId,
@@ -101,21 +52,20 @@ class FortyTwoConnectView(APIView):
         })
 
         data = response.json()
-        logger.info(f'data: {data}')
+        # logger.info(f'data: {data}')
 
         if 'access_token' in data:
             access_token = data['access_token']
 
             logger.info(f'valor do access_token: {access_token}')
 
-            # Usa o token para obter informações do usuário
             user_response = get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}',})
             user_data = user_response.json()
 
-            logger.info(f'user: {user_data}')
-            logger.info(f"user: {user_data['login']}")
-            logger.info(f"user: {user_data['email']}")
-            logger.info(f"user: {user_data['image']['link']}")
+            # logger.info(f'user: {user_data}')
+            # logger.info(f"user: {user_data['login']}")
+            # logger.info(f"user: {user_data['email']}")
+            # logger.info(f"user: {user_data['image']['link']}")
 
             data = {
                 'username': user_data['login'],
@@ -123,34 +73,27 @@ class FortyTwoConnectView(APIView):
                 'api_image_url': user_data['image']['link']
             }
 
-            # Verifica se o username já existe
             if User.objects.filter(username=data['username']).exists():
                 user_test = User.objects.get(username=data['username'])
-                logger.info(f"user-data: {user_test}")
                 try:
                   user_profile = UserProfile.objects.get(user=user_test)
-                  logger.info(f'Usuário data: {user_profile.__dict__}')
+
                 except UserProfile.DoesNotExist:
                   return Response({"detail": "UserProfile not found for this user."}, status=status.HTTP_400_BAD_REQUEST)
-                # Verificar o valor de user_42 no UserProfile
+
                 if hasattr(user_profile, 'userApi42') and not user_profile.userApi42:
                     return Response({"detail": "This username is already in use."}, status=status.HTTP_400_BAD_REQUEST)
 
-
-            # Verifica se o email já existe (caso o email seja obrigatório ou esteja presente)
             if data['email'] and User.objects.filter(email=data['email']).exists():
                 user_test = User.objects.get(email=data['email'])
-                logger.info(f"user-data: {user_test}")
                 try:
                   user_profile = UserProfile.objects.get(user=user_test)
-                  logger.info(f'Usuário data: {user_profile.__dict__}')
+
                 except UserProfile.DoesNotExist:
                   return Response({"detail": "UserProfile not found for this user."}, status=status.HTTP_400_BAD_REQUEST)
-                # Verificar o valor de user_42 no UserProfile
+
                 if hasattr(user_profile, 'userApi42') and not user_profile.userApi42:
                     return Response({"detail": "This email is already in use."}, status=status.HTTP_400_BAD_REQUEST)
-
-
 
             user, created = User.objects.get_or_create(
             username=data['username'],
@@ -163,24 +106,19 @@ class FortyTwoConnectView(APIView):
                 user.save()
 
             user_profile, profile_created = UserProfile.objects.update_or_create(
-            user=user,  # Relaciona o perfil ao usuário criado/atualizado
+            user=user,
             defaults={
                 'api_image_url': data['api_image_url'],
                 'userApi42': True,
             })
 
-            # Esta linha só define a URL na instância do objeto, não no banco de dados
-            # setattr(user_profile, 'api_image_url', data['api_image_url'])
             user_profile.save()
 
-            # Retorna os dados do usuário ou outra resposta desejada
-            # return Response({'message': 'Logged in successfully', 'user_data': user_data})
             serializer = UserProfileSerializer(user_profile, context={'request': request})
 
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
 
-            logger.info(f"user-data: {serializer.data}")
             return Response({
             'user': data,
             'profile': serializer.data,
@@ -189,19 +127,12 @@ class FortyTwoConnectView(APIView):
             }, status=status.HTTP_200_OK)
 
         else:
-            # return Response({'detail': 'Error logging in'}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({'detail': 'Error logging in'}, status=status.HTTP_404_NOT_FOUND) # erro alterado por causa do front
-
+            return Response({'detail': 'Error logging in'}, status=status.HTTP_404_NOT_FOUND)
 
 class ResetPasswordView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        """
-        POST method to reset the user's password.
-
-        This expects the current password, new password, and confirmation of the new password.
-        """
         current_password = request.data.get('current_password')
         new_password = request.data.get('new_password')
         confirm_password = request.data.get('confirm_password')
@@ -238,11 +169,6 @@ class RequestPasswordResetView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        """
-        POST method to request a password reset.
-
-        Sends a temporary password to the provided email if the user exists.
-        """
         email = request.data.get('email')
 
         if not email:
@@ -282,28 +208,17 @@ class RequestPasswordResetView(generics.GenericAPIView):
 
 
 class CreateUserView(generics.GenericAPIView):
-    permission_classes = [AllowAny]  # Allow any user to access this view.
-    serializer_class = UserSerializer  # Specify the serializer for user data validation.
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
-        """
-        POST method for user registration.
 
-        Receives user data, validates it, generates a confirmation code, stores data in the cache,
-        and sends an email with the confirmation code.
-
-        @param request: The HTTP request containing user data (email, username, password, etc.)
-        @param args: Additional positional arguments.
-        @param kwargs: Additional keyword arguments.
-        @return: A Response indicating whether the registration data was successfully received.
-        """
-        logger.info(f'Request CreateUserView {self.request}')
         # Bind the request data to the serializer and validate it.
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)  # Raise an exception if validation fails.
+        serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data['email']  # Extract the validated email.
-        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))  # Generate a random 6-character confirmation code.
+        email = serializer.validated_data['email']
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
         # Cache the validated user data and the confirmation code for 1 hour.
         cache.set(f'registration_data_{email}', serializer.validated_data, timeout=3600)
@@ -312,11 +227,11 @@ class CreateUserView(generics.GenericAPIView):
         # Send an email with the confirmation code to the user.
         try:
             send_mail(
-                'Your Confirmation Code',  # Email subject.
-                f'Your confirmation code is: {code}',  # Email body containing the confirmation code.
-                os.getenv('EMAIL_HOST_USER'),  # Sender's email address.
-                [email],  # Recipient's email address.
-                fail_silently=False,  # Raise an error if the email fails to send.
+                'Your Confirmation Code',
+                f'Your confirmation code is: {code}',
+                os.getenv('EMAIL_HOST_USER'),
+                [email],
+                fail_silently=False,
             )
             return Response({"detail": "Registration data received. Please check your email for the confirmation code."}, status=status.HTTP_200_OK)
 
@@ -331,15 +246,13 @@ class CreateUserView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-
 class ConfirmRegistrationView(generics.CreateAPIView):
-    permission_classes = [AllowAny]  # Allow any user to access this view.
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get('email')  # Get the email from the request data.
-        code = request.data.get('code')  # Get the confirmation code from the request data.
+        email = request.data.get('email')
+        code = request.data.get('code')
 
-        # Check if the email and code were provided
         if not email or not code:
             return Response({"error": {"code": "missing_data", "message": "Email and code are required."}}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -357,52 +270,38 @@ class ConfirmRegistrationView(generics.CreateAPIView):
                 # Validate the cached data and create a new user if valid
                 serializer = UserSerializer(data=cached_data)
                 if serializer.is_valid():
-                    user = serializer.save()  # Call the method that saves the object and performs necessary actions
+                    user = serializer.save() 
 
-                    user.is_active = True  # Activate the user's account
-                    user.save()  # Save changes to the database
+                    user.is_active = True
+                    user.save()
 
-                    # Create the user profile and generate the secret for 2FA
                     UserProfile.objects.create(user=user).generate_2fa_secret()
 
                     user_data = UserProfile.objects.get(user=user)
-                    logger.info(f'User data: {user_data.__dict__}')
 
-                    # Clear the cached data and code
                     cache.delete_many([f'registration_code_{user.email}', f'registration_data_{user.email}'])
 
                     logger.info(f'User registered and activated successfully: {user.email}')
 
-                    # Generate the success HTTP headers
                     headers = self.get_success_headers(serializer.data)
 
-                    # Return the HTTP 201 (Created) response with user data and headers
                     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
                 else:
-                    # Return validation errors, if any
                     return Response({"error": {"code": "validation_error", "message": serializer.errors}}, status=status.HTTP_400_BAD_REQUEST)
 
             except Exception as e:
                 logger.error(f'Error processing registration confirmation for user {email}: {str(e)}')
                 return Response({"error": {"code": "server_error", "message": "Error processing the request. Please try again later."}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            # Return an error if the confirmation code is invalid or expired
             logger.warning(f'Attempt to confirm with invalid or expired code for email: {email}')
             return Response({"error": {"code": "invalid_code", "message": "Invalid or expired confirmation code."}}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileDetailView(generics.RetrieveUpdateAPIView):
-    """
-    View para o usuário autenticado visualizar e atualizar seu perfil. Verifica se o perfil
-    existe, criando-o se necessário.
-    """
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
 
-
     def get_object(self):
-        # Verifica se o perfil existe para o usuário autenticado
-        logger.info(f'Request userprofile detail teste: {self.request.user}')
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
 
@@ -418,16 +317,12 @@ class UserProfileDetailView(generics.RetrieveUpdateAPIView):
         }, status=status.HTTP_200_OK)
 
 class DeleteUserView(generics.DestroyAPIView):
-    """
-    View para o usuário autenticado deletar sua própria conta.
-    """
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         user = request.user
         profile = UserProfile.objects.get(user=user)
 
-        # Deletar a imagem de perfil se não for a imagem padrão
         if profile.profile_image and profile.profile_image.name != 'default.jpg':
             image_path = profile.profile_image.path
             if os.path.exists(image_path):
@@ -436,12 +331,9 @@ class DeleteUserView(generics.DestroyAPIView):
         user.delete()
         return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
-### Views de Gestão de Amizades
 
 class AddFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    """
-    View para o usuário autenticado adicionar um amigo à sua lista de amigos.
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -467,9 +359,7 @@ class AddFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return Response({'status': 'friend added'}, status=status.HTTP_200_OK)
 
 class RemoveFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    """
-    View para o usuário autenticado remover um amigo da sua lista de amigos.
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -487,22 +377,16 @@ class RemoveFriendView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return Response({'error': 'Friend not found in friend list'}, status=status.HTTP_404_NOT_FOUND)
 
 class FriendListView(generics.GenericAPIView):
-    """
-    View para obter a lista de amigos do usuário autenticado com o username e o status de login.
-    """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Obter o perfil do usuário autenticado
         user_profile = UserProfile.objects.get(user=request.user)
 
-        # Lista de usernames dos amigos
         friend_usernames = user_profile.friend_list
 
-        # Obter os perfis dos amigos
         friends_profiles = UserProfile.objects.filter(user__username__in=friend_usernames).select_related('user')
 
-        # Construir a resposta
         response_data = [
             {
                 'username': profile.user.username,
@@ -524,12 +408,8 @@ class UpdateOnlineStatusView(generics.GenericAPIView, mixins.UpdateModelMixin):
         UserProfile.objects.filter(user=user).update(is_logged_in=is_logged_in)
         return Response({'status': 'Online status updated successfully'}, status=status.HTTP_200_OK)
 
-### Views de Gestão de Bloqueios
-
 class BlockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    """
-    View para o usuário autenticado bloquear outro usuário.
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -554,9 +434,7 @@ class BlockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return Response({'status': 'user blocked'}, status=status.HTTP_200_OK)
 
 class UnblockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    """
-    View para o usuário autenticado desbloquear outro usuário.
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -574,27 +452,20 @@ class UnblockUserView(generics.GenericAPIView, mixins.UpdateModelMixin):
         return Response({'error': 'User not found in blocked list'}, status=status.HTTP_404_NOT_FOUND)
 
 class GetBlockedListView(APIView):
-    """
-    View para o usuário autenticado obter sua lista de bloqueios.
-    """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Obtém o perfil do usuário autenticado
+
         try:
             profile = UserProfile.objects.get(user=request.user)
         except UserProfile.DoesNotExist:
             return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Retorna a lista de bloqueios
         return Response({'blocked_list': profile.blocked_list}, status=status.HTTP_200_OK)
 
-### Outras Views
-
 class ListAllUsersView(generics.RetrieveUpdateAPIView):
-    """
-    View para listar todos os perfis de usuários. Disponível apenas para administradores.
-    """
+
     permission_classes = [IsAdminUser]
     serializer = UserProfileSerializer
 
@@ -604,10 +475,7 @@ class ListAllUsersView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class GetUserProfileView(generics.RetrieveAPIView):
-    """
-    View para obter o perfil de um usuário específico com base no nome de usuário. Disponível
-    para usuários autenticados.
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -632,10 +500,7 @@ class GetUserProfileView(generics.RetrieveAPIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class GetUserUsernameView(generics.RetrieveAPIView):
-    """
-    View para obter o username de um usuário específico com base no id disponível
-    para usuários autenticados.
-    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -661,8 +526,6 @@ class UpdateUserProfileView(APIView):
         user_profile = UserProfile.objects.get(user=request.user)
         serializer = UserProfileSerializer(user_profile, data=request.data, partial=True, context={'request': request})
 
-        logger.info(f'UpdateUserProfileView request data: {request.data}')
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -683,14 +546,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         try:
             profile = user.profile
         except UserProfile.DoesNotExist:
-            profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
+            profile = UserProfile.objects.create(user=user)
 
-        # Aqui você deve gerar um código TOTP secreto para o usuário, se ainda não existir
         if not profile.two_factor_code:
             profile.two_factor_code = pyotp.random_base32()
             profile.save()
 
-        # Gerar tokens JWT
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
@@ -713,15 +574,13 @@ class CustomTokenObtainPairViewWithout2FA(APIView):
 
         user = serializer.user
         
-        # Verifica se o perfil do usuário existe e se 2FA está desabilitado
         try:
             profile = user.profile
             if profile.two_factor_enabled:
                 return Response({"detail": "2FA is enabled, use the 2FA login."}, status=status.HTTP_403_FORBIDDEN)
         except UserProfile.DoesNotExist:
-            profile = UserProfile.objects.create(user=user)  # Criar o perfil se não existir
+            profile = UserProfile.objects.create(user=user)
 
-        # Gerar tokens JWT
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
@@ -779,7 +638,7 @@ class Check2FAStatusView(APIView):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
 
         profile = user.profile
         return Response({"two_factor_enabled": profile.two_factor_enabled}, status=status.HTTP_200_OK)
@@ -802,25 +661,12 @@ class Toggle2FAView(APIView):
         return Response({"detail": f"2FA {'enabled' if enable_2fa else 'disabled'} successfully"}, status=status.HTTP_200_OK)
 
 class UpdateMatchHistoryView(generics.GenericAPIView):
-    """
-    API View to update the match history of a user.
-    If the game is ranked, both the winner and the loser need to be registered users.
-    If the game is not ranked, only the authenticated user (winner or loser) will have their profile updated.
-    """
-    permission_classes = [IsAuthenticated]  # Requires the user to be authenticated
+
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to update the match history. The game data includes details such as
-        the type of game (pong/snake), the winner, the loser, scores, timestamp, and whether the game is ranked.
 
-        If the game is ranked:
-          - Both the winner and loser profiles must exist and will be updated accordingly.
-        If the game is not ranked:
-          - Only the authenticated user's profile will be updated (winner or loser).
-        """
         data = request.data
-        logger.info(f'Request data: {data}')
 
         try:
             # Get the current authenticated user and their profile
@@ -833,7 +679,7 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             loser = data.get('loser')
             user1_score = data.get('winner_score')
             user2_score = data.get('loser_score')
-            ranked = data.get('ranked')  # True or False
+            ranked = data.get('ranked')
 
             current_is_winner = True if current_user.username == winner else False
             points = 0
@@ -967,53 +813,39 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
             logger.error(f"An error occurred: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class PongRankingListView(APIView):
-    """
-    View para obter a lista de usuários baseada no ranking de Pong.
-    Retorna o username e o valor do pong_rank.
-    """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Obter todos os perfis de usuários ordenados pelo pong_rank
+
         pong_rankings = UserProfile.objects.order_by('-pong_rank').select_related('user')
 
-        # Construindo a resposta com base nos dados
         response_data = [
             {
-                'username': profile.user.username,  # Acessando o username diretamente do relacionamento
+                'username': profile.user.username,
                 'pong_rank': profile.pong_rank,
-                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url# Acessando a URL da imagem diretamente
+                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url
             }
             for profile in pong_rankings
         ]
 
         return Response({'pong_rankings': response_data}, status=status.HTTP_200_OK)
 
-
 class SnakeRankingListView(APIView):
-    """
-    View para obter a lista de usuários baseada no ranking de Snake.
-    Retorna o username e o valor do snake_rank.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Obter todos os perfis de usuários ordenados pelo snake_rank
         snake_rankings = UserProfile.objects.order_by('-snake_rank').select_related('user')
-
-        # Construindo a resposta com base nos dados
         
         response_data = [
             {
-                'username': profile.user.username,  # Acessando o username diretamente do relacionamento
+                'username': profile.user.username,
                 'snake_rank': profile.snake_rank,
-                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url  # Acessando a URL da imagem diretamente
+                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url
             }
             for profile in snake_rankings
         ]
-
         return Response({'snake_rankings': response_data}, status=status.HTTP_200_OK)
 
 

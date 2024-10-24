@@ -11,17 +11,6 @@ from django.core.exceptions import ValidationError
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'email', 'password']
-#         extra_kwargs = {'password': {'write_only': True}}
-    
-#     def create(self, validated_data):
-#         user = User.objects.create_user(**validated_data)
-#         return user
-
-
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
@@ -54,18 +43,16 @@ class UserSerializer(serializers.ModelSerializer):
         # Validate password using the custom password validator
         password_validator = CustomPasswordValidator()
         try:
-            password_validator.validate(data['password'])  # This will raise a ValidationError if the password is invalid
+            password_validator.validate(data['password'])
         except ValidationError as e:
             raise serializers.ValidationError({"password": e.messages})
 
-        # Return validated data for use in user creation
         return data
 
     def create(self, validated_data):
-        # Remove the confirm_password from the validated data
         validated_data.pop('confirm_password', None)
         print("Validated data before user creation:", validated_data)
-        user = User.objects.create_user(**validated_data)  # Create the user with the validated data
+        user = User.objects.create_user(**validated_data)
         print(f"User created: {user}")
         return user
 
@@ -84,23 +71,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_profile_image_url(self, obj):
         request = self.context.get('request')
 
-        # Verifica se o contexto tem uma URL de imagem fornecida pela API
-        # api_image_url = getattr(obj, 'api_image_url', None)
         api_image_url = obj.api_image_url
         if api_image_url and (obj.profile_image and obj.profile_image.name == 'default.jpg'):
             return api_image_url
 
         if obj.profile_image:
             url = request.build_absolute_uri(obj.profile_image.url)
-            return url.replace('http://', 'https://')
+            
+            parsed_url = urlparse(url)
+            
+            new_netloc = f'{parsed_url.hostname}:8443'
+            new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
+            
+            return new_url
         return None
 
     def validate_profile_image(self, value):
         if not value.content_type.startswith('image'):
-            raise serializers.ValidationError("O arquivo não é uma imagem.")
+            raise serializers.ValidationError("The file is not an image.")
         max_size = 5 * 1024 * 1024  # 5 MB
         if value.size > max_size:
-            raise serializers.ValidationError(f"A imagem deve ter no máximo {max_size / (1024 * 1024)} MB.")
+            raise serializers.ValidationError(f"The image must be at most {max_size / (1024 * 1024)} MB.")
         return value
 
     def update(self, instance, validated_data):
@@ -117,16 +108,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
         logger.info(f"Profile image: {profile_image}")
         
         if profile_image:
-            # Verifique se o perfil já possui uma imagem existente antes de validar a nova imagem
             if instance.profile_image and instance.profile_image.name != 'default.jpg':
                 self.validate_profile_image(profile_image)
 
-                # Remova a imagem antiga se uma nova imagem for fornecida
                 old_image_path = instance.profile_image.path
                 if os.path.exists(old_image_path):
                     os.remove(old_image_path)
 
-            # Renomeie e atribua a nova imagem ao perfil
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
             profile_image.name = f"{instance.user.username}_{timestamp}_profile.jpg"
             instance.profile_image = profile_image
