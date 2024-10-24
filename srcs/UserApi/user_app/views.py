@@ -712,7 +712,7 @@ class CustomTokenObtainPairViewWithout2FA(APIView):
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = serializer.user
-        
+
         # Verifica se o perfil do usuário existe e se 2FA está desabilitado
         try:
             profile = user.profile
@@ -901,10 +901,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         points = 100 * ratio
                     else:
                         points = 100 * ratio * (-1)
-                    if current_profile + points <= 0:
-                        current_profile.pong_rank = 1
+                    if current_profile.pong_rank + points <= 0:
+                        current_profile.pong_rank = 0
                     else:
-                        current_profile.pong_rank += points
+                        current_profile.pong_rank += round(points)
 
             # If the game type is "snake"
             else:
@@ -948,10 +948,10 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                         points = 100 * ratio
                     else:
                         points = 100 * ratio * (-1)
-                    if current_profile + points <= 0:
-                        current_profile.snake_rank = 1
+                    if current_profile.snake_rank + points <= 0:
+                        current_profile.snake_rank = 0
                     else:
-                        current_profile.snake_rank += points
+                        current_profile.snake_rank += round(points)
 
             current_profile.save()
 
@@ -1004,7 +1004,7 @@ class SnakeRankingListView(APIView):
         snake_rankings = UserProfile.objects.order_by('-snake_rank').select_related('user')
 
         # Construindo a resposta com base nos dados
-        
+
         response_data = [
             {
                 'username': profile.user.username,  # Acessando o username diretamente do relacionamento
