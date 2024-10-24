@@ -64,20 +64,18 @@ class WebSocketService {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {
 				updateOnlineUsersList(username, data.online_users);
-				console.log('data.online_users: ', data.online_users);
-				console.log('location: ', window.location.pathname);
+				// console.log('data.online_users: ', data.online_users);
+				// console.log('location: ', window.location.pathname);
 				if (window.location.pathname === `/user/${username}/profile`) {
-					console.log('Detetou profile');
 					displayProfileFriendsList(username);
 				}
 				else if (window.location.pathname === `/user/${username}/settings`) {
-					console.log('Detetou settings');
 					displayFriendsList(username, true);
 				}
 			} else if (data.room) {
 				getRoomCode(username, data);
 			} else if (data.invite_cancelled)
-				handleInviteCancelled(username, data, this.chatLog);
+				handleInviteCancelled(data, this.chatLog);
 		};
 		this.socketRef.onerror = error => {
 			console.error('WebSocket error:', error);
@@ -102,11 +100,10 @@ class WebSocketService {
         let token  = localStorage.getItem('access_token');
         if (!token || !this.testToken(token)) {
             console.log('No access token found or access token invalid, websocket');
-            const refreshed = await refreshAccessToken(); // testar esta parte
+            const refreshed = await refreshAccessToken();
             console.log('refresh token: ', refreshed);
             if (refreshed) {
                 this.send(data);
-                // chatMessageInput.value = '';
             } else {
                 navigateTo('/');
 				localStorage.removeItem('access_token');
@@ -116,7 +113,6 @@ class WebSocketService {
             }
         } else {
             this.send(data);
-            // chatMessageInput.value = '';
         }
   	}
 	parseJwt(token) {

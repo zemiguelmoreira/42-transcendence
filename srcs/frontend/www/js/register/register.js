@@ -23,27 +23,9 @@ function insertInputValidation(registerForm) {
 
 function fetchRegister(user, email, password, password2, registerForm) {
 	registerUser(user, email, password, password2);
-	// registerForm.elements.username.value = "";
-	// registerForm.elements.email.value = "";
 	registerForm.elements.password.value = "";
 	registerForm.elements.password2.value = "";
 }
-
-// function handleSignUp(e) {
-//     e.preventDefault();
-//     const registerForm = document.querySelector('#userRegisterForm');
-//     const user = registerForm.elements.username.value.toLowerCase().trim();
-// 	console.log('username: ', user);
-//     const email = registerForm.elements.email.value;
-//     const password = registerForm.elements.password.value;
-//     const password2 = registerForm.elements.password2.value;
-//     if (user && email && password && password2) {
-//         fetchRegister(user, email, password, password2, registerForm);
-//     } else {
-//         insertInputValidation(registerForm);
-//     }
-// }
-
 
 function handleSignUp(e) {
     e.preventDefault();
@@ -72,7 +54,6 @@ function handleSignUp(e) {
 	}
 }
 
-
 async function registerUser(user, email, password, password2) {
 	const userInfo = {
 		username: user,
@@ -95,12 +76,11 @@ async function registerUser(user, email, password, password2) {
 		if (!response.ok) {
 
 			if(response.status === 400 || response.status === 422) {
-				const errorData = await response.json(); // msn que vem do Django (serializer)
+				const errorData = await response.json();
 				console.log('errorData: ', errorData);
 				message = Object.values(errorData)[0];
-				const input = Object.keys(errorData)[0];// só para controlo na consola
+				const input = Object.keys(errorData)[0];
 				console.log('message: ', message);
-				// console.log('input: ', input);
 			} else {
 				message = response.statusText
 			}
@@ -109,13 +89,11 @@ async function registerUser(user, email, password, password2) {
 				message: message,
 				status: response.status
 			}
-			// console.log(errorObject.message, errorObject.status, errorObject.status_msn);
 			throw errorObject;
 		}
 
 		const data = await response.json();
 		console.log('data register: ', data);
-		// { detail: "Registration data received. Please check your email for the confirmation code." } - exemplo do erro
 
 		if (data) {
 			displayEmailCode(data.detail);
@@ -131,7 +109,6 @@ async function registerUser(user, email, password, password2) {
 
 	} catch (e) {
 
-		// o status 422 acontece quando é colocado um email que não exist, em consequência o email do code não é enviado
 		if (e.status === 400 || e.status === 422) {
 			const err_key = Object.keys(e.message)[0];
 			const err_message = e.message[err_key];

@@ -15,8 +15,6 @@ function initializeChat(username) {
 				messageData.recipient = selectedUser;
 				messageData.type = "private";
 			}
-			// chatSocketInstance.send(messageData);
-			// chatMessageInput.value = '';
 			chatSocketInstance.sendWithToken(messageData);
 			chatMessageInput.value = '';
 		}

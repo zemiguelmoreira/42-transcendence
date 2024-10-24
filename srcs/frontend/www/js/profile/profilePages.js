@@ -1,5 +1,3 @@
-
-
 function makeProfilePage(data) {
 	return `
 	<div class="profile-container">
@@ -322,7 +320,7 @@ async function toggleTwoFactorAuth(isEnabled) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Assuming you're using token-based authentication
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
             },
             body: JSON.stringify({ enable_2fa: isEnabled })
         });

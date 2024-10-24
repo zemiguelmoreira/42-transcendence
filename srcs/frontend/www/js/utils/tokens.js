@@ -1,4 +1,3 @@
-// import WebSocketInstance from "../socket/websocket.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import { navigateTo } from "../app.js";
 import { logoutContainer } from "./utils1.js";
@@ -62,16 +61,6 @@ function removeToken(username) {
 }
 
 function verifyToken() {
-	// if (WebSocketInstance.state() === 1) {
-	// 	const token = localStorage.getItem('refresh_token');
-	// 	if (!testToken(token)) {
-	// 		WebSocketInstance.close();
-	// 		navigateTo('/');
-	// 		localStorage.removeItem('access_token');
-	// 		localStorage.removeItem('refresh_token');
-	// 		sessionStorage.removeItem('access_token');
-	// 	}
-	// }
 	if (chatSocketInstance.state() === 1) {
 		const token = localStorage.getItem('refresh_token');
 		if (!testToken(token)) {

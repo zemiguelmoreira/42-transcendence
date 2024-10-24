@@ -8,27 +8,20 @@ function displaySlidingMessage(message, rep = '4') {
 		console.log("Element with ID 'slidingMessage' not found.");
 		return;
 	}
-	// Show the element again (in case it was hidden)
 	slidingMessageDiv.style.display = 'block';
 	slidingMessageDiv.textContent = message;
-	// Reset the animation by setting it to 'none' first
 	slidingMessageDiv.style.animation = 'none';
-	// Remove any previous 'animationend' listeners to prevent duplicate calls
 	slidingMessageDiv.removeEventListener('animationend', handleAnimationEnd);
-	// Use requestAnimationFrame to restart the animation
 	requestAnimationFrame(() => {
 		requestAnimationFrame(() => {
 			slidingMessageDiv.style.animation = `slide-in 20s linear ${rep}`;
 		});
 	});
-	// Function to handle the animation ending when reps are finite
 	function handleAnimationEnd() {
 		if (rep !== 'infinite') {
-			// Hide the element when the animation completes
 			slidingMessageDiv.style.display = 'none';
 		}
 	}
-	// Add an event listener for the animationend event only when rep is finite
 	if (rep !== 'infinite') {
 		slidingMessageDiv.addEventListener('animationend', handleAnimationEnd);
 	}
@@ -42,12 +35,10 @@ function clearSlidingMessage() {
 		return;
 	}
 	const handleAnimationIteration = () => {
-		// Hide the element when the current cycle ends (next iteration begins)
 		slidingMessageDiv.style.display = 'none';
-		slidingMessageDiv.style.animation = 'none'; // Stop the animation
+		slidingMessageDiv.style.animation = 'none';
 		slidingMessageDiv.removeEventListener('animationiteration', handleAnimationIteration);
 	};
-	// Add the event listener for the next animation iteration
 	slidingMessageDiv.addEventListener('animationiteration', handleAnimationIteration);
 }
 
@@ -178,29 +169,15 @@ function handleInputBlur(inputField, limitChar, marginOnEmpty = '10px') {
 	});
 }
 
-function clearCookies() {
-	const cookies = document.cookie.split(";");
-	for (let i = 0; i < cookies.length; i++) {
-		const cookie = cookies[i];
-		const eqPos = cookie.indexOf("=");
-		const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-		document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-	}
-}
-
-
-
 function showPassword(idToggle, idInput) {
 
 	const togglePassword = document.querySelector(`#${idToggle}`);
 	const password = document.querySelector(`#${idInput}`);
 
 	togglePassword.addEventListener("click", function () {
-		// Alternar o tipo de entrada entre 'password' e 'text'
 		const type = password.getAttribute("type") === "password" ? "text" : "password";
 		password.setAttribute("type", type);
 
-		// Alternar o ícone entre 'olho' aberto e fechado
 		this.classList.toggle("bi-eye");
 		this.classList.toggle("bi-eye-slash");
 	});

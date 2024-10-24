@@ -7,7 +7,6 @@ import { getNamebyId } from "../profile/myprofile.js";
 import { fetchQrCode, displayQrCode, verifyCode, displayErrorCode } from "../2faQrcode/2fa_qrcode.js";
 import { handleInput, handleInputBlur, showPassword, displayError } from "../utils/utils1.js";
 import { userSignIn42, getParams } from "./login42.js";
-import { fetchWithAuth } from "../utils/fetchWithToken.js";
 
 function insertInputValidation1(qrForm) {
 	for (let element of qrForm.elements) {
@@ -39,8 +38,6 @@ async function checkTwoFactorStatus(username) {
         const data = await response.json();
         return data.two_factor_enabled;
     } catch (error) {
-        // console.error(error);
-
         return false;
     }
 }
@@ -248,11 +245,23 @@ async function sendIUser(userOrEmail, password) {
 
 		try {
 			const response = await fetch(url, config);
-
+			let errorObject;
 			if (!response.ok) {
-				const errorData = await response.json();
-				console.error('Login failed:', errorData);
-				throw new Error(errorData.detail || 'Login failed');
+				if (response.status === 401) {
+					const errorData = await response.json();
+					console.log('errorData login: ', errorData);
+					console.log('errorData login: ', errorData.detail);
+					errorObject = {
+						message: errorData.detail,
+						status: response.status,
+					};
+				} else {
+					errorObject = {
+						message: response.statusText,
+						status: response.status,
+					};
+				}
+				throw errorObject;
 			}
 
 			const data = await response.json();
@@ -272,9 +281,12 @@ async function sendIUser(userOrEmail, password) {
 			console.log('Login successful:', data);
 			return data;
 
-		} catch (error) {
-			console.error('Error during login:', error);
-			throw error;
+		} catch (e) {
+			if (e.status === 401) {
+				displayErrorSignIn(e.message);
+			} else {
+				navigateTo(`/error/${e.status}/${e.message}`);
+			}
 		}													
 	}
 
@@ -337,14 +349,12 @@ async function resetPassword(username) {
 			navigateTo(`/user/${username}/settings`);
 		} else {
 			if (data.error) {
-				console.error(data.error.message);
 				displaySlidingMessage(data.error.message);
 			} else {
 				displaySlidingMessage('Error updating password. Please check your data and try again.');
 			}
 		}
 	} catch (error) {
-		console.error('Error updating password:', error.message);
 	}
 }
 
@@ -423,6 +433,7 @@ async function requestPasswordReset() {
 
 
 async function deleteUser() {
+	
 	const accessToken = localStorage.getItem('access_token');
 
 	if (!accessToken) {
@@ -433,8 +444,10 @@ async function deleteUser() {
 	const confirmed = confirm('Are you sure you want to delete your account? \nThis action cannot be undone.');
 
 	if (!confirmed) {
-		return;
+		console.log('FALSE');
+		return false;
 	}
+
 
 	try {
 		const response = await fetch('/api/profile/delete_user/', {
@@ -447,16 +460,22 @@ async function deleteUser() {
 
 		if (response.status === 204) {
 			alert('User deleted successfully');
-			localStorage.removeItem('access_token');
-			localStorage.removeItem('refresh_token');
+			// localStorage.removeItem('access_token');
+			// localStorage.removeItem('refresh_token');
 		} else {
 			const data = await response.json();
 			alert(data.error || 'Failed to delete user');
+			console.log('FALSE');
+			return false;
 		}
 	} catch (error) {
-		console.error('Error deleting user:', error);
 		alert('Failed to delete user');
+		console.log('FALSE');
+		return false;
 	}
+	
+	console.log('TRUE');
+	return true;
 }
 
 export { signIn, userSignIn, resetPassword, deleteUser , checkTwoFactorStatus }
