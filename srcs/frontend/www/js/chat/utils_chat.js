@@ -74,7 +74,7 @@ function createInviteElement(inviteMessage, sender, game, username) {
 	const messageText = document.createElement("span");
 	messageText.textContent = inviteMessage;
 	const buttonContainer = document.createElement("div");
-	buttonContainer.id = `${sender}_${idCounter}`;
+	buttonContainer.classList.add(`${sender}`);
 	buttonContainer.classList.add('button-container');
 	const acceptButton = createInviteResponseButton("Accept", true, sender, game, username);
 	const rejectButton = createInviteResponseButton("Reject", false, sender, game, username);
@@ -119,11 +119,15 @@ function handleInviteCancelled(data, chatLog) {
 	chatLog.appendChild(inviteCancelledElement);
 	chatLog.scrollTop = chatLog.scrollHeight;
 	displaySlidingMessage(`${data.sender} has cancelled the invite.`);
-	console.log(data.sender);
+
+	console.log('data.sender ', data.sender);
+	console.log('counter ', idCounter);
 	console.log('TESTE ',`${data.sender}_${idCounter}`);
-	const buttonContainer = document.getElementById(`${data.sender}_${idCounter++}`);
-	buttonContainer.querySelector('.accept-button').disabled = true;
-	buttonContainer.querySelector('.reject-button').disabled = true;
+
+	const buttonContainer = document.getElementsByClassName(`${data.sender}`);
+	const lastButtonContainer = buttonContainer[buttonContainer.length - 1];
+	lastButtonContainer.querySelector('.accept-button').disabled = true;
+	lastButtonContainer.querySelector('.reject-button').disabled = true;
 }
 
 function getRoomCode(username, data) {
