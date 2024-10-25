@@ -349,7 +349,7 @@ async function resetPassword(username) {
 			navigateTo(`/user/${username}/settings`);
 		} else {
 			if (data.error) {
-				displaySlidingMessage(data.error.message);
+				displaySlidingMessage("Invalid Password");
 			} else {
 				displaySlidingMessage('Error updating password. Please check your data and try again.');
 			}

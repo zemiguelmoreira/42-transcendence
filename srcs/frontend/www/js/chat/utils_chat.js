@@ -9,6 +9,7 @@ import { snakeGameRemotePage } from "../games/snake-pages.js";
 import { navigateTo } from "../app.js";
 
 let selectedUser = null, invitedUser = null;
+let idCounter = 0;
 
 function displayChatMessage(data, chatLog) {
 	console.log("Chat data: ", data);
@@ -73,7 +74,7 @@ function createInviteElement(inviteMessage, sender, game, username) {
 	const messageText = document.createElement("span");
 	messageText.textContent = inviteMessage;
 	const buttonContainer = document.createElement("div");
-	buttonContainer.id = sender;
+	buttonContainer.id = `${sender}_${idCounter}`;
 	buttonContainer.classList.add('button-container');
 	const acceptButton = createInviteResponseButton("Accept", true, sender, game, username);
 	const rejectButton = createInviteResponseButton("Reject", false, sender, game, username);
@@ -98,7 +99,7 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 
 		chatSocketInstance.send(response);
 
-		const buttonContainer = document.getElementById(data.sender);
+		const buttonContainer = this.closest('.button-container');
 		buttonContainer.querySelector('.accept-button').disabled = true;
 		buttonContainer.querySelector('.reject-button').disabled = true;
 
@@ -119,7 +120,8 @@ function handleInviteCancelled(data, chatLog) {
 	chatLog.scrollTop = chatLog.scrollHeight;
 	displaySlidingMessage(`${data.sender} has cancelled the invite.`);
 	console.log(data.sender);
-	const buttonContainer = document.getElementById(`${data.sender}`);
+	console.log('TESTE ',`${data.sender}_${idCounter}`);
+	const buttonContainer = document.getElementById(`${data.sender}_${idCounter++}`);
 	buttonContainer.querySelector('.accept-button').disabled = true;
 	buttonContainer.querySelector('.reject-button').disabled = true;
 }
