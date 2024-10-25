@@ -25,7 +25,7 @@ function makeProfilePage(data) {
 				<label class="profile-label" class="profile-label" for="bio">Biography:</label>
 				<span class="profile-description bio" id="bio" style="overflow-wrap: break-word; word-break: break-word">${data.profile.bio}</span>
 			</div>
-			<div class="profile-title">Games Statistics</div>
+			<div class="profile-title">Ranked Games Statistics</div>
 			<table class="games-statistics">
 				<thead>
 					<tr>
@@ -224,7 +224,7 @@ function makeProfilePageSearchOther(data) {
 				<label for="email">Email:</label>
 				<span class="profile-description" id="email">${data.user.email}</span>
 			</div>
-			<div class="profile-title">Games Statistics</div>
+			<div class="profile-title">Ranked Games Statistics</div>
 			<table class="games-statistics">
 				<thead>
 					<tr>

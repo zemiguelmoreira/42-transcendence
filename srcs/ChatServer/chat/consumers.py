@@ -408,14 +408,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	async def post_user_status(self, is_logged_in):
-		url = 'http://userapi:8000/profile/update_onlinestatus/'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/update_onlinestatus/"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
 		data = {
 			'is_logged_in': is_logged_in
 		}
-		async with httpx.AsyncClient() as client:
+		async with httpx.AsyncClient(verify=False) as client:
 			try:
 				response = await client.post(url, headers=headers, json=data)
 				if response.status_code == 200:
@@ -427,12 +427,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	async def get_blocked_user_list(self):
-		url = 'http://userapi:8000/profile/blocked_list/'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/blocked_list/"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
 
-		async with httpx.AsyncClient() as client:
+		async with httpx.AsyncClient(verify=False) as client:
 			response = await client.get(url, headers=headers)
 			if response.status_code == 200:
 				blocked_users = response.json().get('blocked_list', [])
@@ -448,15 +448,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		logger.info(f"Create_room: Game Access Token: {game_accessToken}")
 
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.post(
-					'http://gameserver:8001/create-room/',
+					f"https://nginx:{os.getenv('NGINX_PORT')}/game/create-room/",
 					headers={
 						'Content-Type': 'application/json',
 						'Authorization': f'Bearer {game_accessToken}',
 					},
 					json={
-						'authorized_user': authorized_user
+						'authorized_user': authorized_user,
+						'ranked': False,
 					},
 				)
 				data = response.json()

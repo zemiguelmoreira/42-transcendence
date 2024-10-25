@@ -36,7 +36,7 @@ function displayChatMessage(data, chatLog) {
 	const contentElement = document.createElement("div");
 	contentElement.classList.add('message-content');
 	contentElement.style.overflowWrap = "break-word";
-	contentElement.style.wordBreak = "break-word"; 
+	contentElement.style.wordBreak = "break-word";
 	contentElement.innerHTML = data.message.replace(/\n/g, '<br>');
 	messageElement.appendChild(senderElement);
 	messageElement.appendChild(contentElement);
@@ -98,7 +98,7 @@ function createInviteResponseButton(text, accepted, sender, game, username) {
 
 		chatSocketInstance.send(response);
 
-		const buttonContainer = document.getElementById(data.sender);
+		const buttonContainer = document.getElementById(sender);
 		buttonContainer.querySelector('.accept-button').disabled = true;
 		buttonContainer.querySelector('.reject-button').disabled = true;
 

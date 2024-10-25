@@ -1,4 +1,4 @@
-#healthchecks for djangos missing
+#volumes for development (not postgres)
 services:
   frontend:
     build: ./frontend
@@ -19,6 +19,8 @@ services:
     #   timeout: 10s
     #   retries: 5
     #   start_period: 30s
+    env_file:
+      - .env
     restart: always
     networks:
       - transcendence-net
@@ -31,7 +33,7 @@ services:
       - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
-      - "443:443"
+      - "${NGINX_PORT}:443"
     expose:
       - "80"
     depends_on:
@@ -43,6 +45,8 @@ services:
     #   timeout: 4s
     #   retries: 5
     #   start_period: 5s
+    env_file:
+      - .env
     restart: always
     networks:
       - transcendence-net

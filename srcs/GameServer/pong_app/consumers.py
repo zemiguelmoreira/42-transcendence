@@ -126,6 +126,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		# accepting the websocket connection
 		logging.info(f"Pong: initialize_connection: User {self.user.username} connected.")
 		await self.accept()
+		self.ranked = room.ranked
 		self.room_group_name = f'room_{self.room_code}'
 		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
@@ -146,14 +147,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 		loser = self.user.username
 		winner_score = self.room['score'][0] if self.room['players'][0] == winner else self.room['score'][1]
 		loser_score = self.room['score'][0] if self.room['players'][0] == loser else self.room['score'][1]
+		timestamp = datetime.fromtimestamp(self.room['timestamp'], tz=timezone.utc).astimezone().isoformat()
 		to_save = {
 			'winner': winner,
 			'loser': loser,
 			'winner_score': winner_score,
 			'loser_score': loser_score,
-			'timestamp': self.room['formatted_time'],
+			'timestamp': timestamp,
 			'game_type': 'pong',
-			'ranked': True,
+			'ranked': self.ranked,
 		}
 		await self.save_match_history(to_save)
 
@@ -161,13 +163,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def game_over(self, event):
 		self.is_player = False
 		logger.info('Consumer: Game Over Called\n')
+		timestamp = datetime.fromtimestamp(self.room['timestamp'], tz=timezone.utc).astimezone().isoformat()
 		result  = {
 			'action': 'game_over',
 			'winner': event['winner'],
 			'loser': event['loser'],
 			'winner_score': event['winner_score'],
 			'loser_score': event['loser_score'],
-			'timestamp': event['timestamp'],
+			'timestamp': timestamp,
 			'game_type': 'pong',
 		}
 		to_save = {
@@ -175,9 +178,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			'loser': event['loser'],
 			'winner_score': event['winner_score'],
 			'loser_score': event['loser_score'],
-			'timestamp': event['timestamp'],
+			'timestamp': timestamp,
 			'game_type': 'pong',
-			'ranked': True,
+			'ranked': self.ranked,
 		}
 		await self.save_match_history(to_save)
 		await self.send(json.dumps(result))
@@ -185,13 +188,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 	# others
 	async def save_match_history(self, match_data):
 		logger.info('Consumer: Save Match History Called\n')
-		url = 'http://userapi:8000/profile/update_match_history/'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/update_match_history/"
 		headers = {
 			'Content-Type': 'application/json',
 			'Authorization': f'Bearer {self.token}',
 		}
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client: # verify=False is used to ignore SSL certificate verification
 				response = await client.post(url, json=match_data, headers=headers)
 				response.raise_for_status()
 				logger.info(f"Match history saved successfully: {response.json()}")
