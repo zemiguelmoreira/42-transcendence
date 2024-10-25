@@ -45,6 +45,11 @@ async function getUser(username, user) {
 		else {
 			const searchInputElement = document.getElementById('search-input');
 			query = searchInputElement.value;
+			const validNamePattern = /^[a-zA-Z0-9-]+$/;
+			if (!validNamePattern.test(query)) {
+				searchInputElement.value = "";
+				return;
+			}
 			searchInputElement.value = "";
 		}
 

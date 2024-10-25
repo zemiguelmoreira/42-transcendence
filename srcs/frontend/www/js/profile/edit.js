@@ -49,6 +49,12 @@ async function updateUserProfile(data, username, selectedProfileImage) {
 	const accessToken = localStorage.getItem('access_token');
 	const bio = document.getElementById('bioForm').value;
 	const alias_name = document.getElementById('usernameForm').value;
+	
+	const validNamePattern = /^[a-zA-Z0-9-]+$/;
+	if (!validNamePattern.test(alias_name)) {
+		return;
+	}
+
 	const profileImage = document.getElementById('choosePicture').files[0];
 	const formData = new FormData();
 	formData.append('bio', bio);
