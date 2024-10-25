@@ -37,8 +37,6 @@ class FortyTwoConnectView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        client_secret = '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'
-
         code = request.data.get('code')
         state = request.data.get('state')
         clientId = request.data.get('clientId')
@@ -46,9 +44,9 @@ class FortyTwoConnectView(APIView):
         response = post('https://api.intra.42.fr/oauth/token', data={
             'grant_type': 'authorization_code',
             'client_id': clientId,
-            'client_secret': client_secret,
+            'client_secret': os.getenv('42_SECRET'),
             'code': code,
-            'redirect_uri': f'https://{request.get_host()}/callback',
+            'redirect_uri': f"https://{request.get_host()}:{os.getenv('NGINX_PORT')}/callback",
         })
 
         data = response.json()
@@ -270,7 +268,7 @@ class ConfirmRegistrationView(generics.CreateAPIView):
                 # Validate the cached data and create a new user if valid
                 serializer = UserSerializer(data=cached_data)
                 if serializer.is_valid():
-                    user = serializer.save() 
+                    user = serializer.save()
 
                     user.is_active = True
                     user.save()
@@ -573,7 +571,7 @@ class CustomTokenObtainPairViewWithout2FA(APIView):
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = serializer.user
-        
+
         try:
             profile = user.profile
             if profile.two_factor_enabled:
@@ -711,20 +709,18 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
             # If the game type is "pong"
             if game_type == "pong":
-                # Update the winner's profile
-                if current_is_winner:
-                    current_profile.pong_wins += 1
-                    current_profile.wins += 1
-
-                # Update the loser's profile
-                else:
-                    current_profile.pong_losses += 1
-                    current_profile.losses += 1
 
                 current_profile.pong_match_history.append(match_data)
 
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
+                    if current_is_winner:
+                        current_profile.pong_wins += 1
+                        current_profile.wins += 1
+
+                    else:
+                        current_profile.pong_losses += 1
+                        current_profile.losses += 1
                     points = 0
                     ratio = 1
                     winner_rank = winner_profile.pong_rank
@@ -754,24 +750,17 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
 
             # If the game type is "snake"
             else:
-                # Update the winner's profile
-                if current_user.username == winner:
-                    current_profile.snake_wins += 1
-                    current_profile.wins += 1
-                # Update the winner's profile
-                if current_user.username == winner:
-                    current_profile.snake_wins += 1
-                    current_profile.wins += 1
-
-                # Update the loser's profile
-                else:
-                    current_profile.snake_losses += 1
-                    current_profile.losses += 1
 
                 current_profile.snake_match_history.append(match_data)
 
                 # If the game is ranked, calculate and update points
                 if ranked and winner_profile and loser_profile:
+                    if current_user.username == winner:
+                        current_profile.snake_wins += 1
+                        current_profile.wins += 1
+                    else:
+                        current_profile.snake_losses += 1
+                        current_profile.losses += 1
                     points = 0
                     ratio = 1
                     winner_rank = winner_profile.snake_rank
@@ -819,7 +808,7 @@ class PongRankingListView(APIView):
 
     def get(self, request, *args, **kwargs):
 
-        pong_rankings = UserProfile.objects.order_by('-pong_rank').select_related('user')
+        pong_rankings = UserProfile.objects.order_by('-pong_rank', 'user__username').select_related('user')
 
         response_data = [
             {
@@ -836,8 +825,8 @@ class SnakeRankingListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        snake_rankings = UserProfile.objects.order_by('-snake_rank').select_related('user')
-        
+        snake_rankings = UserProfile.objects.order_by('-snake_rank', 'user__username').select_related('user')
+
         response_data = [
             {
                 'username': profile.user.username,

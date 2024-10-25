@@ -193,12 +193,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def get_rankone(self):
-		url = f'http://userapi:8000/profile/{self.game}_rankings/'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/{self.game}_rankings/"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.get(url, headers=headers)
 				if response.status_code == 200:
 					data = response.json()
@@ -216,12 +216,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 
 	async def get_user_xp(self):
-		url = f'http://userapi:8000/profile/get_user_profile/?username={self.user.username}'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/get_user_profile/?username={self.user.username}"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.get(url, headers=headers)
 				if response.status_code == 200:
 					data = response.json()
@@ -238,12 +238,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 
 	async def get_user_xp(self):
-		url = f'http://userapi:8000/profile/get_user_profile/?username={self.user.username}'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/get_user_profile/?username={self.user.username}"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.get(url, headers=headers)
 				if response.status_code == 200:
 					data = response.json()
@@ -308,15 +308,16 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		# logger.info(f"Matchmaking: create_room: Creating room for {authorized_user}")
 		# logger.info(f"Matchmaking: create_room: Game Access Token: {game_accessToken}")
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.post(
-					'http://gameserver:8001/create-room/',
+					f"https://nginx:{os.getenv('NGINX_PORT')}/game/create-room/",
 					headers={
 						'Content-Type': 'application/json',
 						'Authorization': f'Bearer {game_accessToken}',
 					},
 					json={
-						'authorized_user': authorized_user
+						'authorized_user': authorized_user,
+						'ranked': True,
 					},
 				)
 				data = response.json()

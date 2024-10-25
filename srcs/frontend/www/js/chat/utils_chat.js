@@ -37,7 +37,7 @@ function displayChatMessage(data, chatLog) {
 	const contentElement = document.createElement("div");
 	contentElement.classList.add('message-content');
 	contentElement.style.overflowWrap = "break-word";
-	contentElement.style.wordBreak = "break-word"; 
+	contentElement.style.wordBreak = "break-word";
 	contentElement.innerHTML = data.message.replace(/\n/g, '<br>');
 	messageElement.appendChild(senderElement);
 	messageElement.appendChild(contentElement);

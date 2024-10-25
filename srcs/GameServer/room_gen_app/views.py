@@ -47,7 +47,8 @@ class CreateRoomView(View):
         except User.DoesNotExist:
             return JsonResponse({'error': 'Authorized user does not exist'}, status=400)
 
+        ranked = data.get('ranked', False)
         code = generate_unique_code()
-        room = Room.objects.create(code=code,  created_by=user.username, authorized_user=authorized_user.username)
+        room = Room.objects.create(code=code,  created_by=user.username, authorized_user=authorized_user.username, ranked=ranked)
 
         return JsonResponse({'code': room.code})

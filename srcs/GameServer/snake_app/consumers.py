@@ -180,13 +180,13 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 	# others
 	async def save_match_history(self, match_data):
 		logger.info('Consumer: Save Match History Called\n')
-		url = 'http://userapi:8000/profile/update_match_history/'
+		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/update_match_history/"
 		headers = {
 			'Content-Type': 'application/json',
 			'Authorization': f'Bearer {self.token}',
 		}
 		try:
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.post(url, json=match_data, headers=headers)
 				response.raise_for_status()
 				logger.info(f"Match history saved successfully: {response.json()}")

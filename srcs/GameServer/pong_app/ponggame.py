@@ -72,7 +72,7 @@ class PongGame:
 		try:
 			logger.info(f"PongGame: game_loop: Starting game loop for room {room_code}")
 			while not room['end_game']:
-				room['formatted_time'] = datetime.fromtimestamp(int(time.time()), tz=timezone.utc).isoformat()
+				room['timestamp'] = time.time()
 				await self.update_game_state(room_code, room)
 				async with PongGame.locks[room_code]:
 					game_state = {
@@ -162,7 +162,7 @@ class PongGame:
 				'loser': loser,
 				'winner_score': winner_score,
 				'loser_score': loser_score,
-				'timestamp': room['formatted_time'],
+				'timestamp': room['timestamp'],
 			})
 		await self.end_game(room_code, room)
 
