@@ -247,9 +247,10 @@ function profileSettings(dataUser) {
 	displayBlockedList(dataUser.user.username);
 
 
-	if (dataUser.profile.userApi42)
+	if (dataUser.profile.userApi42) {
 		document.getElementById('securityBox').style.display = 'none';
-
+		document.getElementById('changePassword').style.display = 'none';
+	}
 	async function setCheckboxState() {
 		const checkbox = document.getElementById('flexSwitchCheckDefault');
 		const isEnabled = await checkTwoFactorStatus(dataUser.user.username);

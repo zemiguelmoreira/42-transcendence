@@ -276,7 +276,7 @@ function pongGameTournament(username, dataUsername) {
 			input.addEventListener('input', function () {
 				let value = input.value;
 
-				value = value.replace(/[^a-zA-Z0-9]/g, '');
+				value = value.replace(/[^a-zA-Z0-9-]/g, '');
 
 				if (value.length > 10) {
 					value = value.substring(0, 10);
