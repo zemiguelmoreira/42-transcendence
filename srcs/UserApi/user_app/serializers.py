@@ -81,11 +81,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if obj.profile_image:
             url = request.build_absolute_uri(obj.profile_image.url) # replace for 42
             # for 42 pcs
-            # parsed_url = urlparse(url)
-            # new_netloc = f'{parsed_url.hostname}:8443'
-            # new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
-            # return new_url
-            return url.replace('http://', 'https://') # replace for 42
+            parsed_url = urlparse(url)
+            new_netloc = f"{parsed_url.hostname}:{os.getenv('NGINX_PORT')}"
+            new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
+            return new_url
+
+            #return url.replace('http://', 'https://') # replace for 42
         return None
 
     def validate_profile_image(self, value):

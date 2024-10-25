@@ -175,7 +175,6 @@ function makePasswordProfilePage(data) {
 							<label class="font-custom --bs-green">8 characters</label>
 							<label class="font-custom --bs-green">1 uppercase letter</label>
 							<label class="font-custom --bs-green">1 lowercase letter</label>
-							<label class="font-custom --bs-green">1 number</label>
 						</div>
 					</div>
 				</div>
