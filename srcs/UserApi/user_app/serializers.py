@@ -82,7 +82,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             url = request.build_absolute_uri(obj.profile_image.url)
             # for 42 pcs
             parsed_url = urlparse(url)
-            new_netloc = f"{parsed_url.hostname}:{os.getenv('NGINX_PORT')}"
+            new_netloc = f"{parsed_url.hostname}"
             new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
             return new_url
 

@@ -121,6 +121,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 		# accepting the websocket connection
 		logging.info(f"Snake: initialize_connection: User {self.user.username} connected.")
 		await self.accept()
+		self.ranked = room.ranked
 		self.room_group_name = f'room_{self.room_code}'
 		await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
@@ -148,7 +149,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			'loser_score': loser_score,
 			'timestamp': self.room['formatted_time'],
 			'game_type': 'snake',
-			'ranked': True,
+			'ranked': self.ranked,
 		}
 		await self.save_match_history(to_save)
 
@@ -172,7 +173,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 			'loser_score': event['loser_score'],
 			'timestamp': event['timestamp'],
 			'game_type': 'snake',
-			'ranked': True,
+			'ranked': self.ranked,
 		}
 		await self.save_match_history(to_save)
 		await self.send(json.dumps(result))

@@ -21,6 +21,12 @@ class CustomPasswordValidator:
                 _("This password must contain at least one lowercase letter."),
                 code='password_no_lower',
             )
+        
+        if not re.search(r'[0-9]', password):
+            raise ValidationError(
+                _("This password must contain at least one number."),
+                code='password_no_number',
+            )
 
     def get_help_text(self):
         return _("Your password must contain at least 8 characters, including at least one uppercase letter and one lowercase letter.")

@@ -175,6 +175,7 @@ function makePasswordProfilePage(data) {
 							<label class="font-custom --bs-green">8 characters</label>
 							<label class="font-custom --bs-green">1 uppercase letter</label>
 							<label class="font-custom --bs-green">1 lowercase letter</label>
+							<label class="font-custom --bs-green">1 number</label>
 						</div>
 					</div>
 				</div>
@@ -183,13 +184,25 @@ function makePasswordProfilePage(data) {
 						<img src="../../../files/padlock.png" alt="Game Image" width="150" height="150">
 						<div class="login-form">
 							<label class="font-custom --bs-green password-title">RESET PASSWORD</label>
+							
 							CURRENT PASSWORD
-							<input class="form-control button-size" type="password" id="currentPassword" placeholder="CURRENT PASSWORD" required>
+							<div class="mb-3 position-relative">
+								<input class="form-control button-size" type="password" id="currentPassword" placeholder="CURRENT PASSWORD" required>
+								<i class="bi bi-eye position-absolute" id="togglePassword4" style="right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: black"></i>
+							</div>
+							
 							NEW PASSWORD
-							<input class="form-control button-size" type="password" id="newPassword" placeholder="INSERT NEW PASSWORD" required>
+							<div class="mb-3 position-relative">
+								<input class="form-control button-size" type="password" id="newPassword" placeholder="INSERT NEW PASSWORD" required>
+								<i class="bi bi-eye position-absolute" id="togglePassword5" style="right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: black"></i>
+							</div>
+							
 							CONFIRM NEW PASSWORD
+							<div class="mb-3 position-relative">
 							<input class="form-control button-size" type="password" id="confirmNewPassword" placeholder="CONFIRM NEW PASSWORD" required>
-							<button class="btn btn-outline-custom button-size" type="button" id="resetPasswordBtn">CHANGE PASSWORD</button>
+								<i class="bi bi-eye position-absolute" id="togglePassword6" style="right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: black"></i>
+							</div>
+							<button class="btn btn-outline-custom button-size" type="submit" id="resetPasswordBtn">CHANGE PASSWORD</button>
 							<button class="btn btn-outline-secondary button-size" id="cancelChangePassword">CANCEL</button>
 						</div>
 					</form>

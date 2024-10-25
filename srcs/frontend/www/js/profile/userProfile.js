@@ -8,6 +8,8 @@ import { makePasswordProfilePage , toggleTwoFactorAuth } from "./profilePages.js
 import { resetPassword , checkTwoFactorStatus , deleteUser } from "../login/login.js";
 import chatSocketInstance from "../chat/chat_socket.js";
 import { changeChatLoaded } from "../home/home.js";
+import { showPassword } from "../utils/utils1.js";
+
 
 function userProfilePage(userData, user) {
 	const profilePageData = makeProfilePage(userData);
@@ -296,13 +298,19 @@ function displayChangePassword(username) {
 	const profilePassword = makePasswordProfilePage();
 	document.getElementById('mainContent').insertAdjacentHTML('afterbegin', profilePassword);
 
-	document.getElementById("resetPasswordBtn").addEventListener("click", function () {
+	document.getElementById("resetPasswordBtn").addEventListener("click", function (e) {
+		e.preventDefault();
 		resetPassword(username);
 	});
 
-	document.getElementById("cancelChangePassword").addEventListener("click", function () {
+	document.getElementById("cancelChangePassword").addEventListener("click", function (e) {
+		e.preventDefault();
 		navigateTo(`/user/${username}/settings`);
 	});
+	showPassword("togglePassword4", "currentPassword");
+	showPassword("togglePassword5", "newPassword");
+	showPassword("togglePassword6", "confirmNewPassword");
+
 }
 
 export { userProfilePage, displayFriendsList, displayProfileFriendsList, displayBlockedList, profileSettings , displayChangePassword , displayMatchHistory }
