@@ -408,7 +408,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	async def post_user_status(self, is_logged_in):
-		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/update_onlinestatus/"
+		url = f"https://nginx/api/profile/update_onlinestatus/"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
@@ -427,7 +427,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 	async def get_blocked_user_list(self):
-		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/blocked_list/"
+		url = f"https://nginx/api/profile/blocked_list/"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
@@ -450,7 +450,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		try:
 			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.post(
-					f"https://nginx:{os.getenv('NGINX_PORT')}/game/create-room/",
+					f"https://nginx/game/create-room/",
 					headers={
 						'Content-Type': 'application/json',
 						'Authorization': f'Bearer {game_accessToken}',

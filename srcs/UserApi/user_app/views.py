@@ -46,7 +46,7 @@ class FortyTwoConnectView(APIView):
             'client_id': clientId,
             'client_secret': os.getenv('42_SECRET'),
             'code': code,
-            'redirect_uri': f"https://{request.get_host()}:{os.getenv('NGINX_PORT')}/callback",
+            'redirect_uri': f"https://{request.get_host()}/callback",
         })
 
         data = response.json()
@@ -740,13 +740,14 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                     elif ratio < 0.67:
                         ratio = 0.67
                     if current_is_winner:
-                        points = 100 * ratio
+                        points = 50 * ratio
                     else:
-                        points = 100 * ratio * (-1)
+                        points = 50 * ratio * (-1)
+                    points = int(points)
                     if current_profile.pong_rank + points <= 0:
                         current_profile.pong_rank = 0
                     else:
-                        current_profile.pong_rank += round(points)
+                        current_profile.pong_rank += points
 
             # If the game type is "snake"
             else:
@@ -780,14 +781,14 @@ class UpdateMatchHistoryView(generics.GenericAPIView):
                     elif ratio < 0.67:
                         ratio = 0.67
                     if current_is_winner:
-                        points = 100 * ratio
+                        points = 50 * ratio
                     else:
-                        points = 100 * ratio * (-1)
+                        points = 50 * ratio * (-1)
+                    points = int(points)
                     if current_profile.snake_rank + points <= 0:
                         current_profile.snake_rank = 0
                     else:
-                        current_profile.snake_rank += round(points)
-
+                        current_profile.snake_rank += points
             current_profile.save()
 
             # Return success response

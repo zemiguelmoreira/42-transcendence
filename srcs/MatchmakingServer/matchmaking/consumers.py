@@ -193,7 +193,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
 
 	async def get_rankone(self):
-		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/{self.game}_rankings/"
+		url = f"https://nginx/api/profile/{self.game}_rankings/"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
@@ -216,7 +216,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 
 	async def get_user_xp(self):
-		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/get_user_profile/?username={self.user.username}"
+		url = f"https://nginx/api/profile/get_user_profile/?username={self.user.username}"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
@@ -238,7 +238,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 			return None
 
 	async def get_user_xp(self):
-		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/get_user_profile/?username={self.user.username}"
+		url = f"https://nginx/api/profile/get_user_profile/?username={self.user.username}"
 		headers = {
 			'Authorization': f'Bearer {self.token}',
 		}
@@ -310,7 +310,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		try:
 			async with httpx.AsyncClient(verify=False) as client:
 				response = await client.post(
-					f"https://nginx:{os.getenv('NGINX_PORT')}/game/create-room/",
+					f"https://nginx/game/create-room/",
 					headers={
 						'Content-Type': 'application/json',
 						'Authorization': f'Bearer {game_accessToken}',

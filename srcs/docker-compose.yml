@@ -33,7 +33,7 @@ services:
       - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
-      - "${NGINX_PORT}:443"
+      - "443:443"
     expose:
       - "80"
     depends_on:

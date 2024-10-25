@@ -180,7 +180,7 @@ class SnakeConsumer(AsyncWebsocketConsumer):
 	# others
 	async def save_match_history(self, match_data):
 		logger.info('Consumer: Save Match History Called\n')
-		url = f"https://nginx:{os.getenv('NGINX_PORT')}/api/profile/update_match_history/"
+		url = f"https://nginx/api/profile/update_match_history/"
 		headers = {
 			'Content-Type': 'application/json',
 			'Authorization': f'Bearer {self.token}',
