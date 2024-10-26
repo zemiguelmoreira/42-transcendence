@@ -71,22 +71,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_profile_image_url(self, obj):
         request = self.context.get('request')
-
-        # Verifica se o contexto tem uma URL de imagem fornecida pela API
-        # api_image_url = getattr(obj, 'api_image_url', None)
         api_image_url = obj.api_image_url
         if api_image_url and (obj.profile_image and obj.profile_image.name == 'default.jpg'):
             return api_image_url
 
         if obj.profile_image:
             url = request.build_absolute_uri(obj.profile_image.url)
-            # for 42 pcs
             parsed_url = urlparse(url)
-            new_netloc = f"{parsed_url.hostname}"
+            new_netloc = f"{parsed_url.hostname}:8443"
             new_url = urlunparse(('https', new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment))
             return new_url
-
-            #return url.replace('http://', 'https://') # replace for 42
         return None
 
     def validate_profile_image(self, value):

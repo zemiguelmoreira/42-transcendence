@@ -378,15 +378,16 @@ function snakeGameRemote(username) {
 			game: "snake"
 		});
 
-		matchmakingSocketSnake.send(data);
 		if (matchmakingSocketSnake && matchmakingSocketSnake.readyState !== WebSocket.CLOSED) {
+			matchmakingSocketSnake.send(data);
 			matchmakingSocketSnake.close();
 			console.log('Matchmaking WebSocket connection closed.');
 		}
 
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
-			document.getElementById('snakePopup').remove();
+			if (document.getElementById('snakePopup'))
+				document.getElementById('snakePopup').remove();
 			navigateTo(`/user/${username}/snake`);
 		}, 1000);
 	});

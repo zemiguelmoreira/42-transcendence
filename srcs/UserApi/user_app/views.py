@@ -46,7 +46,7 @@ class FortyTwoConnectView(APIView):
             'client_id': clientId,
             'client_secret': os.getenv('42_SECRET'),
             'code': code,
-            'redirect_uri': f"https://{request.get_host()}/callback",
+            'redirect_uri': f"https://{request.get_host()}:8443/callback",
         })
 
         data = response.json()

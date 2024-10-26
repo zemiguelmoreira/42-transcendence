@@ -199,8 +199,8 @@ function pongGameRemote(username) {
 			game: "pong"
 		});
 
-		matchmakingSocketPong.send(data);
 		if (matchmakingSocketPong && matchmakingSocketPong.readyState !== WebSocket.CLOSED) {
+			matchmakingSocketPong.send(data);
 			matchmakingSocketPong.close();
 			matchmakingSocketPong = null;
 			console.log("Matchmaking socket closed.");
@@ -208,7 +208,8 @@ function pongGameRemote(username) {
 
 		document.getElementById('status').innerText = "CANCELLING MATCHMAKING...";
 		setTimeout(() => {
-			document.getElementById('pongPopup').remove();
+			if (document.getElementById('pongPopup'))
+				document.getElementById('pongPopup').remove();
 			navigateTo(`/user/${username}/pong`);
 		}, 1000)
 	});
