@@ -4,9 +4,9 @@ services:
     build: ./frontend
     container_name: frontend
     image: frontend:42
-    volumes:
-      - frontend-data:/usr/share/nginx/html:ro
-      - frontend-conf:/etc/nginx/conf.d:ro
+    # volumes:
+    #   - frontend-data:/usr/share/nginx/html:ro
+    #   - frontend-conf:/etc/nginx/conf.d:ro
     init: true
     expose:
       - "80"
@@ -29,8 +29,8 @@ services:
     build: ./nginx
     container_name: nginx
     image: nginx:42
-    volumes:
-      - nginx-conf:/etc/nginx/conf.d:ro
+    # volumes:
+    #   - nginx-conf:/etc/nginx/conf.d:ro
     init: true
     ports:
       - "443:443"
@@ -55,8 +55,8 @@ services:
     build: ./UserApi
     container_name: userapi
     image: userapi:42
-    volumes:
-      - user-app:/usr/src/app
+    # volumes:
+    #   - user-app:/usr/src/app
     init: true
     expose:
       - "8000"
@@ -80,8 +80,8 @@ services:
     build: ./GameServer
     container_name: gameserver
     image: gameserver:42
-    volumes:
-      - game-app:/usr/src/app
+    # volumes:
+    #   - game-app:/usr/src/app
     init: true
     expose:
       - "8001"
@@ -99,8 +99,8 @@ services:
     build: ./ChatServer
     container_name: chatserver
     image: chatserver:42
-    volumes:
-      - chat-app:/usr/src/app
+    # volumes:
+    #   - chat-app:/usr/src/app
     init: true
     expose:
       - "8002"
@@ -118,8 +118,8 @@ services:
     build: ./MatchmakingServer
     container_name: matchmakingserver
     image: matchmakingserver:42
-    volumes:
-      - matchmaking-app:/usr/src/app
+    # volumes:
+    #   - matchmaking-app:/usr/src/app
     init: true
     expose:
       - "8003"
@@ -174,62 +174,62 @@ services:
       - backend-net
 
 volumes:
-  nginx-conf:
-    name: nginx-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./nginx/conf
-      o: bind
-  frontend-data:
-    name: frontend-data
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend/www
-      o: bind
-  frontend-conf:
-    name: frontend-conf
-    driver: local
-    driver_opts:
-      type: none
-      device: ./frontend/conf
-      o: bind
-  user-app:
-    name: user-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./UserApi
-      o: bind
-  chat-app:
-    name: chat-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./ChatServer
-      o: bind
-  matchmaking-app:
-    name: matchmaking-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./MatchmakingServer
-      o: bind
-  game-app:
-    name: game-app
-    driver: local
-    driver_opts:
-      type: none
-      device: ./GameServer
-      o: bind
+  # nginx-conf:
+  #   name: nginx-conf
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./nginx/conf
+  #     o: bind
+  # frontend-data:
+  #   name: frontend-data
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./frontend/www
+  #     o: bind
+  # frontend-conf:
+  #   name: frontend-conf
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./frontend/conf
+  #     o: bind
+  # user-app:
+  #   name: user-app
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./UserApi
+  #     o: bind
+  # chat-app:
+  #   name: chat-app
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./ChatServer
+  #     o: bind
+  # matchmaking-app:
+  #   name: matchmaking-app
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./MatchmakingServer
+  #     o: bind
+  # game-app:
+  #   name: game-app
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ./GameServer
+  #     o: bind
   postgres-data:
     name: postgres-data
     driver: local
-    driver_opts:
-      type: none
-      device: ${SQL_PATH}
-      o: bind
+    # driver_opts:
+    #   type: none
+    #   device: ${SQL_PATH}
+    #   o: bind
 
 networks:
   transcendence-net:
