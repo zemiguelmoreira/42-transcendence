@@ -64,13 +64,18 @@ class WebSocketService {
 				handleInviteResponse(username, data, this.chatLog);
 			} else if (data.online_users) {
 				updateOnlineUsersList(username, data.online_users);
-				// console.log('data.online_users: ', data.online_users);
+				console.log('data.online_users: ', data.online_users);
 				// console.log('location: ', window.location.pathname);
 				if (window.location.pathname === `/user/${username}/profile`) {
-					displayProfileFriendsList(username);
+					console.log ('actualizar users online profile.');
+					setTimeout(function() {
+						displayProfileFriendsList(username);
+					}, 1000); //tentativa de corrigir porque pode haver problemas a desligar a socket pelo  - ou seja o user desligava e mostrava online apesar do array estar correto
 				}
 				else if (window.location.pathname === `/user/${username}/settings`) {
-					displayFriendsList(username, true);
+					setTimeout(function() {
+						displayFriendsList(username, true);
+					}, 1000);
 				}
 			} else if (data.room) {
 				getRoomCode(username, data);

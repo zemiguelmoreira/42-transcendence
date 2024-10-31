@@ -811,14 +811,41 @@ class PongRankingListView(APIView):
 
         pong_rankings = UserProfile.objects.order_by('-pong_rank', 'user__username').select_related('user')
 
+        # for profile in pong_rankings:
+        #     profile_data = vars(profile)  # Converte o UserProfile em um dicionário
+        #     user_data = vars(profile.user)  # Converte o User relacionado em um dicionário
+            
+        #     logger.info(f'UserProfile data: {profile_data}')  # Exibe todos os atributos de UserProfile
+        #     logger.info(f'User data: {user_data}')
+
+        serializer = UserProfileSerializer(pong_rankings, many=True, context={'request': request})
+        user_data = serializer.data # só preenche a profile_image_url quando chamamos o serializer
+
+        logger.info(f'User data pong: {user_data}')
+
+        # response_data = [
+        #     {
+        #         'username': profile.user.username,
+        #         'pong_rank': profile.pong_rank,
+        #         'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url
+        #     }
+        #     for profile in pong_rankings
+        # ]
+
         response_data = [
             {
-                'username': profile.user.username,
-                'pong_rank': profile.pong_rank,
-                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url
+                'username': profile['user'],
+                'alias_name': profile['alias_name'],
+                'pong_rank': profile['pong_rank'],
+                'profile_image_url': profile['profile_image_url']
             }
-            for profile in pong_rankings
+            for profile in user_data
         ]
+
+        for profile in response_data:
+            user_id = profile['username']  # Este é o ID do usuário
+            user = User.objects.get(id=user_id)  # Busque o usuário correspondente
+            profile['username'] = user.username
 
         return Response({'pong_rankings': response_data}, status=status.HTTP_200_OK)
 
@@ -828,14 +855,38 @@ class SnakeRankingListView(APIView):
     def get(self, request, *args, **kwargs):
         snake_rankings = UserProfile.objects.order_by('-snake_rank', 'user__username').select_related('user')
 
+        serializer = UserProfileSerializer(snake_rankings, many=True, context={'request': request})
+        user_data = serializer.data
+
+        # response_data = [
+        #     {
+        #         'username': profile.user.username,
+        #         'snake_rank': profile.snake_rank,
+        #         # 'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url
+        #         'profile_image_url': profile.profile_image.url
+        #     }
+        #     for profile in snake_rankings
+        # ]
+
+        logger.info(f'User data no snake: {user_data}')
+
         response_data = [
             {
-                'username': profile.user.username,
-                'snake_rank': profile.snake_rank,
-                'profile_image_url': profile.api_image_url if profile.api_image_url else profile.profile_image.url
+                'username': profile['user'],
+                'alias_name': profile['alias_name'],
+                'snake_rank': profile['snake_rank'],
+                'profile_image_url': profile['profile_image_url']
             }
-            for profile in snake_rankings
+            for profile in user_data
         ]
+
+        for profile in response_data:
+            user_id = profile['username']  # Este é o ID do usuário
+            user = User.objects.get(id=user_id)  # Busque o usuário correspondente
+            profile['username'] = user.username
+
+
+
         return Response({'snake_rankings': response_data}, status=status.HTTP_200_OK)
 
 
